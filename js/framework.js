@@ -28,7 +28,8 @@ var Params = {
                     for (i=0; i<scripts.length; i++) {
                       var url = scripts[i].getAttribute("src");
                       if(!url) continue;
-                      if(scripts[i].getAttribute("class")=="ownscript"){
+                      aclass=scripts[i].getAttribute("class");
+                      if(aclass=="ownscript"){
                       scripts[i].parentNode.removeChild(scripts[i]);
                       }
                     }
@@ -108,14 +109,14 @@ document.onreadystatechange = function() {
   }
   if (getCookie("prometTheme")!=null) {
     Params.Theme = getCookie("prometTheme");
-    appendSheet("themes/"+Params.Theme+"/theme.css");
+    appendSheet("base/themes/"+Params.Theme+"/theme.css");
   }
   else {
   if (navigator.userAgent.match(/webOS/i) ||
       navigator.userAgent.match(/Windows Phone/i) ||
       navigator.userAgent.match(/BlackBerry/) ||
       navigator.userAgent.match(/ZuneWP7/i)
-     ){ appendSheet("themes/jqt/theme.css");}
+     ){ appendSheet("base/themes/jqt/theme.css");}
   else if (
       navigator.userAgent.match(/Android/i)
       ) {appendSheet("base/themes/android/theme.css");}
