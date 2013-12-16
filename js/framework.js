@@ -161,9 +161,22 @@ function ConnectionOK(){
   OnConnected();
   DoGet("http://"+Params.Server+"/?action=checklogin&random="+encodeURIComponent(Math.random()));
 }
+function IsConnectionOK(){
+  return FConnectionOK;
+}
 function DoLogout(){
   DoGet("http://"+Params.Server+"/?action=logout&random="+encodeURIComponent(Math.random()));
   OnDisconnected();
   OnConnected();
 }
-
+function GetList(aName,aCallback){
+  OnHandleList = aCallback;
+  DoGet("http://"+Params.Server+"/?action=list&name="+aName+"&random="+encodeURIComponent(Math.random()), true);
+  ListTimer = window.setTimeout("DoHandleList()",500);
+}
+function DoHandleList(aData) {
+  window.clearTimeout(ListTimer);
+  if (OnHandleList != null)
+    OnHandleList(aData);
+  OnhandleList = null;
+}
