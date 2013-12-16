@@ -22,8 +22,9 @@ var Params = {
                 mainDiv.style.display="block";
                 var ob = mainDiv.getElementsByTagName("script");
                 for(var i=0; i<ob.length; i++){
-                  if(ob[i].text!=null){
+                  if(ob[i]){
                     var ascript = ob[i].text;
+                    var asrc = ob[i].src;
                     var scripts = document.getElementsByTagName("script");
                     for (i=0; i<scripts.length; i++) {
                       var url = scripts[i].getAttribute("src");
@@ -36,6 +37,7 @@ var Params = {
                   // Anlegen und Einfügen des neuen Skripts
                   var script = document.createElement("script");
                   script.text=ascript;
+                  if (asrc != "") script.src = asrc;
                   script.setAttribute("type", "text/javascript");
                   script.setAttribute("class", "ownscript");
                   document.body.appendChild(script);
