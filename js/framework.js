@@ -169,10 +169,10 @@ function DoLogout(){
   OnDisconnected();
   OnConnected();
 }
-function GetList(aName,aCallback){
+function GetList(aName,aFilter,aCallback){
   OnHandleList = aCallback;
-  DoGet("http://"+Params.Server+"/?action=list&name="+aName+"&random="+encodeURIComponent(Math.random()), true);
-  ListTimer = window.setTimeout("DoHandleList()",500);
+  DoGet("http://"+Params.Server+"/?action=list&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&random="+encodeURIComponent(Math.random()), true);
+  ListTimer = window.setTimeout("DoHandleList()",5000);
 }
 function DoHandleList(aData) {
   window.clearTimeout(ListTimer);
