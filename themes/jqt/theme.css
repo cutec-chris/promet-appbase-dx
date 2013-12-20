@@ -64,7 +64,7 @@ body.landscape .toolbar > h1 {
 }
 .blueButton {
     -webkit-border-image: url(img/blueButton.png) 0 5 0 5;
-    -moz-border-image: url(img/blueButton.png) fill 0 5 0 5;
+    -moz-border-image: url(img/blueButton.png) 0 15 1 10 fill;
     border-width: 0 5px;
 }
 .back {
