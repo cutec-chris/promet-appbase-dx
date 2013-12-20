@@ -4,13 +4,11 @@ var Params = {
   }
 
   function loadPage(link){
-    if (link == "index.html")
-      {
+    if (link == "index.html") {
         document.getElementsByTagName('nav')[0].style.display="block";
         document.getElementById('main').style.display="none";
       }
-    else
-      {
+    else {
         var request =  new XMLHttpRequest();
         request.onreadystatechange = function() {
           if (request.readyState == 4) {
@@ -44,8 +42,10 @@ var Params = {
                   }
                 }
               }
-            else
-              console.log('failed to fetch Page '+link+' '+request.status);
+            else {
+                console.log('failed to fetch Page '+link+' '+request.status);
+                document.querySelector('#pages-not-supported').style.display="block";
+              }
           }
           };
         request.open('get', link, true);
@@ -169,14 +169,52 @@ function DoLogout(){
   OnDisconnected();
   OnConnected();
 }
-function GetList(aName,aFilter,aCallback){
-  OnHandleList = aCallback;
-  DoGet("http://"+Params.Server+"/?action=list&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&random="+encodeURIComponent(Math.random()), true);
-  ListTimer = window.setTimeout("DoHandleList()",5000);
+function GetList(aName,aFilter,aSequence,aCallback){
+  var request =  new XMLHttpRequest();
+  request.onreadystatechange = function() {
+    if (request.readyState == 4) {
+      if ((request.status == 200)||(request.status == 0)) {
+          aCallback(aSequence,request.response);
+        }
+      else {
+          console.log('failed to fetch List '+aSequence+' '+aName+' trying to attatch jsonp script');
+          OnHandleList = aCallback;
+          DoGet("http://"+Params.Server+"/?action=list&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&random="+encodeURIComponent(Math.random()), true);
+          ListTimer = window.setTimeout("DoHandleList("+aSequence+",[])",2000);
+        }
+     }
+    };
+  request.open('get', link, true);
+  request.send(null);
 }
-function DoHandleList(aData) {
+function DoHandleList(aSequence,aData) {
   window.clearTimeout(ListTimer);
   if (OnHandleList != null)
-    OnHandleList(aData);
-  OnhandleList = null;
+    OnHandleList(aSequence,aData);
+  OnHandleList = null;
 }
+function GetObject(aName,aId,aSequence,aCallback){
+  var request =  new XMLHttpRequest();
+  request.onreadystatechange = function() {
+    if (request.readyState == 4) {
+      if ((request.status == 200)||(request.status == 0)) {
+          aCallback(aSequence,request.response);
+        }
+      else {
+          console.log('failed to fetch List '+aSequence+' '+aName+' trying to attatch jsonp script');
+          OnHandleObject = aCallback;
+          DoGet("http://"+Params.Server+"/?action=object&name="+encodeURIComponent(aName)+"&id="+encodeURIComponent(aId)+"&random="+encodeURIComponent(Math.random()), true);
+          ObjectTimer = window.setTimeout("DoHandleList("+aSequence+",[])",2000);
+        }
+     }
+    };
+  request.open('get', link, true);
+  request.send(null);
+}
+function DoHandleObject(aSequence,aData) {
+  window.clearTimeout(ListTimer);
+  if (OnHandleObject != null)
+    OnHandleObject(aSequence,aData);
+  OnHandleObject = null;
+}
+
