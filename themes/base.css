@@ -1,6 +1,5 @@
-.loginButton {
-}
-.optionsButton {
+.trayButton {
+  font-size:26px !importand;
 }
 #pages-not-supported {
   background-color:#cc3333;
