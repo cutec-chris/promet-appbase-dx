@@ -4,7 +4,8 @@ var Params = {
   }
 
   function loadPage(link){
-    if (link == "index.html") {
+    var slink = link.substr(link.lastIndexOf("/")+1,link.length);
+    if (slink == "index.html") {
         document.getElementsByTagName('nav')[0].style.display="block";
         document.getElementById('main').style.display="none";
       }
@@ -12,9 +13,9 @@ var Params = {
         var request =  new XMLHttpRequest();
         request.onreadystatechange = function() {
           if (request.readyState == 4) {
-            if ((request.status == 200)||(request.status == 0))
+            var mainDiv = document.getElementById('main');
+            if ((request.status == 200)||((request.status == 0)&&(request.response)))
               {
-                var mainDiv = document.getElementById('main');
                 mainDiv.innerHTML = request.response;
                 hideLoading();
                 mainDiv.style.display="block";
@@ -43,8 +44,10 @@ var Params = {
                 }
               }
             else {
+                mainDiv.innerHTML = "<div class=\"toolbar\"><h1>Fehler</h1></div><div class=\"content\"><div id=\"pages-not-supported\">Die Seite konnte nicht geladen werden, warscheinlich unterstützt Ihr Gerät keine dynamischen Anfragen</div></div>";
+                hideLoading();
+                mainDiv.style.display="block";
                 console.log('failed to fetch Page '+link+' '+request.status);
-                document.querySelector('#pages-not-supported').style.display="block";
               }
           }
           };
@@ -135,7 +138,9 @@ document.onreadystatechange = function() {
   window.onpopstate = function(event) {
     var url = document.location;
     var sharp = String(url).indexOf("#")+1;
-    loadPage(String(url).substr(sharp,String(url).length)+'.html');
+    var link = String(url).substr(sharp,String(url).length);
+    if (link.indexOf(".html")==-1) link = link+".html";
+    loadPage(link);
   };
   var links = document.getElementsByTagName('a');
   for (var i=0; i < links.length; i++){
@@ -159,7 +164,20 @@ function ConnectionOK(){
   window.clearTimeout(ConnTestTimer);
   FConnectionOK = true;
   OnConnected();
-  DoGet("http://"+Params.Server+"/?action=checklogin&random="+encodeURIComponent(Math.random()));
+  var link = "http://"+Params.Server+"/?action=checklogin&random="+encodeURIComponent(Math.random());
+  var request =  new XMLHttpRequest();
+  request.onreadystatechange = function() {
+    if (request.readyState == 4) {
+      if ((request.status == 200)||(request.status == 0)) {
+          IsConnectionOK();
+        }
+      else {
+          DoGet(link);
+        }
+     }
+    };
+  request.open('get', link, true);
+  request.send(null);
 }
 function IsConnectionOK(){
   return FConnectionOK;
@@ -170,6 +188,7 @@ function DoLogout(){
   OnConnected();
 }
 function GetList(aName,aFilter,aSequence,aCallback){
+  var link = "http://"+Params.Server+"/?action=list&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&random="+encodeURIComponent(Math.random());
   var request =  new XMLHttpRequest();
   request.onreadystatechange = function() {
     if (request.readyState == 4) {
@@ -179,7 +198,7 @@ function GetList(aName,aFilter,aSequence,aCallback){
       else {
           console.log('failed to fetch List '+aSequence+' '+aName+' trying to attatch jsonp script');
           OnHandleList = aCallback;
-          DoGet("http://"+Params.Server+"/?action=list&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&random="+encodeURIComponent(Math.random()), true);
+          DoGet(link , true);
           ListTimer = window.setTimeout("DoHandleList("+aSequence+",[])",2000);
         }
      }
@@ -194,6 +213,7 @@ function DoHandleList(aSequence,aData) {
   OnHandleList = null;
 }
 function GetObject(aName,aId,aSequence,aCallback){
+  var link = "http://"+Params.Server+"/?action=object&name="+encodeURIComponent(aName)+"&id="+encodeURIComponent(aId)+"&random="+encodeURIComponent(Math.random());
   var request =  new XMLHttpRequest();
   request.onreadystatechange = function() {
     if (request.readyState == 4) {
@@ -203,7 +223,7 @@ function GetObject(aName,aId,aSequence,aCallback){
       else {
           console.log('failed to fetch List '+aSequence+' '+aName+' trying to attatch jsonp script');
           OnHandleObject = aCallback;
-          DoGet("http://"+Params.Server+"/?action=object&name="+encodeURIComponent(aName)+"&id="+encodeURIComponent(aId)+"&random="+encodeURIComponent(Math.random()), true);
+          DoGet(link, true);
           ObjectTimer = window.setTimeout("DoHandleList("+aSequence+",[])",2000);
         }
      }
