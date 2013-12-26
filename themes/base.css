@@ -1,5 +1,8 @@
-.trayButton {
-  font-size:26px !importand;
+#systray {
+  text-align: right;
+}
+#systray > .toolbutton {
+  font-size:22px;
 }
 #pages-not-supported {
   background-color:#cc3333;

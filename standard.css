@@ -27,8 +27,7 @@ nav>.content {
   position: absolute;
   right: 0px;
   left: 200px;
-  padding-bottom: 800px;
-  min-height: 100%;
+  min-height: 80%;
   height: auto;
   z-index: 10;
 }
