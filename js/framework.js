@@ -2,10 +2,13 @@ var Params = {
   Server: "localhost:8086",
   Theme:""
   }
+var BasePath = "";
 
   function loadPage(link){
     var slink = link.substr(link.lastIndexOf("/")+1,link.length);
     if (slink == "index.html") {
+        var alink = document.location.href;
+        BasePath = alink.substr(0,alink.lastIndexOf("/")+1);
         document.getElementsByTagName('nav')[0].style.display="block";
         document.getElementById('main').style.display="none";
       }
@@ -44,9 +47,7 @@ var Params = {
                 }
               }
             else {
-                mainDiv.innerHTML = "<div class=\"toolbar\"><h1>Fehler</h1></div><div class=\"content\"><div id=\"pages-not-supported\">Die Seite konnte nicht geladen werden, warscheinlich unterstützt Ihr Gerät keine dynamischen Anfragen</div></div>";
-                hideLoading();
-                mainDiv.style.display="block";
+                document.location = BasePath+"index.html";
                 console.log('failed to fetch Page '+link+' '+request.status);
               }
           }
