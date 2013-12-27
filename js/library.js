@@ -28,7 +28,7 @@ function DoGet(aurl){
 function setCookie(Name,Value,ExpirationDays){
   var ExpirationDate=new Date();
   ExpirationDate.setDate(ExpirationDate.getDate() + ExpirationDays);
-  var c_value=escape(value) + ((ExpirationDays==null) ? "" : "; expires="+ExpirationDate.toUTCString());
+  var c_value=escape(Value) + ((ExpirationDays==null) ? "" : "; expires="+ExpirationDate.toUTCString());
   document.cookie=Name + "=" + c_value;
 }
 function getCookie(Name){

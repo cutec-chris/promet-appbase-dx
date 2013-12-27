@@ -5,6 +5,10 @@
   right:0px !important;
   z-index: 1;
 }
+.toolbar > h1 {
+    position: absolute;
+    left: 120px;
+}
 .content {
   margin-top: 55px;
   position: absolute;

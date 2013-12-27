@@ -119,6 +119,9 @@ h1, h2 {
     -webkit-border-image: url(img/back_button.png) 0 8 0 14;
     -moz-border-image: url(img/back_button.png) fill 0 8 0 14;
 }
+.back:after {
+    content: "zurück";
+}
 .back.active {
     -webkit-border-image: url(img/back_button_clicked.png) 0 8 0 14;
     -moz-border-image: url(img/back_button_clicked.png) fill 0 8 0 14;

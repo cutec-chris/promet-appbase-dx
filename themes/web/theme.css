@@ -3,3 +3,7 @@ body {
     color: #ddd;
     font-family: Exo;
 }
+.back:after {
+    content: "zurück";
+}
+

@@ -20,6 +20,7 @@ h1, h2, h3, h4, h5, h6
     overflow: hidden;
     border-left-width: 0;
     border-right-width: 0;
+    height: 55px;
 }
 .black-translucent .toolbar {
 	margin-top: 20px;
@@ -45,6 +46,7 @@ body.landscape .toolbar > h1 {
 .toolbutton,.button,.back,.cancel,.add {
     background: none;
     text-align: center;
+    vertical-align:middle;
     cursor: pointer;
     height: 16px;
     position: relative;
@@ -70,9 +72,13 @@ body.landscape .toolbar > h1 {
 .back {
     left: 6px;
     right: auto;
-    padding: 0;
+    padding-top: 5px;
     max-width: 55px;
-    border-width: 0 8px 0 14px;
+    top:6px;
+    height: 26px;
+}
+.back:after {
+    content: "zurück";
 }
 .back.active {
     color: #aaa;

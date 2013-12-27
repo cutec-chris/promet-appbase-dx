@@ -92,6 +92,9 @@ body.landscape .toolbar > h1 {
     -webkit-border-image: url(img/backButton.png) 0 8 0 14;
     -moz-border-image: url(img/backButton.png) 0 0 0 0 fill;
 }
+.back:after {
+    content: "zurück";
+}
 
 .leftButton, .cancel {
     left: 6px;

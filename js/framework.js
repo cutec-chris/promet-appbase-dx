@@ -85,7 +85,6 @@ var BasePath = "";
         link=document.createElement('a');
       link.href="#index";
       link.className="back";
-      link.innerHTML="zurück";
       link.addEventListener('click',LinkClicked);
       link.style.display="block";
       if (document.getElementsByClassName('toolbar')[1] != null)
@@ -100,39 +99,45 @@ var BasePath = "";
     }
     hideAddressBar();
   };
-
-
+  function switchTheme(){
+    function appendSheet(href){
+      var sheet = document.getElementById("theme")
+      if (sheet)
+        sheet.parentNode.removeChild(sheet);
+      link=document.createElement('link');
+      link.href=href;
+      link.id="theme"
+      link.rel="stylesheet";
+      link.type="text/css";
+      document.getElementsByTagName('head')[0].appendChild(link);
+    }
+    if ((getCookie("prometTheme")!=null)||(Params.Theme!="")) {
+      if (getCookie("prometTheme")!=null)
+        Params.Theme = getCookie("prometTheme");
+      appendSheet("base/themes/"+Params.Theme+"/theme.css");
+    }
+    else {
+    if (navigator.userAgent.match(/webOS/i) ||
+        navigator.userAgent.match(/Windows Phone/i) ||
+        navigator.userAgent.match(/BlackBerry/) ||
+        navigator.userAgent.match(/ZuneWP7/i)
+       ){ appendSheet("base/themes/jqt/theme.css");}
+    else if (
+        navigator.userAgent.match(/Android/i)
+        ) {appendSheet("base/themes/android/theme.css");}
+    else if (
+        navigator.userAgent.match(/iPhone/i) ||
+        navigator.userAgent.match(/iPod/i) ||
+        navigator.userAgent.match(/iPad/i)
+        ){appendSheet("base/themes/apple/theme.css");}
+    else { appendSheet("base/themes/jqt/theme.css"); }
+    }
+  }
 document.onreadystatechange = function() {
   if (document.readyState === 'complete'){
   if (getCookie("prometServer")!=null)
     Params.Server = getCookie("prometServer");
-  function appendSheet(href){
-    link=document.createElement('link');
-    link.href=href;
-    link.rel="stylesheet";
-    link.type="text/css";
-    document.getElementsByTagName('head')[0].appendChild(link);
-  }
-  if (getCookie("prometTheme")!=null) {
-    Params.Theme = getCookie("prometTheme");
-    appendSheet("base/themes/"+Params.Theme+"/theme.css");
-  }
-  else {
-  if (navigator.userAgent.match(/webOS/i) ||
-      navigator.userAgent.match(/Windows Phone/i) ||
-      navigator.userAgent.match(/BlackBerry/) ||
-      navigator.userAgent.match(/ZuneWP7/i)
-     ){ appendSheet("base/themes/jqt/theme.css");}
-  else if (
-      navigator.userAgent.match(/Android/i)
-      ) {appendSheet("base/themes/android/theme.css");}
-  else if (
-      navigator.userAgent.match(/iPhone/i) ||
-      navigator.userAgent.match(/iPod/i) ||
-      navigator.userAgent.match(/iPad/i)
-      ){appendSheet("base/themes/apple/theme.css");}
-  else { appendSheet("base/themes/jqt/theme.css"); }
-  }
+  switchTheme();
   window.addEventListener("resize",function(){hideLoading();});
   window.addEventListener("load",function(){hideAddressBar();});
   window.addEventListener("orientationchange",function(){hideLoading();});
