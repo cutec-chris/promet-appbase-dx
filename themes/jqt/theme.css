@@ -97,6 +97,9 @@ body.landscape .toolbar > h1 {
 }
 .button,
 .whiteButton,
+.redButton,
+.greenButton,
+.blueButton,
 .grayButton {
     display: block;
     border-width: 0 12px;
@@ -117,6 +120,19 @@ body.landscape .toolbar > h1 {
     -webkit-border-image: url(img/grayButton.png) 0 12 0 12;
     -moz-border-image: url(img/grayButton.png) fill 0 12 0 12;
     color: #FFFFFF;
+}
+.redButton {
+    -webkit-border-image: url(img/redButton.png) 0 12 0 12;
+    -moz-border-image: url(img/redButton.png) fill 0 12 0 12;
+}
+
+.greenButton {
+    -webkit-border-image: url(img/greenButton.png) 0 12 0 12;
+    -moz-border-image: url(img/greenButton.png) fill 0 12 0 12;
+}
+.blueButton {
+    -webkit-border-image: url(img/blueButton.png) 0 12 0 12;
+    -moz-border-image: url(img/blueButton.png) fill 0 12 0 12;
 }
 /* @end */
 /* @group Lists */
@@ -252,7 +268,14 @@ ul.form li.error {
 ul.form li.error + li.error {
     border-top: 0;
 }
-input[type="text"], input[type="password"], textarea, ul li select {
+ul li input[type="text"],
+ul li input[type="password"],
+ul li input[type="tel"],
+ul li input[type="number"],
+ul li input[type="search"],
+ul li input[type="email"],
+ul li input[type="url"],
+textarea, ul li select {
     color: #777;
     border: 0;
     background: #333;
@@ -263,7 +286,14 @@ input[type="text"], input[type="password"], textarea, ul li select {
     width: 100%;
     -webkit-appearance: textarea;
 }
-ul li input[type="text"],ul li input[type="password"],ul li textarea, ul li select {
+ul li input[type="text"],
+ul li input[type="password"],
+ul li input[type="tel"],
+ul li input[type="number"],
+ul li input[type="search"],
+ul li input[type="email"],
+ul li input[type="url"],
+ul li textarea, ul li select {
     background: transparent url(../.png);
 }
 ul li textarea {
@@ -278,11 +308,13 @@ ul li select {
     margin-left: -6px;
     width: 104%;
 }
-ul li input[type="checkbox"], ul li input[type="radio"] {
+ul li input[type="checkbox"],
+ul li input[type="radio"] {
     margin: 0;
     padding: 10px 10px;
 }
-ul li input[type="checkbox"]:after, ul li input[type="radio"]:after {
+ul li input[type="checkbox"]:after,
+ul li input[type="radio"]:after {
     content: attr(title);
     font: 17px Helvetica;
     display: block;
