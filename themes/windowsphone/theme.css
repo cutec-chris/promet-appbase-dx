@@ -95,21 +95,37 @@ body.landscape .toolbar > h1 {
 .button,
 .whiteButton,
 .grayButton,
+.redButton,
+.greenButton,
 .blueButton {
     display: block;
     padding: 10px;
     text-align: center;
     font-size: 20px;
+    text-decoration: none;
+    color: black;
 }
 .button,
 .whiteButton {
     text-shadow: rgba(255, 255, 255, 0.7) 0 1px 0;
+    border-color: black;
+    border: 2px solid;
 }
 .grayButton {
-    color: #FFFFFF;
+    border-color: black;
+    border: 2px solid;
 }
 .blueButton {
     background-color: #7777FF;
+    color: white;
+}
+.redButton {
+    background-color: #FF7777;
+    color: white;
+}
+.greenButton {
+    background-color: #77FF77;
+    color: white;
 }
 
 /* @end */
@@ -148,7 +164,6 @@ ul li {
     overflow: hidden;
 }
 ul li.arrow {
-    background-image: url(img/chevron.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#4c4d4e), to(#404142));
     background-position: right center;
     background-repeat: no-repeat;
 }
@@ -223,7 +238,9 @@ ul li a + a {
     margin: 0;
     padding: 0;
 }
-ul li a + a + a, ul li.img a + a + a + a, ul li.img a + small + a + a + a {
+ul li a + a + a,
+ul li.img a + a + a + a,
+ul li.img a + small + a + a + a {
     color: #666;
     font: 13px Helvetica;
     margin: 0;
@@ -251,10 +268,24 @@ input, textarea {
     width: 100%;
 }
 textarea { height: 50px; transition: height 200ms linear; }
-input[type="text"]:focus,
-input[type="text"]:active,
-textarea:focus,
-textarea:active {
+ul li input[type="text"]:focus,
+ul li input[type="text"]:active,
+ul li input[type="password"]:active,
+ul li input[type="tel"]:active,
+ul li input[type="number"]:active,
+ul li input[type="search"]:active,
+ul li input[type="email"]:active,
+ul li input[type="url"]:active,
+ul li input[type="password"]:focus,
+ul li input[type="tel"]:focus,
+ul li input[type="number"]:focus,
+ul li input[type="search"]:focus,
+ul li input[type="email"]:focus,
+ul li input[type="url"]:focus,
+ul li textarea:focus,
+ul li textarea:active,
+ul li select:active,
+ul li select:focus {
     border: 1px solid;
     background: transparent;
 }
@@ -262,10 +293,17 @@ input[disabled="disabled"],
 textarea[disabled="disabled"]{
     border: 2px solid #808080 ;
 }
-input[type="text"], input[type="password"], textarea, ul li select {
+ul li input[type="text"],
+ul li input[type="password"],
+ul li input[type="tel"],
+ul li input[type="number"],
+ul li input[type="search"],
+ul li input[type="email"],
+ul li input[type="url"],
+ul li textarea,
+ul li select {
     border-radius: .6em;
     background-color: #BFBFBF;
-    height: 16px;
     border-radius: 0;
     border: 1px solid #BFBFBF;
     color: #3e3e3e;
@@ -287,16 +325,20 @@ ul li textarea {
 }
 ul li select {
     text-indent: 0px;
-    background: transparent url(img/chevron.png) no-repeat right center;
+    background: url(img/chevron.png) no-repeat right center;
+    background-color: #BFBFBF;
     -webkit-appearance: textfield;
     margin-left: -6px;
+    height: auto;
     width: 104%;
 }
-input[type="checkbox"], input[type="radio"] {
+input[type="checkbox"],
+input[type="radio"] {
     margin: 0;
     padding: 10px 10px;
 }
-input[type="checkbox"]:after, input[type="radio"]:after {
+input[type="checkbox"]:after,
+input[type="radio"]:after {
     content: attr(title);
     font: 17px Helvetica;
     display: block;
