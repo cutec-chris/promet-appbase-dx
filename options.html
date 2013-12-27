@@ -1,0 +1,43 @@
+<html>
+<body>
+  <div class="toolbar">
+    <h1>Optionen</h1>
+  </div>
+  <div class="content">
+    <ul class="edit">
+      <li>
+        <h2>Thema</h2>
+      </li>
+      <li>
+        <select id="themeSelector">
+          <optgroup label="Mobile">
+            <option value="android3">Android 3+</option>
+            <option value="apple">iOS</option>
+            <option value="windowsphone">Windows Phone</option>
+            <option value="android2">Android 2</option>
+          </optgroup>
+        <option value="web">Web</option>
+        <option value="jqt">jQueryTouch</option>
+        </select>
+      </li>
+      <li>
+        <h2>Farbe</h2>
+      </li>
+      <li>
+        <input name="color" value="light" title="Hell" type="radio">
+      </li>
+      <li>
+        <input name="color" value="dark" title="Dunkel" type="radio">
+      </li>
+    </ul>
+  </div>
+  <script language="javascript">
+  document.getElementById('themeSelector').onchange = function(){
+    console.log("theme Changed to "+document.getElementById('themeSelector').value);
+    Params.Theme = document.getElementById('themeSelector').value;
+    setCookie("prometTheme",document.getElementById('themeSelector').value,100);
+    switchTheme();
+  }
+  </script>
+</body>
+</html>
