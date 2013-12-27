@@ -105,11 +105,6 @@ h1, h2 {
 .button.active, .cancel.active, .add.active {
     -webkit-border-image: url(img/button_clicked.png) 0 5 0 5;
 }
-.blueButton {
-    -webkit-border-image: url(img/blueButton.png) 0 5 0 5;
-    -moz-border-image: url(img/blueButton.png) fill 0 5 0 5;
-    border-width: 0 5px;
-}
 .back {
     left: 6px;
     right: auto;
@@ -157,11 +152,6 @@ h1, h2 {
     color: #666 !important;
 }
 .button,
-.whiteButton {
-	color: #000;
-    -webkit-border-image: url(img/androidButton.png) 0 12 0 12;
-    -moz-border-image: url(img/androidButton.png) fill 0 12 0 12;
-}
 .button.active, .button:active {
 	color: #333 !important;
     -webkit-border-image: url(img/androidButtonActive.png) 0 9 0 8;
@@ -194,6 +184,14 @@ h1, h2 {
 .greenButton {
     -webkit-border-image: url(img/greenButton.png) 0 12 0 12;
     -moz-border-image: url(img/greenButton.png) fill 0 12 0 12;
+}
+.blueButton {
+    -webkit-border-image: url(img/blueButton.png) 0 12 0 12;
+    -moz-border-image: url(img/blueButton.png) fill 0 12 0 12;
+}
+.whiteButton {
+    -webkit-border-image: url(img/whiteButton.png) 0 12 0 12;
+    -moz-border-image: url(img/whiteButton.png) fill 0 12 0 12;
 }
 
 
@@ -232,7 +230,6 @@ ul li {
     overflow: hidden;
 }
 ul li.arrow {
-    background-color: #000 !important;
     background-image: url(img/chevron.png);
     background-position: right center !important;
     background-repeat: no-repeat !important;
@@ -372,11 +369,13 @@ ul li select {
     margin-left: -6px;
     width: 104%;
 }
-ul li input[type="checkbox"], #jqt ul li input[type="radio"] {
+ul li input[type="checkbox"],
+ul li input[type="radio"] {
     margin: 0;
     padding: 10px 10px;
 }
-ul li input[type="checkbox"]:after, #jqt ul li input[type="radio"]:after {
+ul li input[type="checkbox"]:after,
+ul li input[type="radio"]:after {
     content: attr(title);
     font: 17px "Helvetica Neue", Helvetica;
     display: block;
@@ -384,7 +383,8 @@ ul li input[type="checkbox"]:after, #jqt ul li input[type="radio"]:after {
     color: #777;
     margin: -12px 0 0 17px;
 }
-.android ul li input[type="checkbox"]:after, #jqt.android ul li input[type="radio"]:after {
+.android ul li input[type="checkbox"]:after,
+.android ul li input[type="radio"]:after {
     margin: 3px 0 0 24px;
 }
 /* @end */
