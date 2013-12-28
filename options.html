@@ -32,6 +32,7 @@
     </ul>
   </div>
   <script language="javascript">
+  document.getElementById('themeSelector').value = Params.Theme;
   document.getElementById('themeSelector').onchange = function(){
     console.log("theme Changed to "+document.getElementById('themeSelector').value);
     Params.Theme = document.getElementById('themeSelector').value;

@@ -82,7 +82,7 @@ ul.tabs li a.current {
 ul.tabs li a:hover {
   border-bottom-color: rgba(0,153,204,0.35);
 }
-//Lists
+
 .section-divider {
   font-weight: bold;
   text-transform: uppercase;
@@ -117,17 +117,51 @@ li > * + * {
   color: #888;
   font-size:14px;
 }
-//Buttons
-.button {
+
+.toggle {
+    width: 85px;
+    position: relative;
+    height: 27px;
+    display: block;
+    overflow: hidden;
+    float: right;
+}
+.toggle:focus,
+.toggle:active
+{
+  outline-width: 0;
+}
+.toggle input[type="checkbox"]:checked {
+    left: 0px;
+}
+
+.toggle input[type="checkbox"] {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    margin: 0;
+    -webkit-border-radius: 5px;
+    background: #fff url(img/on_off.png) 0 0 no-repeat;
+    height: 27px;
+    overflow: hidden;
+    width: 149px;
+    border: 0;
+    -webkit-appearance: textarea;
+    background-color: transparent;
+    -webkit-transition: left .15s;
+    position: absolute;
+    top: 0;
+    left: -60px;
+}
+
+
+.button,
+.whiteButton,
+.grayButton,
+.redButton,
+.greenButton,
+.blueButton {
   display: block;
   margin:10px 0;
   padding: 12px 40px;
-  background-color: rgba(255,255,255,0.205);
-  border-top: 1px solid rgba(255,255,255,0.34);
-  border-right: 1px solid rgba(0,0,0,0.04);
-  border-bottom: 1px solid rgba(0,0,0,0.43);
-  border-left: 1px solid rgba(0,0,0,0.04);
-  box-shadow: 0 1px 1px rgba(0,0,0,0.25);
   border-radius: 1px;
   color: white;
   text-decoration: none;
@@ -138,24 +172,65 @@ li > * + * {
   font-size: 12px;
 }
 
-.light .button {
-  background-color: rgba(0,0,0,0.15);
+.light .button,
+.light .whiteButton {
   color: #333;
 }
 
 .button.active,
-.button:hover {
+.button:hover,
+.whiteButton.active,
+.grayButton.active,
+.redButton.active,
+.greenButton.active,
+.blueButton.active,
+.whiteButton:hover,
+.grayButton:hover,
+.redButton:hover,
+.greenButton:hover,
+.blueButton:hover
+ {
+  box-shadow: 0 1px 1px rgba(0,0,0,0.25);
+  border-top: 1px solid rgba(255,255,255,0.34);
+  border-right: 1px solid rgba(0,0,0,0.04);
+  border-bottom: 1px solid rgba(0,0,0,0.43);
+  border-left: 1px solid rgba(0,0,0,0.04);
   background-color: #32a5cf;
   box-shadow: 0 0 0 4px rgba(50,165,207,0.5);
 }
 
 .light .button.active,
-.light .button:hover {
+.light .button:hover,
+.light .whiteButton.active,
+.light .grayButton.active,
+.light .redButton.active,
+.light .greenButton.active,
+.light .blueButton.active,
+.light .whiteButton:hover,
+.light .grayButton:hover,
+.light .redButton:hover,
+.light .greenButton:hover,
+.light .blueButton:hover
+{
+  box-shadow: 0 1px 1px rgba(0,0,0,0.25);
+  border-top: 1px solid rgba(255,255,255,0.34);
+  border-right: 1px solid rgba(0,0,0,0.04);
+  border-bottom: 1px solid rgba(0,0,0,0.43);
+  border-left: 1px solid rgba(0,0,0,0.04);
   background-color: #4abce7;
   box-shadow: 0 0 0 4px rgba(50,165,207,0.4);
 }
-//Inputs
-input[type="text"], input[type="password"], textarea {
+
+input[type="text"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input[type="search"],
+input[type="email"],
+input[type="url"],
+textarea,
+select
+{
   width:90%;
   background-color: transparent;
   border: 2px solid transparent;
@@ -164,10 +239,26 @@ input[type="text"], input[type="password"], textarea {
   padding:5px 15px;
   font-family: inherit;
   font-size: 16px;
+  color: #777;
+}
+select {
+    text-indent: 0px;
+    background: transparent url(img/chevron.png) no-repeat right center;
+    -webkit-appearance: textfield;
+    margin-left: -6px;
+    width: 100%;
+}
+.grayButton {
+    color: gray;
 }
 
-/*
-	Switches (aka checkboxes & radio buttons)
-	-------------------------------------------------------------------------
-	Use the method here: http://www.thecssninja.com/css/custom-inputs-using-css
-*/
+.redButton {
+    color: red;
+}
+
+.greenButton {
+    color: green;
+}
+.blueButton {
+    color: blue;
+}
