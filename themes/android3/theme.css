@@ -138,7 +138,7 @@ li > * + * {
 .toggle input[type="checkbox"] {
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     margin: 0;
-    -webkit-border-radius: 5px;
+    outline: transparent;
     background: #fff url(img/on_off.png) 0 0 no-repeat;
     height: 27px;
     overflow: hidden;

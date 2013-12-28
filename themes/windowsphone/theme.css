@@ -428,9 +428,9 @@ ul.individual li a {
 }
 .toggle input[type="checkbox"] {
     -webkit-appearance: textarea;
-    -webkit-border-radius: 5px;
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     -webkit-transition: left .15s;
+    outline:transparent;
     background-color: transparent;
     background: #fff url(img/on_off_light.png) 0 0 no-repeat;
     border: 0;
