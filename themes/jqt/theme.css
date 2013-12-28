@@ -60,10 +60,7 @@ body.landscape .toolbar > h1 {
     white-space: nowrap;
     background: none;
     border-image: url(img/button.png) 0 5 0 5 fill;
-}
-.blueButton {
-    border-image: url(img/blueButton.png) 0 5 0 5 fill;
-    border-width: 0 5px;
+    -webkit-border-image: url(img/button.png) 0 5 0 5 fill;
 }
 .back {
     position:absolute;
@@ -109,21 +106,26 @@ body.landscape .toolbar > h1 {
 .button,
 .whiteButton {
     border-image: url(img/whiteButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/whiteButton.png) 0 12 0 12 fill;
     text-shadow: rgba(255, 255, 255, 0.7) 0 1px 0;
 }
 .grayButton {
     border-image: url(img/grayButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/grayButton.png) 0 12 0 12 fill;
     color: #FFFFFF;
 }
 .redButton {
     border-image: url(img/redButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/redButton.png) 0 12 0 12 fill;
 }
 
 .greenButton {
     border-image: url(img/greenButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/greenButton.png) 0 12 0 12 fill;
 }
 .blueButton {
     border-image: url(img/blueButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/blueButton.png) 0 12 0 12 fill;
 }
 /* @end */
 /* @group Lists */

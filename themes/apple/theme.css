@@ -69,14 +69,17 @@ body.landscape .toolbar > h1 {
     white-space: nowrap;
     background: none;
     border-image: url(img/toolButton.png) 0 5 0 5 fill;
+    -webkit-border-image: url(img/toolButton.png) 0 5 0 5 fill;
 }
 
 .button.active, .back.active, .cancel.active, .add.active {
     border-image: url(img/toolButton.png) 0 5 0 5 fill;	
+    -webkit-border-image: url(img/toolButton.png) 0 5 0 5 fill;	
 }
 
 .blueButton {
     border-image: url(img/blueButton.png) 0 5 0 5 fill;
+    -webkit-border-image: url(img/blueButton.png) 0 5 0 5 fill;
     border-width: 0 5px;
 }
 
@@ -87,6 +90,7 @@ body.landscape .toolbar > h1 {
     max-width: 55px;
     border-width: 0 8px 0 14px;
     border-image: url(img/backButton.png) 0 8 0 14 fill;
+    -webkit-border-image: url(img/backButton.png) 0 8 0 14 fill;
 }
 .back:after {
     content: "zurück";
@@ -122,22 +126,27 @@ body.landscape .toolbar > h1 {
 .button,
 .whiteButton {
     border-image: url(img/whiteButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/whiteButton.png) 0 12 0 12 fill;
     text-shadow: rgba(255, 255, 255, 0.7) 0 1px 0;
 }
 
 .grayButton {
     border-image: url(img/grayButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/grayButton.png) 0 12 0 12 fill;
     color: #FFFFFF;
 }
 .redButton {
     border-image: url(img/redButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/redButton.png) 0 12 0 12 fill;
 }
 
 .greenButton {
     border-image: url(img/greenButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/greenButton.png) 0 12 0 12 fill;
 }
 .blueButton {
     border-image: url(img/blueButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/blueButton.png) 0 12 0 12 fill;
 }
 
 /* @end */

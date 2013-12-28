@@ -100,9 +100,11 @@ h1, h2 {
     white-space: nowrap;
     background: none;
     border-image: url(img/button.png) 0 5 0 5 fill;
+    -webkit-border-image: url(img/button.png) 0 5 0 5 fill;
 }
 .button.active, .cancel.active, .add.active {
     border-image: url(img/button_clicked.png) 0 5 0 5 fill;
+    -webkit-border-image: url(img/button_clicked.png) 0 5 0 5 fill;
 }
 .back {
     left: 6px;
@@ -111,12 +113,14 @@ h1, h2 {
     max-width: 55px;
     border-width: 0 8px 0 14px;
     border-image: url(img/back_button.png) 0 8 0 14 fill;
+    -webkit-border-image: url(img/back_button.png) 0 8 0 14 fill;
 }
 .back:after {
     content: "zurück";
 }
 .back.active {
     border-image: url(img/back_button_clicked.png) 0 8 0 14 fill;
+    -webkit-border-image: url(img/back_button_clicked.png) 0 8 0 14 fill;
 }
 .leftButton, .cancel {
     left: 6px;
@@ -145,12 +149,14 @@ h1, h2 {
 .whiteButton.active, .grayButton.active, .redButton.active, .blueButton.active, .greenButton.active,
 .whiteButton:active, .grayButton:active, .redButton:active, .blueButton:active, .greenButton:active {
     border-image: url(img/activeButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/activeButton.png) 0 12 0 12 fill;
     color: #666 !important;
 }
 .button,
 .button.active, .button:active {
 	color: #333 !important;
     border-image: url(img/androidButtonActive.png) 0 9 0 8 fill;
+    -webkit-border-image: url(img/androidButtonActive.png) 0 9 0 8 fill;
 }
 .button {
 	border-width: 0 12px;
@@ -163,24 +169,30 @@ h1, h2 {
     text-decoration: inherit;
     text-shadow: rgba(255, 255, 255, 0.7) 0 1px 0;
     border-image: url(img/androidButton.png) 0 9 0 8 fill;
+    -webkit-border-image: url(img/androidButton.png) 0 9 0 8 fill;
 }
 .grayButton {
     border-image: url(img/grayButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/grayButton.png) 0 12 0 12 fill;
     color: #FFFFFF;
 }
 
 .redButton {
     border-image: url(img/redButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/redButton.png) 0 12 0 12 fill;
 }
 
 .greenButton {
     border-image: url(img/greenButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/greenButton.png) 0 12 0 12 fill;
 }
 .blueButton {
     border-image: url(img/blueButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/blueButton.png) 0 12 0 12 fill;
 }
 .whiteButton {
     border-image: url(img/whiteButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/whiteButton.png) 0 12 0 12 fill;
 }
 
 
