@@ -12,7 +12,7 @@ h1, h2 {
     margin: 10px 20px 5px;
 }
 #progress {
-    -webkit-border-radius: 10px;
+    border-radius: 10px;
     background-color: rgba(ff,ff,ff,.7);
     color: white;
     font-size: 18px;
@@ -150,8 +150,7 @@ h1, h2 {
 .button,
 .button.active, .button:active {
 	color: #333 !important;
-    -webkit-border-image: url(img/androidButtonActive.png) 0 9 0 8;
-    -moz-border-image: url(img/androidButtonActive.png) fill 0 9 0 8;
+    border-image: url(img/androidButtonActive.png) 0 9 0 8 fill;
 }
 .button {
 	border-width: 0 12px;
@@ -197,19 +196,19 @@ ul {
     font:  22px "Helvetica Neue", Helvetica;
     padding: 0;
     margin: 15px 10px 17px 10px;
-    -webkit-border-radius: 8px;
+    border-radius: 8px;
     -webkit-box-shadow: rgba(0,0,0,.3) 1px 1px 3px;
 }
 ul li:first-child, ul li:first-child a {
     color: #666;
     border-top: 0;
-    -webkit-border-top-left-radius: 8px;
-    -webkit-border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 ul.rounded li:last-child, ul li:last-child a {
     color: #666;
-    -webkit-border-bottom-left-radius: 8px;
-    -webkit-border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 ul li {
     color: #666;
@@ -403,7 +402,7 @@ ul li small.counter {
     font-weight: bold;
     background: rgba(0,0,0,.15);
     color: #fff;
-    -webkit-border-radius: 11px;
+    border-radius: 11px;
     padding: 4px 10px 5px 10px;
     display: block;
     width: auto;
@@ -428,7 +427,7 @@ ul.individual li {
     border: 1px solid #333;
     font-size: 14px;
     text-align: center;
-    -webkit-border-radius: 8px;
+    border-radius: 8px;
     -webkit-box-sizing: border-box;
     width: 48%;
     float: left;
@@ -445,7 +444,7 @@ ul.individual li a {
     line-height: 16px;
     margin: -11px -10px -14px -10px;
     padding: 11px 10px 14px 10px;
-    -webkit-border-radius: 8px;
+    border-radius: 8px;
 }
 /* @end */
 /* @group Toggle */
@@ -463,7 +462,7 @@ ul.individual li a {
 }
 .toggle input[type="checkbox"] {
     -webkit-appearance: textarea;
-    -webkit-border-radius: 5px;
+    border-radius: 5px;
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     /*-webkit-transition: background-position .15s;*/
     background-color: transparent;
@@ -641,7 +640,7 @@ ul.metal li.arrow a small {
 }
 /* @end */
 input[type='submit'] {
-    -webkit-border-radius: 4px;
+    border-radius: 4px;
     border-radius: 4px;
     background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(238,238,238,1)), to(rgba(156,158,160,1)));
     font-size: inherit;

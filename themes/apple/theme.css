@@ -68,18 +68,15 @@ body.landscape .toolbar > h1 {
     text-decoration: none;
     white-space: nowrap;
     background: none;
-    -webkit-border-image: url(img/toolButton.png) 0 5 0 5;
-    -moz-border-image: url(img/toolButton.png) 0 5 0 5 fill;
+    border-image: url(img/toolButton.png) 0 5 0 5 fill;
 }
 
 .button.active, .back.active, .cancel.active, .add.active {
-    -webkit-border-image: url(img/toolButton.png) 0 5 0 5;	
-    -moz-border-image: url(img/toolButton.png) 0 5 0 5 fill;	
+    border-image: url(img/toolButton.png) 0 5 0 5 fill;	
 }
 
 .blueButton {
-    -webkit-border-image: url(img/blueButton.png) 0 5 0 5;
-    -moz-border-image: url(img/blueButton.png) 0 5 0 5 fill;
+    border-image: url(img/blueButton.png) 0 5 0 5 fill;
     border-width: 0 5px;
 }
 
@@ -89,8 +86,7 @@ body.landscape .toolbar > h1 {
     padding: 0;
     max-width: 55px;
     border-width: 0 8px 0 14px;
-    -webkit-border-image: url(img/backButton.png) 0 8 0 14;
-    -moz-border-image: url(img/backButton.png) 0 0 0 0 fill;
+    border-image: url(img/backButton.png) 0 8 0 14 fill;
 }
 .back:after {
     content: "zurück";
@@ -125,28 +121,23 @@ body.landscape .toolbar > h1 {
 
 .button,
 .whiteButton {
-    -webkit-border-image: url(img/whiteButton.png) 0 12 0 12;
-    -moz-border-image: url(img/whiteButton.png) 0 12 0 12 fill;
+    border-image: url(img/whiteButton.png) 0 12 0 12 fill;
     text-shadow: rgba(255, 255, 255, 0.7) 0 1px 0;
 }
 
 .grayButton {
-    -webkit-border-image: url(img/grayButton.png) 0 12 0 12;
-    -moz-border-image: url(img/grayButton.png) 0 12 0 12 fill;
+    border-image: url(img/grayButton.png) 0 12 0 12 fill;
     color: #FFFFFF;
 }
 .redButton {
-    -webkit-border-image: url(img/redButton.png) 0 12 0 12;
-    -moz-border-image: url(img/redButton.png) fill 0 12 0 12;
+    border-image: url(img/redButton.png) 0 12 0 12 fill;
 }
 
 .greenButton {
-    -webkit-border-image: url(img/greenButton.png) 0 12 0 12;
-    -moz-border-image: url(img/greenButton.png) fill 0 12 0 12;
+    border-image: url(img/greenButton.png) 0 12 0 12 fill;
 }
 .blueButton {
-    -webkit-border-image: url(img/blueButton.png) 0 12 0 12;
-    -moz-border-image: url(img/blueButton.png) fill 0 12 0 12;
+    border-image: url(img/blueButton.png) 0 12 0 12 fill;
 }
 
 /* @end */
@@ -164,7 +155,7 @@ ul {
     font: bold 17px Helvetica;
     padding: 0;
     margin: 15px 10px 17px 10px;
-    -webkit-border-radius: 8px;
+    border-radius: 8px;
     border-radius: 8px;
 }
 
@@ -179,13 +170,13 @@ ul li {
 
 li:first-child, li:first-child a {
     border-top: 0;
-    -webkit-border-top-left-radius: 8px;
-    -webkit-border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 li:last-child, li:last-child a {
-    -webkit-border-bottom-left-radius: 8px;
-    -webkit-border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
 /* universal arrows */
@@ -368,7 +359,7 @@ ul li input[type="checkbox"]:after, ul li input[type="radio"]:after {
 }
 
 .edgetoedge ul, .metal ul, .plastic ul {
-    -webkit-border-radius: 0;
+    border-radius: 0;
     margin: 0;
     border-left: 0;
     border-right: 0;
@@ -382,7 +373,7 @@ ul li input[type="checkbox"]:after, ul li input[type="radio"]:after {
 }
 
 .edgetoedge ul li:first-child, .edgetoedge ul li:first-child a, .edgetoedge ul li:last-child, .edgetoedge ul li:last-child a, .metal ul li:first-child a, .metal ul li:last-child a {
-    -webkit-border-radius: 0;
+    border-radius: 0;
 }
 
 .edgetoedge ul li small {
@@ -391,7 +382,7 @@ ul li input[type="checkbox"]:after, ul li input[type="radio"]:after {
 }
 
 .edgetoedge li, .metal li {
-    -webkit-border-radius: 0;
+    border-radius: 0;
 }
 
 .edgetoedge li em {
@@ -431,7 +422,7 @@ ul li small.counter {
     font-weight: bold;
     background: rgb(154,159,170);
     color: #fff;
-    -webkit-border-radius: 11px;
+    border-radius: 11px;
     padding: 4px 10px 5px 10px;
     display: inline !important;
     width: auto;
@@ -452,7 +443,7 @@ ul li.arrow small.counter {
 }
 
 .edgetoedge ul, .metal ul, .plastic ul {
-    -webkit-border-radius: 0;
+    border-radius: 0;
     margin: 0;
     border-left: 0;
     border-right: 0;
@@ -514,7 +505,7 @@ ul li.arrow small.counter {
 }
 
 .plastic ul {
-    -webkit-border-radius: 0;
+    border-radius: 0;
     margin: 0;
     border-left: 0;
     border-right: 0;
@@ -523,7 +514,7 @@ ul li.arrow small.counter {
 }
 
 .plastic ul li {
-    -webkit-border-radius: 0;
+    border-radius: 0;
     border-top: 1px solid rgb(191,191,191);
     border-bottom: 1px solid rgb(157,157,157);
 }
@@ -581,7 +572,7 @@ ul li.arrow small.counter {
     width: 145px;
     height: 81px;
     float: left;
-    -webkit-border-radius: 5px;
+    border-radius: 5px;
     padding: 0;
 }
 
@@ -591,7 +582,7 @@ ul li.arrow small.counter {
     width: 296px;
     height: 140px;
     float: left;
-    -webkit-border-radius: 5px;
+    border-radius: 5px;
     padding: 0;
     margin-bottom: 4px;
 }
@@ -633,7 +624,7 @@ ul.individual li {
     border: 1px solid rgb(180,180,180);
     font-size: 14px;
     text-align: center;
-    -webkit-border-radius: 8px;
+    border-radius: 8px;
     -webkit-box-sizing: border-box;
     width: 48%;
     float: left;
@@ -650,7 +641,7 @@ ul.individual li a {
     line-height: 16px;
     margin: -11px -10px -14px -10px;
     padding: 11px 10px 14px 10px;
-    -webkit-border-radius: 8px;
+    border-radius: 8px;
 }
 
 ul.individual li a:hover {
@@ -679,7 +670,7 @@ ul.individual li a:hover {
 .toggle input[type="checkbox"] {
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     margin: 0;
-    -webkit-border-radius: 5px;
+    border-radius: 5px;
     background: #fff url(img/on_off.png) 0 0 no-repeat;
     height: 27px;
     overflow: hidden;
