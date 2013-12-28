@@ -60,7 +60,7 @@ body.landscape .toolbar > h1 {
     white-space: nowrap;
     background: none;
     border-image: url(img/button.png) 0 5 0 5 fill;
-    -webkit-border-image: url(img/button.png) 0 5 0 5 fill;
+    -webkit-border-image: url(img/button.png) 0 5 0 5;
 }
 .back {
     position:absolute;
@@ -71,12 +71,13 @@ body.landscape .toolbar > h1 {
     max-width: 60px;
     border-width: 0 8px 0 14px;
     border-image: url(img/back_button.png) 0 8 0 14 fill;
+    -webkit-border-image: url(img/back_button.png) 0 8 0 14;
 }
 .back:after {
     content: "zurück";
 }
 .back.active {
-    border-image: url(img/back_button_clicked.png) 0 8 0 14 fill;
+    border-image: url(img/back_button_clicked.png) 0 8 0 14;
     color: #aaa;
 }
 .leftButton, .cancel {
@@ -106,26 +107,26 @@ body.landscape .toolbar > h1 {
 .button,
 .whiteButton {
     border-image: url(img/whiteButton.png) 0 12 0 12 fill;
-    -webkit-border-image: url(img/whiteButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/whiteButton.png) 0 12 0 12;
     text-shadow: rgba(255, 255, 255, 0.7) 0 1px 0;
 }
 .grayButton {
     border-image: url(img/grayButton.png) 0 12 0 12 fill;
-    -webkit-border-image: url(img/grayButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/grayButton.png) 0 12 0 12;
     color: #FFFFFF;
 }
 .redButton {
     border-image: url(img/redButton.png) 0 12 0 12 fill;
-    -webkit-border-image: url(img/redButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/redButton.png) 0 12 0 12;
 }
 
 .greenButton {
     border-image: url(img/greenButton.png) 0 12 0 12 fill;
-    -webkit-border-image: url(img/greenButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/greenButton.png) 0 12 0 12;
 }
 .blueButton {
     border-image: url(img/blueButton.png) 0 12 0 12 fill;
-    -webkit-border-image: url(img/blueButton.png) 0 12 0 12 fill;
+    -webkit-border-image: url(img/blueButton.png) 0 12 0 12;
 }
 /* @end */
 /* @group Lists */
