@@ -32,7 +32,9 @@ a {
   text-decoration: none;
 }
 .back:after {
-  content: "zur";
+  content: "\f190";
+  font-family: FontAwesome;
+  font-size: 26px;
 }
 //Tabs
 ul.tabs {
