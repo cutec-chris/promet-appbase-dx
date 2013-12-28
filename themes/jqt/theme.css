@@ -59,12 +59,10 @@ body.landscape .toolbar > h1 {
     text-decoration: none;
     white-space: nowrap;
     background: none;
-    -webkit-border-image: url(img/button.png) 0 5 0 5;
-    -moz-border-image: url(img/button.png) fill 0 5 0 5;
+    border-image: url(img/button.png) 0 5 0 5 fill;
 }
 .blueButton {
-    -webkit-border-image: url(img/blueButton.png) 0 5 0 5;
-    -moz-border-image: url(img/blueButton.png) 0 15 1 10 fill;
+    border-image: url(img/blueButton.png) 0 5 0 5 fill;
     border-width: 0 5px;
 }
 .back {
@@ -75,15 +73,13 @@ body.landscape .toolbar > h1 {
     right: auto;
     max-width: 60px;
     border-width: 0 8px 0 14px;
-    -webkit-border-image: url(img/back_button.png) 0 8 0 14;
-    -moz-border-image: url(img/back_button.png) fill 0 8 0 14;
+    border-image: url(img/back_button.png) 0 8 0 14 fill;
 }
 .back:after {
     content: "zurück";
 }
 .back.active {
-    -webkit-border-image: url(img/back_button_clicked.png) 0 8 0 14;
-    -moz-border-image: url(img/back_button_clicked.png) fill 0 8 0 14;
+    border-image: url(img/back_button_clicked.png) 0 8 0 14 fill;
     color: #aaa;
 }
 .leftButton, .cancel {
@@ -112,27 +108,22 @@ body.landscape .toolbar > h1 {
 }
 .button,
 .whiteButton {
-    -webkit-border-image: url(img/whiteButton.png) 0 12 0 12;
-    -moz-border-image:  url(img/whiteButton.png) fill 0 12 0 12;
+    border-image: url(img/whiteButton.png) 0 12 0 12 fill;
     text-shadow: rgba(255, 255, 255, 0.7) 0 1px 0;
 }
 .grayButton {
-    -webkit-border-image: url(img/grayButton.png) 0 12 0 12;
-    -moz-border-image: url(img/grayButton.png) fill 0 12 0 12;
+    border-image: url(img/grayButton.png) 0 12 0 12 fill;
     color: #FFFFFF;
 }
 .redButton {
-    -webkit-border-image: url(img/redButton.png) 0 12 0 12;
-    -moz-border-image: url(img/redButton.png) fill 0 12 0 12;
+    border-image: url(img/redButton.png) 0 12 0 12 fill;
 }
 
 .greenButton {
-    -webkit-border-image: url(img/greenButton.png) 0 12 0 12;
-    -moz-border-image: url(img/greenButton.png) fill 0 12 0 12;
+    border-image: url(img/greenButton.png) 0 12 0 12 fill;
 }
 .blueButton {
-    -webkit-border-image: url(img/blueButton.png) 0 12 0 12;
-    -moz-border-image: url(img/blueButton.png) fill 0 12 0 12;
+    border-image: url(img/blueButton.png) 0 12 0 12 fill;
 }
 /* @end */
 /* @group Lists */
