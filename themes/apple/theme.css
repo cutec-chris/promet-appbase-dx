@@ -109,6 +109,9 @@ body.landscape .toolbar > h1 {
 
 .button,
 .whiteButton,
+.redButton,
+.greenButton,
+.blueButton,
 .grayButton {
     display: block;
     border-width: 0 12px;
@@ -131,6 +134,19 @@ body.landscape .toolbar > h1 {
     -webkit-border-image: url(img/grayButton.png) 0 12 0 12;
     -moz-border-image: url(img/grayButton.png) 0 12 0 12 fill;
     color: #FFFFFF;
+}
+.redButton {
+    -webkit-border-image: url(img/redButton.png) 0 12 0 12;
+    -moz-border-image: url(img/redButton.png) fill 0 12 0 12;
+}
+
+.greenButton {
+    -webkit-border-image: url(img/greenButton.png) 0 12 0 12;
+    -moz-border-image: url(img/greenButton.png) fill 0 12 0 12;
+}
+.blueButton {
+    -webkit-border-image: url(img/blueButton.png) 0 12 0 12;
+    -moz-border-image: url(img/blueButton.png) fill 0 12 0 12;
 }
 
 /* @end */
@@ -284,7 +300,15 @@ ul.form li:hover {
     background: #fff;
 }
 
-input[type="text"], input[type="password"], textarea, ul li select {
+ul li input[type="text"],
+ul li input[type="password"],
+ul li input[type="tel"],
+ul li input[type="number"],
+ul li input[type="search"],
+ul li input[type="email"],
+ul li input[type="url"],
+textarea,
+ul li select {
     color: #777;
     background: #fff url(../.png);
     border: 0;
@@ -307,7 +331,7 @@ ul li select {
     background: transparent url(../images/chevron.png) no-repeat 103% 3px;
     -webkit-appearance: textfield;
     margin-left: -6px;
-    width: 104%;
+    width: 100%;
 }
 
 ul li input[type="checkbox"], ul li input[type="radio"] {
