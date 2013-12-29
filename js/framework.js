@@ -194,7 +194,12 @@ function DoLogout(){
   OnConnected();
 }
 function GetList(aName,aFilter,aSequence,aCallback){
-  var link = "http://"+Params.Server+"/?action=list&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&random="+encodeURIComponent(Math.random());
+  var link = "http://"+Params.Server+"/?action=list&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&sequence="+aSequence+"&random="+encodeURIComponent(Math.random());
+}
+function GetQLList(aQL,aSequence,aCallback){
+  var link = "http://"+Params.Server+"/?action=list&ql="+encodeURIComponent(aQL)+"&sequence="+aSequence+"&random="+encodeURIComponent(Math.random());
+}
+function DoGetList(link,aCallback){
   var request =  new XMLHttpRequest();
   request.onreadystatechange = function() {
     if (request.readyState == 4) {
@@ -205,7 +210,7 @@ function GetList(aName,aFilter,aSequence,aCallback){
           console.log('failed to fetch List '+aSequence+' '+aName+' trying to attatch jsonp script');
           OnHandleList = aCallback;
           DoGet(link , true);
-          ListTimer = window.setTimeout("DoHandleList("+aSequence+",[])",2000);
+          ListTimer = window.setTimeout("DoHandleList("+aSequence+",[])",4000);
         }
      }
     };
@@ -219,7 +224,7 @@ function DoHandleList(aSequence,aData) {
   OnHandleList = null;
 }
 function GetObject(aName,aId,aSequence,aCallback){
-  var link = "http://"+Params.Server+"/?action=object&name="+encodeURIComponent(aName)+"&id="+encodeURIComponent(aId)+"&random="+encodeURIComponent(Math.random());
+  var link = "http://"+Params.Server+"/?action=object&name="+encodeURIComponent(aName)+"&id="+encodeURIComponent(aId)+"&sequence="+aSequence+"&random="+encodeURIComponent(Math.random());
   var request =  new XMLHttpRequest();
   request.onreadystatechange = function() {
     if (request.readyState == 4) {
@@ -230,7 +235,7 @@ function GetObject(aName,aId,aSequence,aCallback){
           console.log('failed to fetch List '+aSequence+' '+aName+' trying to attatch jsonp script');
           OnHandleObject = aCallback;
           DoGet(link, true);
-          ObjectTimer = window.setTimeout("DoHandleList("+aSequence+",[])",2000);
+          ObjectTimer = window.setTimeout("DoHandleObject("+aSequence+",[])",2000);
         }
      }
     };
