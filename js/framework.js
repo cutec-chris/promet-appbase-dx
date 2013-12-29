@@ -174,7 +174,7 @@ function ConnectionOK(){
   var request =  new XMLHttpRequest();
   request.onreadystatechange = function() {
     if (request.readyState == 4) {
-      if ((request.status == 200)||(request.status == 0)) {
+      if ((request.status == 200)) {
           IsConnectionOK();
         }
       else {
@@ -198,7 +198,7 @@ function GetList(aName,aFilter,aSequence,aCallback){
   var request =  new XMLHttpRequest();
   request.onreadystatechange = function() {
     if (request.readyState == 4) {
-      if ((request.status == 200)||(request.status == 0)) {
+      if ((request.status == 200)) {
           aCallback(aSequence,request.response);
         }
       else {
@@ -223,7 +223,7 @@ function GetObject(aName,aId,aSequence,aCallback){
   var request =  new XMLHttpRequest();
   request.onreadystatechange = function() {
     if (request.readyState == 4) {
-      if ((request.status == 200)||(request.status == 0)) {
+      if ((request.status == 200)) {
           aCallback(aSequence,request.response);
         }
       else {

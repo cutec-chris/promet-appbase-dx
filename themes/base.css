@@ -14,3 +14,13 @@
   width: 30px;
   display: inline-flex;
 }
+#loginButton:before {
+  content: "\f0c0";
+  font-family: FontAwesome;
+  font-size: 22px;
+}
+#logoutButton:before {
+  content: "\f007";
+  font-family: FontAwesome;
+  font-size: 22px;
+}
