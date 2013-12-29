@@ -195,9 +195,11 @@ function DoLogout(){
 }
 function GetList(aName,aFilter,aSequence,aCallback){
   var link = "http://"+Params.Server+"/?action=list&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&sequence="+aSequence+"&random="+encodeURIComponent(Math.random());
+  DoGetList(link,aCallback);
 }
 function GetQLList(aQL,aSequence,aCallback){
   var link = "http://"+Params.Server+"/?action=list&ql="+encodeURIComponent(aQL)+"&sequence="+aSequence+"&random="+encodeURIComponent(Math.random());
+  DoGetList(link,aCallback);
 }
 function DoGetList(link,aCallback){
   var request =  new XMLHttpRequest();
