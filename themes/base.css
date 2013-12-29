@@ -10,3 +10,7 @@
   padding:5px;
   font-weight:bold;"
 }
+.small {
+  width: 30px;
+  display: inline-flex;
+}
