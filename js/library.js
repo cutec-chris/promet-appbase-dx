@@ -9,7 +9,7 @@ function goTo(url){
     window.location = url;
   }
 }
-function findElementPos(obj) {
+function findElementTop(obj) {
   var curtop = 0;
   if (obj.offsetParent) {
     do {

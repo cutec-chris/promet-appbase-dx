@@ -21,6 +21,7 @@ h1, h2, h3, h4, h5, h6
     border-left-width: 0;
     border-right-width: 0;
     height: 55px;
+    background-color: #fff;
 }
 .black-translucent .toolbar {
 	margin-top: 20px;
@@ -30,7 +31,6 @@ h1, h2, h3, h4, h5, h6
     text-align: left;
     font-size: 26pt;
     display: block;
-    margin: 10pt 0 0 0pt;
     padding: 0;
     text-overflow: ellipsis;
     overflow: hidden;
