@@ -195,13 +195,13 @@ function DoLogout(){
 }
 function GetList(aName,aFilter,aSequence,aCallback){
   var link = "http://"+Params.Server+"/?action=list&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&sequence="+aSequence+"&random="+encodeURIComponent(Math.random());
-  DoGetList(link,aCallback);
+  DoGetList(link,aSequence,aCallback);
 }
 function GetQLList(aQL,aSequence,aCallback){
   var link = "http://"+Params.Server+"/?action=list&ql="+encodeURIComponent(aQL)+"&sequence="+aSequence+"&random="+encodeURIComponent(Math.random());
-  DoGetList(link,aCallback);
+  DoGetList(link,aSequence,aCallback);
 }
-function DoGetList(link,aCallback){
+function DoGetList(link,aSequence,aCallback){
   var request =  new XMLHttpRequest();
   request.onreadystatechange = function() {
     if (request.readyState == 4) {
@@ -209,7 +209,7 @@ function DoGetList(link,aCallback){
           aCallback(aSequence,request.response);
         }
       else {
-          console.log('failed to fetch List '+aSequence+' '+aName+' trying to attatch jsonp script');
+          console.log("failed to fetch List "+aSequence+" trying to attatch jsonp script");
           OnHandleList = aCallback;
           DoGet(link , true);
           ListTimer = window.setTimeout("DoHandleList("+aSequence+",[])",4000);

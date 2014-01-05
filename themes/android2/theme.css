@@ -32,7 +32,7 @@ h1, h2 {
     /*border-bottom: 1px solid #000;*/
     background: #000000;
     position: relative;
-    padding: 2px;
+    padding: 10px;
     height: 45px;
     background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#666), to(#333));
 }

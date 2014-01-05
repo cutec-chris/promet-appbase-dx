@@ -9,6 +9,15 @@ function goTo(url){
     window.location = url;
   }
 }
+function findElementPos(obj) {
+  var curtop = 0;
+  if (obj.offsetParent) {
+    do {
+      curtop += obj.offsetTop;
+    } while (obj = obj.offsetParent);
+    return [curtop];
+  }
+}
 function DoGet(aurl){
   var scripts = document.getElementsByTagName("script");
   for (i=0; i<scripts.length; i++) {
