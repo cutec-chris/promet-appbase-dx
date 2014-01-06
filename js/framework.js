@@ -73,7 +73,8 @@ window.addEventListener('submit', hideAddressBar(), true);
       setTimeout(function(){window.scrollTo(0,1)},0);
       }
     else
-      setTimeout(function(){window.scrollTo(1,1)},0);
+      setTimeout(function(){window.scrollTo(1,1)},50);
+    console.log("hideaddressbar");
   }
   //hide loading bar
   function hideLoading(){
