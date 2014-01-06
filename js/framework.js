@@ -3,6 +3,7 @@ var Params = {
   Theme:""
   }
 var BasePath = "";
+window.addEventListener('submit', hideAddressBar(), true);
 
   function loadPage(link){
     var slink = link.substr(link.lastIndexOf("/")+1,link.length);
