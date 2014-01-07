@@ -4,6 +4,19 @@ var Params = {
   }
 var BasePath = "";
 window.addEventListener('submit', hideAddressBar(), true);
+window.addEventListener('load', function(e) {
+  window.applicationCache.addEventListener('updateready', function(e) {
+    if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
+      // Browser downloaded a new app cache.
+      // Swap it in and reload the page to get the new hotness.
+      window.applicationCache.swapCache();
+      //if (confirm('A new version of this site is available. Load it?')) {
+      //  window.location.reload();
+      //}
+    }
+  }, false);
+
+}, false);
 
   function loadPage(link){
     var slink = link.substr(link.lastIndexOf("/")+1,link.length);
@@ -74,7 +87,6 @@ window.addEventListener('submit', hideAddressBar(), true);
       }
     else
       setTimeout(function(){window.scrollTo(1,1)},50);
-    console.log("hideaddressbar");
   }
   //hide loading bar
   function hideLoading(){
@@ -161,6 +173,7 @@ document.onreadystatechange = function() {
   }
   if (navigator.onLine) {
       ConnectionAvalibe();
+      appCache.update();
   }
 }
 };
