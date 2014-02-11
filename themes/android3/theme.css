@@ -4,7 +4,7 @@ html,body {
 }
 body,
 body.dark {
-  background-color:#303030;
+  background-color:#000;
   color: #ccc;
 }
 body.light {
@@ -20,7 +20,8 @@ nav {
 .toolbar {
   padding: 10px;
   height: 25px;
-  background-color:#303030;
+  background-color:#000;
+  border-bottom: solid 2px #33B5E5;
 }
 .toolbar > h1 {
     position: absolute;
