@@ -7,6 +7,7 @@ window.addEventListener('submit', hideAddressBar(), true);
 window.addEventListener('load', function(e) {
   window.applicationCache.addEventListener('updateready', function(e) {
     if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
+      console.log('Update loaded completely');
       // Browser downloaded a new app cache.
       // Swap it in and reload the page to get the new hotness.
       window.applicationCache.swapCache();
@@ -173,7 +174,8 @@ document.onreadystatechange = function() {
   }
   if (navigator.onLine) {
       ConnectionAvalibe();
-      appCache.update();
+      console.log('Were online, triggering update');
+      window.applicationCache.update();
   }
 }
 };
@@ -209,6 +211,10 @@ function DoLogout(){
   OnConnected();
 }
 function GetList(aName,aFilter,aSequence,aCallback){
+  var link = "http://"+Params.Server+"/?action=list&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&sequence="+aSequence+"&random="+encodeURIComponent(Math.random());
+  DoGetList(link,aSequence,aCallback);
+}
+function SyncList(aName,aFilter,aSequence,aCallback){
   var link = "http://"+Params.Server+"/?action=list&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&sequence="+aSequence+"&random="+encodeURIComponent(Math.random());
   DoGetList(link,aSequence,aCallback);
 }
