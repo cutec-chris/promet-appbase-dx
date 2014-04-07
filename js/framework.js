@@ -214,12 +214,12 @@ function GetList(aName,aFilter,aSequence,aCallback){
   var link = "http://"+Params.Server+"/?action=list&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&sequence="+aSequence+"&random="+encodeURIComponent(Math.random());
   DoGetList(link,aSequence,aCallback);
 }
-function SyncList(aName,aFilter,aSequence,aCallback){
+function SyncList(aName,aFilter,InputData,aSequence,aCallback){
   var link = "http://"+Params.Server+"/?action=sync&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&sequence="+aSequence+"&random="+encodeURIComponent(Math.random());
   DoGetList(link,aSequence,aCallback);
 }
-function GetQLList(aQL,aSequence,aCallback){
-  var link = "http://"+Params.Server+"/?action=list&ql="+encodeURIComponent(aQL)+"&sequence="+aSequence+"&random="+encodeURIComponent(Math.random());
+function GetQLList(aQL,aSequence,aData,aCallback){
+  var link = "http://"+Params.Server+"/?action=list&ql="+encodeURIComponent(aQL)+"&sequence="+aSequence+"&random="+encodeURIComponent(Math.random())+"&data="+encodeURIComponent(aData);
   DoGetList(link,aSequence,aCallback);
 }
 function DoGetList(link,aSequence,aCallback){
