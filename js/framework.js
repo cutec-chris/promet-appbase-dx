@@ -145,7 +145,7 @@ window.addEventListener('load', function(e) {
         navigator.userAgent.match(/iPod/i) ||
         navigator.userAgent.match(/iPad/i)
         ){appendSheet("base/themes/apple/theme.css");}
-    else { appendSheet("base/themes/jqt/theme.css"); }
+    else { appendSheet("base/themes/web/theme.css"); }
     }
   }
 document.onreadystatechange = function() {
