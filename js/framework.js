@@ -215,7 +215,7 @@ function GetList(aName,aFilter,aSequence,aCallback){
   DoGetList(link,aSequence,aCallback);
 }
 function SyncList(aName,aFilter,InputData,aSequence,aCallback){
-  var link = "http://"+Params.Server+"/?action=sync&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&sequence="+aSequence+"&random="+encodeURIComponent(Math.random());
+  var link = "http://"+Params.Server+"/?action=sync&name="+encodeURIComponent(aName)+"&filter="+encodeURIComponent(aFilter)+"&sequence="+aSequence+"&data="+encodeURIComponent(InputData)+"&random="+encodeURIComponent(Math.random());
   DoGetList(link,aSequence,aCallback);
 }
 function GetQLList(aQL,aSequence,aData,aCallback){
