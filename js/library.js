@@ -76,7 +76,7 @@ function storeOption(Name,Value){
 }
 function loadOption(Name){
   var c_value = getCookie(Name);
-  if (c_value==Null) {
+  if (c_value==null) {
     c_value = localStorage[Name];
   }
   return c_value;

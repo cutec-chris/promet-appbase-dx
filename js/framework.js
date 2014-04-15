@@ -126,9 +126,9 @@ window.addEventListener('load', function(e) {
       link.type="text/css";
       document.getElementsByTagName('head')[0].appendChild(link);
     }
-    if ((getCookie("prometTheme")!=null)||(Params.Theme!="")) {
-      if (getCookie("prometTheme")!=null)
-        Params.Theme = getCookie("prometTheme");
+    if ((loadOption("prometTheme")!=null)||(Params.Theme!="")) {
+      if (loadOption("prometTheme")!=null)
+        Params.Theme = loadOption("prometTheme");
       appendSheet("base/themes/"+Params.Theme+"/theme.css");
     }
     else {
@@ -150,8 +150,8 @@ window.addEventListener('load', function(e) {
   }
 document.onreadystatechange = function() {
   if (document.readyState === 'complete'){
-  if (getCookie("prometServer")!=null)
-    Params.Server = getCookie("prometServer");
+  if (loadOption("prometServer")!=null)
+    Params.Server = loadOption("prometServer");
   switchTheme();
   window.addEventListener("resize",function(){hideLoading();});
   window.addEventListener("load",function(){hideAddressBar();});
