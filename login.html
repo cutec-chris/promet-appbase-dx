@@ -19,6 +19,8 @@
     </form>
   </div>
 <script language="javascript">
+if (loadOption("prometUser")!=null)
+  Params.Theme = loadOption("prometUser");
 document.getElementById('user').value = Params.User;
 if (Params.User)
   document.getElementById('pass').setFocus;
@@ -63,6 +65,8 @@ function LoginComplete(){
   } else {
     loadPage('#');
   }
+  Params.User = document.getElementById('user').value;
+  storeOption("prometUser",document.getElementById('user').value);
 }
 </script
 </body>
