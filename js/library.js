@@ -68,3 +68,16 @@ function guid() {
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
          s4() + '-' + s4() + s4() + s4();
 }
+function storeOption(Name,Value){
+  setCookie(Name,Value);
+  if (getCookie(Name)!=Value){
+    localStorage[Name]=Value;
+  }
+}
+function loadOption(Name){
+  var c_value = getCookie(Name);
+  if (c_value==Null) {
+    c_value = localStorage[Name];
+  }
+  return c_value;
+}
