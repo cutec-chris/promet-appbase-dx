@@ -19,6 +19,9 @@
     </form>
   </div>
 <script language="javascript">
+document.getElementById('user').value = Params.User;
+if (Params.User)
+  document.getElementById('pass').setFocus;
 function SubmitLogin(){
   return LoginStep1(document.getElementById('user').value, document.getElementById('pass').value);
 }

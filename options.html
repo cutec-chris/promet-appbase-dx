@@ -23,7 +23,7 @@
       </li>
       <li>
         <h2>Verbindungsserver</h2>
-        <input name="server" type="text">
+        <input name="server" id="ServerSelector" type="text">
       </li>
     </ul>
   </div>
@@ -34,6 +34,11 @@
     Params.Theme = document.getElementById('themeSelector').value;
     storeOption("prometTheme",document.getElementById('themeSelector').value,100);
     switchTheme();
+  }
+  document.getElementById('ServerSelector').value = Params.Server;
+  document.getElementById('ServerSelector').onchange = function(){
+    Params.Server = document.getElementById('ServerSelector').value;
+    storeOption("prometServer",document.getElementById('ServerSelector').value);
   }
   </script>
 </body>

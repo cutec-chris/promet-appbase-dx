@@ -1,6 +1,7 @@
 var Params = {
   Server: "localhost:8086",
-  Theme:""
+  Theme:"",
+  User:""
   }
 var BasePath = "";
 window.addEventListener('submit', hideAddressBar(), true);
