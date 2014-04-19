@@ -3,6 +3,7 @@ var Params = {
   Theme:"",
   User:""
   }
+var FConnectionOK=false;
 var BasePath = "";
 window.addEventListener('submit', hideAddressBar(), true);
 window.addEventListener('load', function(e) {
@@ -169,7 +170,6 @@ document.onreadystatechange = function() {
     links[i].addEventListener('click',LinkClicked);
   }
   function ConnectionAvalibe(){
-    var FConnectionOK=false;
     DoGet("http://"+Params.Server+"/?action=connectionavail&random="+encodeURIComponent(Math.random()));
     ConnTestTimer = window.setTimeout("ConnectionTimeout()", 100);
   }
@@ -186,7 +186,6 @@ function ConnectionTimeout(){
 }
 function ConnectionOK(){
   window.clearTimeout(ConnTestTimer);
-  FConnectionOK = true;
   OnConnected();
   var link = "http://"+Params.Server+"/?action=checklogin&random="+encodeURIComponent(Math.random());
   var request =  new XMLHttpRequest();
@@ -208,6 +207,7 @@ function IsConnectionOK(){
 }
 function DoLogout(){
   DoGet("http://"+Params.Server+"/?action=logout&random="+encodeURIComponent(Math.random()));
+  FConnectionOK=false;
   OnDisconnected();
   OnConnected();
 }

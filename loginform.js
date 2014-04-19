@@ -12,7 +12,7 @@ function LoginStep1(usr, passw){
   password = passw;
   document.getElementById('loginform').elements["ePass"].value="";
   DoGet("http://"+Params.Server+"/?action=login&step=1&name="+encodeURIComponent(usr)+"&random="+encodeURIComponent(Math.random()));
-  LoginTimer = window.setTimeout("LoginTimeout()", 500);
+  LoginTimer = window.setTimeout("LoginTimeout()", 1500);
   return false;
 }
 function LoginTimeout(){
@@ -33,7 +33,7 @@ function LoginStep2(salt){
     }
   password=CryptoJS.SHA1(Result);
   DoGet("http://"+Params.Server+"/?action=login&step=2&p="+encodeURIComponent(password)+"&random="+encodeURIComponent(Math.random()));
-  LoginTimer = window.setTimeout("LoginTimeout()", 500);
+  LoginTimer = window.setTimeout("LoginTimeout()", 1500);
 }
 function LoginComplete(){
   window.clearTimeout(LoginTimer);
