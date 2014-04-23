@@ -22,15 +22,17 @@ function OnDisconnected() {
 }
 function OnLoggedIn() {
   console.log("were logged in");
-  link = document.getElementById('loginButton');
-  if (link) {
-    link.parentNode.removeChild(link);
+  if (!FConnectionOK){
+    FConnectionOK=true;
+    link = document.getElementById('loginButton');
+    if (link) {
+      link.parentNode.removeChild(link);
+    }
+    link=document.createElement('a');
+    link.className="toolbutton";
+    link.id="logoutButton";
+    link.addEventListener('click',DoLogout);
+    document.getElementById('systray').appendChild(link);
   }
-  link=document.createElement('a');
-  link.className="toolbutton";
-  link.id="logoutButton";
-  link.addEventListener('click',DoLogout);
-  document.getElementById('systray').appendChild(link);
-  FConnectionOK=true;
 }
 
