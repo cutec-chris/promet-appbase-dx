@@ -72,6 +72,15 @@ window.addEventListener('load', function(e) {
                     }
                   }
                 }
+                //remove all "templates" from main
+                var scripts = document.getElementsByTagName("script");
+                for (i=0; i<scripts.length; i++) {
+                  var atype=scripts[i].getAttribute("type");
+                  if(atype=="text/html"){ //template
+                    scripts[i].parentNode.removeChild(scripts[i]);
+                    i--;
+                  }
+                }
               }
             else {
                 document.location = BasePath+"index.html";
