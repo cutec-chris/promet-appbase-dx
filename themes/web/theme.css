@@ -13,6 +13,26 @@ a {
     position: relative;
     padding: 10px;
     height: 45px;
+    background-color:#fff;
+}
+.toolbar > h1 {
+    position: absolute;
+    overflow: hidden;
+    left: 50%;
+    top: 10px;
+    line-height: 1em;
+    margin: 1px 0 0 -75px;
+    height: 40px;
+    font-size: 20px;
+    text-shadow: rgba(0,0,0,1) 0 -1px 1px;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #666;
+}
+body.landscape .toolbar > h1 {
+    margin-left: -125px;
+    width: 250px;
 }
 .back:after {
     content: "zurück";
