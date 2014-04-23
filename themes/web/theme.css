@@ -8,6 +8,12 @@ a {
      color: #428bca;
      text-decoration: none;
 }
+.toolbar {
+    -webkit-box-sizing: border-box;
+    position: relative;
+    padding: 10px;
+    height: 45px;
+}
 .back:after {
     content: "zurück";
 }
