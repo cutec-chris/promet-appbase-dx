@@ -160,7 +160,6 @@ ul li {
    background-color: #fff;
    border: 1px solid #ddd;
 }
-}
 /* universal links on list */
 ul li a, li.img a + a {
     text-decoration: none;

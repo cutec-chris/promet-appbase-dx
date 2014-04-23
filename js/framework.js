@@ -46,20 +46,29 @@ window.addEventListener('load', function(e) {
                     var asrc = ob[i].src;
                     var scripts = document.getElementsByTagName("script");
                     for (i=0; i<scripts.length; i++) {
+                      var atype=scripts[i].getAttribute("type");
+                      if(atype=="text/html"){ //template
+                        var atmp = template(scripts[i].getAttribute("id"));
+                        scripts[i].parentNode.removeChild(scripts[i]);
+                        ascript = null;
+                        continue;
+                      }
                       var url = scripts[i].getAttribute("src");
                       if(!url) continue;
-                      aclass=scripts[i].getAttribute("class");
+                      var aclass=scripts[i].getAttribute("class");
                       if(aclass=="ownscript"){
-                      scripts[i].parentNode.removeChild(scripts[i]);
+                        scripts[i].parentNode.removeChild(scripts[i]);
                       }
                     }
                   // Anlegen und Einfügen des neuen Skripts
-                  var script = document.createElement("script");
-                  script.text=ascript;
-                  if (asrc != "") script.src = asrc;
-                  script.setAttribute("type", "text/javascript");
-                  script.setAttribute("class", "ownscript");
-                  document.body.appendChild(script);
+                  if ((ascript)||(asrc!="")) {
+                    var script = document.createElement("script");
+                    script.text=ascript;
+                    if (asrc != "") script.src = asrc;
+                    script.setAttribute("type", "text/javascript");
+                    script.setAttribute("class", "ownscript");
+                    document.body.appendChild(script);
+                    }
                   }
                 }
               }
@@ -173,7 +182,7 @@ document.onreadystatechange = function() {
     DoGet("http://"+Params.Server+"/?action=connectionavail&random="+encodeURIComponent(Math.random()));
     ConnTestTimer = window.setTimeout("ConnectionTimeout()", 100);
   }
-  if (navigator.onLine) {
+  if ((navigator.onLine)&&(window.applicationCache)&&(window.applicationCache.status!=0)) {
       ConnectionAvalibe();
       console.log('Were online, triggering update');
       window.applicationCache.update();
