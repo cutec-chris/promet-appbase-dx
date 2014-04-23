@@ -192,10 +192,12 @@ document.onreadystatechange = function() {
     DoGet("http://"+Params.Server+"/?action=connectionavail&random="+encodeURIComponent(Math.random()));
     ConnTestTimer = window.setTimeout("ConnectionTimeout()", 100);
   }
-  if ((navigator.onLine)&&(window.applicationCache)&&(window.applicationCache.status!=0)) {
+  if (navigator.onLine) {
       ConnectionAvalibe();
-      console.log('Were online, triggering update');
-      window.applicationCache.update();
+      if ((window.applicationCache)&&(window.applicationCache.status!=0)){
+        console.log('Were online, triggering update');
+        window.applicationCache.update();
+      }
   }
 }
 };
