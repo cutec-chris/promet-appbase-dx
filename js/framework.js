@@ -39,26 +39,27 @@ window.addEventListener('load', function(e) {
                 mainDiv.innerHTML = request.response;
                 hideLoading();
                 mainDiv.style.display="block";
+                //remove all "ownscripts" from main
+                var scripts = document.getElementsByTagName("script");
+                for (i=0; i<scripts.length; i++) {
+                  var url = scripts[i].getAttribute("src");
+                  if(!url) continue;
+                  var aclass=scripts[i].getAttribute("class");
+                  if(aclass=="ownscript"){
+                    scripts[i].parentNode.removeChild(scripts[i]);
+                  }
+                }
+                //attatch new scripts to main
                 var ob = mainDiv.getElementsByTagName("script");
                 for(var i=0; i<ob.length; i++){
                   if(ob[i]){
                     var ascript = ob[i].text;
                     var asrc = ob[i].src;
-                    var scripts = document.getElementsByTagName("script");
-                    for (i=0; i<scripts.length; i++) {
-                      var atype=scripts[i].getAttribute("type");
-                      if(atype=="text/html"){ //template
-                        var atmp = template(scripts[i].getAttribute("id"));
-                        scripts[i].parentNode.removeChild(scripts[i]);
-                        ascript = null;
-                        continue;
-                      }
-                      var url = scripts[i].getAttribute("src");
-                      if(!url) continue;
-                      var aclass=scripts[i].getAttribute("class");
-                      if(aclass=="ownscript"){
-                        scripts[i].parentNode.removeChild(scripts[i]);
-                      }
+                    //compile templates
+                    var atype=ob[i].getAttribute("type");
+                    if(atype=="text/html"){ //template
+                      var atmp = template(ob[i].getAttribute("id"));
+                      ascript = null;
                     }
                   // Anlegen und Einfügen des neuen Skripts
                   if ((ascript)||(asrc!="")) {
