@@ -37,7 +37,7 @@ h1, h2, h3, h4, h5, h6
     white-space: nowrap;
     outline: 0 !important;
     text-transform: lowercase;
-    height: 70;
+    height: 70px;
 }
 body.landscape .toolbar > h1 {
     margin-left: -125px;

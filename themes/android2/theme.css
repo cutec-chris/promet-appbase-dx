@@ -2,9 +2,6 @@ body {
     background: #000;
     color: #ddd;
 }
-> * {
-    background: #000;
-}
 h1, h2 {
     font: 18px "Helvetica Neue", Helvetica;
     text-shadow: rgba(255,255,255,.2) 0 1px 1px;
@@ -13,7 +10,7 @@ h1, h2 {
 }
 #progress {
     border-radius: 10px;
-    background-color: rgba(ff,ff,ff,.7);
+    background-color: rgba(255,255,255,.7);
     color: white;
     font-size: 18px;
     font-weight: bold;

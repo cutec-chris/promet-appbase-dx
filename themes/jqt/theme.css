@@ -169,7 +169,7 @@ ul li.arrow {
     background-repeat: no-repeat;
 }
 ul li.forward {
-    background-image: url(img/chevron_circle.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#4c4d4e), to(#404142)),background: -moz-linear-gradient(top,#4c4d4e,#404142);;
+    background-image: url(img/chevron_circle.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#4c4d4e), to(#404142)),background: -moz-linear-gradient(top,#4c4d4e,#404142);
     background-position: right center;
     background-repeat: no-repeat;
 }

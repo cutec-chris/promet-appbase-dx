@@ -44,9 +44,8 @@ a {
   font-family: FontAwesome;
   font-size: 26px;
 }
-//Tabs
 ul.tabs {
-  margin: ;
+  margin: 0;
   padding: 0;
   display: table-row;
   border: none;
