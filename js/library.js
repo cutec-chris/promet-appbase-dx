@@ -11,12 +11,14 @@ function goTo(url){
 }
 function findElementTop(obj) {
   var curtop = 0;
-  if (obj.offsetParent) {
-    do {
-      curtop += obj.offsetTop;
-    } while (obj = obj.offsetParent);
-    return [curtop];
+  if (obj){
+    if (obj.offsetParent) {
+      do {
+        curtop += obj.offsetTop;
+      } while (obj = obj.offsetParent);
+    }
   }
+  return [curtop];
 }
 function DoGet(aurl){
   var scripts = document.getElementsByTagName("script");
