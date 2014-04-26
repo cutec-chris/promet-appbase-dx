@@ -301,7 +301,6 @@ ul li select {
     background: transparent url(img/chevron.png) no-repeat right center;
     -webkit-appearance: textfield;
     margin-left: -6px;
-    width: 100%;
 }
 ul li input[type="checkbox"],
 ul li input[type="radio"] {

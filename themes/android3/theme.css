@@ -257,7 +257,6 @@ input[type="url"],
 textarea,
 select
 {
-  width:90%;
   background-color: transparent;
   border: 2px solid transparent;
   border-bottom-color: #0099cc;

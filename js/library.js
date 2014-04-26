@@ -83,3 +83,11 @@ function loadOption(Name){
   }
   return c_value;
 }
+function verifyLocalStorage() {
+  if (!window.localStorage) {
+    document.querySelector('.section').style.display="none";
+    document.querySelector('#not-supported').style.display="block";
+    return false;
+  }
+  return true;
+}

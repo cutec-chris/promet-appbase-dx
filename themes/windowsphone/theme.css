@@ -312,7 +312,6 @@ ul li select {
     border: 0;
     display: inline-block;
     margin-left: 0px;
-    width: 100%;
     -webkit-appearance: textarea;
     padding: .4em 0em;
     line-height: 1.4;
