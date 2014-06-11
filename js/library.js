@@ -78,8 +78,13 @@ function storeOption(Name,Value){
 }
 function loadOption(Name){
   var c_value = getCookie(Name);
-  if (c_value==null) {
+  try {
+  if ((c_value==null)&&(window.localStorage)) {
     c_value = localStorage[Name];
+  }
+  }
+  catch (e) {
+    c_value=null;
   }
   return c_value;
 }
