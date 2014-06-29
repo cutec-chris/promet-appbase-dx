@@ -11,7 +11,8 @@ h1, h2 {
 /* @group Toolbar */
 .toolbar {
     border-bottom: 1px solid #000;
-    padding: 10px;
+    padding-top: 10px;
+    padding-left: 10px;
     height: 22px;
     background: url(img/toolbar.png) #000000 repeat-x;
     position: relative;

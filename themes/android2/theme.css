@@ -30,6 +30,7 @@ h1, h2 {
     background: #000000;
     position: relative;
     padding-left: 10px;
+    padding-top: 10px;
     height: 45px;
     background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#666), to(#333));
 }

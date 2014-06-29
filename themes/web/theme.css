@@ -12,6 +12,7 @@ a {
     -webkit-box-sizing: border-box;
     position: relative;
     padding-left: 10px;
+    padding-top: 10px;
     height: 45px;
     background-color:#fff;
 }
