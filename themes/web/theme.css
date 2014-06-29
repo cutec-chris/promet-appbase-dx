@@ -11,7 +11,7 @@ a {
 .toolbar {
     -webkit-box-sizing: border-box;
     position: relative;
-    padding: 10px;
+    padding-left: 10px;
     height: 45px;
     background-color:#fff;
 }
