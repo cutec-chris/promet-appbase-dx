@@ -36,6 +36,15 @@ ul li form a {
   width: inherit !important;
 }
 
+.menubar > .toolbutton {
+    border-radius: 30px;
+    height: 30px;
+    width: 30px;
+    background-image: none;
+    padding: 6px 6px 6px 6px;
+    text-align: center;
+}
+
 ul li input[type="text"],
 ul li input[type="password"],
 ul li input[type="tel"],
