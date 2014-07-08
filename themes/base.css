@@ -38,11 +38,11 @@ ul li form a {
 
 .menubar > .toolbutton {
     border-radius: 30px;
-    height: 30px;
-    width: 30px;
+    width: 22px;
     background-image: none;
     padding: 6px 6px 6px 6px;
     text-align: center;
+    vertical-align:middle;
 }
 
 ul li input[type="text"],
