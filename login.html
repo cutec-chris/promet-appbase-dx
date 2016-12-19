@@ -1,24 +1,9 @@
-<html>
-<body>
-  <div class="toolbar">
-    <h1>Anmeldung</h1>
-  </div>
-  <div class="content">
-    <form id="loginform" onsubmit="SubmitLogin();">
-    <ul>
-      <li>
-    	<label for="user">User :</label>
-	<input type="text" name="username" id="eUser"/>
-      </li>
-      <li>
-	<label for="pass">Password :</label>
-	<input type="password" name="passwort" id="ePass"/>
-      </li>
-    </ul>
-    <a class="redButton" onclick="SubmitLogin();">Login</a>
-    </form>
-  </div>
-<script language="javascript" src="base/loginform.js">
-</script>
-</body>
-</html>
+<ul class="dhtmlxForm" name="myForm">
+    <li ftype="fieldset" name="data" inputWidth="auto">Welcome
+        <ul>
+            <li ftype="input" name="name">Login</li>
+            <li ftype="password" name="pass">Password</li>
+            <li ftype="button" name="save" value="Proceed"/>
+        </ul>
+    </li>
+</ul>

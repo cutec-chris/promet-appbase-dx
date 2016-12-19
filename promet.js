@@ -11,11 +11,7 @@ function InitAvammApp(){                          //provides your script as a ha
 
   window.dhx4.skin = 'material';
 
-  lMain = new dhtmlXLayoutObject(document.body, '1C');
-
-  var a = lMain.cells('a');
-  a.hideHeader();
-  sbMain = a.attachSidebar({template: 'text', width: '200', icons_path: './codebase/imgs_sidebar/', autohide: '', header: ''});
+  sbMain =  new dhtmlXSideBar({parent: window.body,template: 'text', width: '200', icons_path: './codebase/imgs_sidebar/', autohide: '', single_cell: true});
 
   dhtmlXSideBar.prototype.templates.icontext =
   // icon 32x32
@@ -32,7 +28,7 @@ function InitAvammApp(){                          //provides your script as a ha
   "</div>";
 
   if (!AvammUser) {
-    RegisterAvammAppPage('Login','login','promet/login.htm');
+    RegisterAvammAppPage('Login','login','appbase/login.html');
   }
 };
 
