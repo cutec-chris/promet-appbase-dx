@@ -1,15 +1,36 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script src="../codebase/dhtmlx.js" type="text/javascript"></script>
+    <link rel="STYLESHEET" type="text/css" href="../codebase/dhtmlx.css">
+    <script src="../appbase/promet.js" type="text/javascript"></script>
+    <script type="text/javascript">
+    function doOnFormInit() {
+      fLogin.attachEvent("onButtonClick",function(buttonID){
+        if(buttonID=="save"){
+          DoLogin(fLogin.getItemValue("name"),fLogin.getItemValue("pass"),fLogin.getItemValue("server"),function(data){
+            if (data.readyState == 4 && data.status == 200) {
+              console.log('succesful login');
+              document.getElementById("realForm").submit();
+              gTasks.parse(data);
+            } else {
+              console.log('unsuccesful login');
+            }
+          });
+        }
+      });
+    }
+    </script>
 </head>
 <body>
-<ul class="dhtmlxForm" name="myForm">
-    <li ftype="fieldset" name="data" inputWidth="auto">Welcome
+<ul class="dhtmlxForm" name="fLogin" oninit="doOnFormInit">
+    <li ftype="fieldset" name="data" inputWidth="auto">Wilkommen
         <ul>
-            <li ftype="input" name="name">Login</li>
-            <li ftype="password" name="pass">Password</li>
-            <li ftype="button" name="save" value="Proceed"/>
+            <li ftype="input" name="server" value="http://localhost:8085">Server</li>
+            <li ftype="input" name="name">Benutzername</li>
+            <li ftype="password" name="pass">Passwort</li>
+            <li ftype="button" name="save" value="Login"/>
         </ul>
     </li>
 </ul>

@@ -1,13 +1,13 @@
 var sbMain;
 var lMain;
-var AvammUser,AvammPasswd;
+var AvammUser,AvammPasswd,AvammServer;
 
 function RegisterAvammAppPage(caption,name,src) {
   sbMain.addItem({id: 'si'+name, text: caption, AppID: name, AppSrc: src, icon: ''});
   sbMain.cells('si'+name).attachURL(src);
 }
 
-function InitAvammApp(){                          //provides your script as a handler of the 'onload' HTML event
+function InitAvammApp(){
 
   window.dhx4.skin = 'material';
 
@@ -26,53 +26,39 @@ function InitAvammApp(){                          //provides your script as a ha
   "<div class='dhxsidebar_item_text'>"+
     "<a class='line' id='#AppID#' href='#AppSrc#' default>#text#</section>"+
   "</div>";
-
   if (!AvammUser) {
     RegisterAvammAppPage('Login','login','appbase/login.html');
+    sbMain.cells('silogin').setActive();
   }
 };
 
-function DoLogin() {
-  var myForm, formData;
-  var dhxWins, w1;
-  formData = [
-	      {type: "settings", position: "label-left", labelWidth: 100, inputWidth: 120},
-	      {type: "block", inputWidth: "auto", offsetTop: 12, list: [
-	           {type: "input",name: "eUser", label: "Login", value: "p_rossi"},
-		   {type: "password",name: "ePassword", label: "Password", value: "123"},
-		   //{type: "checkbox", label: "Remember me", checked: true},
-		   {type: "button", value: "Login", offsetLeft: 70, offsetTop: 14}
-		   ]}
-		   ];
-  dhxWins = new dhtmlXWindows();
-  w1 = dhxWins.createWindow("w1", 10, 10, 300, 250);
-  w1.denyResize();
-  w1.centerOnScreen();
-  myForm = w1.attachForm(formData, true);
-  myForm.attachEvent("onButtonClick", function(id){
-    AvammUser = myForm.getInput("eUser").value;
-    AvammPasswd = myForm.getInput("ePassword").value;
-    myForm.Hide;
-    LoadTasks();
-  });
-}
+function StartAvammApp(){
+};
 
-function LoadTasks() {
+function LoadData(Url,Callback) {
   if (AvammUser) {
     dhx4.ajax.query
       ({
-        type: "GET",
-        url: "http://localhost:8085/task/list.json",
+        method: "GET",
+        url: AvammServer+Url,
         dataType: "json",
         async: true,
         headers: {
                 "Authorization": "Basic " + btoa(AvammUser + ":" + AvammPasswd)
                 },
-        success: function (data){
-          document.getElementById("realForm").submit();
-          gTasks.parse(data);
+        callback: function (data){
+          if (Callback)
+            Callback(data);
         }
       });
-      //gTasks.load('http://localhost:8085/task/list.json');
   }
+}
+
+function DoLogin(aName,aPasswd,aServer,Callback) {
+  console.log("Login of "+aName);
+  var Data;
+  AvammUser = aName;
+  AvammPasswd = aPasswd;
+  AvammServer = aServer;
+  LoadData("/task/list.json",function(Data){ if (Callback) Callback(Data);});
 }
