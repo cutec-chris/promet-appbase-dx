@@ -11,7 +11,7 @@ function InitAvammApp(){                          //provides your script as a ha
 
   window.dhx4.skin = 'material';
 
-  sbMain =  new dhtmlXSideBar({parent: document.body,template: 'text', width: '200', icons_path: './codebase/imgs_sidebar/', autohide: '', single_cell: true});
+  sbMain =  new dhtmlXSideBar({parent: document.body,template: 'text', width: '200', icons_path: './codebase/imgs_sidebar/', autohide: ''});
 
   dhtmlXSideBar.prototype.templates.icontext =
   // icon 32x32
