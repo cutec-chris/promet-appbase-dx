@@ -59,5 +59,5 @@ function DoLogin(aName,aPasswd,aServer,Callback) {
   AvammUser = aName;
   AvammPasswd = aPasswd;
   AvammServer = aServer;
-  LoadData("/task/list.json",function(Data){ if (Callback) Callback(Data);});
+  LoadData("/",function(Data){ if (Callback) Callback(Data);});
 }
