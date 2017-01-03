@@ -21,21 +21,19 @@
                 gTasks.parse(data);
               } else {
                 console.log('unsuccesful login '+data.status);
-                if (data.status == 401)
-                  dhtmlx.message({
-                    type : "error",
-    		    text: "Login nicht erfolgreich",
-		    expire: -1
-         	  });
-                else
-                  dhtmlx.message({
-                    type : "error",
-    		    text: "Server nicht erreichbar",
-		    expire: -1
-         	  });
+                dhtmlx.message({
+                  type : "error",
+  		  text: "Login nicht erfolgreich",
+		  expire: 5000
+         	});
               }
             } else {
               console.log('server not reachable');
+              dhtmlx.message({
+                type : "error",
+		text: "Server nicht erreichbar",
+		expire: 15000
+              });
             }
           });
         }

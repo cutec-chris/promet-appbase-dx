@@ -34,20 +34,24 @@ function StartAvammApp(){
 
 function LoadData(Url,Callback) {
   if (AvammUser) {
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState == 4) {
-        if (Callback)
-          Callback(xhr);
-      }
-    };
-  xhr.open("GET", AvammServer+Url, true);
-  xhr.setRequestHeader("Authorization","Basic " + btoa(AvammUser + ":" + AvammPasswd));
-  xhr.timeout = 1000;
-  //xhr.ontimeout = function () { if (Callback) Callback(); }
-  xhr.send();
-  }
-}
+    dhx.ajax.timeout = 1000;
+    var aTimeout = window.setTimeout(Callback,1000);
+    dhx.ajax.query
+      ({
+        method: "GET",
+        url: AvammServer+Url,
+        dataType: "json",
+        async: true,
+        headers: {
+                "Authorization": "Basic " + btoa(AvammUser + ":" + AvammPasswd)
+                },
+        callback: function (data){
+          window.clearTimeout(aTimeout);
+          if (Callback)
+            Callback(data);
+        }
+      });
+}}
 
 function DoLogin(aName,aPasswd,aServer,Callback) {
   console.log("Login of "+aName);
