@@ -8,11 +8,8 @@ function RegisterAvammAppPage(caption,name,src) {
 }
 
 function InitAvammApp(){
-
   window.dhx4.skin = 'material';
-
   sbMain =  new dhtmlXSideBar({parent: document.body,template: 'text', width: '200', icons_path: './codebase/imgs_sidebar/', autohide: ''});
-
   dhtmlXSideBar.prototype.templates.icontext =
   // icon 32x32
   "<img class='dhxsidebar_item_icon' src='#icons_path##icon#' border='0'>"+
@@ -37,20 +34,18 @@ function StartAvammApp(){
 
 function LoadData(Url,Callback) {
   if (AvammUser) {
-    dhx4.ajax.query
-      ({
-        method: "GET",
-        url: AvammServer+Url,
-        dataType: "json",
-        async: true,
-        headers: {
-                "Authorization": "Basic " + btoa(AvammUser + ":" + AvammPasswd)
-                },
-        callback: function (data){
-          if (Callback)
-            Callback(data);
-        }
-      });
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState == 4) {
+        if (Callback)
+          Callback(xhr);
+      }
+    };
+  xhr.open("GET", AvammServer+Url, true);
+  xhr.setRequestHeader("Authorization","Basic " + btoa(AvammUser + ":" + AvammPasswd));
+  xhr.timeout = 1000;
+  //xhr.ontimeout = function () { if (Callback) Callback(); }
+  xhr.send();
   }
 }
 

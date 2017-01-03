@@ -10,12 +10,32 @@
       fLogin.attachEvent("onButtonClick",function(buttonID){
         if(buttonID=="save"){
           DoLogin(fLogin.getItemValue("name"),fLogin.getItemValue("pass"),fLogin.getItemValue("server"),function(data){
-            if (data.readyState == 4 && data.status == 200) {
-              console.log('succesful login');
-              document.getElementById("realForm").submit();
-              gTasks.parse(data);
+            if (data) {
+              if (data.readyState == 4 && data.status == 200) {
+                console.log('succesful login');
+                dhtmlx.message({
+  		  text: "Login erfolgreich",
+		  expire: 5
+         	});
+                document.getElementById("realForm").submit();
+                gTasks.parse(data);
+              } else {
+                console.log('unsuccesful login '+data.status);
+                if (data.status == 401)
+                  dhtmlx.message({
+                    type : "error",
+    		    text: "Login nicht erfolgreich",
+		    expire: -1
+         	  });
+                else
+                  dhtmlx.message({
+                    type : "error",
+    		    text: "Server nicht erreichbar",
+		    expire: -1
+         	  });
+              }
             } else {
-              console.log('unsuccesful login');
+              console.log('server not reachable');
             }
           });
         }
