@@ -4,8 +4,7 @@ var AvammUser,AvammPasswd,AvammServer;
 
 function RegisterAvammAppPage(caption,name,src) {
   sbMain.addItem({id: 'si'+name, text: caption, AppID: name, AppSrc: src, icon: ''});
-  sbMain.cells('si'+name).attachEvent("")
-  sbMain.cells('si'+name).attachURL(src);
+  sbMain.cells('si'+name).attachURL(src, null, false);
 }
 
 function InitAvammApp(){
@@ -15,8 +14,8 @@ function InitAvammApp(){
       template: 'text',
       width: '200',
       icons_path: './codebase/imgs_sidebar/',
-      header: true,
-      autohide: false,
+      header: (window.innerWidth<495)|(window.innerHeight<495),
+      autohide: (window.innerWidth<495)|(window.innerHeight<495),
       offsets: {
         top: 0,
         right: 0,
@@ -46,7 +45,10 @@ function InitAvammApp(){
   if (!AvammUser) {
     RegisterAvammAppPage('Login','login','appbase/login.html');
     sbMain.cells('silogin').setActive();
+  } else {
+    sbMain.showSide();
   }
+
 };
 
 function StartAvammApp(){
