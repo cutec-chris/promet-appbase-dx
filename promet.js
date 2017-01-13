@@ -4,12 +4,26 @@ var AvammUser,AvammPasswd,AvammServer;
 
 function RegisterAvammAppPage(caption,name,src) {
   sbMain.addItem({id: 'si'+name, text: caption, AppID: name, AppSrc: src, icon: ''});
+  sbMain.cells('si'+name).attachEvent("")
   sbMain.cells('si'+name).attachURL(src);
 }
 
 function InitAvammApp(){
   window.dhx4.skin = 'material';
-  sbMain =  new dhtmlXSideBar({parent: document.body,template: 'text', width: '200', icons_path: './codebase/imgs_sidebar/', autohide: ''});
+  sbMain =  new dhtmlXSideBar(
+    { parent: document.body,
+      template: 'text',
+      width: '200',
+      icons_path: './codebase/imgs_sidebar/',
+      header: true,
+      autohide: false,
+      offsets: {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+      }
+    });
   dhtmlXSideBar.prototype.templates.icontext =
   // icon 32x32
   "<img class='dhxsidebar_item_icon' src='#icons_path##icon#' border='0'>"+
@@ -23,6 +37,12 @@ function InitAvammApp(){
   "<div class='dhxsidebar_item_text'>"+
     "<a class='line' id='#AppID#' href='#AppSrc#' default>#text#</section>"+
   "</div>";
+  sbMain.attachEvent("onBeforeSelect", function(id, lastId){
+    //TODO:attatchURL before Load and not on Load of the page
+    //console.log("onBeforeSelect",id,sbMain.cells(id));
+    //sbMain.cells(id).attachURL(sbMain.cells(id).AppSrc);
+		return true;
+	});
   if (!AvammUser) {
     RegisterAvammAppPage('Login','login','appbase/login.html');
     sbMain.cells('silogin').setActive();
