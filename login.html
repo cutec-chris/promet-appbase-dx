@@ -60,6 +60,16 @@
       });
     }
     </script>
+    <style>
+	  iframe.submit_iframe {
+	    position: absolute;
+	    width: 1px;
+	    height: 1px;
+	    left: -100px;
+	    top: -100px;
+	    font-size: 1px;
+	  }
+    </style>
 </head>
 <body>
 <ul class="dhtmlxForm" name="fLogin" oninit="doOnFormInit">
@@ -77,4 +87,10 @@
         </ul>
     </li>
 </ul>
+<div class="login_form">
+  <form id="realForm" action="check.php" method="POST" target="submit_ifr">
+  <div id="dhxForm"></div>
+  </form>
+</div>
+<iframe border="0" frameBorder="0" name="submit_ifr" class="submit_iframe"></iframe>
 </body>
