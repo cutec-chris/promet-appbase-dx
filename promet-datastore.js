@@ -1,25 +1,21 @@
 function newPrometDataStore(aName,aSheme) {
-  var aDS = new dhtmlXDataStore({ datatype:"json" });
+  var aDS = new dataProcessor(aName);
   aDS.TableName = aName;
   if (aSheme) {
     aDS.data.sheme(aSheme);
   }
-  /*
-  aDS.attachEvent("onAfterAdd", function(id) {
-    console.log('new Record');
+  aDS.setTransactionMode("REST",false);
+  aDS.enablePartialDataSend(true);
+  aDS.attachEvent("onBeforeDataSending", function(id, mode, data){
+    //here you can place your own data saving logic
+    console.log(aDS.TableName,'data should be send ',id,mode,data);
+    return false;
   });
-  aDS.attachEvent("onAfterDelete",function(id) {
-    console.log('deleted Record');
+  aDS.attachEvent("onAfterUpdateFinish",function(){
+     alert(aDS.TableName,"single row updated")
   });
-  */
-  aDS.attachEvent("onStoreUpdated", function(id, data, mode){
-    console.log('updated Record');
-  });
-  aDS.attachEvent("onDataRequest", function(start, count){
-    console.log('Data Request');
-  });
-  aDS.attachEvent("onAfterCursorChange", function(id){
-    console.log('Cursor changed');
+  aDS.attachEvent("onFullSync",function(){
+     alert(aDS.TableName,"all rows updated")
   });
   return aDS;
 }
