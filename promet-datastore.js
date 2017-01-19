@@ -1,5 +1,5 @@
 function newPrometDataStore(aName,aSheme) {
-  var aDS = new dhtmlXDataStore();
+  var aDS = {};
   aDS.DataProcessor = new dataProcessor(aName);
   aDS.TableName = aName;
   if (aSheme) {
@@ -18,5 +18,18 @@ function newPrometDataStore(aName,aSheme) {
   aDS.DataProcessor.attachEvent("onFullSync",function(){
      alert(aDS.TableName,"all rows updated")
   });
+  aDS.FillGrid = function(aGrid) {
+    if (LoadData('tasks/list.json',function(){
+      console.log("Data loaded ?!");
+    })==true) {   
+    }
+    else {
+      dhtmlx.message({
+        type : "error",
+        text: "Login erforderlich",
+        expire: 3000
+      });
+    }
+  }
   return aDS;
 }

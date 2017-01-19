@@ -73,7 +73,11 @@ function LoadData(Url,Callback) {
             Callback(data);
         }
       });
-}}
+      return true;
+  } else {
+    return false;
+  }
+}
 
 function DoLogin(aName,aPasswd,aServer,Callback) {
   console.log("Login of "+aName);
