@@ -1,11 +1,3 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <script src="../codebase/dhtmlx.js" type="text/javascript"></script>
-    <link rel="STYLESHEET" type="text/css" href="../codebase/dhtmlx.css">
-    <script src="promet.js" type="text/javascript"></script>
-    <script type="text/javascript">
     function doOnFormInit() {
       fLogin.hideItem("logoutdata");
       fLogin.attachEvent("onButtonClick",function(buttonID){
@@ -60,38 +52,3 @@
         }
       });
     }
-    </script>
-    <style>
-	  iframe.submit_iframe {
-	    position: absolute;
-	    width: 1px;
-	    height: 1px;
-	    left: -100px;
-	    top: -100px;
-	    font-size: 1px;
-	  }
-    </style>
-</head>
-<body>
-<ul class="dhtmlxForm" name="fLogin" oninit="doOnFormInit">
-    <li ftype="fieldset" name="data" inputWidth="auto">Wilkommen
-        <ul>
-            <li ftype="input" name="server" value="http://localhost:8085">Server</li>
-            <li ftype="input" name="name">Benutzername</li>
-            <li ftype="password" name="pass">Passwort</li>
-            <li ftype="button" name="save" value="Login"/>
-        </ul>
-    </li>
-    <li ftype="fieldset" name="logoutdata" inputWidth="auto">Abmelden
-        <ul>
-            <li ftype="button" name="logout" value="Logout"/>
-        </ul>
-    </li>
-</ul>
-<div class="login_form">
-  <form id="realForm" action="check.php" method="POST" target="submit_ifr">
-  <div id="dhxForm"></div>
-  </form>
-</div>
-<iframe border="0" frameBorder="0" name="submit_ifr" class="submit_iframe"></iframe>
-</body>
