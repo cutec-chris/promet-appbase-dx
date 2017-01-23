@@ -4,7 +4,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <script src="../codebase/dhtmlx.js" type="text/javascript"></script>
     <link rel="STYLESHEET" type="text/css" href="../codebase/dhtmlx.css">
-    <script src="promet.js" type="text/javascript"></script>
     <script type="text/javascript">
     function doOnFormInit() {
       fLogin.hideItem("logoutdata");
@@ -17,7 +16,7 @@
 		                expire: 5000
          	        });
           } else {
-            DoLogin(fLogin.getItemValue("name"),fLogin.getItemValue("pass"),fLogin.getItemValue("server"),function(data){
+            parent.DoLogin(fLogin.getItemValue("name"),fLogin.getItemValue("pass"),fLogin.getItemValue("server"),function(data){
               if (data) {
                 if (data.xmlDoc.readyState == 4 && data.xmlDoc.status == 500) {
                   console.log('succesful login');
@@ -25,6 +24,8 @@
   	  	            text: "Login erfolgreich",
 		                expire: 3000
            	      });
+                  if (fLogin.getItemValue("store")==1)
+                    parent.setCookie('login',fLogin.getItemValue("name"));
                   fLogin.hideItem("data");
                   fLogin.showItem("logoutdata");
                   document.getElementById("realForm").submit();
@@ -79,6 +80,7 @@
             <li ftype="input" name="server" value="http://localhost:8085">Server</li>
             <li ftype="input" name="name">Benutzername</li>
             <li ftype="password" name="pass">Passwort</li>
+            <li ftype="checkbox" name="store">Login in Cookie speichern</li>
             <li ftype="button" name="save" value="Login"/>
         </ul>
     </li>
