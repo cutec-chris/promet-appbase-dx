@@ -21,7 +21,7 @@ function newPrometDataStore(aName,aSheme) {
   aDS.FillGrid = function(aGrid) {
     if (LoadData('/'+aDS.TableName+'/list.json',function(aData){
       console.log("Data loaded");
-      aGrid.clearAll;
+      aGrid.clearAll();
       var aData2 = JSON.parse(aData.xmlDoc.response);
       for (var i = 0; i < aData2.length-1; i++) {
         var aRow = "";
