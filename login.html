@@ -6,7 +6,17 @@
     <link rel="STYLESHEET" type="text/css" href="../codebase/dhtmlx.css">
     <script type="text/javascript">
     function doOnFormInit() {
-      fLogin.hideItem("logoutdata");
+      parent.AvammLogin = parent.getCookie('login');
+      parent.AvammServer = parent.getCookie('server');
+      if (parent.AvammServer=="") {
+        parent.AvammServer = 'http://localhost:8085';
+      }
+      fLogin.setItemValue("server",parent.AvammServer);
+      if (parent.AvammLogin) {
+        fLogin.hideItem("data");
+      } else {
+        fLogin.hideItem("logoutdata");
+      }
       fLogin.attachEvent("onButtonClick",function(buttonID){
         if(buttonID=="save"){
           if (fLogin.getItemValue("name")=="") {
@@ -16,7 +26,7 @@
 		                expire: 5000
          	        });
           } else {
-            parent.DoLogin(fLogin.getItemValue("name"),fLogin.getItemValue("pass"),fLogin.getItemValue("server"),function(data){
+            parent.DoLogin(btoa(fLogin.getItemValue("name")+":"+fLogin.getItemValue("pass")),fLogin.getItemValue("server"),function(data){
               if (data) {
                 if (data.xmlDoc.readyState == 4 && data.xmlDoc.status == 500) {
                   console.log('succesful login');
@@ -24,8 +34,10 @@
   	  	            text: "Login erfolgreich",
 		                expire: 3000
            	      });
-                  if (fLogin.getItemValue("store")==1)
-                    parent.setCookie('login',fLogin.getItemValue("name"));
+                  if (fLogin.getItemValue("store")==1) {
+                    parent.setCookie('login',btoa(fLogin.getItemValue("name")+":"+fLogin.getItemValue("pass")));
+                    parent.setCookie('server',fLogin.getItemValue("server"));
+                  }
                   fLogin.hideItem("data");
                   fLogin.showItem("logoutdata");
                   document.getElementById("realForm").submit();

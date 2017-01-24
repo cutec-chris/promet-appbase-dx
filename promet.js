@@ -1,6 +1,6 @@
 var sbMain;
 var lMain;
-var AvammUser,AvammPasswd,AvammServer;
+var AvammLogin,AvammServer;
 
 function RegisterAvammAppPage(caption,name,src) {
   sbMain.addItem({id: 'si'+name, text: caption, AppID: name, AppSrc: src, icon: ''});
@@ -42,7 +42,7 @@ function InitAvammApp(){
     //sbMain.cells(id).attachURL(sbMain.cells(id).AppSrc);
 		return true;
 	});
-  if (!AvammUser) {
+  if (!AvammLogin) {
     RegisterAvammAppPage('Login','login','appbase/login.html');
     sbMain.cells('silogin').setActive();
   } else {
@@ -55,7 +55,7 @@ function StartAvammApp(){
 };
 
 function LoadData(Url,Callback) {
-  if (AvammUser) {
+  if (AvammLogin) {
     dhx.ajax.timeout = 1000;
     var aTimeout = window.setTimeout(Callback,1000);
     dhx.ajax.query
@@ -65,7 +65,7 @@ function LoadData(Url,Callback) {
         dataType: "json",
         async: true,
         headers: {
-                "Authorization": "Basic " + btoa(AvammUser + ":" + AvammPasswd)
+                "Authorization": "Basic " + AvammLogin
                 },
         callback: function (data){
           window.clearTimeout(aTimeout);
@@ -79,11 +79,10 @@ function LoadData(Url,Callback) {
   }
 }
 
-function DoLogin(aName,aPasswd,aServer,Callback) {
-  console.log("Login of "+aName);
+function DoLogin(aLogin,aServer,Callback) {
+  console.log("Login");
   var Data;
-  AvammUser = aName;
-  AvammPasswd = aPasswd;
+  AvammLogin=aLogin;
   AvammServer = aServer;
   LoadData("/",function(Data){ if (Callback) Callback(Data);});
 }
