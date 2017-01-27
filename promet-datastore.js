@@ -2,6 +2,7 @@ function newPrometDataStore(aName,aSheme) {
   var aDS = {};
   aDS.DataProcessor = new dataProcessor(aName);
   aDS.TableName = aName;
+  aDS.loading = false;
   if (aSheme) {
     aDS.data.sheme(aSheme);
   }
@@ -9,7 +10,10 @@ function newPrometDataStore(aName,aSheme) {
   aDS.DataProcessor.enablePartialDataSend(true);
   aDS.DataProcessor.attachEvent("onBeforeDataSending", function(id, mode, data){
     //here you can place your own data saving logic
-    console.log(aDS.TableName,'data should be send ',id,mode,data);
+    if (!aDS.loading) {
+      console.log(aDS.TableName,'data should be send ',id,mode,data);
+      aDS.DataProcessor.setUpdated(id);
+    }
     return false;
   });
   aDS.DataProcessor.attachEvent("onAfterUpdateFinish",function(){
@@ -20,15 +24,24 @@ function newPrometDataStore(aName,aSheme) {
   });
   aDS.FillGrid = function(aGrid) {
     if (LoadData('/'+aDS.TableName+'/list.json',function(aData){
+      aDS.loading = true;
       console.log("Data loaded");
-      aGrid.clearAll();
-      var aData2 = JSON.parse(aData.xmlDoc.response);
-      for (var i = 0; i < aData2.length-1; i++) {
-        var aRow = "";
-        for (var a = 0; a < aGrid.getColumnsNum()-1;a++)
-          aRow += ','+aData2[i][aGrid.getColumnId(a)];
-        aRow = aRow.substring(1,aRow.length);
-        aGrid.addRow(aData2[i].id,aRow);
+      try {
+        aGrid.clearAll();
+        if (aData.xmlDoc)
+        var aData2 = JSON.parse(aData.xmlDoc.response);
+        for (var i = 0; i < aData2.length-1; i++) {
+          var aRow = "";
+          for (var a = 0; a < aGrid.getColumnsNum()-1;a++)
+            aRow += ','+aData2[i][aGrid.getColumnId(a)];
+          aRow = aRow.substring(1,aRow.length);
+          aGrid.addRow(aData2[i].id,aRow);
+          aDS.DataProcessor.setUpdated(aData2[i].id);
+        }
+      aDS.loading = false;
+      } catch(err) {
+        aDS.loading = false;
+        console.log(aDS.TableName,'failed to load data !',err);
       }
     })==true) {
       console.log("Data loaded 2");

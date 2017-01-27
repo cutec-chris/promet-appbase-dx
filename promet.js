@@ -49,6 +49,67 @@ function InitAvammApp(){
     sbMain.showSide();
   }
 
+  function eXcell_NY_ch(cell){ //the eXcell name is defined here
+      if (cell){                 //the default pattern, just copy it
+          this.cell = cell;
+          this.grid = this.cell.parentNode.grid;
+          eXcell_ch.call(this); //uses methods of the "ch" type
+      }
+  this.setValue=function(val){
+     this.cell.style.verticalAlign="middle";
+     if (val=="Y"){
+        this.cell.chstate="1";
+     } else {
+        val="N";
+        this.cell.chstate="0"
+     }
+     var obj = this;
+     this.cell.setAttribute("excell", "ch");
+     if (val=="Y")
+        state=1
+     else
+        state=0
+     this.setCValue("<img src='"+this.grid.imgURL+"item_chk"+state
+        +".gif' onclick='new eXcell_ch1(this.parentNode).changeState(true); (arguments[0]||event).cancelBubble=true; '>",
+        this.cell.chstate);
+  }
+  }
+  eXcell_NY_ch.prototype = new eXcell;
+
+  eXcell_dhxCalendar.prototype.edit = function() {
+
+         var arPos = this.grid.getPosition(this.cell);
+
+         this.grid._grid_calendarA._show(false, false);
+         var yPosition = 0;
+         if(arPos[1] + this.grid._grid_calendarA.base.offsetHeight + this.cell.offsetHeight < window.innerHeight) {
+            // Enough space to show dhxCalendar below date
+            yPosition = arPos[1]+this.cell.offsetHeight;
+         } else {
+            // Show dhxCalendar above date
+            yPosition = arPos[1]-(this.grid._grid_calendarA.base.offsetHeight);
+         }
+         var xPosition = arPos[0];
+         if (xPosition+this.grid._grid_calendarA.base.clientWidth+ this.cell.offsetWidth>window.innerWidth) {
+           xPosition = window.innerWidth-this.grid._grid_calendarA.base.clientWidth;
+         }
+         this.grid._grid_calendarA.setPosition(xPosition, yPosition);
+         this.grid._grid_calendarA._last_operation_calendar = false;
+
+
+         this.grid.callEvent("onCalendarShow", [this.grid._grid_calendarA, this.cell.parentNode.idd, this.cell._cellIndex]);
+         this.cell._cediton = true;
+         this.val = this.cell.val;
+         this._val = this.cell.innerHTML;
+         var t = this.grid._grid_calendarA.draw;
+         this.grid._grid_calendarA.draw = function(){};
+         this.grid._grid_calendarA.setDateFormat((this.grid._dtmask||"%d/%m/%Y"));
+         this.grid._grid_calendarA.setDate(this.val||(new Date()));
+         this.grid._grid_calendarA.draw = t;
+
+         // Time is not needed so disable it
+         this.grid._grid_calendarA.hideTime();
+      }
 };
 
 function StartAvammApp(){
