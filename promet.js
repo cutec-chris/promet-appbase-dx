@@ -48,20 +48,14 @@ function InitAvammApp(){
   } else {
     sbMain.showSide();
   }
-
-  function eXcell_NY_ch(cell){ //the eXcell name is defined here
-      if (cell){                 //the default pattern, just copy it
-          this.cell = cell;
-          this.grid = this.cell.parentNode.grid;
-          eXcell_ch.call(this); //uses methods of the "ch" type
-      }
-  this.setValue=function(val){
+  eXcell_ch.prototype.setValue = function(val) {
      this.cell.style.verticalAlign="middle";
-     if (val=="Y"){
+     if ((val=="Y")||(val==1)){
+        val="Y";
         this.cell.chstate="1";
      } else {
         val="N";
-        this.cell.chstate="0"
+        this.cell.chstate="0";
      }
      var obj = this;
      this.cell.setAttribute("excell", "ch");
@@ -70,12 +64,9 @@ function InitAvammApp(){
      else
         state=0
      this.setCValue("<img src='"+this.grid.imgURL+"item_chk"+state
-        +".gif' onclick='new eXcell_ch1(this.parentNode).changeState(true); (arguments[0]||event).cancelBubble=true; '>",
+        +".gif' onclick='new eXcell_ch(this.parentNode).changeState(true); (arguments[0]||event).cancelBubble=true; '>",
         this.cell.chstate);
   }
-  }
-  eXcell_NY_ch.prototype = new eXcell;
-
   eXcell_dhxCalendar.prototype.edit = function() {
 
          var arPos = this.grid.getPosition(this.cell);
@@ -125,6 +116,32 @@ function LoadData(Url,Callback) {
         url: AvammServer+Url,
         dataType: "json",
         async: true,
+        headers: {
+                "Authorization": "Basic " + AvammLogin
+                },
+        callback: function (data){
+          window.clearTimeout(aTimeout);
+          if (Callback)
+            Callback(data);
+        }
+      });
+      return true;
+  } else {
+    return false;
+  }
+}
+
+function StoreData(Url,aData,Callback) {
+  if (AvammLogin) {
+    dhx.ajax.timeout = 1000;
+    var aTimeout = window.setTimeout(Callback,1000);
+    dhx.ajax.query
+      ({
+        method: "POST",
+        url: AvammServer+Url,
+        dataType: "json",
+        async: false,
+        data : aData,
         headers: {
                 "Authorization": "Basic " + AvammLogin
                 },
