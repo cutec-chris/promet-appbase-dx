@@ -13,7 +13,7 @@ function InitAvammApp(){
     { parent: document.body,
       template: 'text',
       width: '200',
-      icons_path: './codebase/imgs_sidebar/',
+      iconset: "awesome",
       header: (window.innerWidth<495)|(window.innerHeight<495),
       autohide: (window.innerWidth<495)|(window.innerHeight<495),
       offsets: {
