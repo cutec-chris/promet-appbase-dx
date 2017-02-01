@@ -37,8 +37,12 @@ function newPrometDataStore(aName,aSheme) {
   aDS.DataProcessor.attachEvent("onFullSync",function(){
      alert(aDS.TableName,"all rows updated")
   });
-  aDS.FillGrid = function(aGrid) {
-    if (LoadData('/'+aDS.TableName+'/list.json',function(aData){
+  aDS.FillGrid = function(aGrid,aFilter,aLimit) {
+    var aURL = '/'+aDS.TableName+'/list.json';
+    if (aFilter) {
+      aURL+='?filter='+encodeURIComponent(aFilter);
+    }
+    if (LoadData(aURL,function(aData){
       aDS.loading = true;
       console.log("Data loaded");
       try {
