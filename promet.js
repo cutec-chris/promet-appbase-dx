@@ -23,6 +23,7 @@ function InitAvammApp(){
         left: 0
       }
     });
+/*
   dhtmlXSideBar.prototype.templates.icontext =
   // icon 32x32
   "<img class='dhxsidebar_item_icon' src='#icons_path##icon#' border='0'>"+
@@ -36,6 +37,7 @@ function InitAvammApp(){
   "<div class='dhxsidebar_item_text'>"+
     "<a class='line' id='#AppID#' href='#AppSrc#' default>#text#</section>"+
   "</div>";
+*/
   sbMain.attachEvent("onBeforeSelect", function(id, lastId){
     //TODO:attatchURL before Load and not on Load of the page
     //console.log("onBeforeSelect",id,sbMain.cells(id));
@@ -186,4 +188,38 @@ function getCookie(cname) {
         }
     }
     return "";
+}
+
+function parseDate(input, format) {
+  format = format || 'dd.mm.yyyy'; // default format
+  var parts = input.match(/(\d+)/g),
+      i = 0, fmt = {};
+  // extract date-part indexes from the format
+  format.replace(/(yyyy|dd|mm)/g, function(part) { fmt[part] = i++; });
+
+  return new Date(parts[fmt['yyyy']], parts[fmt['mm']]-1, parts[fmt['dd']]);
+}
+
+var formatDate = function(dt,format){
+  format = format.replace('ss', pad(dt.getSeconds(),2));
+  format = format.replace('s', dt.getSeconds());
+  format = format.replace('dd', pad(dt.getDate(),2));
+  format = format.replace('d', dt.getDate());
+  format = format.replace('mm', pad(dt.getMinutes(),2));
+  format = format.replace('m', dt.getMinutes());
+  format = format.replace('MM', pad(dt.getMonth()+1,2));
+  format = format.replace('M', dt.getMonth()+1);
+  format = format.replace('yyyy', dt.getFullYear());
+  format = format.replace('YYYY', dt.getFullYear());
+  format = format.replace('yy', (dt.getFullYear()+"").substring(2));
+  format = format.replace('YY', (dt.getFullYear()+"").substring(2));
+  format = format.replace('HH', pad(dt.getHours(),2));
+  format = format.replace('H', dt.getHours());
+  return format;
+}
+
+pad = function(n, width, z) {
+  z = z || '0';
+  n = n + '';
+  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
