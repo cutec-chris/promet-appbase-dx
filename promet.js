@@ -108,8 +108,8 @@ function InitAvammApp(){
 function StartAvammApp(){
 };
 
-function LoadData(Url,Callback) {
-  if (AvammLogin) {
+function LoadData(Url,Callback,IgnoreLogin) {
+  if (AvammLogin || IgnoreLogin) {
     dhx.ajax.timeout = 1000;
     var aTimeout = window.setTimeout(Callback,1000);
     dhx.ajax.query
