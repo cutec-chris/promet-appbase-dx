@@ -1,6 +1,7 @@
 var sbMain;
 var lMain;
-var AvammLogin,AvammServer;
+var AvammLogin;
+var AvammServer = 'http://localhost:8085';
 
 function RegisterAvammAppPage(caption,name,src) {
   sbMain.addItem({id: 'si'+name, text: caption, AppID: name, AppSrc: src, icon: ''});
