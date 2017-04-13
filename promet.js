@@ -134,8 +134,8 @@ function LoadData(Url,Callback,IgnoreLogin) {
   }
 }
 
-function StoreData(Url,aData,Callback) {
-  if (AvammLogin) {
+function StoreData(Url,aData,Callback,IgnoreLogin) {
+  if (AvammLogin || IgnoreLogin) {
     dhx.ajax.timeout = 1000;
     var aTimeout = window.setTimeout(Callback,1000);
     dhx.ajax.query
