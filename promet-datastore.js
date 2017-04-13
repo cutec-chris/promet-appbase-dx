@@ -39,7 +39,7 @@ function newPrometDataStore(aName,aSheme) {
             aDS.DataProcessor.setUpdated(id);
           }
         }
-      },true);
+      });
     }
     return false;
   });
