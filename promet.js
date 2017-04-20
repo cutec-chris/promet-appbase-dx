@@ -1,7 +1,7 @@
 var sbMain;
 var lMain;
 var AvammLogin;
-var AvammServer = 'http://localhost:8085';
+var AvammServer = '';
 
 function RegisterAvammAppPage(caption,name,src) {
   sbMain.addItem({id: 'si'+name, text: caption, AppID: name, AppSrc: src, icon: ''});
@@ -9,7 +9,11 @@ function RegisterAvammAppPage(caption,name,src) {
 }
 
 function InitAvammApp(){
-  window.dhx4.skin = 'material';
+   if (/^h/.test(document.location)) {
+   } else {
+     AvammServer = 'http://localhost:8085';
+   }
+window.dhx4.skin = 'material';
   sbMain =  new dhtmlXSideBar(
     { parent: document.body,
       template: 'text',
