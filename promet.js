@@ -115,8 +115,8 @@ function LoadData(Url,Callback,IgnoreLogin) {
     AvammServer = 'http://localhost:8085';
   }
   if (AvammLogin || IgnoreLogin) {
-    dhx.ajax.timeout = 1000;
-    var aTimeout = window.setTimeout(Callback,2000);
+    dhx.ajax.timeout = 10000;
+    var aTimeout = window.setTimeout(Callback,10000);
     dhx.ajax.query
       ({
         method: "GET",
