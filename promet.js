@@ -9,11 +9,7 @@ function RegisterAvammAppPage(caption,name,src) {
 }
 
 function InitAvammApp(){
-   if (/^h/.test(document.location)) {
-   } else {
-     AvammServer = 'http://localhost:8085';
-   }
-window.dhx4.skin = 'material';
+  window.dhx4.skin = 'material';
   sbMain =  new dhtmlXSideBar(
     { parent: document.body,
       template: 'text',
@@ -114,9 +110,13 @@ function StartAvammApp(){
 };
 
 function LoadData(Url,Callback,IgnoreLogin) {
+  if ((/^h/.test(document.location))&&(AvammServer == "")) {
+  } else {
+    AvammServer = 'http://localhost:8085';
+  }
   if (AvammLogin || IgnoreLogin) {
     dhx.ajax.timeout = 1000;
-    var aTimeout = window.setTimeout(Callback,1000);
+    var aTimeout = window.setTimeout(Callback,2000);
     dhx.ajax.query
       ({
         method: "GET",

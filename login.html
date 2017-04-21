@@ -8,10 +8,37 @@
     function doOnFormInit() {
       parent.AvammLogin = parent.getCookie('login');
       parent.AvammServer = parent.getCookie('server');
-      if (parent.AvammServer=="") {
-        parent.AvammServer = 'http://localhost:8085';
-      }
-      fLogin.setItemValue("server",parent.AvammServer);
+      fLogin.hideItem("server");
+      parent.LoadData('/configuration/status',function(Data){
+       if ((Data)&&(Data.xmlDoc)) {
+          if (Data.xmlDoc.status == 200) { // No Configuration found
+            dhtmlx.message({
+              type : "info",
+              text: "Server muss konfiguriert werden",
+              expire: 1000
+            });
+            parent.window.location.href = 'install.html';
+         } else if ((Data)&&(Data.xmlDoc)&&(Data.xmlDoc.status!=0)) {
+           console.log("server reachable "+Data.xmlDoc.status);
+         } else {
+           dhtmlx.message({
+             type : "info",
+             text: "kein Server erreichbar, bitte geben Sie einen Server an",
+             expire: 15000
+           });
+           fLogin.showItem("server");
+           fLogin.setItemValue("server",parent.AvammServer);
+         }
+       } else {
+         dhtmlx.message({
+           type : "info",
+           text: "kein Server erreichbar, bitte geben Sie einen Server an",
+           expire: 15000
+         });
+         fLogin.showItem("server");
+         fLogin.setItemValue("server",parent.AvammServer);
+       }
+      },true);
       if (parent.AvammLogin) {
         fLogin.hideItem("data");
       } else {
