@@ -9,6 +9,7 @@
       parent.AvammLogin = parent.getCookie('login');
       parent.AvammServer = parent.getCookie('server');
       fLogin.hideItem("server");
+      fLogin.setItemValue("server","");
       parent.LoadData('/configuration/status',function(Data){
        if ((Data)&&(Data.xmlDoc)) {
           if (Data.xmlDoc.status == 200) { // No Configuration found
