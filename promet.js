@@ -115,8 +115,8 @@ function LoadData(Url,Callback,IgnoreLogin) {
     AvammServer = 'http://localhost:8085';
   }
   if (AvammLogin || IgnoreLogin) {
-    dhx.ajax.timeout = 10000;
-    var aTimeout = window.setTimeout(Callback,10000);
+    dhx.ajax.timeout = 5000;
+    var aTimeout = window.setTimeout(Callback,5000);
     dhx.ajax.query
       ({
         method: "GET",
@@ -140,8 +140,8 @@ function LoadData(Url,Callback,IgnoreLogin) {
 
 function StoreData(Url,aData,Callback,IgnoreLogin) {
   if (AvammLogin || IgnoreLogin) {
-    dhx.ajax.timeout = 1000;
-    var aTimeout = window.setTimeout(Callback,1000);
+    dhx.ajax.timeout = 5000;
+    var aTimeout = window.setTimeout(Callback,5000);
     dhx.ajax.query
       ({
         method: "POST",

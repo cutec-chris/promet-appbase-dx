@@ -21,7 +21,7 @@
                   fLogin.showItem("logoutdata");
                   document.getElementById("realForm").submit();
                 } else {
-                  console.log('unsuccesful login '+data.status);
+                  console.log('unsuccesful login on '+fLogin.getItemValue("server")+' status:'+data.status);
                   dhtmlx.message({
                     type : "error",
   		              text: "Login nicht erfolgreich",
@@ -29,7 +29,7 @@
          	        });
                 }
               } else {
-                console.log('server not reachable');
+                console.log('server not reachable '+fLogin.getItemValue("server"));
                 dhtmlx.message({
                   type : "error",
 	  	            text: "Server nicht erreichbar",
