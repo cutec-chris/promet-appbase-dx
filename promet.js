@@ -169,7 +169,7 @@ function DoLogin(aLogin,aServer,Callback) {
   var Data;
   AvammLogin=aLogin;
   AvammServer = aServer;
-  LoadData("/",function(Data){ if (Callback) Callback(Data);});
+  LoadData("/data/login.xml",function(Data){ if (Callback) Callback(Data);});
 }
 
 function setCookie(cname, cvalue, exdays) {
