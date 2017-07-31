@@ -11,7 +11,7 @@
           } else {
             DoLogin(fLogin.getItemValue("name"),fLogin.getItemValue("pass"),fLogin.getItemValue("server"),function(data){
               if (data) {
-                if (data.xmlDoc.readyState == 4 && data.xmlDoc.status == 500) {
+                if (data.xmlDoc.readyState == 4 && data.xmlDoc.status == 404) {
                   console.log('succesful login');
                   dhtmlx.message({
   	  	            text: "Login erfolgreich",
