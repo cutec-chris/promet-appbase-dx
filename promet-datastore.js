@@ -43,7 +43,7 @@ function newPrometDataStore(aName,aSheme) {
     }
     return false;
   });
-  aDS.FillGrid = function(aGrid,aFilter,aLimit) {
+  aDS.FillGrid = function(aGrid,aFilter,aLimit,Callback) {
     var aURL = '/'+aDS.TableName+'/list.json';
     if (aFilter) {
       aURL+='?filter='+encodeURIComponent(aFilter);
@@ -74,6 +74,8 @@ function newPrometDataStore(aName,aSheme) {
           }
         }
       aDS.loading = false;
+      if (Callback)
+        Callback();
       /*
       } catch(err) {
         aDS.loading = false;
@@ -84,6 +86,8 @@ function newPrometDataStore(aName,aSheme) {
       console.log("Data loaded 2");
     }
     else {
+      if (Callback)
+        Callback();
       dhtmlx.message({
         type : "error",
         text: "Login erforderlich",
