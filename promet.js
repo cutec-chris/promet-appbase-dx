@@ -10,8 +10,10 @@ function RegisterAvammAppPage(caption,name,src) {
 
 function InitAvammApp(){
   window.dhx4.skin = 'material';
+
   sbMain =  new dhtmlXSideBar(
     { parent: document.body,
+      //template: 'myview',
       template: 'text',
       width: '200',
       iconset: "awesome",
@@ -24,6 +26,9 @@ function InitAvammApp(){
         left: 0
       }
     });
+    dhtmlXSideBar.prototype.templates.myview =
+    "<i class='#icon#'></i>"+
+    "<div class='line'>#text#</div>";
 /*
   dhtmlXSideBar.prototype.templates.icontext =
   // icon 32x32
@@ -45,6 +50,9 @@ function InitAvammApp(){
     //sbMain.cells(id).attachURL(sbMain.cells(id).AppSrc);
 		return true;
 	});
+  sbMain.attachEvent("onSelect", function(id, lastId){
+    //TODO:call Select handler
+  });
   if (!AvammLogin) {
     RegisterAvammAppPage('Login','login','appbase/login.html');
     sbMain.cells('silogin').setActive();
