@@ -18,7 +18,7 @@
               text: "Server muss konfiguriert werden",
               expire: 1000
             });
-            parent.window.location.href = 'install.html';
+            parent.window.location.href = 'config/install.html';
          } else if ((Data)&&(Data.xmlDoc)&&(Data.xmlDoc.status!=0)) {
            console.log("server reachable "+Data.xmlDoc.status);
          } else {
