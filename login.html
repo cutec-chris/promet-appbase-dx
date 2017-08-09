@@ -65,6 +65,7 @@
                   if (fLogin.getItemValue("store")==1) {
                     parent.setCookie('login',btoa(fLogin.getItemValue("name")+":"+fLogin.getItemValue("pass")));
                     parent.setCookie('server',fLogin.getItemValue("server"));
+                    console.log('cookies set...');
                   }
                   fLogin.hideItem("data");
                   fLogin.showItem("logoutdata");
