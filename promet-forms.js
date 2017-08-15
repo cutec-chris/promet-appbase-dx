@@ -67,6 +67,11 @@ function newPrometList(aName,aText) {
   aList.Grid.init();
   aList.DataSource = newPrometDataStore(aName);
   aList.DataSource.DataProcessor.init(aList.Grid);
+  window.parent.sbMain.attachEvent("onSelect", function(id, lastId){
+    if (id == 'si'+aName) {
+      RefreshList();
+    }
+  });
   return aList;
 }
 
