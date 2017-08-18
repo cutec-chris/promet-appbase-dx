@@ -46,6 +46,7 @@ function newPrometList(aName,aText) {
   aList.Grid = aList.Page.attachGrid({parent:"pTimes"});
   aList.Grid.setImagePath("codebase/imgs/");
   aList.Grid.setSizes();
+  aList.Grid.enableAlterCss("even","uneven");
   aList.Grid.filterByAll=function(){
   };
   aList.Grid.attachEvent("onFilterStart", function(indexes,values){
