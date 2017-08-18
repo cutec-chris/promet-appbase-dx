@@ -47,6 +47,7 @@ function newPrometList(aName,aText) {
   aList.Grid.setImagePath("codebase/imgs/");
   aList.Grid.setSizes();
   aList.Grid.enableAlterCss("even","uneven");
+  aList.Grid.setEditable(false);
   aList.Grid.attachEvent("onFilterStart", function(indexes,values){
     var aFilter = '';
     for (var i = 0; i < indexes.length; i++) {
