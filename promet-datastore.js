@@ -17,7 +17,9 @@ function newPrometDataStore(aName,aSheme) {
     aDS.data.sheme(aSheme);
   }
   aDS.DataProcessor.setTransactionMode("REST",false);
-  aDS.DataProcessor.enablePartialDataSend(true);
+//  aDS.DataProcessor.enablePartialDataSend(true);
+//  aDS.DataProcessor.enableDebug(true);
+  aDS.DataProcessor.enableDataNames(true);
   aDS.DataProcessor.attachEvent("onBeforeDataSending", function(id, mode, data){
     //here you can place your own data saving logic
     if (!aDS.loading) {
