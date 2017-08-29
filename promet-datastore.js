@@ -27,7 +27,7 @@ function newPrometDataStore(aName,aSheme) {
       var aRow = '';
       data.id = id;
       for(var propertyName in data) {
-        if (aDS.OnSetValue)
+        if (aDS.onSetValue)
           data[propertyName] = aDS.onSetValue(propertyName,data[propertyName]);
         if ((propertyName!='!nativeeditor_status')&&(propertyName!='gr_id'))
           aRow += ',"'+propertyName+'":"'+data[propertyName]+'"';
@@ -85,7 +85,7 @@ function newPrometDataStore(aName,aSheme) {
       }
       */
     })==true) {
-      console.log("Data loaded 2");
+      console.log("Data loading...");
     }
     else {
       if (Callback)
