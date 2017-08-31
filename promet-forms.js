@@ -14,12 +14,13 @@ function newPrometList(aName,aText) {
   var Grid;
   var Page;
   var Toolbar;
+  var OldFilter;
   aList.TableName = aName;
   function RefreshList() {
     aList.Page.progressOn();
     try {
       console.log("Refresh "+aName);
-      aList.DataSource.FillGrid(aList.Grid,'',0,function (){
+      aList.DataSource.FillGrid(aList.Grid,OldFilter,0,function (){
         aList.Page.progressOff();
       });
     } catch(err) {
@@ -49,15 +50,15 @@ function newPrometList(aName,aText) {
   aList.Grid.enableAlterCss("even","uneven");
   aList.Grid.setEditable(false);
   aList.Grid.attachEvent("onFilterStart", function(indexes,values){
-    var aFilter = '';
+    OldFilter = '';
     for (var i = 0; i < indexes.length; i++) {
       if (values[i]!='')
-        aFilter += ' AND "'+aList.Grid.getColumnId(indexes[i])+'"'+' like \'%'+values[i]+'%\'';
+        OldFilter += ' AND lower("'+aList.Grid.getColumnId(indexes[i])+'")'+' like lower(\'%'+values[i]+'%\')';
     }
-    aFilter = aFilter.substring(5,aFilter.length);
+    OldFilter = OldFilter.substring(5,OldFilter.length);
     aList.Page.progressOn();
     try {
-      aList.DataSource.FillGrid(aList.Grid,aFilter,0,function (){
+      aList.DataSource.FillGrid(aList.Grid,OldFilter,0,function (){
         aList.Page.progressOff();
       });
     } catch(err) {
