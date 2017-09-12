@@ -8,11 +8,12 @@ function RegisterAvammAppPage(caption,name,src) {
   sbMain.cells('si'+name).attachURL(src, null, false);
 }
 
-function InitAvammApp(){
+function InitAvammApp(AppParent){
   window.dhx4.skin = 'material';
-
+  if (!AppParent)
+    AppParent = document.body;
   sbMain =  new dhtmlXSideBar(
-    { parent: document.body,
+    { parent: AppParent,
       //template: 'myview',
       template: 'text',
       width: '200',
