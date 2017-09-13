@@ -113,6 +113,9 @@ function InitAvammApp(AppParent){
          // Time is not needed so disable it
          this.grid._grid_calendarA.hideTime();
       }
+  window.addEventListener('resize', function () {
+    sbMain.setSizes();
+  });
 };
 
 function StartAvammApp(){
