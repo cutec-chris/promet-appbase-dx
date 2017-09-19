@@ -95,7 +95,7 @@ function newPrometAutoComplete(aPopupParams,aTable,aRow,aHeader,aColIDs,aDblClic
   var aPopup = {};
   var Popup;
   var Grid;
-  aPopup.Popup = new dhtmlXPopup({ form: fRMA, id: ["eProduct"] });
+  aPopup.Popup = new dhtmlXPopup(aPopupParams);
   var ppId = aPopup.Popup.attachEvent("onShow",function(){
  		 aPopup.Grid = aPopup.Popup.attachGrid(300,200);
   				aPopup.Grid.setImagePath("../../../codebase/imgs/")
