@@ -126,10 +126,9 @@ function LoadData(Url,Callback,IgnoreLogin) {
   } else {
     AvammServer = 'http://localhost:8085';
   }
-  if (AvammLogin || IgnoreLogin) {
-    dhx.ajax.timeout = 5000;
-    var aTimeout = window.setTimeout(Callback,5000);
-    dhx.ajax.query
+  dhx.ajax.timeout = 5000;
+  var aTimeout = window.setTimeout(Callback,5000);
+  dhx.ajax.query
       ({
         method: "GET",
         url: AvammServer+Url,
@@ -144,14 +143,10 @@ function LoadData(Url,Callback,IgnoreLogin) {
             Callback(data);
         }
       });
-      return true;
-  } else {
-    return false;
-  }
+    return true;
 }
 
-function StoreData(Url,aData,Callback,IgnoreLogin) {
-  if (AvammLogin || IgnoreLogin) {
+function StoreData(Url,aData,Callback) {
     dhx.ajax.timeout = 5000;
     var aTimeout = window.setTimeout(Callback,5000);
     dhx.ajax.query
@@ -171,9 +166,6 @@ function StoreData(Url,aData,Callback,IgnoreLogin) {
         }
       });
       return true;
-  } else {
-    return false;
-  }
 }
 
 function DoLogin(aLogin,aServer,Callback) {
