@@ -113,12 +113,13 @@ function newPrometAutoComplete(aPopupParams,aTable,aRow,aHeader,aColIDs,Filter,a
   aPopup.DataSource = newPrometDataStore(aTable);
   aPopup.Grid = aPopup.Popup.attachGrid(300,200);
   aPopup.Grid.setImagePath("../../../codebase/imgs/")
+  aPopup.Grid.setHeader(aHeader);
+  aPopup.Grid.setColumnIds(aColIDs);
+  aPopup.DataSource.DataProcessor.init(aPopup.Grid);
+  aPopup.Grid.init();
   var ppId = aPopup.Popup.attachEvent("onShow",function(){
-    aPopup.Grid.setHeader(aHeader);
-    aPopup.Grid.setColumnIds(aColIDs);
     aPopup.Grid.attachEvent("onRowDblClicked",aDblClick);
-  	aPopup.Popup.detachEvent(ppId);
-    aPopup.Grid.init();
+    aPopup.Popup.detachEvent(ppId);
 	});
   return aPopup;
 }
