@@ -91,24 +91,34 @@ function newPrometForm(aName,aId) {
   return aForm;
 }
 
-function newPrometAutoComplete(aPopupParams,aTable,aRow,aHeader,aColIDs,aDblClick) {
+function newPrometAutoComplete(aPopupParams,aTable,aRow,aHeader,aColIDs,Filter,aDblClick) {
   var aPopup = {};
   var Popup;
   var Grid;
-  aPopup.Popup = new dhtmlXPopup(aPopupParams);
-  var ppId = aPopup.Popup.attachEvent("onShow",function(){
- 		 aPopup.Grid = aPopup.Popup.attachGrid(300,200);
-  				aPopup.Grid.setImagePath("../../../codebase/imgs/")
-          aPopup.Grid.setHeader(aHeader);
-          aPopup.Grid.setColumnIds(aColIDs);
-          aPopup.DataSource = newPrometDataStore(aTable);
-          aPopup.DataSource.FillGrid(aPopup.Grid,'',0,function (){
-  					aPopup.Grid.selectRow(0);
-  					aPopup.Grid._loaded = true;
+  aPopup.DoFilter = function(aFilter) {
+    if (!aPopup.DataSource.loading) {
+        aPopup.Grid.filterBy(1,aFilter);
+				if (aPopup.Grid.getRowsNum()==0) {
+					aPopup.DataSource.FillGrid(aPopup.Grid,Filter.replace('FILTERVALUE',aFilter),0,function (){
+						if (aPopup.Grid.getRowsNum()>0) {
+						  if (!aPopup.Popup.isVisible()) aPopup.Popup.show("eProduct");
+  					  aPopup.Grid.selectRow(0);
+					  }
   				});
-  				aPopup.Grid.attachEvent("onRowDblClicked",aDblClick);
-  				aPopup.Popup.detachEvent(ppId);
-          aPopup.Grid.init();
+				}
+    }
+
+  }
+  aPopup.Popup = new dhtmlXPopup(aPopupParams);
+  aPopup.DataSource = newPrometDataStore(aTable);
+  aPopup.Grid = aPopup.Popup.attachGrid(300,200);
+  aPopup.Grid.setImagePath("../../../codebase/imgs/")
+  var ppId = aPopup.Popup.attachEvent("onShow",function(){
+    aPopup.Grid.setHeader(aHeader);
+    aPopup.Grid.setColumnIds(aColIDs);
+    aPopup.Grid.attachEvent("onRowDblClicked",aDblClick);
+  	aPopup.Popup.detachEvent(ppId);
+    aPopup.Grid.init();
 	});
   return aPopup;
 }

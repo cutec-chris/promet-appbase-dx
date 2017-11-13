@@ -53,10 +53,10 @@ function newPrometDataStore(aName,aSheme) {
     if (aLimit) {
       aURL+='&limit='+aLimit;
     }
+    aDS.loading = true;
     if (LoadData(aURL,function(aData){
-      aDS.loading = true;
       console.log("Data loaded");
-      //try {
+      try {
         aGrid.clearAll();
         if ((aData)&&(aData.xmlDoc))
         var aData2 = JSON.parse(aData.xmlDoc.response);
@@ -76,14 +76,12 @@ function newPrometDataStore(aName,aSheme) {
           }
         }
       aDS.loading = false;
-      if (Callback)
-        Callback();
-      /*
       } catch(err) {
         aDS.loading = false;
         console.log(aDS.TableName,'failed to load data !',err);
       }
-      */
+      if (Callback)
+        Callback();
     })==true) {
       console.log("Data loading...");
     }
