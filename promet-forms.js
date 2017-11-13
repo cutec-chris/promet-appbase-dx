@@ -73,6 +73,9 @@ function newPrometList(aName,aText) {
       RefreshList();
     }
   });
+  aList.Grid.attachEvent("onRowDblClicked",function(){
+    window.open(AvammServer+'/'+aName+'/index.html','_blank');
+  });
   return aList;
 }
 
