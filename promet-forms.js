@@ -1,4 +1,28 @@
 /*
+  PrometForm:
+    consists of an Toolbar and Tabs
+  Toolbar
+  Tabs
+  onCreate
+*/
+function newPrometForm(aWindow,aName,aId) {
+  var aForm = {};
+  aForm.TableName = aName;
+  aForm.Id = aId;
+  aWindow.onload = function() { // of course you can use other onload-techniques
+    aForm.Toolbar = new dhtmlXToolbarObject({
+        parent:aWindow.document,
+          items:[
+            {id: "save", type: "button", text: "Speichern", img: "fa fa-save"},
+            {id: "abort", type: "button", text: "Abbrechen", img: "fa fa-cancel"},
+          ],
+        iconset: "awesome"
+    });
+  }
+  return aForm;
+}
+
+/*
   PrometList:
     consists of an Toolbar and Grid
   Toolbar
@@ -74,24 +98,12 @@ function newPrometList(aName,aText) {
     }
   });
   aList.Grid.attachEvent("onRowDblClicked",function(){
-    window.open(AvammServer+'/'+aName+'/index.html','_blank');
+    var strWindowFeatures = "menubar=no,location=no,resizable=yes,titlebar=no,scrollbars=yes,status=no,width=600";
+    var newWindow=window.open('www.websitetwo.com/Register.aspx','_blank',strWindowFeatures);
+    newWindow.focus();
+    var newForm = newPrometForm(newWindow,aName,aList.Grid.getSelectedRowId());
   });
   return aList;
-}
-
-/*
-  PrometForm:
-    consists of an Toolbar and Tabs
-  Toolbar
-  Tabs
-  onCreate
-*/
-
-function newPrometForm(aName,aId) {
-  var aForm = {};
-  aForm.TableName = aName;
-  aForm.Id = aId;
-  return aForm;
 }
 
 function newPrometAutoComplete(aPopupParams,aTable,aRow,aHeader,aColIDs,Filter,aDblClick) {
