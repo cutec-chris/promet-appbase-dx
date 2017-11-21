@@ -25,7 +25,7 @@ function newPrometDataStore(aName,aSheme) {
     if (!aDS.loading) {
       console.log(aDS.TableName,'data should be send ',id,mode,data);
       var aRow = '';
-      data.id = id;
+      data.sql_id = id;
       for(var propertyName in data) {
         if (aDS.onSetValue)
           data[propertyName] = aDS.onSetValue(propertyName,data[propertyName]);
@@ -69,9 +69,9 @@ function newPrometDataStore(aName,aSheme) {
               else
                 aRow[a] = aData2[i][aGrid.getColumnId(a)];
             }
-            aGrid.addRow(aData2[i].id,aRow);
+            aGrid.addRow(aData2[i].sql_id,aRow);
             try {
-              aDS.DataProcessor.setUpdated(aData2[i].id);
+              aDS.DataProcessor.setUpdated(aData2[i].sql_id);
             } catch(err) {}
           }
         }
