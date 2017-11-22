@@ -5,20 +5,18 @@
   Tabs
   onCreate
 */
-function newPrometForm(aWindow,aName,aId) {
+function newPrometForm(aParent,aName,aId) {
   var aForm = {};
   aForm.TableName = aName;
   aForm.Id = aId;
-  aWindow.onload = function() { // of course you can use other onload-techniques
-    aForm.Toolbar = new dhtmlXToolbarObject({
-        parent:aWindow.document,
-          items:[
-            {id: "save", type: "button", text: "Speichern", img: "fa fa-save"},
-            {id: "abort", type: "button", text: "Abbrechen", img: "fa fa-cancel"},
-          ],
-        iconset: "awesome"
-    });
-  }
+  aForm.Toolbar = new dhtmlXToolbarObject({
+    parent:aParent,
+      items:[
+        {id: "save", type: "button", text: "Speichern", img: "fa fa-save"},
+        {id: "abort", type: "button", text: "Abbrechen", img: "fa fa-cancel"},
+      ],
+    iconset: "awesome"
+  });
   return aForm;
 }
 
@@ -98,10 +96,13 @@ function newPrometList(aName,aText) {
     }
   });
   aList.Grid.attachEvent("onRowDblClicked",function(){
-    var strWindowFeatures = "menubar=no,location=no,resizable=yes,titlebar=no,scrollbars=yes,status=no,width=600";
-    var newWindow=window.open('www.websitetwo.com/Register.aspx','_blank',strWindowFeatures);
-    newWindow.focus();
-    var newForm = newPrometForm(newWindow,aName,aList.Grid.getSelectedRowId());
+    var newWindow=window.open('about:blank','_blank',strWindowFeatures);
+    if (newWindow==null) { //no rights to open an new window (possibly were running from file:// so we use an dhtmlx window)
+      newWindow = wnMain.createWindow(aList.Grid.getSelectedRowId(),10,10,200,200);
+      var newForm = newPrometForm(newWindow,aName,aList.Grid.getSelectedRowId());
+    } else {
+      var newForm = newPrometForm(newWindow.document,aName,aList.Grid.getSelectedRowId());
+    }
   });
   return aList;
 }

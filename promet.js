@@ -1,4 +1,5 @@
 var sbMain;
+var wnMain;
 var lMain;
 var AvammLogin;
 var AvammServer = '';
@@ -116,6 +117,7 @@ function InitAvammApp(AppParent){
   window.addEventListener('resize', function () {
     sbMain.setSizes();
   });
+  var wnMain = new dhtmlXWindows();  
 };
 
 function StartAvammApp(){
