@@ -96,12 +96,13 @@ function newPrometList(aName,aText) {
     }
   });
   aList.Grid.attachEvent("onRowDblClicked",function(){
-    var newWindow=window.open('about:blank','_blank',strWindowFeatures);
+    var newWindow=window.open(AvammServer,'_blank');
     if (newWindow==null) { //no rights to open an new window (possibly were running from file:// so we use an dhtmlx window)
       newWindow = wnMain.createWindow(aList.Grid.getSelectedRowId(),10,10,200,200);
       var newForm = newPrometForm(newWindow,aName,aList.Grid.getSelectedRowId());
     } else {
-      var newForm = newPrometForm(newWindow.document,aName,aList.Grid.getSelectedRowId());
+      newWindow.document.querySelector('head').innerHTML += '<script src="https://cdn.dhtmlx.com/edge/dhtmlx.js" type="text/javascript"></script><script src="appbase/promet.js" type="text/javascript"></script><script src="appbase/promet-datastore.js" type="text/javascript"></script><script src="appbase/promet-forms.js" type="text/javascript"></script><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/fonts/font_awesome/css/font-awesome.min.css"/><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/dhtmlx.css"><style>html, body {width: 100%;height: 100%;overflow: hidden;margin: 0px;background-color: #EBEBEB;}</style>';
+      var newForm = newPrometForm(newWindow.document.body,aName,aList.Grid.getSelectedRowId());
     }
   });
   return aList;

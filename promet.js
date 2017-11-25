@@ -117,7 +117,7 @@ function InitAvammApp(AppParent){
   window.addEventListener('resize', function () {
     sbMain.setSizes();
   });
-  var wnMain = new dhtmlXWindows();  
+  wnMain = new dhtmlXWindows();  
 };
 
 function StartAvammApp(){
