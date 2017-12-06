@@ -59,7 +59,9 @@ function newPrometDataStore(aName,aSheme) {
       try {
         aGrid.clearAll();
         if ((aData)&&(aData.xmlDoc))
-        var aData2 = JSON.parse(aData.xmlDoc.response);
+        var aData2;
+        if (aData.xmlDoc.response <> '')
+          aData2 = JSON.parse(aData.xmlDoc.response);
         if (aData2) {
           for (var i = 0; i < aData2.length; i++) {
             var aRow = [];
