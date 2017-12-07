@@ -60,7 +60,7 @@ function newPrometDataStore(aName,aSheme) {
         aGrid.clearAll();
         if ((aData)&&(aData.xmlDoc))
         var aData2;
-        if (aData.xmlDoc.responseText <> '')
+        if (aData.xmlDoc.responseText != '')
           aData2 = JSON.parse(aData.xmlDoc.responseText);
         if (aData2) {
           for (var i = 0; i < aData2.length; i++) {
