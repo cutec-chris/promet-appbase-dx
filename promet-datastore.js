@@ -21,7 +21,6 @@ function newPrometDataStore(aName,aSheme) {
 //  aDS.DataProcessor.enableDebug(true);
   aDS.DataProcessor.enableDataNames(true);
   aDS.DataProcessor.attachEvent("onBeforeDataSending", function(id, mode, data){
-    //here you can place your own data saving logic
     if (!aDS.loading) {
       console.log(aDS.TableName,'data should be send ',id,mode,data);
       var aRow = '';
