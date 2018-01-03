@@ -59,20 +59,24 @@ function newPrometDataStore(aName,aSheme) {
         aGrid.clearAll();
         if ((aData)&&(aData.xmlDoc))
         var aData2;
+        var aID;
         if (aData.xmlDoc.responseText != '')
           aData2 = JSON.parse(aData.xmlDoc.responseText);
         if (aData2) {
           for (var i = 0; i < aData2.length; i++) {
             var aRow = [];
+            aID = aData2[i].sql_id;
             for (var a = 0; a < aGrid.getColumnsNum();a++) {
               if (aDS.onGetValue)
                 aRow[a] = aDS.onGetValue(aGrid.getColumnId(a),aData2[i][aGrid.getColumnId(a)])
+              else if (aData2[i][aGrid.getColumnId(a)]!=null)
+                aRow[a] = aData2[i][aGrid.getColumnId(a)]
               else
-                aRow[a] = aData2[i][aGrid.getColumnId(a)];
+                aRow[a] = "";
             }
-            aGrid.addRow(aData2[i].sql_id,aRow);
+            aGrid.addRow(aID,aRow);
             try {
-              aDS.DataProcessor.setUpdated(aData2[i].sql_id);
+              aDS.DataProcessor.setUpdated(aID);
             } catch(err) {}
           }
         }
