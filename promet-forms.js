@@ -5,18 +5,42 @@
   Tabs
   onCreate
 */
-function newPrometForm(aParent,aName,aId) {
+function newPrometForm(aParent,aName,aId,aList) {
   var aForm = {};
   aForm.TableName = aName;
   aForm.Id = aId;
+  var iDiv = document.createElement('div');
+  iDiv.id = 'aToolbar';
+  aParent.appendChild(iDiv);
   aForm.Toolbar = new dhtmlXToolbarObject({
-    parent:aParent,
+    parent:iDiv,
       items:[
         {id: "save", type: "button", text: "Speichern", img: "fa fa-save"},
         {id: "abort", type: "button", text: "Abbrechen", img: "fa fa-cancel"},
       ],
     iconset: "awesome"
   });
+  var formStructure =
+  [
+  	{type: "input", label: "Kurztext", value: "", name: "Shorttext", inputWidth: "100%", note: { text: "Der Kurztext des Eintrages", width:300 }, tooltip:"geben Sie hier den Kurztext ein."}
+  ];
+  iDiv = document.createElement('div');
+  iDiv.id = 'aForm';
+  aParent.appendChild(iDiv);
+  aForm.Form =  new dhtmlXForm(iDiv,formStructure);
+  iDiv = document.createElement('div');
+  iDiv.id = 'aTabs';
+  aForm.Tabs = new dhtmlXTabBar({
+      parent:iDiv,
+      mode:               "top",          // string, optional, top or bottom tabs mode
+      align:              "left",         // string, optional, left or right tabs align
+      close_button:       true,           // boolean, opt., render Close button on tabs
+      content_zone:       true,           // boolean, opt., enable/disable content zone
+      arrows_mode:        "auto"          // mode of showing tabs arrows (auto, always)
+  });
+  if (aList.OnCreateForm) {
+    aList.OnCreateForm(aForm.Form);
+  }
   return aForm;
 }
 
@@ -102,7 +126,7 @@ function newPrometList(aName,aText) {
       var newForm = newPrometForm(newWindow,aName,aList.Grid.getSelectedRowId());
     } else {
       newWindow.document.querySelector('head').innerHTML += '<script src="https://cdn.dhtmlx.com/edge/dhtmlx.js" type="text/javascript"></script><script src="appbase/promet.js" type="text/javascript"></script><script src="appbase/promet-datastore.js" type="text/javascript"></script><script src="appbase/promet-forms.js" type="text/javascript"></script><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/fonts/font_awesome/css/font-awesome.min.css"/><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/dhtmlx.css"><style>html, body {width: 100%;height: 100%;overflow: hidden;margin: 0px;background-color: #EBEBEB;}</style>';
-      var newForm = newPrometForm(newWindow.document.body,aName,aList.Grid.getSelectedRowId());
+      var newForm = newPrometForm(newWindow.document.body,aName,aList.Grid.getSelectedRowId(),aList);
     }
   });
   return aList;
