@@ -9,6 +9,41 @@ function newPrometForm(aParent,aName,aId,aList) {
   var aForm = {};
   aForm.TableName = aName;
   aForm.Id = aId;
+  aForm.LoadData = function(Callback) {
+    var aURL = '/'+aForm.TableName+'/by-id/'+aForm.Id+'/item.json';
+    aForm.loading = true;
+    if (LoadData(aURL,function(aData){
+      console.log("Data loaded");
+      try {
+        if ((aData)&&(aData.xmlDoc))
+        var aData2;
+        var aID;
+        if (aData.xmlDoc.responseText != '')
+          aData2 = JSON.parse(aData.xmlDoc.responseText);
+        if (aData2) {
+          aForm.Data = aData2;
+        }
+      aForm.loading = false;
+      } catch(err) {
+        aForm.loading = false;
+        console.log(aForm.TableName,'failed to load data !',err);
+      }
+      if (Callback)
+        Callback();
+    })==true) {
+      console.log("Data loading...");
+    }
+    else {
+      if (Callback)
+        Callback();
+      dhtmlx.message({
+        type : "error",
+        text: "Login erforderlich",
+        expire: 3000
+      });
+    }
+  }
+
   var iDiv = document.createElement('div');
   iDiv.id = 'aToolbar';
   aParent.appendChild(iDiv);
@@ -22,7 +57,9 @@ function newPrometForm(aParent,aName,aId,aList) {
   });
   var formStructure =
   [
-  	{type: "input", label: "Kurztext", value: "", name: "Shorttext", inputWidth: "100%", note: { text: "Der Kurztext des Eintrages", width:300 }, tooltip:"geben Sie hier den Kurztext ein."}
+    {type: "input", label: "Nummer", value: "", name: "Id", readonly:"true", hidden: "true", inputWidth: "100", note: { text: "Die Nummer des Eintrages", width:300 }, tooltip:"geben Sie hier die Id ein."},
+    {type:"newcolumn"},
+  	{type: "input", label: "Kurztext", value: "", name: "Shorttext", inputWidth: "400", note: { text: "Der Kurztext des Eintrages", width:300 }, tooltip:"geben Sie hier den Kurztext ein."},
   ];
   iDiv = document.createElement('div');
   iDiv.id = 'aForm';
@@ -45,6 +82,18 @@ function newPrometForm(aParent,aName,aId,aList) {
     aList.OnCreateForm(aForm);
   }
   aForm.Tabs.setSizes();
+  aForm.LoadData(function(){
+    aForm.Form.setItemValue("Shorttext",aForm.Data.Fields.name);
+    if (aForm.Data.Fields.id==null) {
+      aForm.Form.hideItem("Id");
+    } else {
+      aForm.Form.setItemValue("Id",aForm.Data.Fields.id);
+      aForm.Form.showItem("Id");
+    }
+    if (aForm.OnDataUpdated) {
+      aForm.OnDataUpdated(aForm);
+    }
+  });
   return aForm;
 }
 
