@@ -26,13 +26,13 @@ function newPrometForm(aParent,aName,aId,aList) {
   ];
   iDiv = document.createElement('div');
   iDiv.id = 'aForm';
-  iDiv.style = "width: 100%"
+  iDiv.style = "width: 100%;background-color: #fafafa"
   aParent.appendChild(iDiv);
   aForm.Form =  new dhtmlXForm(iDiv,formStructure);
   iDiv = document.createElement('div');
   iDiv.id = 'aTabs';
   aParent.appendChild(iDiv);
-  iDiv.style = "top: 70px;height: 100%"
+  iDiv.style = "top: 50px;height: 100%"
   aForm.Tabs = new dhtmlXTabBar({
       parent:iDiv,
       mode:               "top",          // string, optional, top or bottom tabs mode
@@ -132,7 +132,7 @@ function newPrometList(aName,aText) {
       newWindow.document.querySelector('head').innerHTML += '<script src="https://cdn.dhtmlx.com/edge/dhtmlx.js" type="text/javascript"></script><script src="appbase/promet.js" type="text/javascript"></script><script src="appbase/promet-datastore.js" type="text/javascript"></script><script src="appbase/promet-forms.js" type="text/javascript"></script><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/fonts/font_awesome/css/font-awesome.min.css"/><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/dhtmlx.css"><style>html, body {width: 100%;height: 100%;overflow: hidden;margin: 0px;background-color: #EBEBEB;}</style>';
       window.setTimeout(function(){
         var newForm = newPrometForm(newWindow.document.body,aName,aList.Grid.getSelectedRowId(),aList);
-      },100);
+      },150);
     }
   });
   return aList;

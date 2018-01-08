@@ -117,23 +117,31 @@ function InitAvammApp(AppParent){
   window.addEventListener('resize', function () {
     sbMain.setSizes();
   });
-  wnMain = new dhtmlXWindows();  
+  wnMain = new dhtmlXWindows();
 };
 
 function StartAvammApp(){
 };
 
-function LoadData(Url,Callback,IgnoreLogin) {
+function GetBaseUrl(){
   if ((/^h/.test(document.location))&&(AvammServer == "")) {
   } else {
     AvammServer = 'http://localhost:8085';
   }
+  if (AvammServer == "") {
+    return 'http://localhost:8085';
+  } else {
+    return AvammServer;
+  }
+}
+
+function LoadData(Url,Callback,IgnoreLogin) {
   dhx.ajax.timeout = 5000;
   var aTimeout = window.setTimeout(Callback,5000);
   dhx.ajax.query
       ({
         method: "GET",
-        url: AvammServer+Url,
+        url: GetBaseUrl()+Url,
         dataType: "json",
         async: true,
         headers: {
