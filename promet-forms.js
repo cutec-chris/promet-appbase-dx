@@ -26,10 +26,13 @@ function newPrometForm(aParent,aName,aId,aList) {
   ];
   iDiv = document.createElement('div');
   iDiv.id = 'aForm';
+  iDiv.style = "width: 100%"
   aParent.appendChild(iDiv);
   aForm.Form =  new dhtmlXForm(iDiv,formStructure);
   iDiv = document.createElement('div');
   iDiv.id = 'aTabs';
+  aParent.appendChild(iDiv);
+  iDiv.style = "top: 70px;height: 100%"
   aForm.Tabs = new dhtmlXTabBar({
       parent:iDiv,
       mode:               "top",          // string, optional, top or bottom tabs mode
@@ -39,8 +42,9 @@ function newPrometForm(aParent,aName,aId,aList) {
       arrows_mode:        "auto"          // mode of showing tabs arrows (auto, always)
   });
   if (aList.OnCreateForm) {
-    aList.OnCreateForm(aForm.Form);
+    aList.OnCreateForm(aForm);
   }
+  aForm.Tabs.setSizes();
   return aForm;
 }
 
@@ -123,10 +127,12 @@ function newPrometList(aName,aText) {
     var newWindow=window.open(AvammServer,'_blank');
     if (newWindow==null) { //no rights to open an new window (possibly were running from file:// so we use an dhtmlx window)
       newWindow = wnMain.createWindow(aList.Grid.getSelectedRowId(),10,10,200,200);
-      var newForm = newPrometForm(newWindow,aName,aList.Grid.getSelectedRowId());
+      var newForm = newPrometForm(newWindow,aName,aList.Grid.getSelectedRowId(),aList);
     } else {
       newWindow.document.querySelector('head').innerHTML += '<script src="https://cdn.dhtmlx.com/edge/dhtmlx.js" type="text/javascript"></script><script src="appbase/promet.js" type="text/javascript"></script><script src="appbase/promet-datastore.js" type="text/javascript"></script><script src="appbase/promet-forms.js" type="text/javascript"></script><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/fonts/font_awesome/css/font-awesome.min.css"/><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/dhtmlx.css"><style>html, body {width: 100%;height: 100%;overflow: hidden;margin: 0px;background-color: #EBEBEB;}</style>';
-      var newForm = newPrometForm(newWindow.document.body,aName,aList.Grid.getSelectedRowId(),aList);
+      window.setTimeout(function(){
+        var newForm = newPrometForm(newWindow.document.body,aName,aList.Grid.getSelectedRowId(),aList);
+      },100);
     }
   });
   return aList;
