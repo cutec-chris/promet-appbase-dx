@@ -122,7 +122,7 @@ function newPrometForm(aParent,aName,aId,aList) {
               null,       // last position
               false,      // inactive
               false);
-              aForm.Tabs.tabs(aName).attachURL(GetBaseUrl()+'/'+aForm.TableName+'/by-id/'+aForm.Id+'/'+aData2[i].name,true);
+              aForm.Tabs.tabs(aName).attachURL(GetBaseUrl()+'/'+aForm.TableName+'/by-id/'+aForm.Id+'/'+aData2[i].name);
             }
           }
           aForm.Tabs.moveTab("overview", 0);
