@@ -77,6 +77,7 @@ function newPrometForm(aParent,aName,aId,aList) {
     aList.OnCreateForm(aForm);
   }
   aForm.Tabs.setSizes();
+  //Load Base Data for Item
   aForm.Layout.progressOn();
   try {
   aForm.LoadData(function(){
@@ -96,6 +97,50 @@ function newPrometForm(aParent,aName,aId,aList) {
     console.log('Loading Exception:'+err.message);
     aForm.Layout.progressOff();
   }
+  //Load HTML Form List (Directory Contents)
+  try {
+    var bURL = '/'+aForm.TableName+'/by-id/'+aForm.Id+'/.json';
+    if (LoadData(bURL,function(aData){
+      console.log("Directory contents loaded");
+      try {
+        if ((aData)&&(aData.xmlDoc))
+        var aData2;
+        var aID;
+        if (aData.xmlDoc.responseText != '')
+          aData2 = JSON.parse(aData.xmlDoc.responseText);
+        if (aData2) {
+          for (var i = 0; i < aData2.length; i++) {
+            var aName = aData2[i].name.split('.')[0];
+            var aCaption = aName;
+            if (aCaption == 'overview')
+              aCaption = 'Übersicht';
+            if (aData2[i].name.split('.')[aData2[i].name.split('.').length - 1] == 'html') {
+              aForm.Tabs.addTab(
+              aName,    // id
+              aCaption,    // tab text
+              null,       // auto width
+              null,       // last position
+              false,      // inactive
+              false);
+              aForm.Tabs.tabs(aName).attachURL(GetBaseUrl()+'/'+aForm.TableName+'/by-id/'+aForm.Id+'/'+aData2[i].name,true);
+            }
+          }
+          aForm.Tabs.moveTab("overview", 0);
+          aForm.Tabs.tabs("overview").setActive();
+        }
+      } catch(err) {
+        console.log(aForm.TableName,'failed to load Directory data !',err);
+      }
+    })==true) {
+      console.log("Data loading...");
+    }
+    else {
+      //no login ??
+    }
+  } catch(err) {
+    console.log('Loading Exception:'+err.message);
+  }
+
   return aForm;
 }
 
