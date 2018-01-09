@@ -44,11 +44,15 @@ function newPrometForm(aParent,aName,aId,aList) {
     }
   }
 
-  var iDiv = document.createElement('div');
-  iDiv.id = 'aToolbar';
-  aParent.appendChild(iDiv);
-  aForm.Toolbar = new dhtmlXToolbarObject({
-    parent:iDiv,
+  aForm.Layout = new dhtmlXLayoutObject(aParent, '2E');
+  var a = aForm.Layout.cells('a');
+  a.setHeight('90');
+  a.hideHeader();
+  a.fixSize(0,1);
+	var b = aForm.Layout.cells('b');
+	b.hideHeader();
+
+  a.attachToolbar({
       items:[
         {id: "save", type: "button", text: "Speichern", img: "fa fa-save"},
         {id: "abort", type: "button", text: "Abbrechen", img: "fa fa-cancel"},
@@ -61,17 +65,8 @@ function newPrometForm(aParent,aName,aId,aList) {
     {type:"newcolumn"},
   	{type: "input", label: "Kurztext", value: "", name: "Shorttext", inputWidth: "400", note: { text: "Der Kurztext des Eintrages", width:300 }, tooltip:"geben Sie hier den Kurztext ein."},
   ];
-  iDiv = document.createElement('div');
-  iDiv.id = 'aForm';
-  iDiv.style = "width: 100%;background-color: #fafafa"
-  aParent.appendChild(iDiv);
-  aForm.Form =  new dhtmlXForm(iDiv,formStructure);
-  iDiv = document.createElement('div');
-  iDiv.id = 'aTabs';
-  aParent.appendChild(iDiv);
-  iDiv.style = "top: 50px;height: 100%"
-  aForm.Tabs = new dhtmlXTabBar({
-      parent:iDiv,
+  aForm.Form =  a.attachForm(formStructure);
+  aForm.Tabs = b.attachTabbar({
       mode:               "top",          // string, optional, top or bottom tabs mode
       align:              "left",         // string, optional, left or right tabs align
       close_button:       true,           // boolean, opt., render Close button on tabs
@@ -82,6 +77,8 @@ function newPrometForm(aParent,aName,aId,aList) {
     aList.OnCreateForm(aForm);
   }
   aForm.Tabs.setSizes();
+  aForm.Layout.progressOn();
+  try {
   aForm.LoadData(function(){
     aForm.Form.setItemValue("Shorttext",aForm.Data.Fields.name);
     if (aForm.Data.Fields.id==null) {
@@ -93,7 +90,12 @@ function newPrometForm(aParent,aName,aId,aList) {
     if (aForm.OnDataUpdated) {
       aForm.OnDataUpdated(aForm);
     }
+    aForm.Layout.progressOff();
   });
+  } catch(err) {
+    console.log('Loading Exception:'+err.message);
+    aForm.Layout.progressOff();
+  }
   return aForm;
 }
 
