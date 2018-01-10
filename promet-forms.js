@@ -111,9 +111,11 @@ function newPrometForm(aParent,aName,aId,aList) {
         aForm.Tabs.attachEvent("onContentLoaded", function(id){
           aForm.Tabs.forEachTab(function(tab){
             var aFrame = tab.getFrame();
-            aFrame.contentDocument.body.style.fontFamily = "Arial";
+            tab.progressOff();
+            try {
+              aFrame.contentDocument.body.style.fontFamily = "Arial";
+            } catch(err) {}
           });
-          aForm.Tabs.tabs(id).progressOff();
         });
         if (aData2) {
           for (var i = 0; i < aData2.length; i++) {
@@ -235,7 +237,8 @@ function newPrometList(aName,aText) {
       newWindow = wnMain.createWindow(aList.Grid.getSelectedRowId(),10,10,200,200);
       var newForm = newPrometForm(newWindow,aName,aList.Grid.getSelectedRowId(),aList);
     } else {
-      newWindow.document.querySelector('head').innerHTML += '<script src="https://cdn.dhtmlx.com/edge/dhtmlx.js" type="text/javascript"></script><script src="appbase/promet.js" type="text/javascript"></script><script src="appbase/promet-datastore.js" type="text/javascript"></script><script src="appbase/promet-forms.js" type="text/javascript"></script><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/fonts/font_awesome/css/font-awesome.min.css"/><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/dhtmlx.css"><style>html, body {width: 100%;height: 100%;overflow: hidden;margin: 0px;background-color: #EBEBEB;}</style>';
+      newWindow.document.querySelector('head').innerHTML += '<script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js" type="text/javascript"></script><script src="https://cdn.dhtmlx.com/edge/dhtmlx.js" type="text/javascript"></script><script src="appbase/promet.js" type="text/javascript"></script><script src="appbase/promet-datastore.js" type="text/javascript"></script><script src="appbase/promet-forms.js" type="text/javascript"></script><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/fonts/font_awesome/css/font-awesome.min.css"/><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/dhtmlx.css"><link href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css" rel="stylesheet"><style>html, body {width: 100%;height: 100%;overflow: hidden;margin: 0px;background-color: #EBEBEB;}</style>';
+      newWindow.document.querySelector('body').innerHTML += '<script type="text/javascript">gantt.init("gantt_here");</script>'
       window.setTimeout(function(){
         var newForm = newPrometForm(newWindow.document.body,aName,aList.Grid.getSelectedRowId(),aList);
       },150);
