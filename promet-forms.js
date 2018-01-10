@@ -128,7 +128,7 @@ function newPrometForm(aParent,aName,aId,aList) {
               null,       // auto width
               null,       // last position
               false,      // inactive
-              false);
+              true);
               aForm.Tabs.tabs(aName).attachURL(GetBaseUrl()+'/'+aForm.TableName+'/by-id/'+aForm.Id+'/'+aData2[i].name);
               aForm.Tabs.tabs(aName).progressOn();
             }
