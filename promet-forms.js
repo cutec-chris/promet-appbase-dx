@@ -108,6 +108,13 @@ function newPrometForm(aParent,aName,aId,aList) {
         var aID;
         if (aData.xmlDoc.responseText != '')
           aData2 = JSON.parse(aData.xmlDoc.responseText);
+        aForm.Tabs.attachEvent("onContentLoaded", function(id){
+          aForm.Tabs.forEachTab(function(tab){
+            var aFrame = tab.getFrame();
+            aFrame.contentDocument.body.style.fontFamily = "Arial";
+          });
+          aForm.Tabs.tabs(id).progressOff();
+        });
         if (aData2) {
           for (var i = 0; i < aData2.length; i++) {
             var aName = aData2[i].name.split('.')[0];
@@ -123,10 +130,13 @@ function newPrometForm(aParent,aName,aId,aList) {
               false,      // inactive
               false);
               aForm.Tabs.tabs(aName).attachURL(GetBaseUrl()+'/'+aForm.TableName+'/by-id/'+aForm.Id+'/'+aData2[i].name);
+              aForm.Tabs.tabs(aName).progressOn();
             }
           }
           aForm.Tabs.moveTab("overview", 0);
-          aForm.Tabs.tabs("overview").setActive();
+          try {
+            aForm.Tabs.tabs("overview").setActive();
+          } catch(err) {}
         }
       } catch(err) {
         console.log(aForm.TableName,'failed to load Directory data !',err);
