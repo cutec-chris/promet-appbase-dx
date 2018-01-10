@@ -8,6 +8,7 @@
 function newPrometForm(aParent,aName,aId,aList) {
   var aForm = {};
   aForm.TableName = aName;
+  aForm.Parent = aParent;
   aForm.Id = aId;
   aForm.LoadData = function(Callback) {
     var aURL = '/'+aForm.TableName+'/by-id/'+aForm.Id+'/item.json';
@@ -111,10 +112,10 @@ function newPrometForm(aParent,aName,aId,aList) {
         aForm.Tabs.attachEvent("onContentLoaded", function(id){
           aForm.Tabs.forEachTab(function(tab){
             var aFrame = tab.getFrame();
-            tab.progressOff();
             try {
               aFrame.contentDocument.body.style.fontFamily = "Arial";
             } catch(err) {}
+            tab.progressOff();
           });
         });
         if (aData2) {
@@ -238,7 +239,6 @@ function newPrometList(aName,aText) {
       var newForm = newPrometForm(newWindow,aName,aList.Grid.getSelectedRowId(),aList);
     } else {
       newWindow.document.querySelector('head').innerHTML += '<script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js" type="text/javascript"></script><script src="https://cdn.dhtmlx.com/edge/dhtmlx.js" type="text/javascript"></script><script src="appbase/promet.js" type="text/javascript"></script><script src="appbase/promet-datastore.js" type="text/javascript"></script><script src="appbase/promet-forms.js" type="text/javascript"></script><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/fonts/font_awesome/css/font-awesome.min.css"/><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/dhtmlx.css"><link href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css" rel="stylesheet"><style>html, body {width: 100%;height: 100%;overflow: hidden;margin: 0px;background-color: #EBEBEB;}</style>';
-      newWindow.document.querySelector('body').innerHTML += '<script type="text/javascript">gantt.init("gantt_here");</script>'
       window.setTimeout(function(){
         var newForm = newPrometForm(newWindow.document.body,aName,aList.Grid.getSelectedRowId(),aList);
       },150);
