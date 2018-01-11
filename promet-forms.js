@@ -238,9 +238,11 @@ function newPrometList(aName,aText) {
       newWindow = wnMain.createWindow(aList.Grid.getSelectedRowId(),10,10,200,200);
       var newForm = newPrometForm(newWindow,aName,aList.Grid.getSelectedRowId(),aList);
     } else {
+      parent.RegisterWindow(newWindow);
       newWindow.document.querySelector('head').innerHTML += '<script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js" type="text/javascript"></script><script src="https://cdn.dhtmlx.com/edge/dhtmlx.js" type="text/javascript"></script><script src="appbase/promet.js" type="text/javascript"></script><script src="appbase/promet-datastore.js" type="text/javascript"></script><script src="appbase/promet-forms.js" type="text/javascript"></script><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/fonts/font_awesome/css/font-awesome.min.css"/><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/dhtmlx.css"><link href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css" rel="stylesheet"><style>html, body {width: 100%;height: 100%;overflow: hidden;margin: 0px;background-color: #EBEBEB;}</style>';
       window.setTimeout(function(){
         var newForm = newPrometForm(newWindow.document.body,aName,aList.Grid.getSelectedRowId(),aList);
+        newWindow.history.pushState({"html":'#'+aName+'/by-id/'+aList.Grid.getSelectedRowId()+'/index.html',"pageTitle":'aName'},"", '#'+aName+'/by-id/'+aList.Grid.getSelectedRowId()+'/index.html');
       },150);
     }
   });
