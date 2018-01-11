@@ -53,7 +53,7 @@ function newPrometForm(aParent,aName,aId,aList) {
 	var b = aForm.Layout.cells('b');
 	b.hideHeader();
 
-  a.attachToolbar({
+  aForm.Toolbar = a.attachToolbar({
       items:[
         {id: "save", type: "button", text: "Speichern", img: "fa fa-save"},
         {id: "abort", type: "button", text: "Abbrechen", img: "fa fa-cancel"},
