@@ -82,7 +82,13 @@ function newPrometForm(aParent,aName,aId,aList) {
   aForm.Layout.progressOn();
   try {
   aForm.LoadData(function(){
-    aForm.Form.setItemValue("Shorttext",aForm.Data.Fields.name);
+    if (aForm.Data.Fields.name)
+      aForm.Form.setItemValue("Shorttext",aForm.Data.Fields.name)
+    else if (aForm.Data.Fields.shorttext)
+      aForm.Form.setItemValue("Shorttext",aForm.Data.Fields.shorttext);
+    try {
+      aForm.Parent.parentElement.ownerDocument.title=aForm.Form.getItemValue("Shorttext");
+    } catch(err) {s}
     if (aForm.Data.Fields.id==null) {
       aForm.Form.hideItem("Id");
     } else {
