@@ -124,27 +124,6 @@ function StartAvammApp(){
   RegisterWindow(window);
 };
 
-function RegisterWindow(aWindow) {
-  var el = null;
-  function router () {
-      // Lazy load view element:
-      el = el || document.getElementById('view');
-      // Current route url (getting rid of '#' in hash as well):
-      var url = location.hash.slice(1) || '/';
-      // Get route by url:
-      var route = routes[url];
-      // Do we have both a view and a route?
-      if (el && route.controller) {
-          // Render route template with John Resig's template engine:
-          el.innerHTML = tmpl(route.templateId, new route.controller());
-      }
-  }
-  // Listen on hash change:
-  aWindow.addEventListener('hashchange', router);
-  // Listen on page load:
-  aWindow.addEventListener('load', router);
-}
-
 function GetBaseUrl(){
   if ((/^h/.test(document.location))&&(AvammServer == "")) {
   } else {

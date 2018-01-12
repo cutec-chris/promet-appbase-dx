@@ -13,7 +13,7 @@ function newPrometForm(aParent,aName,aId,aList) {
   aForm.LoadData = function(Callback) {
     var aURL = '/'+aForm.TableName+'/by-id/'+aForm.Id+'/item.json';
     aForm.loading = true;
-    if (LoadData(aURL,function(aData){
+    if (window.LoadData(aURL,function(aData){
       console.log("Data loaded");
       try {
         if ((aData)&&(aData.xmlDoc))
@@ -101,7 +101,7 @@ function newPrometForm(aParent,aName,aId,aList) {
   //Load HTML Form List (Directory Contents)
   try {
     var bURL = '/'+aForm.TableName+'/by-id/'+aForm.Id+'/.json';
-    if (LoadData(bURL,function(aData){
+    if (window.LoadData(bURL,function(aData){
       console.log("Directory contents loaded");
       try {
         if ((aData)&&(aData.xmlDoc))
@@ -233,17 +233,24 @@ function newPrometList(aName,aText) {
     }
   });
   aList.Grid.attachEvent("onRowDblClicked",function(){
-    var newWindow=window.open(AvammServer,'_blank');
+    var newWindow=window.open('','_blank');
     if (newWindow==null) { //no rights to open an new window (possibly were running from file:// so we use an dhtmlx window)
       newWindow = wnMain.createWindow(aList.Grid.getSelectedRowId(),10,10,200,200);
       var newForm = newPrometForm(newWindow,aName,aList.Grid.getSelectedRowId(),aList);
     } else {
       parent.RegisterWindow(newWindow);
-      newWindow.document.querySelector('head').innerHTML += '<script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js" type="text/javascript"></script><script src="https://cdn.dhtmlx.com/edge/dhtmlx.js" type="text/javascript"></script><script src="appbase/promet.js" type="text/javascript"></script><script src="appbase/promet-datastore.js" type="text/javascript"></script><script src="appbase/promet-forms.js" type="text/javascript"></script><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/fonts/font_awesome/css/font-awesome.min.css"/><link rel="stylesheet" type="text/css" href="https://cdn.dhtmlx.com/edge/dhtmlx.css"><link href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css" rel="stylesheet"><style>html, body {width: 100%;height: 100%;overflow: hidden;margin: 0px;background-color: #EBEBEB;}</style>';
-      window.setTimeout(function(){
-        var newForm = newPrometForm(newWindow.document.body,aName,aList.Grid.getSelectedRowId(),aList);
-        newWindow.history.pushState({"html":'#'+aName+'/by-id/'+aList.Grid.getSelectedRowId()+'/index.html',"pageTitle":'aName'},"", '#'+aName+'/by-id/'+aList.Grid.getSelectedRowId()+'/index.html');
-      },150);
+      var newPath = '';
+      var pathArray = window.location.pathname.split( '/' );
+      for (i = 0; i < pathArray.length-1; i++) {
+        newPath += "/";
+        newPath += pathArray[i];
+      }
+      newWindow.location.href=window.location.protocol + "//" + window.location.host + newPath+'obj.html';
+      newWindow.onload = function () {
+        console.log('Dokument geladen');
+        newWindow.location.href=newWindow.location.href+'#'+aName+'/by-id/'+aList.Grid.getSelectedRowId();
+        newWindow.List = aList;
+      }
     }
   });
   return aList;
@@ -280,4 +287,20 @@ function newPrometAutoComplete(aPopupParams,aTable,aRow,aHeader,aColIDs,Filter,a
     aPopup.Popup.detachEvent(ppId);
 	});
   return aPopup;
+}
+
+function RegisterWindow(aWindow) {
+  function router () {
+      console.log('Routing to:'+aWindow.location.hash);
+      // Lazy load view element:
+      var route = aWindow.location.hash.split('/');
+      if (route[1]=='by-id') {
+        aWindow.document.body.innerHTML = '';
+        aWindow.Form = newPrometForm(aWindow.document.body,route[0].substr(1,route[0].length),route[2],aWindow.List);
+      }
+  }
+  // Listen on hash change:
+  aWindow.addEventListener('hashchange', router);
+  // Listen on page load:
+  aWindow.addEventListener('load', router);
 }
