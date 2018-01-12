@@ -74,7 +74,7 @@ function newPrometForm(aParent,aName,aId,aList) {
       content_zone:       true,           // boolean, opt., enable/disable content zone
       arrows_mode:        "auto"          // mode of showing tabs arrows (auto, always)
   });
-  if (aList.OnCreateForm) {
+  if ((aList) && (aList.OnCreateForm)) {
     aList.OnCreateForm(aForm);
   }
   aForm.Tabs.setSizes();
@@ -119,7 +119,33 @@ function newPrometForm(aParent,aName,aId,aList) {
           aForm.Tabs.forEachTab(function(tab){
             var aFrame = tab.getFrame();
             try {
-              aFrame.contentDocument.body.style.fontFamily = "Arial";
+              if (aFrame.contentDocument.body.style.fontFamily!="Arial") {
+                aFrame.contentDocument.body.style.fontFamily = "Arial";
+                var anchors = aFrame.contentDocument.getElementsByTagName("a");
+                for (var i = 0; i < anchors.length; i++) {
+                  if ((anchors[i].href.indexOf('@')>0)&&(anchors[i].href.substring(0,4)=='http')) {
+                    var oldLink = decodeURI(anchors[i].href.substring(anchors[i].href.lastIndexOf('/')+1));
+                    var aTable = oldLink.substring(0,oldLink.indexOf('@')).toLowerCase();
+                    oldLink = oldLink.substring(oldLink.indexOf('@')+1);
+                    var aId;
+                    console.log(oldLink);
+                    if (oldLink.indexOf('{')>0) {
+                      aId = oldLink.substring(0,oldLink.indexOf('{'))
+                    } else {
+                      aId = oldLink;
+                    }
+                    if (aId.indexOf('(')>0) {
+                      aId = aId.substring(0,aId.indexOf('('))
+                      //TODO:parse Parameters
+                    }
+                    anchors[i].href = "/obj.html#" + aTable + '/by-id/'+aId;
+                    anchors[i].onclick = function() {
+                       OpenElement(aTable,aId);
+                       return false;
+                    }
+                  }
+                }
+              }
             } catch(err) {}
             tab.progressOff();
           });
@@ -239,27 +265,39 @@ function newPrometList(aName,aText) {
     }
   });
   aList.Grid.attachEvent("onRowDblClicked",function(){
-    var newWindow=window.open('','_blank');
-    if (newWindow==null) { //no rights to open an new window (possibly were running from file:// so we use an dhtmlx window)
-      newWindow = wnMain.createWindow(aList.Grid.getSelectedRowId(),10,10,200,200);
-      var newForm = newPrometForm(newWindow,aName,aList.Grid.getSelectedRowId(),aList);
-    } else {
-      parent.RegisterWindow(newWindow);
-      var newPath = '';
-      var pathArray = window.location.pathname.split( '/' );
-      for (i = 0; i < pathArray.length-1; i++) {
-        newPath += "/";
-        newPath += pathArray[i];
-      }
-      newWindow.location.href=window.location.protocol + "//" + window.location.host + newPath+'obj.html';
-      newWindow.onload = function () {
-        console.log('Dokument geladen');
-        newWindow.location.href=newWindow.location.href+'#'+aName+'/by-id/'+aList.Grid.getSelectedRowId();
-        newWindow.List = aList;
+    OpenElement(aName,aList.Grid.getSelectedRowId(),aList);
+  });
+  window.AvammLists.push(aList);
+  return aList;
+}
+
+function OpenElement(aTable,aId,aList) {
+  if (aList == null) {
+    for (var i = 0; i < window.AvammLists.length; i++) {
+      if (AvammLists[i].TableName == aTable) {
+        aList = AvammLists[i];
       }
     }
-  });
-  return aList;
+  }
+  var newWindow=window.open('','_blank');
+  if (newWindow==null) { //no rights to open an new window (possibly were running from file:// so we use an dhtmlx window)
+    newWindow = wnMain.createWindow(aId,10,10,200,200);
+    var newForm = newPrometForm(newWindow,aTable,aId,aList);
+  } else {
+    parent.RegisterWindow(newWindow);
+    var newPath = '';
+    var pathArray = window.location.pathname.split( '/' );
+    for (i = 0; i < pathArray.length-1; i++) {
+      newPath += "/";
+      newPath += pathArray[i];
+    }
+    newWindow.location.href=window.location.protocol + "//" + window.location.host + newPath+'obj.html';
+    newWindow.onload = function () {
+      console.log('Dokument geladen');
+      newWindow.location.href=newWindow.location.href+'#'+aTable+'/by-id/'+aId;
+      newWindow.List = aList;
+    }
+  }
 }
 
 function newPrometAutoComplete(aPopupParams,aTable,aRow,aHeader,aColIDs,Filter,aDblClick) {

@@ -3,6 +3,7 @@ var wnMain;
 var lMain;
 var AvammLogin;
 var AvammServer = '';
+var AvammLists = [];
 
 function RegisterAvammAppPage(caption,name,src) {
   sbMain.addItem({id: 'si'+name, text: caption, AppID: name, AppSrc: src, icon: ''});
