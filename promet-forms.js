@@ -139,8 +139,10 @@ function newPrometForm(aParent,aName,aId,aList) {
                       //TODO:parse Parameters
                     }
                     anchors[i].href = "/obj.html#" + aTable + '/by-id/'+aId;
+                    anchors[i].AvammTable = aTable;
+                    anchors[i].AvammId = aId;
                     anchors[i].onclick = function() {
-                       OpenElement(aTable,aId);
+                       OpenElement(this.AvammTable,this.AvammId);
                        return false;
                     }
                   }
