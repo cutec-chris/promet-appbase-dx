@@ -121,6 +121,7 @@ function newPrometForm(aParent,aName,aId,aList) {
             try {
               if (aFrame.contentDocument.body.style.fontFamily!="Arial") {
                 aFrame.contentDocument.body.style.fontFamily = "Arial";
+                aFrame.contentDocument.body.style.fontSizeAdjust = 0.5;
                 var anchors = aFrame.contentDocument.getElementsByTagName("a");
                 for (var i = 0; i < anchors.length; i++) {
                   if ((anchors[i].href.indexOf('@')>0)&&(anchors[i].href.substring(0,4)=='http')) {
@@ -128,7 +129,6 @@ function newPrometForm(aParent,aName,aId,aList) {
                     var aTable = oldLink.substring(0,oldLink.indexOf('@')).toLowerCase();
                     oldLink = oldLink.substring(oldLink.indexOf('@')+1);
                     var aId;
-                    console.log(oldLink);
                     if (oldLink.indexOf('{')>0) {
                       aId = oldLink.substring(0,oldLink.indexOf('{'))
                     } else {
@@ -151,21 +151,41 @@ function newPrometForm(aParent,aName,aId,aList) {
           });
         });
         if (aData2) {
+          //first add (and load) overview
           for (var i = 0; i < aData2.length; i++) {
             var aName = aData2[i].name.split('.')[0];
             var aCaption = aName;
-            if (aCaption == 'overview')
+            if (aCaption == 'overview') {
               aCaption = 'Übersicht';
-            if (aData2[i].name.split('.')[aData2[i].name.split('.').length - 1] == 'html') {
-              aForm.Tabs.addTab(
-              aName,    // id
-              aCaption,    // tab text
-              null,       // auto width
-              null,       // last position
-              false,      // inactive
-              true);
-              aForm.Tabs.tabs(aName).attachURL(GetBaseUrl()+'/'+aForm.TableName+'/by-id/'+aForm.Id+'/'+aData2[i].name);
-              aForm.Tabs.tabs(aName).progressOn();
+              if (aData2[i].name.split('.')[aData2[i].name.split('.').length - 1] == 'html') {
+                aForm.Tabs.addTab(
+                aName,    // id
+                aCaption,    // tab text
+                null,       // auto width
+                null,       // last position
+                false,      // inactive
+                true);
+                aForm.Tabs.tabs(aName).attachURL(GetBaseUrl()+'/'+aForm.TableName+'/by-id/'+aForm.Id+'/'+aData2[i].name);
+                aForm.Tabs.tabs(aName).progressOn();
+              }
+            }
+          }
+          //then add all other frames
+          for (var i = 0; i < aData2.length; i++) {
+            var aName = aData2[i].name.split('.')[0];
+            var aCaption = aName;
+            if (aCaption != 'overview') {
+              if (aData2[i].name.split('.')[aData2[i].name.split('.').length - 1] == 'html') {
+                aForm.Tabs.addTab(
+                aName,    // id
+                aCaption,    // tab text
+                null,       // auto width
+                null,       // last position
+                false,      // inactive
+                true);
+                aForm.Tabs.tabs(aName).attachURL(GetBaseUrl()+'/'+aForm.TableName+'/by-id/'+aForm.Id+'/'+aData2[i].name);
+                aForm.Tabs.tabs(aName).progressOn();
+              }
             }
           }
           aForm.Tabs.moveTab("overview", 0);
