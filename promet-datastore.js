@@ -79,10 +79,9 @@ function newPrometDataStore(aName,aSheme) {
               aDS.DataProcessor.setUpdated(aID);
             } catch(err) {}
           }
+          aDS.loading = false;
         }
-      aDS.loading = false;
       } catch(err) {
-        aDS.loading = false;
         console.log(aDS.TableName,'failed to load data !',err);
       }
       if (Callback)
