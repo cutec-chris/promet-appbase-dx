@@ -85,7 +85,9 @@ function newPrometForm(aParent,aName,aId,aList) {
     if (aForm.Data.Fields.name)
       aForm.Form.setItemValue("Shorttext",aForm.Data.Fields.name)
     else if (aForm.Data.Fields.shorttext)
-      aForm.Form.setItemValue("Shorttext",aForm.Data.Fields.shorttext);
+      aForm.Form.setItemValue("Shorttext",aForm.Data.Fields.shorttext)
+    else if (aForm.Data.Fields.subject)
+      aForm.Form.setItemValue("Shorttext",aForm.Data.Fields.subject);
     try {
       aForm.Parent.parentElement.ownerDocument.title=aForm.Form.getItemValue("Shorttext");
     } catch(err) {s}
