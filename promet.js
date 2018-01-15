@@ -130,11 +130,7 @@ function GetBaseUrl(){
   } else {
     AvammServer = 'http://localhost:8085';
   }
-  if (AvammServer == "") {
-    return 'http://localhost:8085';
-  } else {
-    return AvammServer;
-  }
+  return AvammServer;
 }
 
 function LoadData(Url,Callback,IgnoreLogin) {
