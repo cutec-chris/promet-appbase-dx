@@ -43,6 +43,14 @@
       },true);
       if (parent.AvammLogin) {
         fLogin.hideItem("data");
+        console.log('Login without Button Click');
+        if (parent.Avamm.AfterLogin) {
+          try {
+            parent.Avamm.AfterLogin(atob(parent.AvammLogin).split(':')[0],document.getElementById('LoginUserContent'));
+          } catch(err) {
+            console.log('AfterLogin failed ',parent.Avamm.AfterLogin);
+          }
+        }
       } else {
         fLogin.hideItem("logoutdata");
       }
@@ -71,6 +79,13 @@
                   fLogin.hideItem("data");
                   fLogin.showItem("logoutdata");
                   document.getElementById("realForm").submit();
+                  if (parent.Avamm.AfterLogin) {
+                    try {
+                      parent.Avamm.AfterLogin(fLogin.getItemValue("name"),document.getElementById('LoginUserContent'));
+                    } catch(err) {
+                      console.log('AfterLogin failed ',parent.Avamm.AfterLogin);
+                    }
+                  }
                 } else {
                   console.log('unsuccesful login '+data.status);
                   dhtmlx.message({
@@ -116,6 +131,8 @@
     </style>
 </head>
 <body>
+<div id="LoginUserContent">Melden Sie sich mit ihren Zugangsdaten an:</div>
+<div style="float: right">
 <ul class="dhtmlxForm" name="fLogin" oninit="doOnFormInit">
     <li ftype="fieldset" name="data" inputWidth="auto">Wilkommen
         <ul>
@@ -138,4 +155,5 @@
   </form>
 </div>
 <iframe border="0" frameBorder="0" name="submit_ifr" class="submit_iframe"></iframe>
+</div>
 </body>

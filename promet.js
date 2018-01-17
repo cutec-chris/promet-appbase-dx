@@ -4,6 +4,7 @@ var lMain;
 var AvammLogin;
 var AvammServer = '';
 var AvammLists = [];
+var Avamm = {};
 
 function RegisterAvammAppPage(caption,name,src) {
   sbMain.addItem({id: 'si'+name, text: caption, AppID: name, AppSrc: src, icon: ''});
@@ -57,7 +58,7 @@ function InitAvammApp(AppParent){
     //TODO:call Select handler
   });
   if (!AvammLogin) {
-    RegisterAvammAppPage('Login','login','appbase/login.html');
+    RegisterAvammAppPage('Startseite','login','appbase/login.html');
     sbMain.cells('silogin').setActive();
   } else {
     sbMain.showSide();
@@ -119,6 +120,14 @@ function InitAvammApp(AppParent){
     sbMain.setSizes();
   });
   wnMain = new dhtmlXWindows();
+  Avamm.LoadModule = function(module) {
+    aScript = window.document.createElement('script');
+    aScript.type = "text/javascript";
+    aScript.src = module;
+    aScript.defer = true;
+    //document.body.appendChild(aScript);
+    window.document.write("<script type=\"text/javascript\" src=\"/"+module+"\"></script>")
+  }
 };
 
 function StartAvammApp(){
@@ -181,7 +190,10 @@ function DoLogin(aLogin,aServer,Callback) {
   var Data;
   AvammLogin=aLogin;
   AvammServer = aServer;
-  LoadData("/data/login.xml",function(Data){ if (Callback) Callback(Data);});
+  LoadData("/data/login.xml",function(Data){
+    if (Callback)
+      Callback(Data);
+  });
 }
 
 function setCookie(cname, cvalue, exdays) {
