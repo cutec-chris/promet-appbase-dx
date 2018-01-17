@@ -120,14 +120,29 @@ function InitAvammApp(AppParent){
     sbMain.setSizes();
   });
   wnMain = new dhtmlXWindows();
-  Avamm.LoadModule = function(module) {
-    aScript = window.document.createElement('script');
-    aScript.type = "text/javascript";
-    aScript.src = module;
-    aScript.defer = true;
-    //document.body.appendChild(aScript);
-    window.document.write("<script type=\"text/javascript\" src=\"/"+module+"\"></script>")
-  }
+  Avamm.LoadModule = function require(inFileName)
+{
+    var aRequest
+        ,aScript
+        ,aScriptSource
+        ;
+
+    //setup the full relative filename
+    inFileName =
+        window.location.protocol + '//'
+        + window.location.host + '/'
+        + inFileName;
+
+    //synchronously get the code
+    aRequest = new XMLHttpRequest();
+    aRequest.open('GET', inFileName, false);
+    aRequest.send();
+
+    //set the returned script text while adding special comment to auto include in debugger source listing:
+    aScriptSource = aRequest.responseText + '\n////# sourceURL=' + inFileName + '\n';
+    eval(aScriptSource);
+};
+
 };
 
 function StartAvammApp(){
