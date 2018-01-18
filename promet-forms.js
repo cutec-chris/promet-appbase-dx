@@ -120,39 +120,9 @@ function newPrometForm(aParent,aName,aId,aList) {
         aForm.Tabs.attachEvent("onContentLoaded", function(id){
           aForm.Tabs.forEachTab(function(tab){
             var aFrame = tab.getFrame();
-            try {
-              if (aFrame.contentDocument.body.style.fontFamily!="Arial") {
-                aFrame.contentDocument.body.style.fontFamily = "Arial";
-                aFrame.contentDocument.body.style.fontSizeAdjust = 0.5;
-                var anchors = aFrame.contentDocument.getElementsByTagName("a");
-                for (var i = 0; i < anchors.length; i++) {
-                  if ((anchors[i].href.indexOf('@')>0)&&(anchors[i].href.substring(0,4)=='http')) {
-                    var oldLink = decodeURI(anchors[i].href.substring(anchors[i].href.lastIndexOf('/')+1));
-                    var aTable = oldLink.substring(0,oldLink.indexOf('@')).toLowerCase();
-                    oldLink = oldLink.substring(oldLink.indexOf('@')+1);
-                    var aId;
-                    if (oldLink.indexOf('{')>0) {
-                      aId = oldLink.substring(0,oldLink.indexOf('{'))
-                    } else {
-                      aId = oldLink;
-                    }
-                    if (aId.indexOf('(')>0) {
-                      aId = aId.substring(0,aId.indexOf('('))
-                      //TODO:parse Parameters
-                    }
-                    anchors[i].href = "/obj.html#" + aTable + '/by-id/'+aId;
-                    anchors[i].AvammTable = aTable;
-                    anchors[i].AvammId = aId;
-                    anchors[i].onclick = function() {
-                       OpenElement(this.AvammTable,this.AvammId);
-                       return false;
-                    }
-                  }
-                }
-              }
-            } catch(err) {}
-            tab.progressOff();
+            FixWikiContents(aFrame);
           });
+          tab.progressOff();
         });
         if (aData2) {
           //first add (and load) overview
@@ -371,4 +341,38 @@ function RegisterWindow(aWindow) {
   aWindow.addEventListener('hashchange', router);
   // Listen on page load:
   aWindow.addEventListener('load', router);
+}
+
+function FixWikiContents(aFrame) {
+  try {
+    if (aFrame.contentDocument.body.style.fontFamily!="Arial") {
+      aFrame.contentDocument.body.style.fontFamily = "Arial";
+      aFrame.contentDocument.body.style.fontSizeAdjust = 0.5;
+      var anchors = aFrame.contentDocument.getElementsByTagName("a");
+      for (var i = 0; i < anchors.length; i++) {
+        if ((anchors[i].href.indexOf('@')>0)&&(anchors[i].href.substring(0,4)=='http')) {
+          var oldLink = decodeURI(anchors[i].href.substring(anchors[i].href.lastIndexOf('/')+1));
+          var aTable = oldLink.substring(0,oldLink.indexOf('@')).toLowerCase();
+          oldLink = oldLink.substring(oldLink.indexOf('@')+1);
+          var aId;
+          if (oldLink.indexOf('{')>0) {
+            aId = oldLink.substring(0,oldLink.indexOf('{'))
+          } else {
+            aId = oldLink;
+          }
+          if (aId.indexOf('(')>0) {
+            aId = aId.substring(0,aId.indexOf('('))
+            //TODO:parse Parameters
+          }
+          anchors[i].href = "/obj.html#" + aTable + '/by-id/'+aId;
+          anchors[i].AvammTable = aTable;
+          anchors[i].AvammId = aId;
+          anchors[i].onclick = function() {
+             OpenElement(this.AvammTable,this.AvammId);
+             return false;
+          }
+        }
+      }
+    }
+  } catch(err) {}
 }
