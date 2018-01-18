@@ -43,14 +43,15 @@
       },true);
       if (parent.AvammLogin) {
         fLogin.hideItem("data");
-        console.log('Login without Button Click');
+        console.log('Login with Cookie');
         if (parent.Avamm.AfterLogin) {
           try {
             parent.Avamm.AfterLogin(atob(parent.AvammLogin).split(':')[0],document.getElementById('LoginUserContent'));
           } catch(err) {
-            console.log('AfterLogin failed ',parent.Avamm.AfterLogin);
+            throw err;
           }
         }
+        parent.window.dispatchEvent(parent.Avamm.AfterLoginEvent);
       } else {
         fLogin.hideItem("logoutdata");
       }
@@ -83,9 +84,10 @@
                     try {
                       parent.Avamm.AfterLogin(fLogin.getItemValue("name"),document.getElementById('LoginUserContent'));
                     } catch(err) {
-                      console.log('AfterLogin failed ',parent.Avamm.AfterLogin);
+                      throw err;
                     }
                   }
+                  parent.window.dispatchEvent(parent.Avamm.AfterLoginEvent);
                 } else {
                   console.log('unsuccesful login '+data.status);
                   dhtmlx.message({
@@ -131,7 +133,7 @@
     </style>
 </head>
 <body>
-<div id="LoginUserContent">Melden Sie sich mit ihren Zugangsdaten an:</div>
+<div id="LoginUserContent" style="height: 700px">Melden Sie sich mit ihren Zugangsdaten an:</div>
 <div style="float: right">
 <ul class="dhtmlxForm" name="fLogin" oninit="doOnFormInit">
     <li ftype="fieldset" name="data" inputWidth="auto">Wilkommen

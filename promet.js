@@ -12,6 +12,7 @@ function RegisterAvammAppPage(caption,name,src) {
 }
 
 function InitAvammApp(AppParent){
+  Avamm.AfterLoginEvent = new Event('AfterLogin');
   window.dhx4.skin = 'material';
   if (!AppParent)
     AppParent = document.body;
@@ -120,29 +121,6 @@ function InitAvammApp(AppParent){
     sbMain.setSizes();
   });
   wnMain = new dhtmlXWindows();
-  Avamm.LoadModule = function require(inFileName)
-{
-    var aRequest
-        ,aScript
-        ,aScriptSource
-        ;
-
-    //setup the full relative filename
-    inFileName =
-        window.location.protocol + '//'
-        + window.location.host + '/'
-        + inFileName;
-
-    //synchronously get the code
-    aRequest = new XMLHttpRequest();
-    aRequest.open('GET', inFileName, false);
-    aRequest.send();
-
-    //set the returned script text while adding special comment to auto include in debugger source listing:
-    aScriptSource = aRequest.responseText + '\n////# sourceURL=' + inFileName + '\n';
-    eval(aScriptSource);
-};
-
 };
 
 function StartAvammApp(){
