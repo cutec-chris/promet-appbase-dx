@@ -68,16 +68,22 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
    }
   },true);
   if (parent.AvammLogin) {
-    fLogin.hideItem("data");
-    console.log('Login with Cookie');
-    if (parent.Avamm.AfterLogin) {
-      try {
-        parent.Avamm.AfterLogin(atob(parent.AvammLogin).split(':')[0],fLayout);
-      } catch(err) {
-        throw err;
+    parent.LoadData('/configuration/userstatus',function(aData){
+      if ((aData)&&(aData.xmlDoc))
+      if (aData.xmlDoc.responseText != '') {
+        parent.Avamm.User = JSON.parse(aData.xmlDoc.responseText);
+        fLogin.hideItem("data");
+        console.log('Login with Cookie');
+        if (parent.Avamm.AfterLogin) {
+          try {
+            parent.Avamm.AfterLogin(atob(parent.AvammLogin).split(':')[0],fLayout);
+          } catch(err) {
+            throw err;
+          }
+          parent.window.dispatchEvent(parent.Avamm.AfterLoginEvent);
+        }
       }
-    }
-    parent.window.dispatchEvent(parent.Avamm.AfterLoginEvent);
+    });
   } else {
     fLogin.hideItem("logoutdata");
   }
@@ -103,17 +109,24 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
                 parent.setCookie('server',fLogin.getItemValue("server"));
                 console.log('cookies set...');
               }
-              fLogin.hideItem("data");
-              fLogin.showItem("logoutdata");
-              document.getElementById("realForm").submit();
-              if (parent.Avamm.AfterLogin) {
-                try {
-                  parent.Avamm.AfterLogin(fLogin.getItemValue("name"),fLayout);
-                } catch(err) {
-                  throw err;
+              parent.LoadData('/configuration/userstatus',function(aData){
+                if ((aData)&&(aData.xmlDoc))
+                if (aData.xmlDoc.responseText != '') {
+                  parent.Avamm.User = JSON.parse(aData.xmlDoc.responseText);
+                  fLogin.hideItem("data");
+                  fLogin.showItem("logoutdata");
+                  document.getElementById("realForm").submit();
+                  console.log('Login from User');
+                  if (parent.Avamm.AfterLogin) {
+                    try {
+                      parent.Avamm.AfterLogin(atob(parent.AvammLogin).split(':')[0],fLayout);
+                    } catch(err) {
+                      throw err;
+                    }
+                    parent.window.dispatchEvent(parent.Avamm.AfterLoginEvent);
+                  }
                 }
-              }
-              parent.window.dispatchEvent(parent.Avamm.AfterLoginEvent);
+              });
             } else {
               console.log('unsuccesful login '+data.status);
               dhtmlx.message({
