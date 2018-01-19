@@ -14,7 +14,7 @@ function newPrometForm(aParent,aName,aId,aList) {
     var aURL = '/'+aForm.TableName+'/by-id/'+aForm.Id+'/item.json';
     aForm.loading = true;
     if (window.LoadData(aURL,function(aData){
-      console.log("Data loaded");
+      //console.log("Data loaded");
       try {
         if ((aData)&&(aData.xmlDoc))
         var aData2;
@@ -32,7 +32,7 @@ function newPrometForm(aParent,aName,aId,aList) {
       if (Callback)
         Callback();
     })==true) {
-      console.log("Data loading...");
+      //console.log("Data loading...");
     }
     else {
       if (Callback)
@@ -110,7 +110,7 @@ function newPrometForm(aParent,aName,aId,aList) {
   try {
     var bURL = '/'+aForm.TableName+'/by-id/'+aForm.Id+'/.json';
     if (window.LoadData(bURL,function(aData){
-      console.log("Directory contents loaded");
+      //console.log("Directory contents loaded");
       try {
         if ((aData)&&(aData.xmlDoc))
         var aData2;
@@ -171,7 +171,7 @@ function newPrometForm(aParent,aName,aId,aList) {
         console.log(aForm.TableName,'failed to load Directory data !',err);
       }
     })==true) {
-      console.log("Data loading...");
+      //console.log("Data loading...");
     }
     else {
       //no login ??
@@ -373,9 +373,10 @@ function FixWikiContents(aFrame) {
             }
             aParams = aParams.substring(0,aParams.length-1);
           }
-          anchors[i].href = "/obj.html#" + aTable + '/by-id/'+aId;
           if (aParams != '')
-            anchors[i].href += '?'+aParams;
+            anchors[i].href = "/obj.html?"+aParams+"#" + aTable + '/by-id/'+aId
+          else
+            anchors[i].href = "/obj.html#" + aTable + '/by-id/'+aId;
           anchors[i].AvammTable = aTable;
           anchors[i].AvammId = aId;
           anchors[i].onclick = function() {
