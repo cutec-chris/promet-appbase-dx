@@ -361,10 +361,21 @@ function FixWikiContents(aFrame) {
             aId = oldLink;
           }
           if (aId.indexOf('(')>0) {
+            var aParams = aId.substring(aId.indexOf('(')+1,aId.length);
+            aParams = aParams.substring(0,aId.indexOf(')')-1);
+            var aParam = aParams.split(',');
             aId = aId.substring(0,aId.indexOf('('))
-            //TODO:parse Parameters
+            aParams = '';
+            for (var a = 0; a < aParam.length; a++) {
+              aParams += aParam[a];
+              if (a > 0)
+                aParams += '&';
+            }
+            aParams = aParams.substring(0,aParams.length-1);
           }
           anchors[i].href = "/obj.html#" + aTable + '/by-id/'+aId;
+          if (aParams != '')
+            anchors[i].href += '?'+aParams; 
           anchors[i].AvammTable = aTable;
           anchors[i].AvammId = aId;
           anchors[i].onclick = function() {
