@@ -34,7 +34,7 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
   ];
   fLogin = fLoginPopup.attachForm(formStructure);
   parent.AvammLogin = parent.getCookie('login');
-  if (parent.AvammLogin = '') parent.AvammLogin = null;
+  if (parent.AvammLogin == '') parent.AvammLogin = null;
   parent.AvammServer = parent.getCookie('server');
   fLogin.hideItem("server");
   fLogin.setItemValue("server","");
