@@ -54,7 +54,7 @@ function newPrometDataStore(aName,aSheme) {
     }
     aDS.loading = true;
     if (LoadData(aURL,function(aData){
-      console.log("Data loaded");
+      //console.log("Data loaded");
       try {
         aGrid.clearAll();
         if ((aData)&&(aData.xmlDoc))
@@ -87,7 +87,7 @@ function newPrometDataStore(aName,aSheme) {
       if (Callback)
         Callback();
     })==true) {
-      console.log("Data loading...");
+      //console.log("Data loading...");
     }
     else {
       if (Callback)
