@@ -13,6 +13,7 @@ function RegisterAvammAppPage(caption,name,src) {
 
 function InitAvammApp(AppParent){
   Avamm.AfterLoginEvent = new Event('AfterLogin');
+  Avamm.AfterLogoutEvent = new Event('AfterLogout');
   window.dhx4.skin = 'material';
   if (!AppParent)
     AppParent = document.body;
@@ -196,6 +197,10 @@ function setCookie(cname, cvalue, exdays) {
     var expires = "expires="+ d.toUTCString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
     if (getCookie(cname)=='') console.log('failed to store Cookie');
+}
+
+function deleteCookie( cname ) {
+  document.cookie = cname + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
 
 function getCookie(cname) {
