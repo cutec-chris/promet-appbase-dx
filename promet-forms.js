@@ -204,7 +204,7 @@ function newPrometList(aName,aText) {
   function RefreshList() {
     aList.Page.progressOn();
     try {
-      console.log("Refresh "+aName);
+      //console.log("Refresh "+aName);
       aList.DataSource.FillGrid(aList.Grid,OldFilter,0,function (){
         aList.Page.progressOff();
       });
@@ -375,7 +375,7 @@ function FixWikiContents(aFrame) {
           }
           anchors[i].href = "/obj.html#" + aTable + '/by-id/'+aId;
           if (aParams != '')
-            anchors[i].href += '?'+aParams; 
+            anchors[i].href += '?'+aParams;
           anchors[i].AvammTable = aTable;
           anchors[i].AvammId = aId;
           anchors[i].onclick = function() {
