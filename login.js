@@ -34,6 +34,7 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
   ];
   fLogin = fLoginPopup.attachForm(formStructure);
   parent.AvammLogin = parent.getCookie('login');
+  if (parent.AvammLogin = '') parent.AvammLogin = null;
   parent.AvammServer = parent.getCookie('server');
   fLogin.hideItem("server");
   fLogin.setItemValue("server","");
@@ -86,6 +87,7 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
     });
   } else {
     fLogin.hideItem("logoutdata");
+    fLoginPopup.show("login");
   }
   fLogin.attachEvent("onButtonClick",function(buttonID){
     if(buttonID=="save"){
@@ -124,6 +126,7 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
                       throw err;
                     }
                     parent.window.dispatchEvent(parent.Avamm.AfterLoginEvent);
+                    fLoginPopup.hide("login");
                   }
                 }
               });
@@ -149,13 +152,15 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
     if(buttonID=="logout"){
       fLogin.hideItem("logoutdata");
       fLogin.showItem("data");
-      AvammUser = "";
-      AvammPasswd = "";
+      parent.AvammLogin = null;
+      parent.deleteCookie('login');
       console.log("logout, User cleared");
+      parent.window.dispatchEvent(parent.Avamm.AfterLogoutEvent);
       dhtmlx.message({
         text: "Logout erfolgreich",
         expire: 3000
       });
+      fLayout.cells('a').attachHTMLString('');
     }
   });
 }
