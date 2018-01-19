@@ -121,8 +121,8 @@ function newPrometForm(aParent,aName,aId,aList) {
           aForm.Tabs.forEachTab(function(tab){
             var aFrame = tab.getFrame();
             FixWikiContents(aFrame);
+            tab.progressOff();
           });
-          tab.progressOff();
         });
         if (aData2) {
           //first add (and load) overview
