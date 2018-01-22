@@ -139,8 +139,8 @@ function InitAvammApp(AppParent){
       }
   window.addEventListener('resize', function () {
     sbMain.setSizes();
-    sbMain.options.header = (window.innerWidth<800)|(window.innerHeight<800);
-    sbMain.options.autohide = (window.innerWidth<800)|(window.innerHeight<800);
+    sbMain.conf.header = (window.innerWidth<800)|(window.innerHeight<800);
+    sbMain.conf.autohide = (window.innerWidth<800)|(window.innerHeight<800);
   });
   wnMain = new dhtmlXWindows();
 };
