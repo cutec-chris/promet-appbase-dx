@@ -11,9 +11,28 @@ function RegisterAvammAppPage(caption,name,src) {
   sbMain.cells('si'+name).attachURL(src, null, false);
 }
 
+function createNewEvent(eventName) {
+    if(typeof(Event) === 'function') {
+        var event = new Event(eventName);
+    }else{
+        var event = document.createEvent('Event');
+        event.initEvent(eventName, true, true);
+    }
+  return event;
+}
+
 function InitAvammApp(AppParent){
-  Avamm.AfterLoginEvent = new Event('AfterLogin');
-  Avamm.AfterLogoutEvent = new Event('AfterLogout');
+  Avamm = {};
+  if (typeof Element.prototype.addEventListener === 'undefined') {
+      Element.prototype.addEventListener = function (e, callback) {
+        e = 'on' + e;
+        return this.attachEvent(e, callback);
+      };
+    }
+  try {
+    Avamm.AfterLoginEvent = createNewEvent('AfterLogin');
+    Avamm.AfterLogoutEvent = createNewEvent('AfterLogout');
+  }  catch (err) {}
   window.dhx4.skin = 'material';
   if (!AppParent)
     AppParent = document.body;
@@ -23,8 +42,8 @@ function InitAvammApp(AppParent){
       template: 'text',
       width: '200',
       iconset: "awesome",
-      header: (window.innerWidth<495)|(window.innerHeight<495),
-      autohide: (window.innerWidth<495)|(window.innerHeight<495),
+      header: (window.innerWidth<800)|(window.innerHeight<800),
+      autohide: (window.innerWidth<800)|(window.innerHeight<800),
       offsets: {
         top: 0,
         right: 0,
@@ -120,6 +139,8 @@ function InitAvammApp(AppParent){
       }
   window.addEventListener('resize', function () {
     sbMain.setSizes();
+    sbMain.options.header = (window.innerWidth<800)|(window.innerHeight<800);
+    sbMain.options.autohide = (window.innerWidth<800)|(window.innerHeight<800);
   });
   wnMain = new dhtmlXWindows();
 };
