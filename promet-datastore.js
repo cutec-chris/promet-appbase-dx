@@ -38,6 +38,13 @@ function newPrometDataStore(aName,aSheme) {
           if (aData.xmlDoc.status == 200) {
             console.log("Data stored");
             aDS.DataProcessor.setUpdated(id);
+          } else {
+            console.log("failed to store Data ",aData.xmlDoc.status,' ',aData.xmlDoc.responseText);
+            dhtmlx.message({
+              type : "error",
+              text: "Speichern fehlgeschlagen<br>"+aData.xmlDoc.responseText,
+              expire: 3000
+            });
           }
         }
       });
@@ -67,9 +74,13 @@ function newPrometDataStore(aName,aSheme) {
             var aRow = [];
             aID = aData2[i].sql_id;
             for (var a = 0; a < aGrid.getColumnsNum();a++) {
-              if (aDS.onGetValue)
-                aRow[a] = aDS.onGetValue(aGrid.getColumnId(a),aData2[i][aGrid.getColumnId(a)])
-              else if (aData2[i][aGrid.getColumnId(a)]!=null)
+              if (aDS.onGetValue) {
+                try {
+                  aRow[a] = aDS.onGetValue(aGrid.getColumnId(a),aData2[i][aGrid.getColumnId(a)])
+                } catch (err) {
+                  aRow[a] = aData2[i][aGrid.getColumnId(a)]
+                }
+              } else if (aData2[i][aGrid.getColumnId(a)]!=null)
                 aRow[a] = aData2[i][aGrid.getColumnId(a)]
               else
                 aRow[a] = "";
