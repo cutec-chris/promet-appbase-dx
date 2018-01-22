@@ -21,18 +21,19 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
   fLoginPopup = new dhtmlXPopup({ toolbar: fToolbar, id: "login" });
   formStructure = [
       {type: "settings", position: "label-left", labelWidth: 110, inputWidth: 130},
-      {type: "fieldset",name:"data", list:[
+      {type: "fieldset",name:"data", label: "Anmelden", list:[
           {type: "input", name: 'server', label: 'Server', value: 'http://localhost:8085'},
           {type:"input", name:"name", label:"Benutzername"},
           {type:"password", name:"pass", label:"Passwort"},
           {type:"checkbox", name:"store", label:"Login in Cookie speichern"},
           {type:"button", name:"save", value:"Login"}
       ]},
-      {type: "fieldset",name:"logoutdata", list:[
+      {type: "fieldset",name:"logoutdata", label: "Abmelden", list:[
         {type:"button", name:"logout", value:"Logout"}
       ]}
   ];
   fLogin = fLoginPopup.attachForm(formStructure);
+  fLoginPopup.setDimension(170,270);
   parent.AvammLogin = parent.getCookie('login');
   if (parent.AvammLogin == '') parent.AvammLogin = null;
   parent.AvammServer = parent.getCookie('server');
@@ -74,6 +75,7 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
       if (aData.xmlDoc.responseText != '') {
         parent.Avamm.User = JSON.parse(aData.xmlDoc.responseText);
         fLogin.hideItem("data");
+        fLoginPopup.setDimension(170,100);
         console.log('Login with Cookie');
         if (parent.Avamm.AfterLogin) {
           try {
@@ -119,6 +121,7 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
                   fLogin.showItem("logoutdata");
                   document.getElementById("realForm").submit();
                   console.log('Login from User');
+                  fLoginPopup.setDimension(170,100);
                   if (parent.Avamm.AfterLogin) {
                     try {
                       parent.Avamm.AfterLogin(atob(parent.AvammLogin).split(':')[0],fLayout);
