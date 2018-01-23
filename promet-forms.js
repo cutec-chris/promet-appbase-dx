@@ -90,7 +90,7 @@ function newPrometForm(aParent,aName,aId,aList) {
       aForm.Form.setItemValue("Shorttext",aForm.Data.Fields.subject);
     try {
       aForm.Parent.parentElement.ownerDocument.title=aForm.Form.getItemValue("Shorttext");
-    } catch(err) {s}
+    } catch(err) {}
     if (aForm.Data.Fields.id==null) {
       aForm.Form.hideItem("Id");
     } else {
@@ -277,6 +277,7 @@ function OpenElement(aTable,aId,aList) {
   if (newWindow==null) { //no rights to open an new window (possibly were running from file:// so we use an dhtmlx window)
     newWindow = wnMain.createWindow(aId,10,10,200,200);
     var newForm = newPrometForm(newWindow,aTable,aId,aList);
+    newWindow.maximize();
   } else {
     parent.RegisterWindow(newWindow);
     var newPath = '';
@@ -298,14 +299,15 @@ function newPrometAutoComplete(aPopupParams,aTable,aRow,aHeader,aColIDs,Filter,a
   var aPopup = {};
   var Popup;
   var Grid;
-  aPopup.DoFilter = function(aFilter) {
+  aPopup.DoFilter = function(aFilter,DoSelect) {
     if (!aPopup.DataSource.loading) {
         aPopup.Grid.filterBy(1,aFilter);
 				if (aPopup.Grid.getRowsNum()==0) {
 					aPopup.DataSource.FillGrid(aPopup.Grid,Filter.replace('FILTERVALUE',aFilter),0,function (){
 						if (aPopup.Grid.getRowsNum()>0) {
 						  if (!aPopup.Popup.isVisible()) aPopup.Popup.show("eProduct");
-  					  aPopup.Grid.selectRow(0);
+              if (DoSelect)
+  					    aPopup.Grid.selectRow(0);
 					  }
   				});
 				}
