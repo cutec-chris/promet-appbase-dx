@@ -90,7 +90,11 @@ function newPrometForm(aParent,aName,aId,aList) {
       aForm.Form.setItemValue("Shorttext",aForm.Data.Fields.subject);
     try {
       aForm.Parent.parentElement.ownerDocument.title=aForm.Form.getItemValue("Shorttext");
-    } catch(err) {}
+    } catch(err) {
+      try {
+        aForm.Parent.setText(aForm.Form.getItemValue("Shorttext"));
+      } catch(err) {}
+    }
     if (aForm.Data.Fields.id==null) {
       aForm.Form.hideItem("Id");
     } else {
@@ -278,6 +282,7 @@ function OpenElement(aTable,aId,aList) {
     newWindow = wnMain.createWindow(aId,10,10,200,200);
     var newForm = newPrometForm(newWindow,aTable,aId,aList);
     newWindow.maximize();
+    newWindow.setText('...');
   } else {
     parent.RegisterWindow(newWindow);
     var newPath = '';
@@ -288,7 +293,6 @@ function OpenElement(aTable,aId,aList) {
     }
     newWindow.location.href=window.location.protocol + "//" + window.location.host + newPath+'obj.html';
     newWindow.onload = function () {
-      console.log('Dokument geladen');
       newWindow.location.href=newWindow.location.href+'#'+aTable+'/by-id/'+aId;
       newWindow.List = aList;
     }
