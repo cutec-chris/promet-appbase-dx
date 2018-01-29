@@ -47,7 +47,6 @@ function newPrometForm(aParent,aName,aId,aList) {
 
   aForm.Layout = new dhtmlXLayoutObject(aParent, '2E');
   var a = aForm.Layout.cells('a');
-  a.setHeight('90');
   a.hideHeader();
   a.fixSize(0,1);
 	var b = aForm.Layout.cells('b');
@@ -78,6 +77,7 @@ function newPrometForm(aParent,aName,aId,aList) {
     aList.OnCreateForm(aForm);
   }
   aForm.Tabs.setSizes();
+  a.setHeight('90');
   //Load Base Data for Item
   aForm.Layout.progressOn();
   try {
