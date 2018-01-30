@@ -5,11 +5,12 @@
   Tabs
   onCreate
 */
-function newPrometForm(aParent,aName,aId,aList) {
+function newPrometForm(aParent,aName,aId,aList,aParams) {
   var aForm = {};
   aForm.TableName = aName;
   aForm.Parent = aParent;
   aForm.Id = aId;
+  aForm.Params = aParams;
   aForm.LoadData = function(Callback) {
     var aURL = '/'+aForm.TableName+'/by-id/'+aForm.Id+'/item.json';
     aForm.loading = true;
@@ -100,6 +101,7 @@ function newPrometForm(aParent,aName,aId,aList) {
     } else {
       aForm.Form.setItemValue("Id",aForm.Data.Fields.id);
       aForm.Form.showItem("Id");
+      aForm.BaseId = aForm.Data.Fields.id;
     }
     if (aForm.OnDataUpdated) {
       aForm.OnDataUpdated(aForm);
@@ -124,7 +126,7 @@ function newPrometForm(aParent,aName,aId,aList) {
         aForm.Tabs.attachEvent("onContentLoaded", function(id){
           aForm.Tabs.forEachTab(function(tab){
             var aFrame = tab.getFrame();
-            FixWikiContents(aFrame);
+            FixWikiContents(aFrame,aForm);
             tab.progressOff();
           });
         });
@@ -170,6 +172,10 @@ function newPrometForm(aParent,aName,aId,aList) {
           try {
             aForm.Tabs.tabs("overview").setActive();
           } catch(err) {}
+        } else {
+          console.log(aForm.TableName,'failed to load Directory data !');
+          aForm.Layout.progressOff();
+          //TODO:close Window ??
         }
       } catch(err) {
         console.log(aForm.TableName,'failed to load Directory data !',err);
@@ -269,7 +275,7 @@ function newPrometList(aName,aText) {
   return aList;
 }
 
-function OpenElement(aTable,aId,aList) {
+function OpenElement(aTable,aId,aList,aParams) {
   if (aList == null) {
     for (var i = 0; i < window.AvammLists.length; i++) {
       if (AvammLists[i].TableName == aTable) {
@@ -293,7 +299,10 @@ function OpenElement(aTable,aId,aList) {
     }
     newWindow.location.href=window.location.protocol + "//" + window.location.host + newPath+'obj.html';
     newWindow.onload = function () {
-      newWindow.location.href=newWindow.location.href+'#'+aTable+'/by-id/'+aId;
+      if (aParams)
+        newWindow.location.href=newWindow.location.href+'#'+aTable+'/by-id/'+aId+'?'+aParams
+      else
+        newWindow.location.href=newWindow.location.href+'#'+aTable+'/by-id/'+aId;
       newWindow.List = aList;
     }
   }
@@ -340,7 +349,11 @@ function RegisterWindow(aWindow) {
       var route = aWindow.location.hash.split('/');
       if (route[1]=='by-id') {
         aWindow.document.body.innerHTML = '';
-        aWindow.Form = newPrometForm(aWindow.document.body,route[0].substr(1,route[0].length),route[2],aWindow.List);
+        if (route[2].indexOf('?')>0) {
+          aWindow.Form = newPrometForm(aWindow.document.body,route[0].substr(1,route[0].length),route[2].substr(0,route[2].indexOf('?')),aWindow.List,route[2].substr(route[2].indexOf('?')+1,route[2].length));
+        } else {
+          aWindow.Form = newPrometForm(aWindow.document.body,route[0].substr(1,route[0].length),route[2],aWindow.List);
+        }
       }
   }
   // Listen on hash change:
@@ -349,7 +362,7 @@ function RegisterWindow(aWindow) {
   aWindow.addEventListener('load', router);
 }
 
-function FixWikiContents(aFrame) {
+function FixWikiContents(aFrame,aForm) {
   try {
     if (aFrame.contentDocument.body.style.fontFamily!="Arial") {
       aFrame.contentDocument.body.style.fontFamily = "Arial";
@@ -379,14 +392,19 @@ function FixWikiContents(aFrame) {
             }
             aParams = aParams.substring(0,aParams.length-1);
           }
+          if (aForm) {
+            aParams = aParams.replace('@VARIABLES.ID@',aForm.BaseId);
+            aParams = aParams.replace('@VARIABLES.SQL_ID@',aForm.Id);
+          }
           if (aParams != '')
             anchors[i].href = "/obj.html?"+aParams+"#" + aTable + '/by-id/'+aId
           else
             anchors[i].href = "/obj.html#" + aTable + '/by-id/'+aId;
           anchors[i].AvammTable = aTable;
           anchors[i].AvammId = aId;
+          anchors[i].AvammParams = aParams;
           anchors[i].onclick = function() {
-             OpenElement(this.AvammTable,this.AvammId);
+             OpenElement(this.AvammTable,this.AvammId,null,this.AvammParams);
              return false;
           }
         }
