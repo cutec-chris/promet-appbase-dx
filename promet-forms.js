@@ -286,7 +286,7 @@ function OpenElement(aTable,aId,aList,aParams) {
   var newWindow=window.open('','_blank');
   if (newWindow==null) { //no rights to open an new window (possibly were running from file:// so we use an dhtmlx window)
     newWindow = wnMain.createWindow(aId,10,10,200,200);
-    var newForm = newPrometForm(newWindow,aTable,aId,aList);
+    var newForm = newPrometForm(newWindow,aTable,aId,aList,aParams);
     newWindow.maximize();
     newWindow.setText('...');
   } else {
