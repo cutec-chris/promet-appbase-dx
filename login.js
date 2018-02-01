@@ -34,6 +34,7 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
   ];
   fLogin = fLoginPopup.attachForm(formStructure);
   fLoginPopup.setDimension(170,270);
+  fLogin.adjustParentSize();
   parent.AvammLogin = parent.getCookie('login');
   if (parent.AvammLogin == '') parent.AvammLogin = null;
   parent.AvammServer = parent.getCookie('server');
@@ -58,6 +59,8 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
        });
        fLogin.showItem("server");
        fLogin.setItemValue("server",parent.AvammServer);
+       fLoginPopup.setDimension(170,320);
+       fLogin.adjustParentSize();
      }
    } else {
      dhtmlx.message({
@@ -67,6 +70,8 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
      });
      fLogin.showItem("server");
      fLogin.setItemValue("server",parent.AvammServer);
+     fLoginPopup.setDimension(170,320);
+     fLogin.adjustParentSize();
    }
   },true);
   if (parent.AvammLogin) {
