@@ -51,6 +51,11 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
         parent.window.location.href = 'config/install.html';
      } else if ((Data)&&(Data.xmlDoc)&&(Data.xmlDoc.status!=0)) {
        console.log("server reachable "+Data.xmlDoc.status);
+       fLogin.hideItem("logoutdata");
+       fLogin.showItem("data");
+       parent.AvammLogin = null;
+       parent.deleteCookie('login');
+       console.log("logout, User cleared");
      } else {
        dhtmlx.message({
          type : "info",
