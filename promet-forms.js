@@ -52,6 +52,7 @@ function newPrometForm(aParent,aName,aId,aList,aParams) {
   a.fixSize(0,1);
 	var b = aForm.Layout.cells('b');
 	b.hideHeader();
+  aForm.Layout.setSeparatorSize(0, 2);
 
   aForm.Toolbar = a.attachToolbar({
       items:[
