@@ -54,8 +54,6 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
        fLogin.hideItem("logoutdata");
        fLogin.showItem("data");
        parent.AvammLogin = null;
-       parent.deleteCookie('login');
-       console.log("logout, User cleared");
      } else {
        dhtmlx.message({
          type : "info",
@@ -94,6 +92,8 @@ var fLogin,fLayout,fToolbar,fLoginPopup;
             throw err;
           }
           parent.window.dispatchEvent(parent.Avamm.AfterLoginEvent);
+          fLogin.showItem("logoutdata");
+          fLogin.hideItem("data");
         }
       }
     });
