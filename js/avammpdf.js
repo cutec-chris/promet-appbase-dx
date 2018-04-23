@@ -6,6 +6,7 @@ function loadPdf(pdfData) {
 
     var pdf = PDFJS.getDocument(pdfData);
     pdf.then(renderPdf);
+    return pdf;
 }
 
 function renderPdf(pdf) {
