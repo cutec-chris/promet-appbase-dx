@@ -157,14 +157,17 @@ function GetBaseUrl(){
   return AvammServer;
 }
 
-function LoadData(Url,Callback,IgnoreLogin) {
+function LoadData(Url,Callback,IgnoreLogin,Datatype) {
   dhx.ajax.timeout = 5000;
   var aTimeout = window.setTimeout(Callback,5000);
+  if (!Datatype)
+    Datatype = "json";
   dhx.ajax.query
       ({
         method: "GET",
         url: GetBaseUrl()+Url,
-        dataType: "json",
+        dataType: Datatype,
+        processData: false,
         async: true,
         headers: {
                 "Authorization": "Basic " + AvammLogin
