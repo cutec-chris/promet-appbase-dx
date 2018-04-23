@@ -94,7 +94,12 @@ function newPrometDataStore(aName,aSheme) {
         }
       } catch(err) {
         console.log(aDS.TableName,'failed to load data !',err);
-      }
+        dhtmlx.message({
+          type : "error",
+          text: "Daten holen fehlgeschlagen<br>"+aData.xmlDoc.responseText,
+          expire: 3000
+        });
+  }
       if (Callback)
         Callback();
     })==true) {
