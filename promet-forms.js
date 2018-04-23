@@ -213,8 +213,8 @@ function newPrometList(aName,aText) {
   var OldFilter;
   aList.TableName = aName;
   function RefreshList() {
-    aList.Page.progressOn();
     try {
+      aList.Page.progressOn();
       //console.log("Refresh "+aName);
       aList.DataSource.FillGrid(aList.Grid,OldFilter,0,function (){
         aList.Page.progressOff();
@@ -284,7 +284,16 @@ function OpenElement(aTable,aId,aList,aParams) {
       }
     }
   }
-  var newWindow=window.open('','_blank');
+  var newPath = '';
+  var pathArray = window.location.pathname.split( '/' );
+  for (i = 0; i < pathArray.length-1; i++) {
+    newPath += "/";
+    newPath += pathArray[i];
+  }
+  var newUrl;
+  newUrl=window.location.protocol + "//" + window.location.host + newPath+'obj.html';
+  if ((!window.dhx.isChrome)&&(!window.dhx.isIE))
+    var newWindow=window.open(newUrl,'_blank');
   if (newWindow==null) { //no rights to open an new window (possibly were running from file:// so we use an dhtmlx window)
     newWindow = wnMain.createWindow(aId,10,10,200,200);
     var newForm = newPrometForm(newWindow,aTable,aId,aList,aParams);
@@ -292,13 +301,7 @@ function OpenElement(aTable,aId,aList,aParams) {
     newWindow.setText('...');
   } else {
     parent.RegisterWindow(newWindow);
-    var newPath = '';
-    var pathArray = window.location.pathname.split( '/' );
-    for (i = 0; i < pathArray.length-1; i++) {
-      newPath += "/";
-      newPath += pathArray[i];
-    }
-    newWindow.location.href=window.location.protocol + "//" + window.location.host + newPath+'obj.html';
+    //newWindow.location.href=window.location.protocol + "//" + window.location.host + newPath+'obj.html';
     newWindow.onload = function () {
       if (aParams)
         newWindow.location.href=newWindow.location.href+'#'+aTable+'/by-id/'+aId+'?'+aParams
@@ -358,9 +361,15 @@ function RegisterWindow(aWindow) {
       }
   }
   // Listen on hash change:
-  aWindow.addEventListener('hashchange', router);
+  if (aWindow.addEventListener)
+    aWindow.addEventListener('hashchange', router);
+  else  
+    aWindow.attachEvent('hashchange', router);
   // Listen on page load:
-  aWindow.addEventListener('load', router);
+  if (aWindow.addEventListener)
+    aWindow.addEventListener('load', router);
+  else  
+    aWindow.attachEvent('load', router);
 }
 
 function FixWikiContents(aFrame,aForm) {
