@@ -61,7 +61,9 @@ function newPrometForm(aParent,aName,aId,aList,aParams) {
       ],
     iconset: "awesome"
   });
-  var formStructure =
+  aForm.Toolbar.disableItem('save');
+  aForm.Toolbar.disableItem('abort');
+var formStructure =
   [
     {type: "input", label: "Nummer", value: "", name: "Id", readonly:"true", hidden: "true", inputWidth: "100", note: { text: "Die Nummer des Eintrages", width:300 }, tooltip:"geben Sie hier die Id ein."},
     {type:"newcolumn"},
