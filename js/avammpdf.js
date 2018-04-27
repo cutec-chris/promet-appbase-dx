@@ -7,7 +7,6 @@ function loadPdf(pdfData) {
     PDFJS.disableWorker = true; //Not using web workers. Not disabling results in an error. This line is
     var loadingTask = PDFJS.getDocument(pdfData);
     loadingTask.promise.then(function(pdf) {
-      console.log('PDF loaded');
       renderPdf(pdf);
       return pdf;
     });  
