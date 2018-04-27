@@ -5,9 +5,6 @@ var thePdf;
 
 function loadPdf(pdfData) {
     PDFJS.disableWorker = true; //Not using web workers. Not disabling results in an error. This line is
-    //missing in the example code for rendering a pdf.
-    // The workerSrc property shall be specified.
-    //PDFJS.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
     var loadingTask = PDFJS.getDocument(pdfData);
     loadingTask.promise.then(function(pdf) {
       console.log('PDF loaded');
@@ -43,6 +40,7 @@ function handlePages(page)
   //page.render({canvasContext: context, viewport: viewport});
   container.style.height = canvas.height;
   container.style.width = canvas.width;
+  container.style.position = 'relative';
 
   var outputScale = getOutputScale();
   if (outputScale.scaled) {
@@ -51,9 +49,9 @@ function handlePages(page)
       CustomStyle.setProp('transform', canvas, cssScale);
       CustomStyle.setProp('transformOrigin', canvas, '0% 0%');
 
-      if ($textLayerDiv.get(0)) {
-          CustomStyle.setProp('transform', $textLayerDiv.get(0), cssScale);
-          CustomStyle.setProp('transformOrigin', $textLayerDiv.get(0), '0% 0%');
+      if (textLayerDiv[0]) {
+          CustomStyle.setProp('transform', textLayerDiv, cssScale);
+          CustomStyle.setProp('transformOrigin', textLayerDiv, '0% 0%');
       }
   }
   context._scaleX = outputScale.sx;
@@ -75,13 +73,13 @@ function handlePages(page)
   textLayerDiv.style.left = canvasOffset.left;
   container.append(textLayerDiv);
   page.getTextContent().then(function (textContent) {
-      var textLayer = new TextLayerBuilder(textLayerDiv[0], 0); //The second zero is an index identifying
+      var tLayer = new TextLayerBuilder(textLayerDiv, 0); //The second zero is an index identifying
       //the page. It is set to page.number - 1.
-      textLayer.setTextContent(textContent);
+      tLayer.setTextContent(textContent);
       var renderContext = {
           canvasContext: context,
           viewport: viewport,
-          textLayer: textLayer
+          textLayer: tLayer
       };
       page.render(renderContext);
   });
