@@ -1,5 +1,13 @@
 program appbase;
-  uses browserconsole;
+  uses browserconsole,browserapp,webrouter,classes;
+
+procedure ShowStartPage(URl : String; aRoute : TRoute; Params: TStrings);
 begin
-  writeln('Appbase initializing...')
+end;
+
+begin
+  writeln('Appbase initializing...');
+  Router.InitHistory(hkHash);
+  Router.RegisterRoute('startpage',@ShowStartPage,True);
+  Router.Push('startpage');
 end.
