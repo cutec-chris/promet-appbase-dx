@@ -3637,24 +3637,19 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
 rtl.module("dhtmlx_sidebar",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
-  rtl.createClass($mod,"TSidebar",pas.System.TObject,function () {
+  rtl.createClassExt($mod,"TSidebar",dhtmlXSideBar,"",function () {
     this.$init = function () {
-      pas.System.TObject.$init.call(this);
-      this.FControl = null;
       this.FParent = undefined;
     };
     this.$final = function () {
-      this.FControl = undefined;
-      pas.System.TObject.$final.call(this);
     };
     this.InternalCreate = function (aValue) {
       var Result = undefined;
       pas.System.Writeln("Creating FControl");
-      this.FControl = new dhtmlXSidebar(this.FParent);
-      console.log(FControl);
+      Self = new dhtmlXSideBar({parent: this.FParent});
       return Result;
     };
-    this.Create$1 = function (parent) {
+    this.Create = function (parent) {
       this.FParent = parent;
       pas.dhtmlx_base.DHTMLXPromise.then(rtl.createCallback(this,"InternalCreate"));
     };
@@ -3669,7 +3664,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","prom
     $mod.aLoc = pas.webrouter.Router().GetHistory().$class.getHash();
     if ($mod.aLoc === "") {
       pas.System.Writeln("creating Sidebar");
-      $mod.Sidebar = pas.dhtmlx_sidebar.TSidebar.$create("Create$1",[window.document.body]);
+      $mod.Sidebar = pas.dhtmlx_sidebar.TSidebar.$create("Create",[window.document.body]);
       pas.webrouter.Router().Push("startpage");
     } else {
       pas.System.Writeln(('Routing to "' + $mod.aLoc) + '"');

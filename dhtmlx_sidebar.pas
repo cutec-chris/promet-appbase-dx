@@ -12,7 +12,7 @@ type
 
   { TSidebar }
 
-  TDHTMLXSidebar = class external name 'dhtmlXSidebar' (TJSElement)
+  TDHTMLXSidebar = class external name 'dhtmlXSideBar' (TJSElement)
     Constructor New(Pattern : JSValue);varargs;
     procedure addItem(obj : JSValue);                                           //adds an item to Sidebar
     function attachEvent(name : string;aCallBack : TJSNodeListEvent) : Integer; //adds any user-defined handler to available events
@@ -80,9 +80,8 @@ implementation
 Function TSidebar.InternalCreate(aValue : JSValue) : JSValue;
 begin
   writeln('Creating FControl');
-  FControl := TDHTMLXSidebar.New(FParent);
   asm
-    console.log(FControl);
+    FControl = new dhtmlXSideBar({parent: this.FParent});
   end;
 end;
 
