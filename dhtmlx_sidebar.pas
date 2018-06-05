@@ -6,7 +6,7 @@ unit dhtmlx_sidebar;
 interface
 
 uses
-  js,web;
+  js,web,dhtmlx_base;
 
 type
 
@@ -64,9 +64,33 @@ type
     //unload	unloads sidebar (desctructor)
   end;
 
-  TSidebar = TDHTMLXSidebar;
+  TSidebar = class
+  private
+    FControl : TDHTMLXSidebar;
+    FParent : JSValue;
+    Function InternalCreate(aValue : JSValue) : JSValue;
+  public
+    constructor Create(parent : JSValue);
+  end;
 
 implementation
+
+{ TSidebar }
+
+Function TSidebar.InternalCreate(aValue : JSValue) : JSValue;
+begin
+  writeln('Creating FControl');
+  FControl := TDHTMLXSidebar.New(FParent);
+  asm
+    console.log(FControl);
+  end;
+end;
+
+constructor TSidebar.Create(parent: JSValue);
+begin
+  FParent := parent;
+  DHTMLXPromise._then(@Self.InternalCreate);
+end;
 
 end.
 

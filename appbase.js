@@ -3634,26 +3634,43 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
     $mod.DHTMLXPromise = new Promise(DoLoadDHTMLX);
   };
 });
-rtl.module("dhtmlx_sidebar",["System","JS","Web"],function () {
+rtl.module("dhtmlx_sidebar",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
+  rtl.createClass($mod,"TSidebar",pas.System.TObject,function () {
+    this.$init = function () {
+      pas.System.TObject.$init.call(this);
+      this.FControl = null;
+      this.FParent = undefined;
+    };
+    this.$final = function () {
+      this.FControl = undefined;
+      pas.System.TObject.$final.call(this);
+    };
+    this.InternalCreate = function (aValue) {
+      var Result = undefined;
+      pas.System.Writeln("Creating FControl");
+      this.FControl = new dhtmlXSidebar(this.FParent);
+      console.log(FControl);
+      return Result;
+    };
+    this.Create$1 = function (parent) {
+      this.FParent = parent;
+      pas.dhtmlx_base.DHTMLXPromise.then(rtl.createCallback(this,"InternalCreate"));
+    };
+  });
 });
 rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","promet_base","dhtmlx_base","dhtmlx_sidebar"],function () {
   "use strict";
   var $mod = this;
   this.aLoc = "";
   this.Sidebar = null;
-  this.LoadContents = function (aValue) {
-    var Result = undefined;
-    pas.System.Writeln("creating Sidebar");
-    $mod.Sidebar = new dhtmlXSidebar(null);
-    pas.webrouter.Router().Push("startpage");
-    return Result;
-  };
   $mod.$main = function () {
     $mod.aLoc = pas.webrouter.Router().GetHistory().$class.getHash();
     if ($mod.aLoc === "") {
-      pas.dhtmlx_base.DHTMLXPromise.then($mod.LoadContents);
+      pas.System.Writeln("creating Sidebar");
+      $mod.Sidebar = pas.dhtmlx_sidebar.TSidebar.$create("Create$1",[window.document.body]);
+      pas.webrouter.Router().Push("startpage");
     } else {
       pas.System.Writeln(('Routing to "' + $mod.aLoc) + '"');
       pas.webrouter.Router().Push($mod.aLoc);

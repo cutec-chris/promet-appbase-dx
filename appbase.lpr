@@ -6,19 +6,14 @@ var
   aLoc: String;
   Sidebar: TSidebar;
 
-Function LoadContents(aValue : JSValue) : JSValue;
-begin
-  writeln('creating Sidebar');
-  Sidebar := TSidebar.New(null);
-  Router.Push('startpage')
-end;
-
 begin
   aLoc := THashHistory(Router.History).getHash;
   if aLoc = '' then
     begin
       //no Enviroment loaded, load Sidebar
-      DHTMLXPromise._then(@LoadContents);
+      writeln('creating Sidebar');
+      Sidebar := TSidebar.Create(window.document.body);
+      Router.Push('startpage')
     end
   else
     begin

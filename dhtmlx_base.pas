@@ -51,6 +51,7 @@ procedure LoadDHTMLX;
     AppendJS('https://cdn.dhtmlx.com/edge/dhtmlx.js',@ScriptLoaded);
     AppendCSS('https://cdn.dhtmlx.com/edge/fonts/font_awesome/css/font-awesome.min.css');
     AppendCSS('https://cdn.dhtmlx.com/edge/dhtmlx.css');
+
   end;
 begin
   DHTMLXPromise:=TJSPromise.New(@DoLoadDHTMLX);
