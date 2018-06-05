@@ -1,23 +1,24 @@
 program appbase;
-  uses js,web,webrouter,classes,sysutils,
-    dhtmlx_form, dhtmlx_base;
-
-procedure ShowStartPage(URl : String; aRoute : TRoute; Params: TStrings);
-begin
-  writeln('Showing Startpage');
-end;
+  uses js,web,classes,sysutils,webrouter,
+    promet_base, dhtmlx_base, dhtmlx_form, dhtmlx_sidebar;
 
 var
   aLoc: String;
+  Sidebar: TSidebar;
+
+Function LoadContents(aValue : JSValue) : JSValue;
 begin
-  writeln('Appbase initializing...');
-  Router.InitHistory(hkHash);
-  Router.RegisterRoute('startpage',@ShowStartPage,True);
+  writeln('creating Sidebar');
+  Sidebar := TSidebar.New(null);
+  Router.Push('startpage')
+end;
+
+begin
   aLoc := THashHistory(Router.History).getHash;
   if aLoc = '' then
     begin
       //no Enviroment loaded, load Sidebar
-      Router.Push('startpage')
+      DHTMLXPromise._then(@LoadContents);
     end
   else
     begin

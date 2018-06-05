@@ -3560,10 +3560,41 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
   };
   $mod.$resourcestrings = {EDuplicateRoute: {org: "Duplicate route pattern: %s"}, EDuplicateDefaultRoute: {org: "Duplicate default route registered with pattern: %s"}};
 });
+rtl.module("promet_base",["System","JS","Web","webrouter","Classes"],function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $mod.$init = function () {
+    pas.System.Writeln("Appbase initializing...");
+    pas.webrouter.Router().InitHistory(pas.webrouter.THistoryKind.hkHash,"");
+    pas.webrouter.Router().RegisterRoute("startpage",$impl.ShowStartPage,true);
+    $impl.InitAvammApp();
+  };
+},null,function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $impl.ShowStartPage = function (URl, aRoute, Params) {
+    pas.System.Writeln("Showing Startpage");
+  };
+  $impl.InitAvammApp = function () {
+    if (typeof Element.prototype.addEventListener === 'undefined') {
+      Element.prototype.addEventListener = function (e, callback) {
+        e = 'on' + e;
+        return this.attachEvent(e, callback);
+      };
+    }
+    try {
+      Avamm.AfterLoginEvent = createNewEvent('AfterLogin');
+      Avamm.AfterLogoutEvent = createNewEvent('AfterLogout');
+    } catch (err) {};
+  };
+});
 rtl.module("dhtmlx_base",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
+  this.DHTMLXPromise = null;
   $mod.$init = function () {
     $impl.LoadDHTMLX();
   };
@@ -3571,26 +3602,57 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
+  $impl.AppendCSS = function (url) {
+    var file = url;
+    var link = document.createElement( "link" );
+    link.href = file;
+    link.type = "text/css";
+    link.rel = "stylesheet";
+    link.media = "screen,print";
+    document.getElementsByTagName( "head" )[0].appendChild( link );
+  };
+  $impl.AppendJS = function (url, onLoad) {
+    var file = url;
+    var link = document.createElement( "script" );
+    link.src = file;
+    link.type = "text/javascript";
+    link.onload = onLoad;
+    document.getElementsByTagName( "head" )[0].appendChild( link );
+  };
   $impl.LoadDHTMLX = function () {
-    window.document.head.append('<script src="https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js" type="text\/javascript"><\/script>');
-    window.document.head.append('<link rel="stylesheet" type="text\/css" href="https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css"\/>');
-    window.document.head.append('<link rel="stylesheet" type="text\/css" href="https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css">');
+    function DoLoadDHTMLX(resolve, reject) {
+      function ScriptLoaded() {
+        window.dhx4.skin = 'material';
+        resolve(true);
+      };
+      pas.System.Writeln("Loading DHTMLX...");
+      $impl.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoaded);
+      $impl.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css");
+      $impl.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css");
+    };
+    $mod.DHTMLXPromise = new Promise(DoLoadDHTMLX);
   };
 });
-rtl.module("program",["System","JS","Web","webrouter","Classes","SysUtils","dhtmlx_base"],function () {
+rtl.module("dhtmlx_sidebar",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
-  this.ShowStartPage = function (URl, aRoute, Params) {
-    pas.System.Writeln("Showing Startpage");
-  };
+});
+rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","promet_base","dhtmlx_base","dhtmlx_sidebar"],function () {
+  "use strict";
+  var $mod = this;
   this.aLoc = "";
+  this.Sidebar = null;
+  this.LoadContents = function (aValue) {
+    var Result = undefined;
+    pas.System.Writeln("creating Sidebar");
+    $mod.Sidebar = new dhtmlXSidebar(null);
+    pas.webrouter.Router().Push("startpage");
+    return Result;
+  };
   $mod.$main = function () {
-    pas.System.Writeln("Appbase initializing...");
-    pas.webrouter.Router().InitHistory(pas.webrouter.THistoryKind.hkHash,"");
-    pas.webrouter.Router().RegisterRoute("startpage",$mod.ShowStartPage,true);
     $mod.aLoc = pas.webrouter.Router().GetHistory().$class.getHash();
     if ($mod.aLoc === "") {
-      pas.webrouter.Router().Push("startpage");
+      pas.dhtmlx_base.DHTMLXPromise.then($mod.LoadContents);
     } else {
       pas.System.Writeln(('Routing to "' + $mod.aLoc) + '"');
       pas.webrouter.Router().Push($mod.aLoc);
