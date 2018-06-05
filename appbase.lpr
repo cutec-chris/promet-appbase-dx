@@ -1,5 +1,6 @@
 program appbase;
-  uses js,web,webrouter,classes,sysutils;
+  uses js,web,webrouter,classes,sysutils,
+    dhtmlx_form, dhtmlx_base;
 
 procedure ShowStartPage(URl : String; aRoute : TRoute; Params: TStrings);
 begin
@@ -14,10 +15,14 @@ begin
   Router.RegisterRoute('startpage',@ShowStartPage,True);
   aLoc := THashHistory(Router.History).getHash;
   if aLoc = '' then
-    Router.Push('startpage')
+    begin
+      //no Enviroment loaded, load Sidebar
+      Router.Push('startpage')
+    end
   else
     begin
-      writeln('Routiong to "'+aLoc+'"');
+      //Sub URL Routing, no Enviroment needed
+      writeln('Routing to "'+aLoc+'"');
       Router.Push(aLoc);
     end;
 end.

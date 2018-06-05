@@ -3560,7 +3560,24 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
   };
   $mod.$resourcestrings = {EDuplicateRoute: {org: "Duplicate route pattern: %s"}, EDuplicateDefaultRoute: {org: "Duplicate default route registered with pattern: %s"}};
 });
-rtl.module("program",["System","JS","Web","webrouter","Classes","SysUtils"],function () {
+rtl.module("dhtmlx_base",["System","JS","Web"],function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $mod.$init = function () {
+    $impl.LoadDHTMLX();
+  };
+},null,function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $impl.LoadDHTMLX = function () {
+    window.document.head.append('<script src="https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js" type="text\/javascript"><\/script>');
+    window.document.head.append('<link rel="stylesheet" type="text\/css" href="https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css"\/>');
+    window.document.head.append('<link rel="stylesheet" type="text\/css" href="https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css">');
+  };
+});
+rtl.module("program",["System","JS","Web","webrouter","Classes","SysUtils","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
   this.ShowStartPage = function (URl, aRoute, Params) {
@@ -3573,9 +3590,9 @@ rtl.module("program",["System","JS","Web","webrouter","Classes","SysUtils"],func
     pas.webrouter.Router().RegisterRoute("startpage",$mod.ShowStartPage,true);
     $mod.aLoc = pas.webrouter.Router().GetHistory().$class.getHash();
     if ($mod.aLoc === "") {
-      pas.webrouter.Router().Push("startpage")}
-     else {
-      pas.System.Writeln(('Routiong to "' + $mod.aLoc) + '"');
+      pas.webrouter.Router().Push("startpage");
+    } else {
+      pas.System.Writeln(('Routing to "' + $mod.aLoc) + '"');
       pas.webrouter.Router().Push($mod.aLoc);
     };
   };

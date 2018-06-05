@@ -33,7 +33,7 @@
         <PackageName Value="pas2js_rtl"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="2">
+    <Units Count="3">
       <Unit0>
         <Filename Value="appbase.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -42,6 +42,10 @@
         <Filename Value="../index.html"/>
         <IsPartOfProject Value="True"/>
       </Unit1>
+      <Unit2>
+        <Filename Value="dhtmlx_base.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit2>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
