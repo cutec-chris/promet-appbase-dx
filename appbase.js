@@ -3624,6 +3624,7 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
       function ScriptLoaded() {
         window.dhx4.skin = 'material';
         resolve(true);
+        pas.System.Writeln("DHTMLX loaded...");
       };
       pas.System.Writeln("Loading DHTMLX...");
       $impl.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoaded);

@@ -44,6 +44,7 @@ procedure LoadDHTMLX;
         window.dhx4.skin = 'material';
       end;
       resolve(true);
+      writeln('DHTMLX loaded...');
     end;
   begin
     writeln('Loading DHTMLX...');
