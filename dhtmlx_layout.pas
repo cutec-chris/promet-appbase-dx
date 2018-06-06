@@ -31,11 +31,11 @@ type
     //attachStatusBar	attaches a status bar to a cell
     //attachTabbar	attaches dhtmlxTabbar to a cell
     //attachToolbar	attaches dhtmlxToolbar to a cell
-    function attachTreeView(): JSValue;varargs;	                        //attaches dhtmlxTree to a cell
+    function attachTreeView(): JSValue;varargs;	                                //attaches dhtmlxTree to a cell
     //attachTreeView	attaches dhtmlxTreeView to a cell
     //attachURL	attaches the specified URL to a cell
     //attachVault	attaches dhtmlxVault to a cell
-    //collapse	collapses a cell
+    procedure collapse;	                                                        //collapses a cell
     cell : JSValue;
     conf : TJSObject;
     //detachMenu	detaches dhtmlxMenu from a cell
@@ -43,43 +43,43 @@ type
     //detachRibbon	detaches dhtmlxRibbon from a cell
     //detachStatusBar	detaches status bar from a cell
     //detachToolbar	detaches dhtmlxToolbar from a cell
-    //dock	docks content from the window to layout cell
-    //expand	expands a cell
-    //fixSize	fixes the size of a cell
+    procedure dock;	                                                        //docks content from the window to layout cell
+    procedure expand;	                                                        //expands a cell
+    procedure fixSize;varargs;	                                                //fixes the size of a cell
     //getAttachedMenu	returns dhtmlxMenu instance attached to a cell
     //getAttachedObject	returns the object attached to a cell
     //getAttachedRibbon	returns dhtmlxRibbon instance attached to a cell
     //getAttachedStatusBar	returns status bar object attached to a cell
     //getAttachedToolbar	returns dhtmlxToolbar instance attached to a cell
-    //getCollapsedText	returns text for collapsed cell
+    function getCollapsedText : string;	                                        //returns text for collapsed cell
     //getFrame	returns an iframe object when an URL is attached to a cell
-    //getHeight	returns cell height
-    //getId	returns the id of a cell
-    //getIndex	returns cell index
-    //getText	returns header text
+    function getHeight : Integer;	                                        //returns cell height
+    function getId : JSValue;	                                                //returns the id of a cell
+    //getIndex;depricated;	returns cell index
+    function getText: string;	                                                //returns header text
     //getViewName	returns the name of the current view
-    //getWidth	returns cell width
-    //hideArrow	hides the header arrow for the specified cell
-    //hideHeader	hides cell header
+    function getWidth : Integer;	                                        //returns cell width
+    procedure hideArrow;	                                                //hides the header arrow for the specified cell
+    procedure hideHeader;	                                                //hides cell header
     //hideMenu	hides dhtmlxMenu attached to a cell
     //hideRibbon	hides dhtmlxRibbon attached to a cell
     //hideStatusBar	hides status bar object attached to a cell
-    //hideToolbar	hides dhtmlxToolbar attached to a cell
+    procedure hideToolbar;	                                                //hides dhtmlxToolbar attached to a cell
     //isArrowVisible	returns true if the header arrow is visible
     //isCollapsed	returns true if a cell is collapsed
     //isHeaderVisible	returns true if a header is visible
-    //progressOff	hides the progress indicator in a cell
-    //progressOn	shows the progress indicator in a cell
+    procedure progressOff;	                                                //hides the progress indicator in a cell
+    procedure progressOn;	                                                //shows the progress indicator in a cell
     //reloadURL	reloads the attached URL in a cell
-    //setCollapsedText	sets header text for collapsed cell
-    //setHeight	sets cell height
+    procedure setCollapsedText(text : string);	                                //sets header text for collapsed cell
+    procedure setHeight(height : Integer);	                                //sets cell height
     //setMinHeight	sets minimal height of a layout cell
     //setMinWidth	sets minimal width of a layout cell
-    //setText	set header text
-    //setWidth	sets cell width
+    procedure setText(text : string);	                                        //set header text
+    procedure setWidth(width : Integer);	                                //sets cell width
     //showArrow	shows the header arrow for the specified cell
-    //showHeader	shows the header of a cell
-    //showInnerScroll	shows inner cell scrolls
+    procedure showHeader;	                                                //shows the header of a cell
+    procedure showInnerScroll;	                                                //shows inner cell scrolls
     //showMenu	shows dhtmlxMenu attached to a cell
     //showRibbon	shows dhtmlxRibbon attached to a cell
     //showStatusBar	shows status bar object attached to a cell
@@ -124,15 +124,14 @@ type
     //listAutoSizes	returns array with autosize settings for loaded layout (depends on pattern)
     //listPatterns	returns array with available layout patterns
     //listViews	returns array with available layout patterns
-    //progressOff	hides progress indicator for full component
-    //progressOn	shows progress indicator for full component
-    //setAutoSize	sets autosize for the layout
-    //setCollapsedText	sets text for collapsed cell
+    procedure progressOff;	                                                //hides progress indicator for full component
+    procedure progressOn;	                                                //shows progress indicator for full component
+    procedure setAutoSize;	                                                //sets autosize for the layout
     //setEffect	sets effect
     //setImagePath	sets path to images
-    //setOffsets	sets offsets for parent container from each side
+    procedure setOffsets(conf : TJSObject);     	                        //sets offsets for parent container from each side
     //setSeparatorSize	sets the width of a separator line in pixels
-    //setSizes	adjusts layout's outer size when parent's size changed
+    procedure setSizes;	                                                        //adjusts layout's outer size when parent's size changed
     //setSkin	sets skin
     //showMenu	shows dhtmlxMenu attached to component's top
     //showPanel	shows cell header
