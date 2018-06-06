@@ -15,7 +15,7 @@ type
   TDHTMLXSidebar = class external name 'dhtmlXSideBar' (TJSElement)
     Constructor New(Pattern : JSValue);varargs;
     procedure addItem(obj : JSValue);                                           //adds an item to Sidebar
-    function attachEvent(name : string;aCallBack : TJSNodeListEvent) : Integer; //adds any user-defined handler to available events
+    function attachEvent(name : string;aCallBack : JSValue) : Integer; //adds any user-defined handler to available events
     procedure attachFooter(id : JSValue;height : Integer);varargs;              //attaches footer to component's bottom
     procedure attachHeader(id : JSValue;height : Integer);varargs;	        //attaches header to component's top
     //attachMenu	attaches dhtmlxMenu to component's top
@@ -31,8 +31,8 @@ type
     //detachRibbon	detaches dhtmlxRibbon from component's top
     //detachStatusBar	detaches status bar object from component's bottom
     //detachToolbar	detaches dhtmlxToolbar from component's top
-    procedure forEachCell(const aCallBack : TJSNodeListEvent);	                //alias for forEachItem()
-    procedure forEachItem(const aCallBack : TJSNodeListEvent);	                //an iterator, calls a user-defined handler for each item
+    procedure forEachCell(const aCallBack : JSValue);	                //alias for forEachItem()
+    procedure forEachItem(const aCallBack : JSValue);	                //an iterator, calls a user-defined handler for each item
     //getActiveItem	returns id of the active item
     //getAllItems	returns an array of the sidebar items' ids
     //getAttachedMenu	returns dhtmlxMenu instance attached to component's top
@@ -67,8 +67,6 @@ type
   TSidebar = class
   private
     FControl : TDHTMLXSidebar;
-    FParent : JSValue;
-    Function InternalCreate(aValue : JSValue) : JSValue;
   public
     constructor Create(parent : JSValue);
   end;
@@ -77,18 +75,9 @@ implementation
 
 { TSidebar }
 
-Function TSidebar.InternalCreate(aValue : JSValue) : JSValue;
-begin
-  writeln('Creating FControl');
-  asm
-    FControl = new dhtmlXSideBar({parent: this.FParent});
-  end;
-end;
-
 constructor TSidebar.Create(parent: JSValue);
 begin
-  FParent := parent;
-  DHTMLXPromise._then(@Self.InternalCreate);
+  FControl := TDHTMLXSidebar.New(new(['parent',parent]));
 end;
 
 end.

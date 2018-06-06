@@ -1,24 +1,30 @@
 program appbase;
   uses js,web,classes,sysutils,webrouter,
-    promet_base, dhtmlx_base, dhtmlx_form, dhtmlx_sidebar;
+    promet_base, dhtmlx_base, dhtmlx_form, dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar;
 
 var
-  aLoc: String;
-  Sidebar: TSidebar;
+  LoadEnviroment : Boolean = True;
+  Treeview: TTreeview;
+  Layout: TLayout;
 
+
+function FillEnviroment(aValue : JSValue) : JSValue;
+var
+  i: Integer;
 begin
-  aLoc := THashHistory(Router.History).getHash;
-  if aLoc = '' then
+  Layout := TLayout.Create(window.document.body,'2U');
+  Treeview := TTreeview.Create(Layout.cells['a']);
+  //Treeview.AfterCreate._then(@FillEnviroment);
+  for i := 0 to Router.RouteCount-1 do
     begin
-      //no Enviroment loaded, load Sidebar
-      writeln('creating Sidebar');
-      Sidebar := TSidebar.Create(window.document.body);
-      Router.Push('startpage')
-    end
-  else
-    begin
-      //Sub URL Routing, no Enviroment needed
-      writeln('Routing to "'+aLoc+'"');
-      Router.Push(aLoc);
     end;
+end;
+begin
+  //Router.RegisterRoute('startpage',@ShowStartpage,True);
+  if LoadEnviroment then
+    begin
+      DHTMLXPromise._then(@FillEnviroment);
+    end;
+  if THashHistory(Router.History).getHash<>'' then
+    Router.Push(THashHistory(Router.History).getHash);
 end.

@@ -43,8 +43,8 @@ procedure LoadDHTMLX;
       asm
         window.dhx4.skin = 'material';
       end;
-      resolve(true);
       writeln('DHTMLX loaded...');
+      resolve(true);
     end;
   begin
     writeln('Loading DHTMLX...');

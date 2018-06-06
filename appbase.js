@@ -2418,10 +2418,6 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
         if (Value !== null) Value.InsertItem(this);
       };
     };
-    this.Create$1 = function (ACollection) {
-      pas.System.TObject.Create.call(this);
-      this.SetCollection(ACollection);
-    };
     this.Destroy = function () {
       this.SetCollection(null);
       pas.System.TObject.Destroy.call(this);
@@ -2753,8 +2749,6 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
-  rtl.createClass($mod,"EHTTPRoute",pas.SysUtils.Exception,function () {
-  });
   this.TScrollPoint = function (s) {
     if (s) {
       this.X = s.X;
@@ -3076,11 +3070,6 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
       Result = V;
       return Result;
     };
-    this.Matches = function (APattern) {
-      var Result = false;
-      Result = pas.SysUtils.CompareText(this.FURLPattern,this.$class.NormalizeURLPattern(APattern)) === 0;
-      return Result;
-    };
     this.MatchPattern = function (Path, L) {
       var Self = this;
       var Result = false;
@@ -3308,31 +3297,15 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
       Result = this.FHistory;
       return Result;
     };
-    this.CreateHTTPRoute = function (AClass, APattern, IsDefault) {
-      var Result = null;
-      this.CheckDuplicate(APattern,IsDefault);
-      Result = AClass.$create("Create$1",[this.FRoutes]);
-      Result.SetURLPattern(APattern);
-      Result.FDefault = IsDefault;
+    this.GetRouteCount = function () {
+      var Result = 0;
+      Result = this.FRoutes.GetCount();
       return Result;
     };
     this.CreateRouteList = function () {
       var Result = null;
       Result = $mod.TRouteList.$create("Create$1",[$mod.TRoute]);
       return Result;
-    };
-    this.CheckDuplicate = function (APattern, isDefault) {
-      var I = 0;
-      var DI = 0;
-      var R = null;
-      DI = -1;
-      for (var $l1 = 0, $end2 = this.FRoutes.GetCount() - 1; $l1 <= $end2; $l1++) {
-        I = $l1;
-        R = this.FRoutes.GetR(I);
-        if (R.FDefault) DI = I;
-        if (R.Matches(APattern)) throw $mod.EHTTPRoute.$create("CreateFmt",[rtl.getResStr(pas.webrouter,"EDuplicateRoute"),[APattern]]);
-      };
-      if (isDefault && (DI !== -1)) throw $mod.EHTTPRoute.$create("CreateFmt",[rtl.getResStr(pas.webrouter,"EDuplicateDefaultRoute"),[APattern]]);
     };
     this.DoRouteRequest = function (ARoute, AURL, AParams) {
       var Result = null;
@@ -3385,12 +3358,6 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
       var Result = null;
       if (this.FServiceClass === null) this.FServiceClass = $mod.TRouter;
       Result = this.FServiceClass;
-      return Result;
-    };
-    this.RegisterRoute = function (APattern, AEvent, IsDefault) {
-      var Result = null;
-      Result = this.CreateHTTPRoute($impl.TRouteEventHandler,APattern,IsDefault);
-      Result.FEvent = AEvent;
       return Result;
     };
     this.FindHTTPRoute = function (Path, Params) {
@@ -3534,11 +3501,6 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
-  rtl.createClass($impl,"TRouteEventHandler",$mod.TRoute,function () {
-    this.HandleRequest = function (ARouter, URL, Params) {
-      if (this.FEvent != null) this.FEvent(URL,this,Params);
-    };
-  });
   $impl.DoScroll = function (Event) {
     var Result = false;
     $mod.TWebScroll.SaveScrollPosition();
@@ -3558,7 +3520,6 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
     Result.Y = (elRect.top - docRect.top) - offset.Y;
     return Result;
   };
-  $mod.$resourcestrings = {EDuplicateRoute: {org: "Duplicate route pattern: %s"}, EDuplicateDefaultRoute: {org: "Duplicate default route registered with pattern: %s"}};
 });
 rtl.module("promet_base",["System","JS","Web","webrouter","Classes"],function () {
   "use strict";
@@ -3567,27 +3528,13 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes"],function ()
   $mod.$init = function () {
     pas.System.Writeln("Appbase initializing...");
     pas.webrouter.Router().InitHistory(pas.webrouter.THistoryKind.hkHash,"");
-    pas.webrouter.Router().RegisterRoute("startpage",$impl.ShowStartPage,true);
     $impl.InitAvammApp();
   };
 },null,function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
-  $impl.ShowStartPage = function (URl, aRoute, Params) {
-    pas.System.Writeln("Showing Startpage");
-  };
   $impl.InitAvammApp = function () {
-    if (typeof Element.prototype.addEventListener === 'undefined') {
-      Element.prototype.addEventListener = function (e, callback) {
-        e = 'on' + e;
-        return this.attachEvent(e, callback);
-      };
-    }
-    try {
-      Avamm.AfterLoginEvent = createNewEvent('AfterLogin');
-      Avamm.AfterLogoutEvent = createNewEvent('AfterLogout');
-    } catch (err) {};
   };
 });
 rtl.module("dhtmlx_base",["System","JS","Web"],function () {
@@ -3623,8 +3570,8 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
     function DoLoadDHTMLX(resolve, reject) {
       function ScriptLoaded() {
         window.dhx4.skin = 'material';
-        resolve(true);
         pas.System.Writeln("DHTMLX loaded...");
+        resolve(true);
       };
       pas.System.Writeln("Loading DHTMLX...");
       $impl.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoaded);
@@ -3634,41 +3581,65 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
     $mod.DHTMLXPromise = new Promise(DoLoadDHTMLX);
   };
 });
-rtl.module("dhtmlx_sidebar",["System","JS","Web","dhtmlx_base"],function () {
+rtl.module("dhtmlx_treeview",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
-  rtl.createClassExt($mod,"TSidebar",dhtmlXSideBar,"",function () {
+  rtl.createClass($mod,"TTreeview",pas.System.TObject,function () {
     this.$init = function () {
-      this.FParent = undefined;
+      pas.System.TObject.$init.call(this);
+      this.FControl = null;
     };
     this.$final = function () {
+      this.FControl = undefined;
+      pas.System.TObject.$final.call(this);
     };
-    this.InternalCreate = function (aValue) {
-      var Result = undefined;
-      pas.System.Writeln("Creating FControl");
-      Self = new dhtmlXSideBar({parent: this.FParent});
-      return Result;
-    };
-    this.Create = function (parent) {
-      this.FParent = parent;
-      pas.dhtmlx_base.DHTMLXPromise.then(rtl.createCallback(this,"InternalCreate"));
+    this.Create$1 = function (parent) {
+      this.FControl = new dhtmlXTreeView(pas.JS.New(["parent",parent]));
     };
   });
 });
-rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","promet_base","dhtmlx_base","dhtmlx_sidebar"],function () {
+rtl.module("dhtmlx_layout",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
-  this.aLoc = "";
-  this.Sidebar = null;
-  $mod.$main = function () {
-    $mod.aLoc = pas.webrouter.Router().GetHistory().$class.getHash();
-    if ($mod.aLoc === "") {
-      pas.System.Writeln("creating Sidebar");
-      $mod.Sidebar = pas.dhtmlx_sidebar.TSidebar.$create("Create",[window.document.body]);
-      pas.webrouter.Router().Push("startpage");
-    } else {
-      pas.System.Writeln(('Routing to "' + $mod.aLoc) + '"');
-      pas.webrouter.Router().Push($mod.aLoc);
+  rtl.createClass($mod,"TLayout",pas.System.TObject,function () {
+    this.$init = function () {
+      pas.System.TObject.$init.call(this);
+      this.FControl = null;
     };
+    this.$final = function () {
+      this.FControl = undefined;
+      pas.System.TObject.$final.call(this);
+    };
+    this.getCell = function (name) {
+      var Result = null;
+      Result = this.FControl.cells(name);
+      return Result;
+    };
+    this.Create$1 = function (parent, layout) {
+      this.FControl = new dhtmlXLayoutObject(pas.JS.New(["parent",parent,"pattern",layout]));
+    };
+  });
+});
+rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","promet_base","dhtmlx_base","dhtmlx_treeview","dhtmlx_layout"],function () {
+  "use strict";
+  var $mod = this;
+  this.LoadEnviroment = true;
+  this.Treeview = null;
+  this.Layout = null;
+  this.FillEnviroment = function (aValue) {
+    var Result = undefined;
+    var i = 0;
+    $mod.Layout = pas.dhtmlx_layout.TLayout.$create("Create$1",[window.document.body,"2U"]);
+    $mod.Treeview = pas.dhtmlx_treeview.TTreeview.$create("Create$1",[$mod.Layout.getCell("a")]);
+    for (var $l1 = 0, $end2 = pas.webrouter.Router().GetRouteCount() - 1; $l1 <= $end2; $l1++) {
+      i = $l1;
+    };
+    return Result;
+  };
+  $mod.$main = function () {
+    if ($mod.LoadEnviroment) {
+      pas.dhtmlx_base.DHTMLXPromise.then($mod.FillEnviroment);
+    };
+    if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash());
   };
 });
