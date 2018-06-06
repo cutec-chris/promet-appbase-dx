@@ -4,26 +4,32 @@ program appbase;
 
 var
   LoadEnviroment : Boolean = True;
-  Treeview: TTreeview;
-  Layout: TLayout;
+  Treeview: TDHTMLXTreeview;
+  Layout: TDHTMLXLayout;
 
+
+procedure ShowStartpage(URl : String; aRoute : TRoute; Params: TStrings);
+begin
+
+end;
 
 function FillEnviroment(aValue : JSValue) : JSValue;
 var
   i: Integer;
+  aCell: TDHTMLXLayoutCell;
 begin
-  Layout := TLayout.Create(window.document.body,'2U');
-  Treeview := TTreeview.Create(Layout.cells['a']);
-  //Treeview.AfterCreate._then(@FillEnviroment);
+  Layout := TDHTMLXLayout.New(js.new(['parent',window.document.body,'pattern','2U']));
+  Treeview := TDHTMLXTreeview(Layout.cells('a').attachTreeView());
   for i := 0 to Router.RouteCount-1 do
     begin
+      TreeView.addItem(Router.Routes[i].ID,Router.Routes[i].DisplayName);
     end;
 end;
 begin
-  //Router.RegisterRoute('startpage',@ShowStartpage,True);
+  Router.RegisterRoute('startpage',@ShowStartpage,True).DisplayName:='Startseite';
   if LoadEnviroment then
     begin
-      DHTMLXPromise._then(@FillEnviroment);
+      WidgetsetLoaded._then(@FillEnviroment);
     end;
   if THashHistory(Router.History).getHash<>'' then
     Router.Push(THashHistory(Router.History).getHash);

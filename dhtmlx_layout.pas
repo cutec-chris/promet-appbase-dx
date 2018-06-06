@@ -11,6 +11,82 @@ uses
 type
 
   TDHTMLXLayoutCell = class external name 'dhtmlXLayoutCell' (TJSElement)
+    procedure appendObject(aObj : JSValue);	                                //attaches an object to a cell without clearing cell content
+    //attachAccordion	attaches dhtmlxAccordion to a cell
+    //attachCarousel	attaches a carousel object to a cell
+    //attachChart	attaches dhtmlxChart to a cell
+    //attachDataView	attaches dhtmlxDataView to a cell
+    //attachEditor	attaches dhtmlxEditor to a cell
+    //attachForm	attaches dhtmlxForm to a cell
+    //attachGrid	attaches dhtmlxGrid to a cell
+    //attachHTMLString	attaches HTML content to a cell
+    //attachLayout	attaches dhtmlxLayout to a cell
+    //attachList	attaches dhtmlxList to a cell
+    //attachMap	attaches Google Maps to a cell
+    //attachMenu	attaches dhtmlxMenu to a cell
+    //attachObject	attaches an HTML object to a cell
+    //attachRibbon	attaches dhtmlxRibbon to a cell
+    //attachScheduler	attaches dhtmlxScheduler to a cell
+    //attachSidebar	attaches dhtmlxSidebar to a cell
+    //attachStatusBar	attaches a status bar to a cell
+    //attachTabbar	attaches dhtmlxTabbar to a cell
+    //attachToolbar	attaches dhtmlxToolbar to a cell
+    function attachTreeView(): JSValue;varargs;	                        //attaches dhtmlxTree to a cell
+    //attachTreeView	attaches dhtmlxTreeView to a cell
+    //attachURL	attaches the specified URL to a cell
+    //attachVault	attaches dhtmlxVault to a cell
+    //collapse	collapses a cell
+    cell : JSValue;
+    conf : TJSObject;
+    //detachMenu	detaches dhtmlxMenu from a cell
+    //detachObject	detaches any attached content from a cell
+    //detachRibbon	detaches dhtmlxRibbon from a cell
+    //detachStatusBar	detaches status bar from a cell
+    //detachToolbar	detaches dhtmlxToolbar from a cell
+    //dock	docks content from the window to layout cell
+    //expand	expands a cell
+    //fixSize	fixes the size of a cell
+    //getAttachedMenu	returns dhtmlxMenu instance attached to a cell
+    //getAttachedObject	returns the object attached to a cell
+    //getAttachedRibbon	returns dhtmlxRibbon instance attached to a cell
+    //getAttachedStatusBar	returns status bar object attached to a cell
+    //getAttachedToolbar	returns dhtmlxToolbar instance attached to a cell
+    //getCollapsedText	returns text for collapsed cell
+    //getFrame	returns an iframe object when an URL is attached to a cell
+    //getHeight	returns cell height
+    //getId	returns the id of a cell
+    //getIndex	returns cell index
+    //getText	returns header text
+    //getViewName	returns the name of the current view
+    //getWidth	returns cell width
+    //hideArrow	hides the header arrow for the specified cell
+    //hideHeader	hides cell header
+    //hideMenu	hides dhtmlxMenu attached to a cell
+    //hideRibbon	hides dhtmlxRibbon attached to a cell
+    //hideStatusBar	hides status bar object attached to a cell
+    //hideToolbar	hides dhtmlxToolbar attached to a cell
+    //isArrowVisible	returns true if the header arrow is visible
+    //isCollapsed	returns true if a cell is collapsed
+    //isHeaderVisible	returns true if a header is visible
+    //progressOff	hides the progress indicator in a cell
+    //progressOn	shows the progress indicator in a cell
+    //reloadURL	reloads the attached URL in a cell
+    //setCollapsedText	sets header text for collapsed cell
+    //setHeight	sets cell height
+    //setMinHeight	sets minimal height of a layout cell
+    //setMinWidth	sets minimal width of a layout cell
+    //setText	set header text
+    //setWidth	sets cell width
+    //showArrow	shows the header arrow for the specified cell
+    //showHeader	shows the header of a cell
+    //showInnerScroll	shows inner cell scrolls
+    //showMenu	shows dhtmlxMenu attached to a cell
+    //showRibbon	shows dhtmlxRibbon attached to a cell
+    //showStatusBar	shows status bar object attached to a cell
+    //showToolbar	shows dhtmlxToolbar attached to a cell
+    //showView	shows the specified view, creates a new one if it doesn't exist
+    //undock	undocks content from layout cell to the window
+    //unloadView	unloads the specified view
   end;
 
   TDHTMLXLayout = class external name 'dhtmlXLayoutObject' (TJSElement)
@@ -67,32 +143,8 @@ type
     //unload	destructor, unloads layout
   end;
 
-  { TTreeview }
-
-  { TLayout }
-
-  TLayout = class
-  private
-    FControl : TDHTMLXLayout;
-    function getCell(name : string): TDHTMLXLayoutCell;
-  public
-    constructor Create(parent : JSValue;layout : string);
-    property Cells[name : string] : TDHTMLXLayoutCell read getCell ;            //returns the cell object by the id
-  end;
 
 implementation
-
-{ TSidebar }
-
-function TLayout.getCell(name : string): TDHTMLXLayoutCell;
-begin
-  Result := FControl.cells(name);
-end;
-
-constructor TLayout.Create(parent: JSValue; layout: string);
-begin
-  FControl := TDHTMLXLayout.New(new(['parent',parent,'pattern',layout]));
-end;
 
 end.
 

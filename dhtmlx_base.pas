@@ -8,7 +8,7 @@ uses
   js,Web;
 
 var
-  DHTMLXPromise : TJSPromise;
+  WidgetsetLoaded : TJSPromise;
 
 implementation
 
@@ -54,7 +54,7 @@ procedure LoadDHTMLX;
 
   end;
 begin
-  DHTMLXPromise:=TJSPromise.New(@DoLoadDHTMLX);
+  WidgetsetLoaded:=TJSPromise.New(@DoLoadDHTMLX);
 end;
 
 initialization
