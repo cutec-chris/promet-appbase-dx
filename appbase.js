@@ -2425,11 +2425,6 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
          else this.FCollection.Update(this);
       };
     };
-    this.GetDisplayName = function () {
-      var Result = "";
-      Result = this.$classname;
-      return Result;
-    };
     this.SetDisplayName = function (Value) {
       this.Changed(false);
       if (Value === "") ;
@@ -3308,11 +3303,15 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
     this.FServiceClass = null;
     this.$init = function () {
       pas.Classes.TComponent.$init.call(this);
+      this.FAfterRequest = null;
+      this.FBeforeRequest = null;
       this.FHistory = null;
       this.FOnScroll = null;
       this.FRoutes = null;
     };
     this.$final = function () {
+      this.FAfterRequest = undefined;
+      this.FBeforeRequest = undefined;
       this.FHistory = undefined;
       this.FOnScroll = undefined;
       this.FRoutes = undefined;
@@ -3662,22 +3661,41 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","prom
   this.Layout = null;
   this.ShowStartpage = function (URl, aRoute, Params) {
   };
+  this.RouterBeforeRequest = function (Sender, ARouteURL) {
+    $mod.Layout.progressOn();
+  };
+  this.RouterAfterRequest = function (Sender, ARouteURL) {
+    $mod.Layout.progressOff();
+  };
   this.FillEnviroment = function (aValue) {
     var Result = undefined;
     var i = 0;
+    var tmp = "";
+    var aId = "";
     $mod.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",window.document.body,"pattern","2U"]));
+    $mod.Layout.cells("a").setWidth(200);
+    $mod.Layout.cells("a").setText(rtl.getResStr(pas.program,"strMenu"));
+    $mod.Layout.cells("a").setCollapsedText(rtl.getResStr(pas.program,"strMenu"));
+    $mod.Layout.cells("b").hideHeader();
+    if (window.document.body.clientWidth < 700) $mod.Layout.cells("a").collapse();
     $mod.Treeview = rtl.getObject($mod.Layout.cells("a").attachTreeView());
     for (var $l1 = 0, $end2 = pas.webrouter.Router().GetRouteCount() - 1; $l1 <= $end2; $l1++) {
       i = $l1;
-      $mod.Treeview.addItem(pas.webrouter.Router().GetR(i).FID,pas.webrouter.Router().GetR(i).GetDisplayName());
+      tmp = pas.webrouter.Router().GetR(i).FURLPattern;
+      while (pas.System.Pos("\/",tmp) > 0) {
+        aId = pas.System.Copy(tmp,0,pas.System.Pos("\/",tmp) - 1);
+        $mod.Treeview.addItem(aId,aId);
+        tmp = pas.System.Copy(tmp,pas.System.Pos("\/",tmp) + 1,tmp.length);
+      };
     };
+    pas.webrouter.Router().FBeforeRequest = $mod.RouterBeforeRequest;
+    pas.webrouter.Router().FAfterRequest = $mod.RouterAfterRequest;
     return Result;
   };
+  $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}};
   $mod.$main = function () {
-    pas.webrouter.Router().RegisterRoute("startpage",$mod.ShowStartpage,true).SetDisplayName("Startseite");
-    if ($mod.LoadEnviroment) {
-      pas.dhtmlx_base.WidgetsetLoaded.then($mod.FillEnviroment);
-    };
+    pas.webrouter.Router().RegisterRoute("startpage",$mod.ShowStartpage,true).SetDisplayName(rtl.getResStr(pas.program,"strStartpage"));
+    if ($mod.LoadEnviroment) pas.dhtmlx_base.WidgetsetLoaded.then($mod.FillEnviroment);
     if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash());
   };
 });

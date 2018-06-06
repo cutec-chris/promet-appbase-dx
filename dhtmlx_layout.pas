@@ -99,6 +99,7 @@ type
     //attachStatusBar	attaches a status bar object to component's bottom
     //attachToolbar	attaches dhtmlxToolbar to component's top
     function cells(name : string) : TDHTMLXLayoutCell;                          //returns the cell object by the id
+    conf : TJSObject;
     //detachEvent	detaches a handler from an event
     //detachFooter	detaches footer from component's bottom
     //detachHeader	detaches header from component's top

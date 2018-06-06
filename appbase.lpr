@@ -8,29 +8,52 @@ var
   Layout: TDHTMLXLayout;
 
 
+resourcestring
+  strMenu                   = 'Menü';
+  strStartpage              = 'Startseite';
 procedure ShowStartpage(URl : String; aRoute : TRoute; Params: TStrings);
 begin
 
 end;
-
+procedure RouterBeforeRequest(Sender: TObject; var ARouteURL: String);
+begin
+  Layout.progressOn;
+end;
+procedure RouterAfterRequest(Sender: TObject; const ARouteURL: String);
+begin
+  Layout.progressOff;
+end;
 function FillEnviroment(aValue : JSValue) : JSValue;
 var
   i: Integer;
   aCell: TDHTMLXLayoutCell;
+  tmp, aId: String;
 begin
   Layout := TDHTMLXLayout.New(js.new(['parent',window.document.body,'pattern','2U']));
+  Layout.cells('a').setWidth(200);
+  Layout.cells('a').setText(strMenu);
+  Layout.cells('a').setCollapsedText(strMenu);
+  Layout.cells('b').hideHeader;
+  if window.document.body.clientWidth < 700 then
+    Layout.cells('a').collapse;
   Treeview := TDHTMLXTreeview(Layout.cells('a').attachTreeView());
   for i := 0 to Router.RouteCount-1 do
     begin
-      TreeView.addItem(Router.Routes[i].ID,Router.Routes[i].DisplayName);
+      tmp := Router.Routes[i].URLPattern;
+      while pos('/',tmp)>0 do
+        begin
+          aId := copy(tmp,0,pos('/',tmp)-1);
+          TreeView.addItem(aId,aId);
+          tmp := copy(tmp,pos('/',tmp)+1,length(tmp));
+        end;
     end;
+  Router.BeforeRequest:=@RouterBeforeRequest;
+  Router.AfterRequest:=@RouterAfterRequest;
 end;
 begin
-  Router.RegisterRoute('startpage',@ShowStartpage,True).DisplayName:='Startseite';
+  Router.RegisterRoute('startpage',@ShowStartpage,True).DisplayName:=strStartpage;
   if LoadEnviroment then
-    begin
-      WidgetsetLoaded._then(@FillEnviroment);
-    end;
+    WidgetsetLoaded._then(@FillEnviroment);
   if THashHistory(Router.History).getHash<>'' then
     Router.Push(THashHistory(Router.History).getHash);
 end.
