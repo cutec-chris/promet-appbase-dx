@@ -1,14 +1,23 @@
 unit dhtmlx_base;
 
-{$mode objfpc}{$H+}
+{$mode objfpc}
+{$modeswitch externalclass}
 
 interface
 
 uses
   js,Web;
 
+type
+  Tdhtmlx = class external name 'dhtmlx' (TJSElement)
+    procedure message(msg : TJSObject);
+    procedure alert(msg : TJSObject);
+  end;
+
 var
+  dhtmlx : Tdhtmlx external name 'dhtmlx';
   WidgetsetLoaded : TJSPromise;
+
 
 implementation
 

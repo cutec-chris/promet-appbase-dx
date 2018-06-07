@@ -11,9 +11,21 @@ var
 resourcestring
   strMenu                   = 'Menü';
   strStartpage              = 'Startseite';
-procedure ShowStartpage(URl : String; aRoute : TRoute; Params: TStrings);
-begin
+  strLoginFailed            = 'Login fehlgeschlagen !';
 
+procedure LoadStartpage(URl : String; aRoute : TRoute; Params: TStrings);
+  function ShowStartpage(aValue: JSValue): JSValue;
+  begin
+
+  end;
+  function ShowError(aValue: JSValue): JSValue;
+  begin
+    dhtmlx.message(js.new(['type','error',
+                           'text',strLoginFailed]));
+  end;
+begin
+  CheckLogin._then(@ShowStartpage)
+            .catch(@ShowError);
 end;
 procedure RouterBeforeRequest(Sender: TObject; var ARouteURL: String);
 begin
@@ -51,7 +63,7 @@ begin
   Router.AfterRequest:=@RouterAfterRequest;
 end;
 begin
-  Router.RegisterRoute('startpage',@ShowStartpage,True).DisplayName:=strStartpage;
+  Router.RegisterRoute('startpage',@LoadStartpage,True).DisplayName:=strStartpage;
   if LoadEnviroment then
     WidgetsetLoaded._then(@FillEnviroment);
   if THashHistory(Router.History).getHash<>'' then
