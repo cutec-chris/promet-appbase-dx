@@ -3585,7 +3585,7 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
   };
   $mod.$resourcestrings = {EDuplicateRoute: {org: "Duplicate route pattern: %s"}, EDuplicateDefaultRoute: {org: "Duplicate default route registered with pattern: %s"}};
 });
-rtl.module("promet_base",["System","JS","Web","webrouter","Classes"],function () {
+rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
@@ -3619,7 +3619,7 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes"],function ()
       req.open("get",$impl.GetBaseUrl() + url,true);
       req.setRequestHeader("Authorization","Basic " + $mod.AvammLogin);
       req.overrideMimeType(Datatype);
-      req.timeout = Timeout - 200;
+      req.timeout = Timeout - 100;
       req.addEventListener("load",DoOnLoad);
       req.addEventListener("error",DoOnError);
       try {
@@ -3638,12 +3638,48 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes"],function ()
     };
     var requestPromise = null;
     requestPromise = new Promise(DoRequest);
-    Result = Promise.all([requestPromise]).then(ReturnResult).catch(ReturnResult);
+    Result = requestPromise.then(ReturnResult).catch(ReturnResult);
+    return Result;
+  };
+  this.CheckLogin = function () {
+    var Result = null;
+    function IntDoCheckLogin(resolve, reject) {
+      function CheckStatus(aValue) {
+        var Result = undefined;
+        console.log(aValue);
+        var $tmp1 = rtl.getObject(aValue).status;
+        if ($tmp1 === 403) {
+          resolve(true)}
+         else if ($tmp1 === 200) {
+          reject(new Error(rtl.getResStr(pas.promet_base,"strServerMustbeConfigured")));
+          window.location.href = "config\/install.html";
+        } else {
+          reject(new Error((rtl.getResStr(pas.promet_base,"strServerNotRea") + " ") + pas.SysUtils.IntToStr(rtl.getObject(aValue).status)));
+        };
+        return Result;
+      };
+      function GetLoginData(aValue) {
+        var Result = undefined;
+        if (!($mod.OnLoginForm != null)) reject(new Error(rtl.getResStr(pas.promet_base,"strNoLoginFormA")));
+        if ($mod.OnLoginForm()) {
+          resolve(true)}
+         else reject(rtl.getResStr(pas.promet_base,"strLoginFailed"));
+        return Result;
+      };
+      function GetRights(aValue) {
+        var Result = undefined;
+        reject("Cant get Rights");
+        return Result;
+      };
+      $mod.LoadData("\/configuration\/status",false,"text\/json",4000).then(CheckStatus).then(GetLoginData).then(GetRights);
+    };
+    Result = new Promise(IntDoCheckLogin);
     return Result;
   };
   this.AvammLogin = "";
   this.AvammServer = "";
-  this.CheckLogin = null;
+  this.OnLoginForm = null;
+  $mod.$resourcestrings = {strServerNotRea: {org: "Server nicht erreichbar"}, strNoLoginFormA: {org: "keine Login Form verfügbar"}, strLoginFailed: {org: "Login fehlgeschlagen"}, strServerMustbeConfigured: {org: "Server muss konfiguriert werden"}};
   $mod.$init = function () {
     pas.System.Writeln("Appbase initializing...");
     pas.webrouter.Router().InitHistory(pas.webrouter.THistoryKind.hkHash,"");
@@ -3653,18 +3689,6 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes"],function ()
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
-  $impl.DoCheckLogin = function () {
-    function IntDoCkeckLogin(resolve, reject) {
-      function CheckStatus(aValue) {
-        var Result = undefined;
-        console.log(aValue);
-        reject(new Error("Login failed"));
-        return Result;
-      };
-      $mod.LoadData("\/configuration\/status",false,"text\/json",4000).then(CheckStatus);
-    };
-    $mod.CheckLogin = new Promise(IntDoCkeckLogin);
-  };
   $impl.GetBaseUrl = function () {
     var Result = "";
     if (!(($mod.AvammServer === "") && (new RegExp("\/^h\/")).test(document.location.href))) $mod.AvammServer = "http:\/\/localhost:8085";
@@ -3692,7 +3716,7 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes"],function ()
       Avamm.AfterLoginEvent = createNewEvent('AfterLogin');
       Avamm.AfterLogoutEvent = createNewEvent('AfterLogout');
     } catch (err) {};
-    $impl.DoCheckLogin();
+    $mod.CheckLogin();
   };
 });
 rtl.module("dhtmlx_base",["System","JS","Web"],function () {
@@ -3760,10 +3784,10 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","prom
     };
     function ShowError(aValue) {
       var Result = undefined;
-      dhtmlx.message(pas.JS.New(["type","error","text",rtl.getResStr(pas.program,"strLoginFailed")]));
+      dhtmlx.message(pas.JS.New(["type","error","text",aValue]));
       return Result;
     };
-    pas.promet_base.CheckLogin.then(ShowStartpage).catch(ShowError);
+    pas.promet_base.CheckLogin().then(ShowStartpage).catch(ShowError);
   };
   this.RouterBeforeRequest = function (Sender, ARouteURL) {
     $mod.Layout.progressOn();
@@ -3796,7 +3820,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","prom
     pas.webrouter.Router().FAfterRequest = $mod.RouterAfterRequest;
     return Result;
   };
-  $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strLoginFailed: {org: "Login fehlgeschlagen !"}};
+  $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}};
   $mod.$main = function () {
     pas.webrouter.Router().RegisterRoute("startpage",$mod.LoadStartpage,true).SetDisplayName(rtl.getResStr(pas.program,"strStartpage"));
     if ($mod.LoadEnviroment) pas.dhtmlx_base.WidgetsetLoaded.then($mod.FillEnviroment);

@@ -11,7 +11,6 @@ var
 resourcestring
   strMenu                   = 'Menü';
   strStartpage              = 'Startseite';
-  strLoginFailed            = 'Login fehlgeschlagen !';
 
 procedure LoadStartpage(URl : String; aRoute : TRoute; Params: TStrings);
   function ShowStartpage(aValue: JSValue): JSValue;
@@ -21,7 +20,7 @@ procedure LoadStartpage(URl : String; aRoute : TRoute; Params: TStrings);
   function ShowError(aValue: JSValue): JSValue;
   begin
     dhtmlx.message(js.new(['type','error',
-                           'text',strLoginFailed]));
+                           'text',aValue]));
   end;
 begin
   CheckLogin._then(@ShowStartpage)
