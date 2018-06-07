@@ -17,10 +17,14 @@ procedure LoadStartpage(URl : String; aRoute : TRoute; Params: TStrings);
   begin
 
   end;
-  function ShowError(aValue: JSValue): JSValue;
+  function ShowError(aValueE: JSValue): JSValue;
+    function DoShowError(aValue: JSValue): JSValue;
+    begin
+      dhtmlx.message(js.new(['type','error',
+                             'text',aValueE]));
+    end;
   begin
-    dhtmlx.message(js.new(['type','error',
-                           'text',aValue]));
+    WidgetsetLoaded._then(@DoShowError);
   end;
 begin
   CheckLogin._then(@ShowStartpage)

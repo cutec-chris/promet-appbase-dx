@@ -23,7 +23,7 @@
           <Version Value="11"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl/;../../../../../../../pas2js/packages/rtl"/>
+            <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl;../../../../../../../pas2js/packages/rtl"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -62,7 +62,7 @@
           <Version Value="11"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl/;../../../../../../../pas2js/packages/rtl"/>
+            <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl;../../../../../../../pas2js/packages/rtl"/>
           </SearchPaths>
           <CodeGeneration>
             <SmartLinkUnit Value="True"/>
@@ -122,7 +122,7 @@
     <Version Value="11"/>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl/;../../../../../../../pas2js/packages/rtl"/>
+      <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl;../../../../../../../pas2js/packages/rtl"/>
     </SearchPaths>
     <Other>
       <ExecuteBefore>

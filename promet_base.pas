@@ -5,7 +5,7 @@ unit promet_base;
 interface
 
 uses
-  js, web, webrouter, classes, SysUtils;
+  js, web, webrouter, classes, SysUtils, dhtmlx_base;
 
 type TJSValueCallback = procedure(aName : JSValue);
 
@@ -49,13 +49,17 @@ function CheckLogin : TJSPromise;
       end;
     end;
     function GetLoginData(aValue: JSValue): JSValue;
+      function DoGetLoginData(aValue: JSValue): JSValue;
+      begin
+        if not Assigned(OnLoginForm) then
+          reject(TJSError.new(strNoLoginFormA));
+        if OnLoginForm() then
+          resolve(true)
+        else
+          reject(strLoginFailed);
+      end;
     begin
-      if not Assigned(OnLoginForm) then
-        reject(TJSError.new(strNoLoginFormA));
-      if OnLoginForm() then
-        resolve(true)
-      else
-        reject(strLoginFailed);
+      WidgetsetLoaded._then(@DoGetLoginData);
     end;
     function GetRights(aValue: JSValue): JSValue;
     begin

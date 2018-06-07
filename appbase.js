@@ -3585,7 +3585,51 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
   };
   $mod.$resourcestrings = {EDuplicateRoute: {org: "Duplicate route pattern: %s"}, EDuplicateDefaultRoute: {org: "Duplicate default route registered with pattern: %s"}};
 });
-rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils"],function () {
+rtl.module("dhtmlx_base",["System","JS","Web"],function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  this.WidgetsetLoaded = null;
+  $mod.$init = function () {
+    $impl.LoadDHTMLX();
+  };
+},null,function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $impl.AppendCSS = function (url) {
+    var file = url;
+    var link = document.createElement( "link" );
+    link.href = file;
+    link.type = "text/css";
+    link.rel = "stylesheet";
+    link.media = "screen,print";
+    document.getElementsByTagName( "head" )[0].appendChild( link );
+  };
+  $impl.AppendJS = function (url, onLoad) {
+    var file = url;
+    var link = document.createElement( "script" );
+    link.src = file;
+    link.type = "text/javascript";
+    link.onload = onLoad;
+    document.getElementsByTagName( "head" )[0].appendChild( link );
+  };
+  $impl.LoadDHTMLX = function () {
+    function DoLoadDHTMLX(resolve, reject) {
+      function ScriptLoaded() {
+        window.dhx4.skin = 'material';
+        pas.System.Writeln("DHTMLX loaded...");
+        resolve(true);
+      };
+      pas.System.Writeln("Loading DHTMLX...");
+      $impl.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoaded);
+      $impl.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css");
+      $impl.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css");
+    };
+    $mod.WidgetsetLoaded = new Promise(DoLoadDHTMLX);
+  };
+});
+rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
@@ -3660,10 +3704,15 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils"],
       };
       function GetLoginData(aValue) {
         var Result = undefined;
-        if (!($mod.OnLoginForm != null)) reject(new Error(rtl.getResStr(pas.promet_base,"strNoLoginFormA")));
-        if ($mod.OnLoginForm()) {
-          resolve(true)}
-         else reject(rtl.getResStr(pas.promet_base,"strLoginFailed"));
+        function DoGetLoginData(aValue) {
+          var Result = undefined;
+          if (!($mod.OnLoginForm != null)) reject(new Error(rtl.getResStr(pas.promet_base,"strNoLoginFormA")));
+          if ($mod.OnLoginForm()) {
+            resolve(true)}
+           else reject(rtl.getResStr(pas.promet_base,"strLoginFailed"));
+          return Result;
+        };
+        pas.dhtmlx_base.WidgetsetLoaded.then(DoGetLoginData);
         return Result;
       };
       function GetRights(aValue) {
@@ -3719,50 +3768,6 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils"],
     $mod.CheckLogin();
   };
 });
-rtl.module("dhtmlx_base",["System","JS","Web"],function () {
-  "use strict";
-  var $mod = this;
-  var $impl = $mod.$impl;
-  this.WidgetsetLoaded = null;
-  $mod.$init = function () {
-    $impl.LoadDHTMLX();
-  };
-},null,function () {
-  "use strict";
-  var $mod = this;
-  var $impl = $mod.$impl;
-  $impl.AppendCSS = function (url) {
-    var file = url;
-    var link = document.createElement( "link" );
-    link.href = file;
-    link.type = "text/css";
-    link.rel = "stylesheet";
-    link.media = "screen,print";
-    document.getElementsByTagName( "head" )[0].appendChild( link );
-  };
-  $impl.AppendJS = function (url, onLoad) {
-    var file = url;
-    var link = document.createElement( "script" );
-    link.src = file;
-    link.type = "text/javascript";
-    link.onload = onLoad;
-    document.getElementsByTagName( "head" )[0].appendChild( link );
-  };
-  $impl.LoadDHTMLX = function () {
-    function DoLoadDHTMLX(resolve, reject) {
-      function ScriptLoaded() {
-        window.dhx4.skin = 'material';
-        pas.System.Writeln("DHTMLX loaded...");
-        resolve(true);
-      };
-      pas.System.Writeln("Loading DHTMLX...");
-      $impl.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoaded);
-      $impl.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css");
-      $impl.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css");
-    };
-    $mod.WidgetsetLoaded = new Promise(DoLoadDHTMLX);
-  };
-});
 rtl.module("dhtmlx_treeview",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
@@ -3782,9 +3787,14 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","prom
       var Result = undefined;
       return Result;
     };
-    function ShowError(aValue) {
+    function ShowError(aValueE) {
       var Result = undefined;
-      dhtmlx.message(pas.JS.New(["type","error","text",aValue]));
+      function DoShowError(aValue) {
+        var Result = undefined;
+        dhtmlx.message(pas.JS.New(["type","error","text",aValueE]));
+        return Result;
+      };
+      pas.dhtmlx_base.WidgetsetLoaded.then(DoShowError);
       return Result;
     };
     pas.promet_base.CheckLogin().then(ShowStartpage).catch(ShowError);
