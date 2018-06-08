@@ -3690,6 +3690,7 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
     function IntDoCheckLogin(resolve, reject) {
       function CheckStatus(aValue) {
         var Result = undefined;
+        pas.System.Writeln("CheckStatus:");
         console.log(aValue);
         var $tmp1 = rtl.getObject(aValue).status;
         if ($tmp1 === 403) {
@@ -3708,26 +3709,30 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
         var Result = undefined;
         function DoGetLoginData(aValue) {
           var Result = undefined;
-          function LoginSuccessful(aValue) {
-            var Result = undefined;
-            if (aValue == true) {
-              resolve(true)}
-             else reject(rtl.getResStr(pas.promet_base,"strLoginFailed"));
-            return Result;
+          function DoIntGetLoginData(resolve, reject) {
+            function LoginSuccessful(aValue) {
+              var Result = undefined;
+              if (aValue == true) {
+                resolve(true)}
+               else reject(rtl.getResStr(pas.promet_base,"strLoginFailed"));
+              return Result;
+            };
+            if ($mod.OnLoginForm === null) {
+              reject(new Error(rtl.getResStr(pas.promet_base,"strNoLoginFormA")))}
+             else {
+              $mod.OnLoginForm().then(LoginSuccessful);
+            };
           };
-          if ($mod.OnLoginForm === null) {
-            reject(new Error(rtl.getResStr(pas.promet_base,"strNoLoginFormA")))}
-           else {
-            $mod.OnLoginForm().then(LoginSuccessful);
-          };
+          Result = new Promise(DoIntGetLoginData);
           return Result;
         };
-        pas.dhtmlx_base.WidgetsetLoaded.then(DoGetLoginData);
+        pas.System.Writeln("GetLoginData:");
+        Result = pas.dhtmlx_base.WidgetsetLoaded.then(DoGetLoginData);
         return Result;
       };
       function GetRights(aValue) {
         var Result = undefined;
-        reject("Cant get Rights");
+        Result = $mod.LoadData("\/configuration\/userstatus",false,"text\/json",4000);
         return Result;
       };
       $mod.LoadData("\/configuration\/status",false,"text\/json",4000).then(CheckStatus).then(GetLoginData).then(GetRights);

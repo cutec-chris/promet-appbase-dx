@@ -33,6 +33,7 @@ function CheckLogin : TJSPromise;
     function CheckStatus(aValue: JSValue): JSValue;
     begin
       {$ifdef DEBUG}
+      writeln('CheckStatus:');
       asm
         console.log(aValue);
       end;
@@ -51,27 +52,32 @@ function CheckLogin : TJSPromise;
     end;
     function GetLoginData(aValue: JSValue): JSValue;
       function DoGetLoginData(aValue: JSValue): JSValue;
-        function LoginSuccessful(aValue : JSValue) : JSValue;
+        procedure DoIntGetLoginData(resolve, reject: TJSPromiseResolver);
+          function LoginSuccessful(aValue : JSValue) : JSValue;
+          begin
+            if (aValue = true) then
+              resolve(true)
+            else
+              reject(strLoginFailed);
+          end;
         begin
-          if (aValue = true) then
-            resolve(true)
+          if OnLoginForm = nil then
+            reject(TJSError.new(strNoLoginFormA))
           else
-            reject(strLoginFailed);
+            begin
+              OnLoginForm()._then(@LoginSuccessful);
+            end;
         end;
       begin
-        if OnLoginForm = nil then
-          reject(TJSError.new(strNoLoginFormA))
-        else
-          begin
-            OnLoginForm()._then(@LoginSuccessful);
-          end;
+        Result := TJSPromise.new(@DoIntGetLoginData);
       end;
     begin
-      WidgetsetLoaded._then(@DoGetLoginData);
+      writeln('GetLoginData:');
+      result := WidgetsetLoaded._then(@DoGetLoginData);
     end;
     function GetRights(aValue: JSValue): JSValue;
     begin
-      reject('Cant get Rights');
+      Result := LoadData('/configuration/userstatus');
     end;
   begin
     LoadData('/configuration/status')._then(@CheckStatus)
