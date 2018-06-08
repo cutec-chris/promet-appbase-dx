@@ -15,7 +15,7 @@ type
   TDHTMLXSidebar = class external name 'dhtmlXSideBar' (TJSElement)
     Constructor New(Pattern : JSValue);varargs;
     procedure addItem(obj : JSValue);                                           //adds an item to Sidebar
-    function attachEvent(name : string;aCallBack : JSValue) : Integer; //adds any user-defined handler to available events
+    function attachEvent(event : string;aCallback : JSValue) : Integer;         //adds any user-defined handler to available events
     procedure attachFooter(id : JSValue;height : Integer);varargs;              //attaches footer to component's bottom
     procedure attachHeader(id : JSValue;height : Integer);varargs;	        //attaches header to component's top
     //attachMenu	attaches dhtmlxMenu to component's top

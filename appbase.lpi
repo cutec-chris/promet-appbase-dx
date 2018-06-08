@@ -23,7 +23,7 @@
           <Version Value="11"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl;../../../../../../../pas2js/packages/rtl"/>
+            <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl/;../../../../../../../pas2js/packages/rtl"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -62,7 +62,7 @@
           <Version Value="11"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl;../../../../../../../pas2js/packages/rtl"/>
+            <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl/;../../../../../../../pas2js/packages/rtl"/>
           </SearchPaths>
           <CodeGeneration>
             <SmartLinkUnit Value="True"/>
@@ -99,7 +99,7 @@
         <PackageName Value="pas2js_rtl"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="5">
       <Unit0>
         <Filename Value="appbase.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -116,13 +116,17 @@
         <Filename Value="promet_base.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="promet_dhtmlx.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl;../../../../../../../pas2js/packages/rtl"/>
+      <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl/;../../../../../../../pas2js/packages/rtl"/>
     </SearchPaths>
     <Other>
       <ExecuteBefore>

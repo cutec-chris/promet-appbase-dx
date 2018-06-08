@@ -16,7 +16,7 @@ type
     Constructor New(Pattern : JSValue);varargs;
     procedure addItem(id : JSValue;Text : JSValue);varargs;   //adds a new item into TreeView
     area : JSValue;
-    //attachEvent	adds any user-defined handler to available events
+    function attachEvent(event : string;aCallback : JSValue) : Integer;         //adds any user-defined handler to available events
     //checkItem	checks the item's checkbox
     //clearAll	removes all the loaded items from TreeView and repaints the component
     //closeItem	collapses an item

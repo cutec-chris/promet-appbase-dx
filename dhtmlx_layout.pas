@@ -91,7 +91,7 @@ type
 
   TDHTMLXLayout = class external name 'dhtmlXLayoutObject' (TJSElement)
     constructor New(Pattern : JSValue);varargs;
-    //attachEvent	adds any user-defined handler to available events
+    function attachEvent(event : string;aCallback : JSValue) : Integer;         //adds any user-defined handler to available events
     //attachFooter	attaches footer to component's bottom
     //attachHeader	attaches header to component's top
     //attachMenu	attaches dhtmlxMenu to component's top

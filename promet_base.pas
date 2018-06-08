@@ -43,7 +43,8 @@ function CheckLogin : TJSPromise;
         begin
           reject(TJSError.new(strServerMustbeConfigured));
           window.location.href:='config/install.html';
-        end
+        end;
+      0:reject(TJSError.new(strServerNotRea));
       else
         reject(TJSError.new(strServerNotRea+' '+IntToStr(TJSXMLHttpRequest(aValue).Status)));
       end;
@@ -51,12 +52,15 @@ function CheckLogin : TJSPromise;
     function GetLoginData(aValue: JSValue): JSValue;
       function DoGetLoginData(aValue: JSValue): JSValue;
       begin
-        if not Assigned(OnLoginForm) then
-          reject(TJSError.new(strNoLoginFormA));
-        if OnLoginForm() then
-          resolve(true)
+        if OnLoginForm = nil then
+          reject(TJSError.new(strNoLoginFormA))
         else
-          reject(strLoginFailed);
+          begin
+            if OnLoginForm() then
+              resolve(true)
+            else
+              reject(strLoginFailed);
+          end;
       end;
     begin
       WidgetsetLoaded._then(@DoGetLoginData);
@@ -79,7 +83,6 @@ begin
     AvammServer := 'http://localhost:8085';
   Result := AvammServer;
 end;
-
 function LoadData(url: string; IgnoreLogin: Boolean; Datatype: string;
   Timeout: Integer): TJSPromise;
   // We do all the work within the constructor callback.

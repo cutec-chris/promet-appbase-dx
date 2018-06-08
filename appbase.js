@@ -3697,7 +3697,9 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
          else if ($tmp1 === 200) {
           reject(new Error(rtl.getResStr(pas.promet_base,"strServerMustbeConfigured")));
           window.location.href = "config\/install.html";
-        } else {
+        } else if ($tmp1 === 0) {
+          reject(new Error(rtl.getResStr(pas.promet_base,"strServerNotRea")))}
+         else {
           reject(new Error((rtl.getResStr(pas.promet_base,"strServerNotRea") + " ") + pas.SysUtils.IntToStr(rtl.getObject(aValue).status)));
         };
         return Result;
@@ -3706,10 +3708,13 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
         var Result = undefined;
         function DoGetLoginData(aValue) {
           var Result = undefined;
-          if (!($mod.OnLoginForm != null)) reject(new Error(rtl.getResStr(pas.promet_base,"strNoLoginFormA")));
-          if ($mod.OnLoginForm()) {
-            resolve(true)}
-           else reject(rtl.getResStr(pas.promet_base,"strLoginFailed"));
+          if ($mod.OnLoginForm === null) {
+            reject(new Error(rtl.getResStr(pas.promet_base,"strNoLoginFormA")))}
+           else {
+            if ($mod.OnLoginForm()) {
+              resolve(true)}
+             else reject(rtl.getResStr(pas.promet_base,"strLoginFailed"));
+          };
           return Result;
         };
         pas.dhtmlx_base.WidgetsetLoaded.then(DoGetLoginData);
@@ -3768,6 +3773,10 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
     $mod.CheckLogin();
   };
 });
+rtl.module("dhtmlx_form",["System","JS","Web"],function () {
+  "use strict";
+  var $mod = this;
+});
 rtl.module("dhtmlx_treeview",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
@@ -3776,7 +3785,39 @@ rtl.module("dhtmlx_layout",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
 });
-rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","promet_base","dhtmlx_base","dhtmlx_treeview","dhtmlx_layout"],function () {
+rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_base","dhtmlx_form"],function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $mod.$init = function () {
+    pas.promet_base.OnLoginForm = $impl.DHTMLXoginForm;
+  };
+},null,function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $impl.DHTMLXoginForm = function () {
+    var Result = false;
+    var LoginForm = null;
+    var Formdata = null;
+    var LoginFormCont = null;
+    FormData = [
+    {type: "settings", position: "label-left", labelWidth: 75, inputWidth: 150},
+    {type: "block", blockOffset: 30, offsetTop: 15, width: "auto", list: [
+        {type: "label", label: "Please introduce yourself", labelWidth: "auto", offsetLeft: 35},
+        {type: "input", label: "Login", name: "dhxform_demo_login", value: "", offsetTop: 20},
+        {type: "password", label: "Password", name: "dhxform_demo_pwd", value: ""},
+        {type: "button", name: "submit", value: "Let me in", offsetTop: 20, offsetLeft: 72}
+    ]}
+    ];
+    LoginFormCont = document.createElement("div");
+    window.document.body.appendChild(LoginFormCont);
+    LoginFormCont.style.cssText = "position: absolute;z-index: 100; top: 50%; left: 50%; margin-top: -50px; margin-left: -50px; width: 200px; height: 200px;";
+    LoginForm = new dhtmlXForm(LoginFormCont,Formdata);
+    return Result;
+  };
+});
+rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","promet_base","dhtmlx_base","dhtmlx_form","dhtmlx_treeview","dhtmlx_layout","promet_dhtmlx"],function () {
   "use strict";
   var $mod = this;
   this.LoadEnviroment = true;
