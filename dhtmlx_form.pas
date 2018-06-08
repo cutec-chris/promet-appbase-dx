@@ -72,7 +72,7 @@ type
     //setFocusOnFirstActive	moves the focus on the first form's element
     //setFontSize	sets the font size for the whole form
     //setFormData	sets values for all items (form's controls) in the component
-    //setItemFocus	sets the keyboard focus on the specified item
+    procedure setItemFocus(name : string);	                                //sets the keyboard focus on the specified item
     //setItemHeight	sets the height of a textarea
     //setItemLabel	sets the label of an item
     //setItemText	sets the text of an item

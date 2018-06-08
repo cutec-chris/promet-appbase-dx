@@ -72,7 +72,7 @@ type
     //getMaxDimension	returns current max dimension of the window
     //getMinDimension	returns current min dimension of the window
     //getPosition	returns current window's position
-    //getText	returns window's header text
+    function getText : string;	                                                //returns window's header text
     //getViewName	returns the name of the current view
     //hide	hides a window
     //hideHeader	hides window's header
@@ -106,7 +106,7 @@ type
     //setMinDimension	sets min window's dimension
     //setModal	makes a window modal/modeless
     //setPosition	sets window's position (moves a window to the point set by a user)
-    //setText	sets window's header text
+    procedure setText(text : string);	                                        //sets window's header text
     //setToFullScreen	sets a window to the fullscreen mode
     //show	shows a window
     //showHeader	shows window's header

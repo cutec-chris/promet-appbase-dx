@@ -3807,6 +3807,7 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_bas
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
+  $mod.$resourcestrings = {strLoginText: {org: "Anmeldung"}, strLogin: {org: "Login"}, strPassword: {org: "Passwort"}, strSaveLogin: {org: "Anmeldedaten speichern"}};
   $mod.$init = function () {
     pas.promet_base.OnLoginForm = $impl.DHTMLXoginForm;
   };
@@ -3819,25 +3820,17 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_bas
     var LoginForm = null;
     var Formdata = null;
     var aWin = null;
-    FormData = [
-    {type: "settings", position: "label-left", labelWidth: 75, inputWidth: 150},
-    {type: "block", blockOffset: 30, offsetTop: 15, width: "auto", list: [
-        {type: "label", label: "Please introduce yourself", labelWidth: "auto", offsetLeft: 35},
-        {type: "input", label: "Login", name: "dhxform_demo_login", value: "", offsetTop: 20},
-        {type: "password", label: "Password", name: "dhxform_demo_pwd", value: ""},
-        {type: "button", name: "submit", value: "Let me in", offsetTop: 20, offsetLeft: 72}
-    ]}
-    ];
     if (pas.dhtmlx_windows.Windows.window("LoginFormWindow") == null) {
-      pas.dhtmlx_windows.Windows.createWindow("LoginFormWindow",Math.floor(document.body.clientWidth / 2) - 200,Math.floor(document.body.clientHeight / 2) - 100,400,200);
+      pas.dhtmlx_windows.Windows.createWindow("LoginFormWindow",Math.floor(document.body.clientWidth / 2) - 200,Math.floor(document.body.clientHeight / 2) - 100,400,210);
       aWin = pas.dhtmlx_windows.Windows.window("LoginFormWindow");
+      aWin.setText(rtl.getResStr(pas.promet_dhtmlx,"strLoginText"));
       LoginForm = rtl.getObject(aWin.attachForm(Formdata));
       LoginForm.addItem(null,pas.JS.New(["type","block","width","auto","name","LoginBlock"]));
-      LoginForm.addItem("LoginBlock",pas.JS.New(["type","label","label","Anmeldung"]));
-      LoginForm.addItem("LoginBlock",pas.JS.New(["type","input","label","Login","name","eUsername"]));
-      LoginForm.addItem("LoginBlock",pas.JS.New(["type","input","label","Passwort","name","ePassword"]));
-      LoginForm.addItem("LoginBlock",pas.JS.New(["type","checkbox","label","Anmeldedaten speichern","name","cbSaveLogin"]));
-      LoginForm.addItem("LoginBlock",pas.JS.New(["type","button","value","Login","name","eSubmit"]));
+      LoginForm.addItem("LoginBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.promet_dhtmlx,"strLogin"),"name","eUsername"]));
+      LoginForm.addItem("LoginBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.promet_dhtmlx,"strPassword"),"name","ePassword"]));
+      LoginForm.addItem("LoginBlock",pas.JS.New(["type","checkbox","label",rtl.getResStr(pas.promet_dhtmlx,"strSaveLogin"),"name","cbSaveLogin"]));
+      LoginForm.addItem("LoginBlock",pas.JS.New(["type","button","value",rtl.getResStr(pas.promet_dhtmlx,"strLogin"),"name","eSubmit"]));
+      LoginForm.setItemFocus("eUsername");
     };
     return Result;
   };
