@@ -13,22 +13,7 @@ resourcestring
   strStartpage              = 'Startseite';
 
 procedure LoadStartpage(URl : String; aRoute : TRoute; Params: TStrings);
-  function ShowStartpage(aValue: JSValue): JSValue;
-  begin
-
-  end;
-  function ShowError(aValueE: JSValue): JSValue;
-    function DoShowError(aValue: JSValue): JSValue;
-    begin
-      dhtmlx.message(js.new(['type','error',
-                             'text',aValueE]));
-    end;
-  begin
-    WidgetsetLoaded._then(@DoShowError);
-  end;
 begin
-  CheckLogin._then(@ShowStartpage)
-            .catch(@ShowError);
 end;
 procedure RouterBeforeRequest(Sender: TObject; var ARouteURL: String);
 begin
@@ -38,30 +23,49 @@ procedure RouterAfterRequest(Sender: TObject; const ARouteURL: String);
 begin
   Layout.progressOff;
 end;
+
 function FillEnviroment(aValue : JSValue) : JSValue;
 var
   i: Integer;
   aCell: TDHTMLXLayoutCell;
   tmp, aId: String;
+  function FillEnviromentAfterLogin(aValue: JSValue): JSValue;
+  begin
+    writeln('FillEnviromentAfterLogin');
+    for i := 0 to Router.RouteCount-1 do
+      begin
+        tmp := Router.Routes[i].URLPattern;
+        while pos('/',tmp)>0 do
+          begin
+            aId := copy(tmp,0,pos('/',tmp)-1);
+            TreeView.addItem(aId,aId);
+            tmp := copy(tmp,pos('/',tmp)+1,length(tmp));
+          end;
+      end;
+    if window.document.body.clientWidth > 700 then
+      Layout.cells('a').expand;
+  end;
+  function ShowError(aValueE: JSValue): JSValue;
+    function DoShowError(aValue: JSValue): JSValue;
+    begin
+      dhtmlx.message(js.new(['type','error',
+                             'text',strLoginFailed]));
+      CheckLogin;
+    end;
+  begin
+    WidgetsetLoaded._then(@DoShowError);
+  end;
 begin
   Layout := TDHTMLXLayout.New(js.new(['parent',window.document.body,'pattern','2U']));
   Layout.cells('a').setWidth(200);
   Layout.cells('a').setText(strMenu);
   Layout.cells('a').setCollapsedText(strMenu);
+  Layout.cells('a').collapse;
   Layout.cells('b').hideHeader;
-  if window.document.body.clientWidth < 700 then
-    Layout.cells('a').collapse;
   Treeview := TDHTMLXTreeview(Layout.cells('a').attachTreeView());
-  for i := 0 to Router.RouteCount-1 do
-    begin
-      tmp := Router.Routes[i].URLPattern;
-      while pos('/',tmp)>0 do
-        begin
-          aId := copy(tmp,0,pos('/',tmp)-1);
-          TreeView.addItem(aId,aId);
-          tmp := copy(tmp,pos('/',tmp)+1,length(tmp));
-        end;
-    end;
+  window.addEventListener('AfterLogin',@FillEnviromentAfterLogin);
+  window.addEventListener('AfterLogout',@ShowError);
+  CheckLogin;
   Router.BeforeRequest:=@RouterBeforeRequest;
   Router.AfterRequest:=@RouterAfterRequest;
 end;

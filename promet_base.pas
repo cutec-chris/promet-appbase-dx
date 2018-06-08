@@ -16,6 +16,8 @@ function CheckLogin : TJSPromise;
 type TOnLoginForm = function : TJSPromise;
 
 var
+  AfterLoginEvent : TJSEvent;
+  AfterLogoutEvent : TJSEvent;
   AvammLogin : string;
   AvammServer : string;
   OnLoginForm : TOnLoginForm = nil;
@@ -31,24 +33,28 @@ implementation
 function CheckLogin : TJSPromise;
   procedure IntDoCheckLogin(resolve, reject: TJSPromiseResolver);
     function CheckStatus(aValue: JSValue): JSValue;
-    begin
-      {$ifdef DEBUG}
-      writeln('CheckStatus:');
-      asm
-        console.log(aValue);
-      end;
-      {$endif}
-      case TJSXMLHttpRequest(aValue).Status of
-      403:resolve(true);
-      200:
-        begin
-          reject(TJSError.new(strServerMustbeConfigured));
-          window.location.href:='config/install.html';
+      procedure DoCheckStatus(resolve, reject: TJSPromiseResolver);
+      begin
+        {$ifdef DEBUG}
+        writeln('CheckStatus:');
+        asm
+          console.log(aValue);
         end;
-      0:reject(TJSError.new(strServerNotRea));
-      else
-        reject(TJSError.new(strServerNotRea+' '+IntToStr(TJSXMLHttpRequest(aValue).Status)));
+        {$endif}
+        case TJSXMLHttpRequest(aValue).Status of
+        403:resolve(true);
+        200:
+          begin
+            reject(TJSError.new(strServerMustbeConfigured));
+            window.location.href:='config/install.html';
+          end;
+        0:reject(TJSError.new(strServerNotRea));
+        else
+          reject(TJSError.new(strServerNotRea+' '+IntToStr(TJSXMLHttpRequest(aValue).Status)));
+        end;
       end;
+    begin
+      result := TJSPromise.new(@DoCheckStatus);
     end;
     function GetLoginData(aValue: JSValue): JSValue;
       function DoGetLoginData(aValue: JSValue): JSValue;
@@ -76,30 +82,37 @@ function CheckLogin : TJSPromise;
       result := WidgetsetLoaded._then(@DoGetLoginData);
     end;
     function GetRights(aValue: JSValue): JSValue;
-    var
-      req : JSValue;
       procedure CatchRights(resolve, reject: TJSPromiseResolver);
+        function CheckRightsData(aValue: JSValue): JSValue;
+        begin
+          if TJSXMLHttpRequest(aValue).Status=200 then
+            resolve(aValue)
+          else reject(aValue);
+        end;
       begin
-        req := LoadData('/configuration/userstatus');
-        if TJSXMLHttpRequest(req).Status=200 then
-          resolve(req)
-        else reject(req);
+        LoadData('/configuration/userstatus')._then(@CheckRightsData);
       end;
       function DoLogout(aValue: JSValue): JSValue;
       begin
         writeln('Credentials wrong Logging out');
         AvammLogin:='';
+        asm
+          window.dispatchEvent(pas.promet_base.AfterLogoutEvent);
+        end;
       end;
       function SetupUser(aValue: JSValue): JSValue;
       begin
         writeln('User Login successful...');
+        asm
+          window.dispatchEvent(pas.promet_base.AfterLoginEvent);
+        end;
       end;
     begin
       Result := TJSPromise.new(@CatchRights)._then(@SetupUser)
                                             .catch(@DoLogout)
     end;
   begin
-    LoadData('/configuration/status')._then(@CheckStatus)
+    Result := LoadData('/configuration/status')._then(@CheckStatus)
                                      ._then(@GetLoginData)
                                      ._then(@GetRights);
   end;
@@ -200,7 +213,6 @@ end;
 procedure InitAvammApp;
 begin
   asm
-    var Avamm = {};
     function createNewEvent(eventName) {
         if(typeof(Event) === 'function') {
             var event = new Event(eventName);
@@ -217,8 +229,8 @@ begin
       };
     }
     try {
-      Avamm.AfterLoginEvent = createNewEvent('AfterLogin');
-      Avamm.AfterLogoutEvent = createNewEvent('AfterLogout');
+      pas.promet_base.AfterLoginEvent = createNewEvent('AfterLogin');
+      pas.promet_base.AfterLogoutEvent = createNewEvent('AfterLogout');
     } catch (err) {}
   end;
   CheckLogin;
