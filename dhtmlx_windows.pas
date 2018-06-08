@@ -24,7 +24,7 @@ type
     //attachDataView	attaches dhtmlxDataView to a cell
     //attachEditor	attaches dhtmlxEditor to a cell
     //attachEvent	adds any user-defined handler to available events
-    //attachForm	attaches dhtmlxForm to a cell
+    function attachForm(conf : TJSObject): JSValue;	                        //attaches dhtmlxForm to a cell
     //attachGrid	attaches dhtmlxGrid to a cell
     //attachHTMLString	attaches HTML content to a cell
     //attachLayout	attaches dhtmlxLayout to a cell
@@ -145,7 +145,16 @@ type
     function window(id : string) : TDHTMLXWindowsCell;	                        //returns a window instance (dhtmlXWindowsCell object) found by id
   end;
 
+var Windows : TDHTMLXWindows;
+
 implementation
 
+function LoadWindows(aValue: JSValue): JSValue;
+begin
+  Windows := TDHTMLXWindows.New();
+end;
+
+initialization
+  WidgetsetLoaded._then(@LoadWindows);
 end.
 

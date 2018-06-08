@@ -5,7 +5,7 @@ unit promet_dhtmlx;
 interface
 
 uses
-  Classes, SysUtils,js,web, promet_base, dhtmlx_form;
+  Classes, SysUtils,js,web, promet_base, dhtmlx_form, dhtmlx_windows;
 
 implementation
 
@@ -14,6 +14,7 @@ var
   LoginForm : TDHTMLXForm;
   Formdata : TJSObject;
   LoginFormCont: TJSHTMLElement;
+  aWin: TDHTMLXWindowsCell;
 begin
   asm
     FormData = [
@@ -26,10 +27,29 @@ begin
     ]}
     ];
   end;
-  LoginFormCont:=TJSHTMLElement(Document.createElement('div'));
-  window.document.body.appendChild(LoginFormCont);
-  LoginFormCont.style.cssText:='position: absolute;z-index: 100; top: 50%; left: 50%; margin-top: -50px; margin-left: -50px; width: 200px; height: 200px;';
-  LoginForm := TDHTMLXForm.New(LoginFormCont,FormData);
+  if dhtmlx_windows.Windows.window('LoginFormWindow') = null then
+    begin
+      dhtmlx_windows.Windows.createWindow('LoginFormWindow',document.body.clientWidth div 2-200,document.body.clientHeight div 2-100,400,200);
+      aWin := dhtmlx_windows.Windows.window('LoginFormWindow');
+      LoginForm := TDHTMLXForm(aWin.attachForm(FormData));
+      LoginForm.addItem(null,new(['type','block',
+                                  'width','auto',
+                                  'name','LoginBlock']));
+      LoginForm.addItem('LoginBlock',new(['type','label',
+                                          'label','Anmeldung']));
+      LoginForm.addItem('LoginBlock',new(['type','input',
+                                          'label','Login',
+                                          'name','eUsername']));
+      LoginForm.addItem('LoginBlock',new(['type','input',
+                                          'label','Passwort',
+                                          'name','ePassword']));
+      LoginForm.addItem('LoginBlock',new(['type','checkbox',
+                                          'label','Anmeldedaten speichern',
+                                          'name','cbSaveLogin']));
+      LoginForm.addItem('LoginBlock',new(['type','button',
+                                          'value','Login',
+                                          'name','eSubmit']));
+    end;
 end;
 
 initialization

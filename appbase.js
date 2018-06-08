@@ -3785,7 +3785,25 @@ rtl.module("dhtmlx_layout",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
 });
-rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_base","dhtmlx_form"],function () {
+rtl.module("dhtmlx_windows",["System","JS","Web","dhtmlx_base"],function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  this.Windows = null;
+  $mod.$init = function () {
+    pas.dhtmlx_base.WidgetsetLoaded.then($impl.LoadWindows);
+  };
+},null,function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $impl.LoadWindows = function (aValue) {
+    var Result = undefined;
+    $mod.Windows = new dhtmlXWindows();
+    return Result;
+  };
+});
+rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_base","dhtmlx_form","dhtmlx_windows"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
@@ -3800,7 +3818,7 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_bas
     var Result = false;
     var LoginForm = null;
     var Formdata = null;
-    var LoginFormCont = null;
+    var aWin = null;
     FormData = [
     {type: "settings", position: "label-left", labelWidth: 75, inputWidth: 150},
     {type: "block", blockOffset: 30, offsetTop: 15, width: "auto", list: [
@@ -3810,10 +3828,17 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_bas
         {type: "button", name: "submit", value: "Let me in", offsetTop: 20, offsetLeft: 72}
     ]}
     ];
-    LoginFormCont = document.createElement("div");
-    window.document.body.appendChild(LoginFormCont);
-    LoginFormCont.style.cssText = "position: absolute;z-index: 100; top: 50%; left: 50%; margin-top: -50px; margin-left: -50px; width: 200px; height: 200px;";
-    LoginForm = new dhtmlXForm(LoginFormCont,Formdata);
+    if (pas.dhtmlx_windows.Windows.window("LoginFormWindow") == null) {
+      pas.dhtmlx_windows.Windows.createWindow("LoginFormWindow",Math.floor(document.body.clientWidth / 2) - 200,Math.floor(document.body.clientHeight / 2) - 100,400,200);
+      aWin = pas.dhtmlx_windows.Windows.window("LoginFormWindow");
+      LoginForm = rtl.getObject(aWin.attachForm(Formdata));
+      LoginForm.addItem(null,pas.JS.New(["type","block","width","auto","name","LoginBlock"]));
+      LoginForm.addItem("LoginBlock",pas.JS.New(["type","label","label","Anmeldung"]));
+      LoginForm.addItem("LoginBlock",pas.JS.New(["type","input","label","Login","name","eUsername"]));
+      LoginForm.addItem("LoginBlock",pas.JS.New(["type","input","label","Passwort","name","ePassword"]));
+      LoginForm.addItem("LoginBlock",pas.JS.New(["type","checkbox","label","Anmeldedaten speichern","name","cbSaveLogin"]));
+      LoginForm.addItem("LoginBlock",pas.JS.New(["type","button","value","Login","name","eSubmit"]));
+    };
     return Result;
   };
 });

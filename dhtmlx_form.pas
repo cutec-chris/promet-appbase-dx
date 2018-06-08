@@ -11,7 +11,7 @@ uses
 type
   TDHTMLXForm = class external name 'dhtmlXForm' (TJSElement)
     constructor New(parent : JSValue);varargs;
-    procedure addItem(pId : JSValue;itemData : JSValue;pos : Integer;insertAfter : Integer); //adds an item to the form
+    procedure addItem(pId : JSValue;itemData : JSValue);varargs; //adds an item to the form
     //adjustParentSize	adjusts the parent's size to the form content
     function attachEvent(event : string;aCallback : JSValue) : Integer;         //adds any user-defined handler to available events
     //checkItem	checks a checkbox or a radio button
