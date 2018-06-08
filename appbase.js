@@ -3708,12 +3708,17 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
         var Result = undefined;
         function DoGetLoginData(aValue) {
           var Result = undefined;
+          function LoginSuccessful(aValue) {
+            var Result = undefined;
+            if (aValue == true) {
+              resolve(true)}
+             else reject(rtl.getResStr(pas.promet_base,"strLoginFailed"));
+            return Result;
+          };
           if ($mod.OnLoginForm === null) {
             reject(new Error(rtl.getResStr(pas.promet_base,"strNoLoginFormA")))}
            else {
-            if ($mod.OnLoginForm()) {
-              resolve(true)}
-             else reject(rtl.getResStr(pas.promet_base,"strLoginFailed"));
+            $mod.OnLoginForm().then(LoginSuccessful);
           };
           return Result;
         };
@@ -3807,7 +3812,7 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_bas
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
-  $mod.$resourcestrings = {strLoginText: {org: "Anmeldung"}, strLogin: {org: "Login"}, strPassword: {org: "Passwort"}, strSaveLogin: {org: "Anmeldedaten speichern"}};
+  $mod.$resourcestrings = {strLoginText: {org: "Anmeldung"}, strLogin: {org: "Login"}, strPassword: {org: "Passwort"}, strSaveLogin: {org: "Anmeldedaten speichern"}, strUserAbort: {org: "Benutzerabbruch"}};
   $mod.$init = function () {
     pas.promet_base.OnLoginForm = $impl.DHTMLXoginForm;
   };
@@ -3816,22 +3821,49 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_bas
   var $mod = this;
   var $impl = $mod.$impl;
   $impl.DHTMLXoginForm = function () {
-    var Result = false;
+    var Result = null;
     var LoginForm = null;
     var Formdata = null;
     var aWin = null;
-    if (pas.dhtmlx_windows.Windows.window("LoginFormWindow") == null) {
-      pas.dhtmlx_windows.Windows.createWindow("LoginFormWindow",Math.floor(document.body.clientWidth / 2) - 200,Math.floor(document.body.clientHeight / 2) - 100,400,210);
-      aWin = pas.dhtmlx_windows.Windows.window("LoginFormWindow");
-      aWin.setText(rtl.getResStr(pas.promet_dhtmlx,"strLoginText"));
-      LoginForm = rtl.getObject(aWin.attachForm(Formdata));
-      LoginForm.addItem(null,pas.JS.New(["type","block","width","auto","name","LoginBlock"]));
-      LoginForm.addItem("LoginBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.promet_dhtmlx,"strLogin"),"name","eUsername"]));
-      LoginForm.addItem("LoginBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.promet_dhtmlx,"strPassword"),"name","ePassword"]));
-      LoginForm.addItem("LoginBlock",pas.JS.New(["type","checkbox","label",rtl.getResStr(pas.promet_dhtmlx,"strSaveLogin"),"name","cbSaveLogin"]));
-      LoginForm.addItem("LoginBlock",pas.JS.New(["type","button","value",rtl.getResStr(pas.promet_dhtmlx,"strLogin"),"name","eSubmit"]));
-      LoginForm.setItemFocus("eUsername");
+    var isResolved = false;
+    function IntDoLoginForm(resolve, reject) {
+      function AfterValidate(status) {
+        if (status) {
+          resolve(true);
+          isResolved = true;
+          aWin.close();
+        };
+      };
+      function eSubmitClick() {
+        LoginForm.validate();
+      };
+      function CloseWindow() {
+        var Result = false;
+        if (!isResolved) reject(rtl.getResStr(pas.promet_dhtmlx,"strUserAbort"));
+        Result = true;
+        return Result;
+      };
+      if (pas.dhtmlx_windows.Windows.window("LoginFormWindow") == null) {
+        pas.dhtmlx_windows.Windows.createWindow("LoginFormWindow",Math.floor(document.body.clientWidth / 2) - 200,Math.floor(document.body.clientHeight / 2) - 100,400,210);
+        aWin = pas.dhtmlx_windows.Windows.window("LoginFormWindow");
+        aWin.setText(rtl.getResStr(pas.promet_dhtmlx,"strLoginText"));
+        LoginForm = rtl.getObject(aWin.attachForm(Formdata));
+        LoginForm.addItem(null,pas.JS.New(["type","block","width","auto","name","LoginBlock"]));
+        LoginForm.addItem("LoginBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.promet_dhtmlx,"strLogin"),"name","eUsername","required",true]));
+        LoginForm.addItem("LoginBlock",pas.JS.New(["type","password","label",rtl.getResStr(pas.promet_dhtmlx,"strPassword"),"name","ePassword","required",true]));
+        LoginForm.addItem("LoginBlock",pas.JS.New(["type","checkbox","label",rtl.getResStr(pas.promet_dhtmlx,"strSaveLogin"),"name","cbSaveLogin"]));
+        LoginForm.addItem("LoginBlock",pas.JS.New(["type","button","value",rtl.getResStr(pas.promet_dhtmlx,"strLogin"),"name","eSubmit"]));
+        LoginForm.setItemFocus("eUsername");
+        LoginForm.attachEvent("onEnter",eSubmitClick);
+        LoginForm.enableLiveValidation(true);
+        LoginForm.attachEvent("onButtonClick",eSubmitClick);
+        aWin.attachEvent("onClose",CloseWindow);
+        LoginForm.attachEvent("onAfterValidate",AfterValidate);
+      } else {
+        aWin = pas.dhtmlx_windows.Windows.window("LoginFormWindow");
+      };
     };
+    Result = new Promise(IntDoLoginForm);
     return Result;
   };
 });

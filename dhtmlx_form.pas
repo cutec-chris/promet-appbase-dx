@@ -20,9 +20,9 @@ type
     //clearNote	removes the note block from an input or a radio button
     //clearValidation	removes all validation rules from an input
     //detachEvent	detaches a handler from an event
-    //disableItem	disables an item
-    //enableItem	enables an item
-    //enableLiveValidation	sets the mode when validation is invoked just after an input goes out of focus
+    procedure disableItem(name : string;disabled : Boolean);	                //disables an item
+    procedure enableItem(name : string;enabled : Boolean);	                //enables an item
+    procedure enableLiveValidation(enable : Boolean);	                        //sets the mode when validation is invoked just after an input goes out of focus
     //forEachItem	iterator, calls a user-defined handler for each item
     //getCalendar	returns dhtmlxCalendar instance
     //getCheckedValue	returns the value of the checked radio button
@@ -81,19 +81,19 @@ type
     //setNote	adds the note block under the specified input
     //setNumberFormat	allows setting the format of numeric data (for inputs only)
     //setReadonly	makes an item readonly
-    //setRequired	makes/unmakes a certain field required
+    procedure setRequired(name : string;required : Boolean);	                //makes/unmakes a certain field required
     //setSkin	sets skin for a form
     //setTooltip	sets a tooltip for an item
     //setUserData	allows attaching user data to a form without modifying the DOM
     //setValidateCss	sets CSS treatment of the form validation
-    //setValidation	adds a validation rule to the input with the specified name
+    procedure setValidation(name : string;rule : string);	                //adds a validation rule to the input with the specified name
     //showItem	shows an item
     //uncheckItem	unchecks an item (a checkbox or a radio button only)
     //unload	destructor, removes the form instance and cleans the used memory
     //unlock	unlocks the form (enables all the items)
     //updateValues	updates the inputs' values
-    //validate	starts the form's validation
-    //validateItem	invokes the validation of the specified item
+    procedure validate;	                                                        //starts the form's validation
+    function validateItem(name : string) : JSValue;	                        //invokes the validation of the specified item
   end;
 
 implementation

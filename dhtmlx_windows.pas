@@ -23,7 +23,7 @@ type
     //attachContextMenu	attaches a context menu to windows globally, if a custom menu hasn't been set for each window
     //attachDataView	attaches dhtmlxDataView to a cell
     //attachEditor	attaches dhtmlxEditor to a cell
-    //attachEvent	adds any user-defined handler to available events
+    function attachEvent(event : string;aCallback : JSValue) : Integer;         //adds any user-defined handler to available events
     function attachForm(conf : TJSObject): JSValue;	                        //attaches dhtmlxForm to a cell
     //attachGrid	attaches dhtmlxGrid to a cell
     //attachHTMLString	attaches HTML content to a cell
@@ -48,7 +48,7 @@ type
     //center	centers a window in the viewport
     //centerOnScreen	centers a window on the screen
     //clearIcon	clears window's header icon
-    //close	closes a window
+    procedure close;	                                                        //closes a window
     //denyMove	doesn't allow a window to be moved
     //denyPark	doesn't allow a window to be parked
     //denyResize	doesn't allow a window to be resized

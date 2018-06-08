@@ -13,7 +13,7 @@ function LoadData(url : string;IgnoreLogin : Boolean = False;Datatype : string =
 procedure WaitForAssigned(name : string; callback : TJSValueCallback);
 function CheckLogin : TJSPromise;
 
-type TOnLoginForm = function : Boolean;
+type TOnLoginForm = function : TJSPromise;
 
 var
   AvammLogin : string;
@@ -51,15 +51,19 @@ function CheckLogin : TJSPromise;
     end;
     function GetLoginData(aValue: JSValue): JSValue;
       function DoGetLoginData(aValue: JSValue): JSValue;
+        function LoginSuccessful(aValue : JSValue) : JSValue;
+        begin
+          if (aValue = true) then
+            resolve(true)
+          else
+            reject(strLoginFailed);
+        end;
       begin
         if OnLoginForm = nil then
           reject(TJSError.new(strNoLoginFormA))
         else
           begin
-            if OnLoginForm() then
-              resolve(true)
-            else
-              reject(strLoginFailed);
+            OnLoginForm()._then(@LoginSuccessful);
           end;
       end;
     begin
