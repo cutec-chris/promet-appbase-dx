@@ -29,6 +29,7 @@ var
     begin
       if status then
         begin
+          promet_base.AvammLogin:=window.btoa(LoginForm.getItemValue('eUsername')+':'+LoginForm.getItemValue('ePassword'));
           resolve(true);
           isResolved:=True;
           aWin.close;

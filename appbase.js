@@ -3661,7 +3661,9 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
       };
       req = new XMLHttpRequest();
       req.open("get",$impl.GetBaseUrl() + url,true);
-      req.setRequestHeader("Authorization","Basic " + $mod.AvammLogin);
+      if ($mod.AvammLogin !== "") {
+        req.setRequestHeader("Authorization","Basic " + $mod.AvammLogin);
+      };
       req.overrideMimeType(Datatype);
       req.timeout = Timeout - 100;
       req.addEventListener("load",DoOnLoad);
@@ -3732,7 +3734,25 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
       };
       function GetRights(aValue) {
         var Result = undefined;
-        Result = $mod.LoadData("\/configuration\/userstatus",false,"text\/json",4000);
+        var req = undefined;
+        function CatchRights(resolve, reject) {
+          req = $mod.LoadData("\/configuration\/userstatus",false,"text\/json",4000);
+          if (rtl.getObject(req).status === 200) {
+            resolve(req)}
+           else reject(req);
+        };
+        function DoLogout(aValue) {
+          var Result = undefined;
+          pas.System.Writeln("Credentials wrong Logging out");
+          $mod.AvammLogin = "";
+          return Result;
+        };
+        function SetupUser(aValue) {
+          var Result = undefined;
+          pas.System.Writeln("User Login successful...");
+          return Result;
+        };
+        Result = (new Promise(CatchRights)).then(SetupUser).catch(DoLogout);
         return Result;
       };
       $mod.LoadData("\/configuration\/status",false,"text\/json",4000).then(CheckStatus).then(GetLoginData).then(GetRights);
@@ -3834,6 +3854,7 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_bas
     function IntDoLoginForm(resolve, reject) {
       function AfterValidate(status) {
         if (status) {
+          pas.promet_base.AvammLogin = window.btoa((LoginForm.getItemValue("eUsername") + ":") + LoginForm.getItemValue("ePassword"));
           resolve(true);
           isResolved = true;
           aWin.close();

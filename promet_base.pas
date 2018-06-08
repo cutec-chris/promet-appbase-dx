@@ -76,8 +76,27 @@ function CheckLogin : TJSPromise;
       result := WidgetsetLoaded._then(@DoGetLoginData);
     end;
     function GetRights(aValue: JSValue): JSValue;
+    var
+      req : JSValue;
+      procedure CatchRights(resolve, reject: TJSPromiseResolver);
+      begin
+        req := LoadData('/configuration/userstatus');
+        if TJSXMLHttpRequest(req).Status=200 then
+          resolve(req)
+        else reject(req);
+      end;
+      function DoLogout(aValue: JSValue): JSValue;
+      begin
+        writeln('Credentials wrong Logging out');
+        AvammLogin:='';
+      end;
+      function SetupUser(aValue: JSValue): JSValue;
+      begin
+        writeln('User Login successful...');
+      end;
     begin
-      Result := LoadData('/configuration/userstatus');
+      Result := TJSPromise.new(@CatchRights)._then(@SetupUser)
+                                            .catch(@DoLogout)
     end;
   begin
     LoadData('/configuration/status')._then(@CheckStatus)
@@ -130,7 +149,10 @@ function LoadData(url: string; IgnoreLogin: Boolean; Datatype: string;
   begin
   req:=TJSXMLHttpRequest.new;
     req.open('get', GetBaseUrl()+url, true);
-    req.setRequestHeader('Authorization','Basic ' + AvammLogin);
+    if promet_base.AvammLogin <> '' then
+      begin
+        req.setRequestHeader('Authorization','Basic ' + promet_base.AvammLogin);
+      end;
     req.overrideMimeType(Datatype);
     req.timeout:=Timeout-100;
     req.addEventListener('load',@DoOnLoad);
