@@ -45,7 +45,7 @@ var
     if window.document.body.clientWidth > 700 then
       Layout.cells('a').expand;
   end;
-  function ShowError(aValueE: JSValue): JSValue;
+  function LoginFailed(aValueE: JSValue): JSValue;
     function DoShowError(aValue: JSValue): JSValue;
     begin
       dhtmlx.message(js.new(['type','error',
@@ -64,7 +64,7 @@ begin
   Layout.cells('b').hideHeader;
   Treeview := TDHTMLXTreeview(Layout.cells('a').attachTreeView());
   window.addEventListener('AfterLogin',@FillEnviromentAfterLogin);
-  window.addEventListener('AfterLogout',@ShowError);
+  window.addEventListener('AfterLogout',@LoginFailed);
   CheckLogin;
   Router.BeforeRequest:=@RouterBeforeRequest;
   Router.AfterRequest:=@RouterAfterRequest;

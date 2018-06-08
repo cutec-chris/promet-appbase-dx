@@ -3934,7 +3934,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","prom
       if (window.document.body.clientWidth > 700) $mod.Layout.cells("a").expand();
       return Result;
     };
-    function ShowError(aValueE) {
+    function LoginFailed(aValueE) {
       var Result = undefined;
       function DoShowError(aValue) {
         var Result = undefined;
@@ -3953,7 +3953,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","prom
     $mod.Layout.cells("b").hideHeader();
     $mod.Treeview = rtl.getObject($mod.Layout.cells("a").attachTreeView());
     window.addEventListener("AfterLogin",FillEnviromentAfterLogin);
-    window.addEventListener("AfterLogout",ShowError);
+    window.addEventListener("AfterLogout",LoginFailed);
     pas.promet_base.CheckLogin();
     pas.webrouter.Router().FBeforeRequest = $mod.RouterBeforeRequest;
     pas.webrouter.Router().FAfterRequest = $mod.RouterAfterRequest;
