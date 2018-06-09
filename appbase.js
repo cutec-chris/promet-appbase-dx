@@ -3678,7 +3678,7 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
     };
     function ReturnResult(res) {
       var Result = undefined;
-      pas.System.Writeln("Returning...");
+      pas.System.Writeln("Returning... ",res);
       Result = res;
       return Result;
     };
@@ -3702,12 +3702,15 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
             reject(new Error(rtl.getResStr(pas.promet_base,"strServerMustbeConfigured")));
             window.location.href = "config\/install.html";
           } else if ($tmp1 === 0) {
-            reject(new Error(rtl.getResStr(pas.promet_base,"strServerNotRea")))}
-           else {
+            reject(new Error(rtl.getResStr(pas.promet_base,"strServerNotRea")));
+            window.dispatchEvent(pas.promet_base.ConnectionErrorEvent);
+          } else {
             reject(new Error((rtl.getResStr(pas.promet_base,"strServerNotRea") + " ") + pas.SysUtils.IntToStr(rtl.getObject(aValue).status)));
+            window.dispatchEvent(pas.promet_base.ConnectionErrorEvent);
           };
         };
         Result = new Promise(DoCheckStatus);
+        console.log(Result);
         return Result;
       };
       function GetLoginData(aValue) {
@@ -3717,6 +3720,8 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
           function DoIntGetLoginData(resolve, reject) {
             function LoginSuccessful(aValue) {
               var Result = undefined;
+              pas.System.Writeln("GetLoginData:");
+              console.log(aValue);
               if (aValue == true) {
                 resolve(true)}
                else reject(rtl.getResStr(pas.promet_base,"strLoginFailed"));
@@ -3763,9 +3768,17 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
         Result = (new Promise(CatchRights)).then(SetupUser).catch(DoLogout);
         return Result;
       };
-      Result = $mod.LoadData("\/configuration\/status",false,"text\/json",4000).then(CheckStatus).then(GetLoginData).then(GetRights);
+      Result = Promise.all([$mod.LoadData("\/configuration\/status",false,"text\/json",4000).then(CheckStatus).then(GetLoginData).then(GetRights)]);
     };
     Result = new Promise(IntDoCheckLogin);
+    return Result;
+  };
+  this.Wait = function (ms) {
+    var Result = null;
+    function doTimeout(resolve, reject) {
+      window.setTimeout(resolve,ms);
+    };
+    Result = new Promise(doTimeout);
     return Result;
   };
   this.AvammLogin = "";
@@ -3806,6 +3819,7 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
     try {
       pas.promet_base.AfterLoginEvent = createNewEvent('AfterLogin');
       pas.promet_base.AfterLogoutEvent = createNewEvent('AfterLogout');
+      pas.promet_base.ConnectionErrorEvent = createNewEvent('ConnectionError');
     } catch (err) {};
     $mod.CheckLogin();
   };
@@ -3872,7 +3886,10 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_bas
       };
       function CloseWindow() {
         var Result = false;
-        if (!isResolved) reject(rtl.getResStr(pas.promet_dhtmlx,"strUserAbort"));
+        if (!isResolved) {
+          reject(rtl.getResStr(pas.promet_dhtmlx,"strUserAbort"));
+          window.dispatchEvent(pas.promet_base.ConnectionErrorEvent);
+        };
         Result = true;
         return Result;
       };
@@ -3883,7 +3900,7 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_bas
         LoginForm = rtl.getObject(aWin.attachForm(Formdata));
         LoginForm.addItem(null,pas.JS.New(["type","block","width","auto","name","LoginBlock"]));
         LoginForm.addItem("LoginBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.promet_dhtmlx,"strLogin"),"name","eUsername","required",true]));
-        LoginForm.addItem("LoginBlock",pas.JS.New(["type","password","label",rtl.getResStr(pas.promet_dhtmlx,"strPassword"),"name","ePassword","required",true]));
+        LoginForm.addItem("LoginBlock",pas.JS.New(["type","password","label",rtl.getResStr(pas.promet_dhtmlx,"strPassword"),"name","ePassword"]));
         LoginForm.addItem("LoginBlock",pas.JS.New(["type","checkbox","label",rtl.getResStr(pas.promet_dhtmlx,"strSaveLogin"),"name","cbSaveLogin"]));
         LoginForm.addItem("LoginBlock",pas.JS.New(["type","button","value",rtl.getResStr(pas.promet_dhtmlx,"strLogin"),"name","eSubmit"]));
         LoginForm.setItemFocus("eUsername");
@@ -3914,6 +3931,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","prom
   this.RouterAfterRequest = function (Sender, ARouteURL) {
     $mod.Layout.progressOff();
   };
+  var Timeout = 5000;
   this.FillEnviroment = function (aValue) {
     var Result = undefined;
     var i = 0;
@@ -3938,11 +3956,33 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","prom
       var Result = undefined;
       function DoShowError(aValue) {
         var Result = undefined;
-        dhtmlx.message(pas.JS.New(["type","error","text",rtl.getResStr(pas.promet_base,"strLoginFailed")]));
+        if (!rtl.isExt(aValue,Error,1)) {
+          dhtmlx.message(pas.JS.New(["type","error","text",rtl.getResStr(pas.promet_base,"strLoginFailed")]))}
+         else dhtmlx.message(pas.JS.New(["type","error","text",aValue]));
         pas.promet_base.CheckLogin();
         return Result;
       };
       pas.dhtmlx_base.WidgetsetLoaded.then(DoShowError);
+      return Result;
+    };
+    function TryReconnect(aValueE) {
+      var Result = undefined;
+      function ShowError(aValue) {
+        var Result = undefined;
+        dhtmlx.message(pas.JS.New(["type","error","text",rtl.getResStr(pas.program,"strReconnecting"),"expire",5000]));
+        return Result;
+      };
+      function Reconnect(aValue) {
+        var Result = undefined;
+        function DoCheckLogin(aValue) {
+          var Result = undefined;
+          pas.promet_base.CheckLogin();
+          return Result;
+        };
+        pas.promet_base.Wait(5000 - 50).then(DoCheckLogin);
+        return Result;
+      };
+      pas.dhtmlx_base.WidgetsetLoaded.then(ShowError).then(Reconnect);
       return Result;
     };
     $mod.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",window.document.body,"pattern","2U"]));
@@ -3954,12 +3994,13 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","prom
     $mod.Treeview = rtl.getObject($mod.Layout.cells("a").attachTreeView());
     window.addEventListener("AfterLogin",FillEnviromentAfterLogin);
     window.addEventListener("AfterLogout",LoginFailed);
+    window.addEventListener("ConnectionError",TryReconnect);
     pas.promet_base.CheckLogin();
     pas.webrouter.Router().FBeforeRequest = $mod.RouterBeforeRequest;
     pas.webrouter.Router().FAfterRequest = $mod.RouterAfterRequest;
     return Result;
   };
-  $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}};
+  $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}};
   $mod.$main = function () {
     pas.webrouter.Router().RegisterRoute("startpage",$mod.LoadStartpage,true).SetDisplayName(rtl.getResStr(pas.program,"strStartpage"));
     if ($mod.LoadEnviroment) pas.dhtmlx_base.WidgetsetLoaded.then($mod.FillEnviroment);

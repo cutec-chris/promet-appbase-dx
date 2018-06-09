@@ -42,7 +42,12 @@ var
     function CloseWindow : Boolean;
     begin
       if not isResolved then
-        reject(strUserAbort);
+        begin
+          reject(strUserAbort);
+          asm
+            window.dispatchEvent(pas.promet_base.ConnectionErrorEvent);
+          end;
+        end;
       result := True;
     end;
   begin
@@ -61,8 +66,7 @@ var
                                             'required',true]));
         LoginForm.addItem('LoginBlock',new(['type','password',
                                             'label', strPassword,
-                                            'name','ePassword',
-                                            'required',true]));
+                                            'name','ePassword']));
         LoginForm.addItem('LoginBlock',new(['type','checkbox',
                                             'label', strSaveLogin,
                                             'name','cbSaveLogin']));

@@ -11,6 +11,7 @@ var
 resourcestring
   strMenu                   = 'Menü';
   strStartpage              = 'Startseite';
+  strReconnecting           = 'Verbindung zum Server fehlgeschlagen,'+#10#13+'Verbindung wird automatisch wiederhergestellt';
 
 procedure LoadStartpage(URl : String; aRoute : TRoute; Params: TStrings);
 begin
@@ -23,7 +24,6 @@ procedure RouterAfterRequest(Sender: TObject; const ARouteURL: String);
 begin
   Layout.progressOff;
 end;
-
 function FillEnviroment(aValue : JSValue) : JSValue;
 var
   i: Integer;
@@ -48,12 +48,37 @@ var
   function LoginFailed(aValueE: JSValue): JSValue;
     function DoShowError(aValue: JSValue): JSValue;
     begin
-      dhtmlx.message(js.new(['type','error',
-                             'text',strLoginFailed]));
+      if not (aValue is TJSError) then
+        dhtmlx.message(js.new(['type','error',
+                               'text',strLoginFailed]))
+      else
+        dhtmlx.message(js.new(['type','error',
+                               'text',aValue]));
       CheckLogin;
     end;
   begin
     WidgetsetLoaded._then(@DoShowError);
+  end;
+  function TryReconnect(aValueE: JSValue): JSValue;
+  const
+    Timeout = 5000;
+    function ShowError(aValue: JSValue): JSValue;
+    begin
+      dhtmlx.message(js.new(['type','error',
+                             'text',strReconnecting,
+                             'expire', Timeout]));
+    end;
+    function Reconnect(aValue: JSValue): JSValue;
+      function DoCheckLogin(aValue: JSValue): JSValue;
+      begin
+        CheckLogin;
+      end;
+    begin
+      Wait(Timeout-50)._then(@DoCheckLogin);
+    end;
+  begin
+    WidgetsetLoaded._then(@ShowError)
+                   ._then(@Reconnect);
   end;
 begin
   Layout := TDHTMLXLayout.New(js.new(['parent',window.document.body,'pattern','2U']));
@@ -65,6 +90,7 @@ begin
   Treeview := TDHTMLXTreeview(Layout.cells('a').attachTreeView());
   window.addEventListener('AfterLogin',@FillEnviromentAfterLogin);
   window.addEventListener('AfterLogout',@LoginFailed);
+  window.addEventListener('ConnectionError',@TryReconnect);
   CheckLogin;
   Router.BeforeRequest:=@RouterBeforeRequest;
   Router.AfterRequest:=@RouterAfterRequest;

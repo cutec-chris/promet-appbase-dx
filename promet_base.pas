@@ -12,12 +12,14 @@ type TJSValueCallback = procedure(aName : JSValue);
 function LoadData(url : string;IgnoreLogin : Boolean = False;Datatype : string = 'text/json';Timeout : Integer = 4000) : TJSPromise;
 procedure WaitForAssigned(name : string; callback : TJSValueCallback);
 function CheckLogin : TJSPromise;
+function Wait(ms : NativeInt) : TJSPromise;
 
 type TOnLoginForm = function : TJSPromise;
 
 var
   AfterLoginEvent : TJSEvent;
   AfterLogoutEvent : TJSEvent;
+  ConnectionErrorEvent : TJSEvent;
   AvammLogin : string;
   AvammServer : string;
   OnLoginForm : TOnLoginForm = nil;
@@ -48,19 +50,41 @@ function CheckLogin : TJSPromise;
             reject(TJSError.new(strServerMustbeConfigured));
             window.location.href:='config/install.html';
           end;
-        0:reject(TJSError.new(strServerNotRea));
+        0:
+          begin
+            reject(TJSError.new(strServerNotRea));
+            asm
+              window.dispatchEvent(pas.promet_base.ConnectionErrorEvent);
+            end;
+          end
         else
-          reject(TJSError.new(strServerNotRea+' '+IntToStr(TJSXMLHttpRequest(aValue).Status)));
+          begin
+            reject(TJSError.new(strServerNotRea+' '+IntToStr(TJSXMLHttpRequest(aValue).Status)));
+            asm
+              window.dispatchEvent(pas.promet_base.ConnectionErrorEvent);
+            end;
+          end;
         end;
       end;
     begin
       result := TJSPromise.new(@DoCheckStatus);
+      {$ifdef DEBUG}
+      asm
+        console.log(Result);
+      end;
+      {$endif}
     end;
     function GetLoginData(aValue: JSValue): JSValue;
       function DoGetLoginData(aValue: JSValue): JSValue;
         procedure DoIntGetLoginData(resolve, reject: TJSPromiseResolver);
           function LoginSuccessful(aValue : JSValue) : JSValue;
           begin
+            {$ifdef DEBUG}
+            writeln('GetLoginData:');
+            asm
+              console.log(aValue);
+            end;
+            {$endif}
             if (aValue = true) then
               resolve(true)
             else
@@ -112,9 +136,9 @@ function CheckLogin : TJSPromise;
                                             .catch(@DoLogout)
     end;
   begin
-    Result := LoadData('/configuration/status')._then(@CheckStatus)
-                                     ._then(@GetLoginData)
-                                     ._then(@GetRights);
+    Result := TJSPromise.all([LoadData('/configuration/status')._then(@CheckStatus)
+                                               ._then(@GetLoginData)
+                                               ._then(@GetRights)]);
   end;
 begin
   Result := tJSPromise.new(@IntDoCheckLogin);
@@ -185,7 +209,7 @@ function LoadData(url: string; IgnoreLogin: Boolean; Datatype: string;
   function ReturnResult(res: JSValue) : JSValue;
   begin
     {$ifdef DEBUG}
-    writeln('Returning...');
+    writeln('Returning... ',res);
     {$endif}
     Result:=res;
   end;
@@ -196,6 +220,14 @@ begin
   requestPromise:=TJSPromise.New(@DoRequest);
   Result:=requestPromise._then(@ReturnResult)
                         .catch(@ReturnResult);
+end;
+function Wait(ms : NativeInt) : TJSPromise;
+  procedure doTimeout(resolve,reject : TJSPromiseResolver) ;
+  begin
+    window.setTimeout(TJSTimerCallBack(resolve),ms);
+  end;
+begin
+  Result := TJSPromise.New(@doTimeOut);
 end;
 procedure WaitForAssigned(name : string; callback : TJSValueCallback);
 var
@@ -231,6 +263,7 @@ begin
     try {
       pas.promet_base.AfterLoginEvent = createNewEvent('AfterLogin');
       pas.promet_base.AfterLogoutEvent = createNewEvent('AfterLogout');
+      pas.promet_base.ConnectionErrorEvent = createNewEvent('ConnectionError');
     } catch (err) {}
   end;
   CheckLogin;
