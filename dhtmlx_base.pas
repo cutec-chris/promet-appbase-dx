@@ -21,7 +21,7 @@ var
 
 implementation
 
-procedure AppendCSS(url : string);
+procedure AppendCSS(url : string;onLoad,onError : JSValue);
 begin
   asm
     var file = url;
@@ -30,10 +30,12 @@ begin
     link.type = "text/css";
     link.rel = "stylesheet";
     link.media = "screen,print";
+    link.onload = onLoad;
+    link.onerror = onError;
     document.getElementsByTagName( "head" )[0].appendChild( link );
   end;
 end;
-procedure AppendJS(url : string;onLoad : JSValue);
+procedure AppendJS(url : string;onLoad,onError : JSValue);
 begin
   asm
     var file = url;
@@ -41,6 +43,7 @@ begin
     link.src = file;
     link.type = "text/javascript";
     link.onload = onLoad;
+    link.onerror = onError;
     document.getElementsByTagName( "head" )[0].appendChild( link );
   end;
 end;
@@ -55,14 +58,34 @@ procedure LoadDHTMLX;
       writeln('DHTMLX loaded...');
       resolve(true);
     end;
+    procedure ScriptError;
+    begin
+      AppendJS('https://cdn.dhtmlx.com/edge/dhtmlx.js',@ScriptLoaded,null);
+    end;
   begin
     writeln('Loading DHTMLX...');
-    AppendJS('https://cdn.dhtmlx.com/edge/dhtmlx.js',@ScriptLoaded);
-    AppendCSS('https://cdn.dhtmlx.com/edge/fonts/font_awesome/css/font-awesome.min.css');
-    AppendCSS('https://cdn.dhtmlx.com/edge/dhtmlx.css');
+    AppendJS('appbase/dhtmlx/dhtmlx.js',@ScriptLoaded,@ScriptError);
+  end;
+  procedure DoLoadCSS(resolve,reject : TJSPromiseResolver) ;
+    procedure ScriptLoaded;
+    begin
+      AppendCSS('https://cdn.dhtmlx.com/edge/fonts/font_awesome/css/font-awesome.min.css',null,null);
+      resolve(true);
+    end;
+    procedure ScriptLoaded2;
+    begin
+      AppendCSS('appbase/dhtmlx/font-awesome.min.css',null,null);
+      resolve(true);
+    end;
+    procedure ScriptError;
+    begin
+      AppendCSS('https://cdn.dhtmlx.com/edge/dhtmlx.css',@ScriptLoaded,null);
+    end;
+  begin
+    AppendCSS('appbase/dhtmlx/dhtmlx.css',@ScriptLoaded2,@ScriptError);
   end;
 begin
-  WidgetsetLoaded:=TJSPromise.New(@DoLoadDHTMLX);
+  WidgetsetLoaded:=TJSPromise.all([TJSPromise.New(@DoLoadDHTMLX),TJSPromise.New(@DoLoadCSS)]);
 end;
 
 initialization
