@@ -3647,7 +3647,7 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
     $mod.WidgetsetLoaded = Promise.all([new Promise(DoLoadDHTMLX),new Promise(DoLoadCSS)]);
   };
 });
-rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","dhtmlx_base"],function () {
+rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
@@ -3717,14 +3717,14 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
           if ($tmp1 === 403) {
             resolve(true)}
            else if ($tmp1 === 200) {
-            reject(new Error(rtl.getResStr(pas.promet_base,"strServerMustbeConfigured")));
+            reject(new Error(rtl.getResStr(pas.Avamm,"strServerMustbeConfigured")));
             window.location.href = "config\/install.html";
           } else if ($tmp1 === 0) {
-            reject(new Error(rtl.getResStr(pas.promet_base,"strServerNotRea")));
-            window.dispatchEvent(pas.promet_base.ConnectionErrorEvent);
+            reject(new Error(rtl.getResStr(pas.Avamm,"strServerNotRea")));
+            window.dispatchEvent(pas.Avamm.ConnectionErrorEvent);
           } else {
-            reject(new Error((rtl.getResStr(pas.promet_base,"strServerNotRea") + " ") + pas.SysUtils.IntToStr(rtl.getObject(aValue).status)));
-            window.dispatchEvent(pas.promet_base.ConnectionErrorEvent);
+            reject(new Error((rtl.getResStr(pas.Avamm,"strServerNotRea") + " ") + pas.SysUtils.IntToStr(rtl.getObject(aValue).status)));
+            window.dispatchEvent(pas.Avamm.ConnectionErrorEvent);
           };
         };
         Result = new Promise(DoCheckStatus);
@@ -3742,11 +3742,11 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
               console.log(aValue);
               if (aValue == true) {
                 resolve(true)}
-               else reject(rtl.getResStr(pas.promet_base,"strLoginFailed"));
+               else reject(rtl.getResStr(pas.Avamm,"strLoginFailed"));
               return Result;
             };
             if ($mod.OnLoginForm === null) {
-              reject(new Error(rtl.getResStr(pas.promet_base,"strNoLoginFormA")))}
+              reject(new Error(rtl.getResStr(pas.Avamm,"strNoLoginFormA")))}
              else {
               $mod.OnLoginForm().then(LoginSuccessful);
             };
@@ -3774,13 +3774,13 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
           var Result = undefined;
           pas.System.Writeln("Credentials wrong Logging out");
           $mod.AvammLogin = "";
-          window.dispatchEvent(pas.promet_base.AfterLogoutEvent);
+          window.dispatchEvent(pas.Avamm.AfterLogoutEvent);
           return Result;
         };
         function SetupUser(aValue) {
           var Result = undefined;
           pas.System.Writeln("User Login successful...");
-          window.dispatchEvent(pas.promet_base.AfterLoginEvent);
+          window.dispatchEvent(pas.Avamm.AfterLoginEvent);
           return Result;
         };
         Result = (new Promise(CatchRights)).then(SetupUser).catch(DoLogout);
@@ -3819,6 +3819,7 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
     return Result;
   };
   $impl.InitAvammApp = function () {
+    var Avamm = pas.Avamm;
     function createNewEvent(eventName) {
         if(typeof(Event) === 'function') {
             var event = new Event(eventName);
@@ -3835,9 +3836,9 @@ rtl.module("promet_base",["System","JS","Web","webrouter","Classes","SysUtils","
       };
     }
     try {
-      pas.promet_base.AfterLoginEvent = createNewEvent('AfterLogin');
-      pas.promet_base.AfterLogoutEvent = createNewEvent('AfterLogout');
-      pas.promet_base.ConnectionErrorEvent = createNewEvent('ConnectionError');
+      pas.Avamm.AfterLoginEvent = createNewEvent('AfterLogin');
+      pas.Avamm.AfterLogoutEvent = createNewEvent('AfterLogout');
+      pas.Avamm.ConnectionErrorEvent = createNewEvent('ConnectionError');
     } catch (err) {};
     $mod.CheckLogin();
   };
@@ -3872,13 +3873,13 @@ rtl.module("dhtmlx_windows",["System","JS","Web","dhtmlx_base"],function () {
     return Result;
   };
 });
-rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_base","dhtmlx_form","dhtmlx_windows"],function () {
+rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","Avamm","dhtmlx_form","dhtmlx_windows"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
   $mod.$resourcestrings = {strLoginText: {org: "Anmeldung"}, strLogin: {org: "Login"}, strPassword: {org: "Passwort"}, strSaveLogin: {org: "Anmeldedaten speichern"}, strUserAbort: {org: "Benutzerabbruch"}};
   $mod.$init = function () {
-    pas.promet_base.OnLoginForm = $impl.DHTMLXoginForm;
+    pas.Avamm.OnLoginForm = $impl.DHTMLXoginForm;
   };
 },null,function () {
   "use strict";
@@ -3893,7 +3894,7 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_bas
     function IntDoLoginForm(resolve, reject) {
       function AfterValidate(status) {
         if (status) {
-          pas.promet_base.AvammLogin = window.btoa((LoginForm.getItemValue("eUsername") + ":") + LoginForm.getItemValue("ePassword"));
+          pas.Avamm.AvammLogin = window.btoa((LoginForm.getItemValue("eUsername") + ":") + LoginForm.getItemValue("ePassword"));
           resolve(true);
           isResolved = true;
           aWin.close();
@@ -3906,7 +3907,7 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_bas
         var Result = false;
         if (!isResolved) {
           reject(rtl.getResStr(pas.promet_dhtmlx,"strUserAbort"));
-          window.dispatchEvent(pas.promet_base.ConnectionErrorEvent);
+          window.dispatchEvent(pas.Avamm.ConnectionErrorEvent);
         };
         Result = true;
         return Result;
@@ -3935,7 +3936,7 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","promet_bas
     return Result;
   };
 });
-rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","promet_base","dhtmlx_base","dhtmlx_form","dhtmlx_treeview","dhtmlx_layout","promet_dhtmlx"],function () {
+rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avamm","dhtmlx_base","dhtmlx_form","dhtmlx_treeview","dhtmlx_layout","promet_dhtmlx"],function () {
   "use strict";
   var $mod = this;
   this.LoadEnviroment = true;
@@ -3975,9 +3976,9 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","prom
       function DoShowError(aValue) {
         var Result = undefined;
         if (!rtl.isExt(aValue,Error,1)) {
-          dhtmlx.message(pas.JS.New(["type","error","text",rtl.getResStr(pas.promet_base,"strLoginFailed")]))}
+          dhtmlx.message(pas.JS.New(["type","error","text",rtl.getResStr(pas.Avamm,"strLoginFailed")]))}
          else dhtmlx.message(pas.JS.New(["type","error","text",aValue]));
-        pas.promet_base.CheckLogin();
+        pas.Avamm.CheckLogin();
         return Result;
       };
       pas.dhtmlx_base.WidgetsetLoaded.then(DoShowError);
@@ -3994,10 +3995,10 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","prom
         var Result = undefined;
         function DoCheckLogin(aValue) {
           var Result = undefined;
-          pas.promet_base.CheckLogin();
+          pas.Avamm.CheckLogin();
           return Result;
         };
-        pas.promet_base.Wait(5000 - 50).then(DoCheckLogin);
+        pas.Avamm.Wait(5000 - 50).then(DoCheckLogin);
         return Result;
       };
       pas.dhtmlx_base.WidgetsetLoaded.then(ShowError).then(Reconnect);
@@ -4013,7 +4014,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","prom
     window.addEventListener("AfterLogin",FillEnviromentAfterLogin);
     window.addEventListener("AfterLogout",LoginFailed);
     window.addEventListener("ConnectionError",TryReconnect);
-    pas.promet_base.CheckLogin();
+    pas.Avamm.CheckLogin();
     pas.webrouter.Router().FBeforeRequest = $mod.RouterBeforeRequest;
     pas.webrouter.Router().FAfterRequest = $mod.RouterAfterRequest;
     return Result;

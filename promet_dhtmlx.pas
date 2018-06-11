@@ -5,7 +5,7 @@ unit promet_dhtmlx;
 interface
 
 uses
-  Classes, SysUtils,js,web, promet_base, dhtmlx_form, dhtmlx_windows;
+  Classes, SysUtils,js,web, Avamm, dhtmlx_form, dhtmlx_windows;
 
 resourcestring
   strLoginText = 'Anmeldung';
@@ -29,7 +29,7 @@ var
     begin
       if status then
         begin
-          promet_base.AvammLogin:=window.btoa(LoginForm.getItemValue('eUsername')+':'+LoginForm.getItemValue('ePassword'));
+          Avamm.AvammLogin:=window.btoa(LoginForm.getItemValue('eUsername')+':'+LoginForm.getItemValue('ePassword'));
           resolve(true);
           isResolved:=True;
           aWin.close;
@@ -45,7 +45,7 @@ var
         begin
           reject(strUserAbort);
           asm
-            window.dispatchEvent(pas.promet_base.ConnectionErrorEvent);
+            window.dispatchEvent(pas.Avamm.ConnectionErrorEvent);
           end;
         end;
       result := True;
@@ -92,6 +92,6 @@ begin
 end;
 
 initialization
-  promet_base.OnLoginForm:=@DHTMLXoginForm;
+  Avamm.OnLoginForm:=@DHTMLXoginForm;
 end.
 

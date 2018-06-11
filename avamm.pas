@@ -1,4 +1,4 @@
-unit promet_base;
+unit Avamm;
 
 {$mode objfpc}{$H+}
 
@@ -13,6 +13,9 @@ function LoadData(url : string;IgnoreLogin : Boolean = False;Datatype : string =
 procedure WaitForAssigned(name : string; callback : TJSValueCallback);
 function CheckLogin : TJSPromise;
 function Wait(ms : NativeInt) : TJSPromise;
+procedure setCookie(cname, cvalue : string);varargs;
+procedure deleteCookie(cname : string);
+function getCookie(cname : string) : string;
 
 type TOnLoginForm = function : TJSPromise;
 
@@ -54,14 +57,14 @@ function CheckLogin : TJSPromise;
           begin
             reject(TJSError.new(strServerNotRea));
             asm
-              window.dispatchEvent(pas.promet_base.ConnectionErrorEvent);
+              window.dispatchEvent(pas.Avamm.ConnectionErrorEvent);
             end;
           end
         else
           begin
             reject(TJSError.new(strServerNotRea+' '+IntToStr(TJSXMLHttpRequest(aValue).Status)));
             asm
-              window.dispatchEvent(pas.promet_base.ConnectionErrorEvent);
+              window.dispatchEvent(pas.Avamm.ConnectionErrorEvent);
             end;
           end;
         end;
@@ -121,14 +124,14 @@ function CheckLogin : TJSPromise;
         writeln('Credentials wrong Logging out');
         AvammLogin:='';
         asm
-          window.dispatchEvent(pas.promet_base.AfterLogoutEvent);
+          window.dispatchEvent(pas.Avamm.AfterLogoutEvent);
         end;
       end;
       function SetupUser(aValue: JSValue): JSValue;
       begin
         writeln('User Login successful...');
         asm
-          window.dispatchEvent(pas.promet_base.AfterLoginEvent);
+          window.dispatchEvent(pas.Avamm.AfterLoginEvent);
         end;
       end;
     begin
@@ -186,9 +189,9 @@ function LoadData(url: string; IgnoreLogin: Boolean; Datatype: string;
   begin
   req:=TJSXMLHttpRequest.new;
     req.open('get', GetBaseUrl()+url, true);
-    if promet_base.AvammLogin <> '' then
+    if Avamm.AvammLogin <> '' then
       begin
-        req.setRequestHeader('Authorization','Basic ' + promet_base.AvammLogin);
+        req.setRequestHeader('Authorization','Basic ' + Avamm.AvammLogin);
       end;
     req.overrideMimeType(Datatype);
     req.timeout:=Timeout-100;
@@ -242,9 +245,45 @@ var
 begin
   window.setTimeout(@check,interval);
 end;
+procedure setCookie(cname, cvalue : string);varargs;
+begin
+  asm
+    var d = new Date();
+    if (!exdays) exdays = 5;
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    if (getCookie(cname)=='') console.log('failed to store Cookie');
+  end;
+end;
+procedure deleteCookie(cname : string);
+begin
+  asm
+    document.cookie = cname + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  end;
+end;
+function getCookie(cname : string) : string;
+begin
+  asm
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+  end;
+end;
 procedure InitAvammApp;
 begin
   asm
+    var Avamm = pas.Avamm;
     function createNewEvent(eventName) {
         if(typeof(Event) === 'function') {
             var event = new Event(eventName);
@@ -261,9 +300,9 @@ begin
       };
     }
     try {
-      pas.promet_base.AfterLoginEvent = createNewEvent('AfterLogin');
-      pas.promet_base.AfterLogoutEvent = createNewEvent('AfterLogout');
-      pas.promet_base.ConnectionErrorEvent = createNewEvent('ConnectionError');
+      pas.Avamm.AfterLoginEvent = createNewEvent('AfterLogin');
+      pas.Avamm.AfterLogoutEvent = createNewEvent('AfterLogout');
+      pas.Avamm.ConnectionErrorEvent = createNewEvent('ConnectionError');
     } catch (err) {}
   end;
   CheckLogin;
