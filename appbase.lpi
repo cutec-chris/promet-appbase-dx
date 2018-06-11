@@ -102,7 +102,7 @@
         <PackageName Value="pas2js_rtl"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="7">
+    <Units Count="8">
       <Unit0>
         <Filename Value="appbase.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -133,6 +133,11 @@
         <Filename Value="dhtmlx_db.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit6>
+      <Unit7>
+        <Filename Value="avammforms.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="AvammForms"/>
+      </Unit7>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
