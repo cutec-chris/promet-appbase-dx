@@ -36,7 +36,7 @@ type
     //getParentId	returns the item's parent id
     //getSelectedId	returns the selected item's id
     //getSubItems	returns a comma-delimited list of ids of all children nested on the sublevel in relation to the specified item
-    //getUserData	returns any user data set into the given input by the setUserData method
+    function getUserData(id : JSValue;name: string) : JSValue;                  //returns any user data set into the given input by the setUserData method
     //hideCheckbox	hides the item's checkbox
     //isCheckboxEnabled	checks if the item's checkbox is enabled
     //isCheckboxVisible	checks if the item's checkbox is visible
@@ -51,7 +51,7 @@ type
     //setItemText	sets a new item's text
     //setSizes	adjusts the TreeView sizes, if dimension of its parent was changed
     //setSkin	sets a skin for TreeView
-    //setUserData	allows attaching user data to a treeview without modifying the DOM
+    procedure setUserData(id : JSValue;name : string;value : JSValue);          //allows attaching user data to a treeview without modifying the DOM
     //showCheckbox	shows the item's checkbox
     //showItem	scrolls a TreeView to make the specified item visible
     //silent	calls treeview function w/o triggering events

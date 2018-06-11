@@ -2421,17 +2421,6 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
         if (Value !== null) Value.InsertItem(this);
       };
     };
-    this.Changed = function (AllItems) {
-      if ((this.FCollection !== null) && (this.FCollection.FUpdateCount === 0)) {
-        if (AllItems) {
-          this.FCollection.Update(null)}
-         else this.FCollection.Update(this);
-      };
-    };
-    this.SetDisplayName = function (Value) {
-      this.Changed(false);
-      if (Value === "") ;
-    };
     this.Create$1 = function (ACollection) {
       pas.System.TObject.Create.call(this);
       this.SetCollection(ACollection);
@@ -3326,16 +3315,6 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
       Result = this.FHistory;
       return Result;
     };
-    this.GetR = function (AIndex) {
-      var Result = null;
-      Result = this.FRoutes.GetR(AIndex);
-      return Result;
-    };
-    this.GetRouteCount = function () {
-      var Result = 0;
-      Result = this.FRoutes.GetCount();
-      return Result;
-    };
     this.CreateHTTPRoute = function (AClass, APattern, IsDefault) {
       var Result = null;
       this.CheckDuplicate(APattern,IsDefault);
@@ -3634,6 +3613,13 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
+  this.RegisterSidebarRoute = function (aName, Route, Event) {
+    var aRoute = null;
+    aRoute = pas.webrouter.Router().RegisterRoute(Route,Event,false);
+    if ($mod.OnAddToSidebar !== null) {
+      $mod.OnAddToSidebar(aName,aRoute);
+    };
+  };
   this.LoadData = function (url, IgnoreLogin, Datatype, Timeout) {
     var Result = null;
     function DoRequest(resolve, reject) {
@@ -3834,6 +3820,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
   this.AvammServer = "";
   this.UserOptions = null;
   this.OnLoginForm = null;
+  this.OnAddToSidebar = null;
   $mod.$resourcestrings = {strServerNotRea: {org: "Server nicht erreichbar"}, strNoLoginFormA: {org: "keine Login Form verfügbar"}, strLoginFailed: {org: "Login fehlgeschlagen"}, strServerMustbeConfigured: {org: "Server muss konfiguriert werden"}};
   $mod.$init = function () {
     pas.System.Writeln("Appbase initializing...");
@@ -3988,12 +3975,14 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
   this.RouterAfterRequest = function (Sender, ARouteURL) {
     $mod.Layout.progressOff();
   };
+  this.AddToSidebar = function (Name, Route) {
+    $mod.Treeview.addItem(Name,Name);
+    $mod.Treeview.setUserData(Name,"route",Route);
+  };
   var Timeout = 5000;
   this.FillEnviroment = function (aValue) {
     var Result = undefined;
     var i = 0;
-    var tmp = "";
-    var aId = "";
     function FillEnviromentAfterLogin(aValue) {
       var Result = undefined;
       function ModuleLoaded(aObj) {
@@ -4002,19 +3991,12 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
       };
       var aRights = null;
       var aRight = "";
+      if (pas.webrouter.Router().FindHTTPRoute("startpage",null) !== null) return Result;
       pas.System.Writeln("FillEnviromentAfterLogin");
-      for (var $l1 = 0, $end2 = pas.webrouter.Router().GetRouteCount() - 1; $l1 <= $end2; $l1++) {
-        i = $l1;
-        tmp = pas.webrouter.Router().GetR(i).FURLPattern;
-        while (pas.System.Pos("\/",tmp) > 0) {
-          aId = pas.System.Copy(tmp,0,pas.System.Pos("\/",tmp) - 1);
-          $mod.Treeview.addItem(aId,aId);
-          tmp = pas.System.Copy(tmp,pas.System.Pos("\/",tmp) + 1,tmp.length);
-        };
-      };
+      pas.Avamm.RegisterSidebarRoute(rtl.getResStr(pas.program,"strStartpage"),"startpage",$mod.LoadStartpage);
       aRights = rtl.getObject(pas.Avamm.UserOptions["rights"]);
-      for (var $l3 = 0, $end4 = aRights.length - 1; $l3 <= $end4; $l3++) {
-        i = $l3;
+      for (var $l1 = 0, $end2 = aRights.length - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
         aRight = Object.getOwnPropertyNames(rtl.getObject(aRights[i]))[0];
         try {
           if (Math.floor(rtl.getObject(aRights[i])[aRight]) > 1) pas.Avamm.AppendJS(((pas.SysUtils.LowerCase(aRight) + "\/") + pas.SysUtils.LowerCase(aRight)) + ".js",ModuleLoaded,null);
@@ -4057,6 +4039,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
       pas.dhtmlx_base.WidgetsetLoaded.then(ShowError).then(Reconnect);
       return Result;
     };
+    pas.Avamm.OnAddToSidebar = $mod.AddToSidebar;
     $mod.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",window.document.body,"pattern","2U"]));
     $mod.Layout.cells("a").setWidth(200);
     $mod.Layout.cells("a").setText(rtl.getResStr(pas.program,"strMenu"));
@@ -4074,7 +4057,6 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
   };
   $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}};
   $mod.$main = function () {
-    pas.webrouter.Router().RegisterRoute("startpage",$mod.LoadStartpage,true).SetDisplayName(rtl.getResStr(pas.program,"strStartpage"));
     if ($mod.LoadEnviroment) pas.dhtmlx_base.WidgetsetLoaded.then($mod.FillEnviroment);
     if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash());
   };

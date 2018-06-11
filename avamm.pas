@@ -9,6 +9,7 @@ uses
 
 type TJSValueCallback = procedure(aName : JSValue);
 
+procedure RegisterSidebarRoute(aName,Route : string;Event : TRouteEvent);
 function LoadData(url : string;IgnoreLogin : Boolean = False;Datatype : string = 'text/json';Timeout : Integer = 4000) : TJSPromise;
 procedure WaitForAssigned(name : string; callback : TJSValueCallback);
 function CheckLogin : TJSPromise;
@@ -18,7 +19,9 @@ procedure deleteCookie(cname : string);
 function getCookie(cname : string) : string;
 procedure AppendCSS(url : string;onLoad,onError : JSValue);
 procedure AppendJS(url : string;onLoad,onError : JSValue);
-type TOnLoginForm = function : TJSPromise;
+type
+  TOnLoginForm = function : TJSPromise;
+  TRegisterToSidebarEvent = procedure(Name : string;Route : TRoute);
 
 var
   AfterLoginEvent : TJSEvent;
@@ -28,6 +31,7 @@ var
   AvammServer : string;
   UserOptions : TJSObject;
   OnLoginForm : TOnLoginForm = nil;
+  OnAddToSidebar : TRegisterToSidebarEvent = nil;
 
 resourcestring
   strServerNotRea                = 'Server nicht erreichbar';
@@ -190,6 +194,17 @@ begin
     AvammServer := 'http://localhost:8085';
   Result := AvammServer;
 end;
+procedure RegisterSidebarRoute(aName, Route: string;Event : TRouteEvent);
+var
+  aRoute: TRoute;
+begin
+  aRoute := Router.RegisterRoute(Route,Event,false);
+  if OnAddToSidebar <> nil then
+    begin
+      OnAddToSidebar(aName,aRoute);
+    end;
+end;
+
 function LoadData(url: string; IgnoreLogin: Boolean; Datatype: string;
   Timeout: Integer): TJSPromise;
   // We do all the work within the constructor callback.

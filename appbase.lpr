@@ -25,6 +25,11 @@ procedure RouterAfterRequest(Sender: TObject; const ARouteURL: String);
 begin
   Layout.progressOff;
 end;
+procedure AddToSidebar(Name: string; Route: TRoute);
+begin
+  TreeView.addItem(Name,Name);
+  Treeview.setUserData(Name,'route',Route);
+end;
 function FillEnviroment(aValue : JSValue) : JSValue;
 var
   i: Integer;
@@ -42,17 +47,9 @@ var
     aRights: TJSArray;
     aRight: String;
   begin
+    if Router.FindHTTPRoute('startpage',nil) <> nil then exit;
     writeln('FillEnviromentAfterLogin');
-    for i := 0 to Router.RouteCount-1 do
-      begin
-        tmp := Router.Routes[i].URLPattern;
-        while pos('/',tmp)>0 do
-          begin
-            aId := copy(tmp,0,pos('/',tmp)-1);
-            TreeView.addItem(aId,aId);
-            tmp := copy(tmp,pos('/',tmp)+1,length(tmp));
-          end;
-      end;
+    RegisterSidebarRoute(strStartpage,'startpage',@LoadStartpage);
     aRights := TJSArray(UserOptions.Properties['rights']);
     for i := 0 to aRights.Length-1 do
       begin
@@ -102,6 +99,7 @@ var
                    ._then(@Reconnect);
   end;
 begin
+  Avamm.OnAddToSidebar:=@AddToSidebar;
   Layout := TDHTMLXLayout.New(js.new(['parent',window.document.body,'pattern','2U']));
   Layout.cells('a').setWidth(200);
   Layout.cells('a').setText(strMenu);
@@ -117,7 +115,6 @@ begin
   Router.AfterRequest:=@RouterAfterRequest;
 end;
 begin
-  Router.RegisterRoute('startpage',@LoadStartpage,True).DisplayName:=strStartpage;
   if LoadEnviroment then
     WidgetsetLoaded._then(@FillEnviroment);
   if THashHistory(Router.History).getHash<>'' then
