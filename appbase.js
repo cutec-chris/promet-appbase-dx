@@ -1399,6 +1399,9 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
   this.TrimLeft = function (S) {
     return S.replace(/^[\s\uFEFF\xA0\x00-\x1f]+/,'');
   };
+  this.LowerCase = function (s) {
+    return s.toLowerCase();
+  };
   this.CompareStr = function (s1, s2) {
     var l1 = s1.length;
     var l2 = s2.length;
@@ -3816,13 +3819,16 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
     document.getElementsByTagName( "head" )[0].appendChild( link );
   };
   this.AppendJS = function (url, onLoad, onError) {
-    var file = url;
-    var link = document.createElement( "script" );
-    link.src = file;
-    link.type = "text/javascript";
-    link.onload = onLoad;
-    link.onerror = onError;
-    document.getElementsByTagName( "head" )[0].appendChild( link );
+    if (document.getElementById(url) == null) {
+      var file = url;
+      var link = document.createElement( "script" );
+      link.id = url;
+      link.src = file;
+      link.type = "text/javascript";
+      link.onload = onLoad;
+      link.onerror = onError;
+      document.getElementsByTagName( "head" )[0].appendChild( link );
+    };
   };
   this.AvammLogin = "";
   this.AvammServer = "";
@@ -3990,8 +3996,12 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
     var aId = "";
     function FillEnviromentAfterLogin(aValue) {
       var Result = undefined;
+      function ModuleLoaded(aObj) {
+        console.log(aObj);
+        rtl.run(aObj.originalTarget.id.split("/")[0]);
+      };
       var aRights = null;
-      var aRight = null;
+      var aRight = "";
       pas.System.Writeln("FillEnviromentAfterLogin");
       for (var $l1 = 0, $end2 = pas.webrouter.Router().GetRouteCount() - 1; $l1 <= $end2; $l1++) {
         i = $l1;
@@ -4005,7 +4015,11 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
       aRights = rtl.getObject(pas.Avamm.UserOptions["rights"]);
       for (var $l3 = 0, $end4 = aRights.length - 1; $l3 <= $end4; $l3++) {
         i = $l3;
-        aRight = rtl.getObject(aRights[i]);
+        aRight = Object.getOwnPropertyNames(rtl.getObject(aRights[i]))[0];
+        try {
+          if (Math.floor(rtl.getObject(aRights[i])[aRight]) > 1) pas.Avamm.AppendJS(((pas.SysUtils.LowerCase(aRight) + "\/") + pas.SysUtils.LowerCase(aRight)) + ".js",ModuleLoaded,null);
+        } catch ($e) {
+        };
       };
       if (window.document.body.clientWidth > 700) $mod.Layout.cells("a").expand();
       return Result;

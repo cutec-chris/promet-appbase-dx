@@ -35,11 +35,12 @@ var
     begin
       asm
         console.log(aObj);
+        rtl.run(aObj.originalTarget.id.split("/")[0]);
       end;
     end;
   var
     aRights: TJSArray;
-    aRight: TJSObject;
+    aRight: String;
   begin
     writeln('FillEnviromentAfterLogin');
     for i := 0 to Router.RouteCount-1 do
@@ -55,7 +56,12 @@ var
     aRights := TJSArray(UserOptions.Properties['rights']);
     for i := 0 to aRights.Length-1 do
       begin
-        aRight := TJSObject(aRights[i]);
+        aRight := string(TJSObject.getOwnPropertyNames(TJSObject(aRights[i]))[0]);
+        try
+          if Integer(TJSObject(aRights[i]).Properties[aRight])>1 then
+            AppendJS(lowercase(aRight)+'/'+lowercase(aRight)+'.js',@ModuleLoaded,null);
+        except
+        end;
       end;
     if window.document.body.clientWidth > 700 then
       Layout.cells('a').expand;
