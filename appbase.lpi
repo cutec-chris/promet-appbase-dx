@@ -94,12 +94,15 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="1">
+    <RequiredPackages Count="2">
       <Item1>
-        <PackageName Value="pas2js_rtl"/>
+        <PackageName Value="pas2js_fcldb"/>
       </Item1>
+      <Item2>
+        <PackageName Value="pas2js_rtl"/>
+      </Item2>
     </RequiredPackages>
-    <Units Count="5">
+    <Units Count="7">
       <Unit0>
         <Filename Value="appbase.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -121,6 +124,15 @@
         <Filename Value="promet_dhtmlx.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit4>
+      <Unit5>
+        <Filename Value="avammdb.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="AvammDB"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="dhtmlx_db.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit6>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

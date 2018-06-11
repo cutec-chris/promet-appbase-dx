@@ -38,7 +38,7 @@ type
     //getItemLabel	returns the label of an item
     //getItemText	returns the text of an item
     //getItemType	returns the type of an item
-    function getItemValue(name : string) : string;	                        //returns the value of an item
+    function getItemValue(name : string) : JSValue;	                        //returns the value of an item
     //getItemWidth	returns the width of an item set either by init or by the [setItemWidth()](setItemWidth) method
     //getItemsList	returns an array with the names of the form's items
     //getOptions	returns the options of an item (select, multiselect only)

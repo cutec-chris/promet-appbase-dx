@@ -3585,7 +3585,7 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
   };
   $mod.$resourcestrings = {EDuplicateRoute: {org: "Duplicate route pattern: %s"}, EDuplicateDefaultRoute: {org: "Duplicate default route registered with pattern: %s"}};
 });
-rtl.module("dhtmlx_base",["System","JS","Web"],function () {
+rtl.module("dhtmlx_base",["System","JS","Web","Avamm"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
@@ -3597,26 +3597,6 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
-  $impl.AppendCSS = function (url, onLoad, onError) {
-    var file = url;
-    var link = document.createElement( "link" );
-    link.href = file;
-    link.type = "text/css";
-    link.rel = "stylesheet";
-    link.media = "screen,print";
-    link.onload = onLoad;
-    link.onerror = onError;
-    document.getElementsByTagName( "head" )[0].appendChild( link );
-  };
-  $impl.AppendJS = function (url, onLoad, onError) {
-    var file = url;
-    var link = document.createElement( "script" );
-    link.src = file;
-    link.type = "text/javascript";
-    link.onload = onLoad;
-    link.onerror = onError;
-    document.getElementsByTagName( "head" )[0].appendChild( link );
-  };
   $impl.LoadDHTMLX = function () {
     function DoLoadDHTMLX(resolve, reject) {
       function ScriptLoaded() {
@@ -3625,29 +3605,29 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
         resolve(true);
       };
       function ScriptError() {
-        $impl.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoaded,null);
+        pas.Avamm.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoaded,null);
       };
       pas.System.Writeln("Loading DHTMLX...");
-      $impl.AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoaded,ScriptError);
+      pas.Avamm.AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoaded,ScriptError);
     };
     function DoLoadCSS(resolve, reject) {
       function ScriptLoaded() {
-        $impl.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
+        pas.Avamm.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
         resolve(true);
       };
       function ScriptLoaded2() {
-        $impl.AppendCSS("appbase\/dhtmlx\/font-awesome.min.css",null,null);
+        pas.Avamm.AppendCSS("appbase\/dhtmlx\/font-awesome.min.css",null,null);
         resolve(true);
       };
       function ScriptError() {
-        $impl.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoaded,null);
+        pas.Avamm.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoaded,null);
       };
-      $impl.AppendCSS("appbase\/dhtmlx\/dhtmlx.css",ScriptLoaded2,ScriptError);
+      pas.Avamm.AppendCSS("appbase\/dhtmlx\/dhtmlx.css",ScriptLoaded2,ScriptError);
     };
     $mod.WidgetsetLoaded = Promise.all([new Promise(DoLoadDHTMLX),new Promise(DoLoadCSS)]);
   };
 });
-rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils","dhtmlx_base"],function () {
+rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
@@ -3764,8 +3744,9 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils","dhtmlx
           function CheckRightsData(aValue) {
             var Result = undefined;
             if (rtl.getObject(aValue).status === 200) {
-              resolve(aValue)}
-             else reject(aValue);
+              pas.Avamm.UserOptions = JSON.parse(aValue.responseText);
+              resolve(aValue);
+            } else reject(aValue);
             return Result;
           };
           $mod.LoadData("\/configuration\/userstatus",false,"text\/json",4000).then(CheckRightsData);
@@ -3799,16 +3780,16 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils","dhtmlx
     Result = new Promise(doTimeout);
     return Result;
   };
-  this.setCookie = function (cname, cvalue) {
+  this.setCookie = function (cname, cvalue, exdays) {
     var d = new Date();
-    if (!exdays) exdays = 2;
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
     var expires = "expires="+ d.toUTCString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-    if (getCookie(cname)=='') console.log('failed to store Cookie');
+    if (pas.Avamm.getCookie(cname)=='') console.log('failed to store Cookie');
   };
   this.getCookie = function (cname) {
     var Result = "";
+    Result = "";
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
     var ca = decodedCookie.split(';');
@@ -3818,14 +3799,34 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils","dhtmlx
             c = c.substring(1);
         }
         if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
+            Result = c.substring(name.length, c.length);
         }
-    }
-    return "";
+    };
     return Result;
+  };
+  this.AppendCSS = function (url, onLoad, onError) {
+    var file = url;
+    var link = document.createElement( "link" );
+    link.href = file;
+    link.type = "text/css";
+    link.rel = "stylesheet";
+    link.media = "screen,print";
+    link.onload = onLoad;
+    link.onerror = onError;
+    document.getElementsByTagName( "head" )[0].appendChild( link );
+  };
+  this.AppendJS = function (url, onLoad, onError) {
+    var file = url;
+    var link = document.createElement( "script" );
+    link.src = file;
+    link.type = "text/javascript";
+    link.onload = onLoad;
+    link.onerror = onError;
+    document.getElementsByTagName( "head" )[0].appendChild( link );
   };
   this.AvammLogin = "";
   this.AvammServer = "";
+  this.UserOptions = null;
   this.OnLoginForm = null;
   $mod.$resourcestrings = {strServerNotRea: {org: "Server nicht erreichbar"}, strNoLoginFormA: {org: "keine Login Form verfügbar"}, strLoginFailed: {org: "Login fehlgeschlagen"}, strServerMustbeConfigured: {org: "Server muss konfiguriert werden"}};
   $mod.$init = function () {
@@ -3833,7 +3834,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils","dhtmlx
     pas.webrouter.Router().InitHistory(pas.webrouter.THistoryKind.hkHash,"");
     $impl.InitAvammApp();
   };
-},null,function () {
+},["dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
@@ -3919,9 +3920,9 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","Avamm","dh
     function IntDoLoginForm(resolve, reject) {
       function AfterValidate(status) {
         if (status) {
-          pas.Avamm.AvammLogin = window.btoa((LoginForm.getItemValue("eUsername") + ":") + LoginForm.getItemValue("ePassword"));
+          pas.Avamm.AvammLogin = window.btoa((("" + LoginForm.getItemValue("eUsername")) + ":") + ("" + LoginForm.getItemValue("ePassword")));
           resolve(true);
-          if (LoginForm.getItemValue("cbSaveLogin") === "Y") pas.Avamm.setCookie("login",pas.Avamm.AvammLogin);
+          if (LoginForm.getItemValue("cbSaveLogin") == 1) pas.Avamm.setCookie("login",pas.Avamm.AvammLogin,2);
           isResolved = true;
           aWin.close();
         };
@@ -3989,6 +3990,8 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
     var aId = "";
     function FillEnviromentAfterLogin(aValue) {
       var Result = undefined;
+      var aRights = null;
+      var aRight = null;
       pas.System.Writeln("FillEnviromentAfterLogin");
       for (var $l1 = 0, $end2 = pas.webrouter.Router().GetRouteCount() - 1; $l1 <= $end2; $l1++) {
         i = $l1;
@@ -3998,6 +4001,11 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
           $mod.Treeview.addItem(aId,aId);
           tmp = pas.System.Copy(tmp,pas.System.Pos("\/",tmp) + 1,tmp.length);
         };
+      };
+      aRights = rtl.getObject(pas.Avamm.UserOptions["rights"]);
+      for (var $l3 = 0, $end4 = aRights.length - 1; $l3 <= $end4; $l3++) {
+        i = $l3;
+        aRight = rtl.getObject(aRights[i]);
       };
       if (window.document.body.clientWidth > 700) $mod.Layout.cells("a").expand();
       return Result;

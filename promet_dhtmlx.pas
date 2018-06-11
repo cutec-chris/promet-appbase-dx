@@ -29,9 +29,9 @@ var
     begin
       if status then
         begin
-          Avamm.AvammLogin:=window.btoa(LoginForm.getItemValue('eUsername')+':'+LoginForm.getItemValue('ePassword'));
+          Avamm.AvammLogin:=window.btoa(string(LoginForm.getItemValue('eUsername'))+':'+string(LoginForm.getItemValue('ePassword')));
           resolve(true);
-          if LoginForm.getItemValue('cbSaveLogin') = 'Y' then
+          if LoginForm.getItemValue('cbSaveLogin') = 1 then
             Avamm.setCookie('login',Avamm.AvammLogin);
           isResolved:=True;
           aWin.close;

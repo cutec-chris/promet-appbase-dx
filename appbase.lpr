@@ -1,6 +1,7 @@
 program appbase;
-  uses js, web, classes, sysutils, webrouter, Avamm, dhtmlx_base,
-    dhtmlx_form, dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, promet_dhtmlx;
+  uses js, web, classes, sysutils, webrouter, Avamm, dhtmlx_base, dhtmlx_form,
+    dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, promet_dhtmlx, AvammDB,
+    dhtmlx_db;
 
 var
   LoadEnviroment : Boolean = True;
@@ -30,6 +31,15 @@ var
   aCell: TDHTMLXLayoutCell;
   tmp, aId: String;
   function FillEnviromentAfterLogin(aValue: JSValue): JSValue;
+    procedure ModuleLoaded(aObj : JSValue);
+    begin
+      asm
+        console.log(aObj);
+      end;
+    end;
+  var
+    aRights: TJSArray;
+    aRight: TJSObject;
   begin
     writeln('FillEnviromentAfterLogin');
     for i := 0 to Router.RouteCount-1 do
@@ -41,6 +51,11 @@ var
             TreeView.addItem(aId,aId);
             tmp := copy(tmp,pos('/',tmp)+1,length(tmp));
           end;
+      end;
+    aRights := TJSArray(UserOptions.Properties['rights']);
+    for i := 0 to aRights.Length-1 do
+      begin
+        aRight := TJSObject(aRights[i]);
       end;
     if window.document.body.clientWidth > 700 then
       Layout.cells('a').expand;

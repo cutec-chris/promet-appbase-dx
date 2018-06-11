@@ -5,7 +5,7 @@ unit Avamm;
 interface
 
 uses
-  js, web, webrouter, classes, SysUtils, dhtmlx_base;
+  js, web, webrouter, classes, SysUtils;
 
 type TJSValueCallback = procedure(aName : JSValue);
 
@@ -13,10 +13,11 @@ function LoadData(url : string;IgnoreLogin : Boolean = False;Datatype : string =
 procedure WaitForAssigned(name : string; callback : TJSValueCallback);
 function CheckLogin : TJSPromise;
 function Wait(ms : NativeInt) : TJSPromise;
-procedure setCookie(cname, cvalue : string);varargs;
+procedure setCookie(cname, cvalue : string;exdays : Integer = 2);varargs;
 procedure deleteCookie(cname : string);
 function getCookie(cname : string) : string;
-
+procedure AppendCSS(url : string;onLoad,onError : JSValue);
+procedure AppendJS(url : string;onLoad,onError : JSValue);
 type TOnLoginForm = function : TJSPromise;
 
 var
@@ -25,6 +26,7 @@ var
   ConnectionErrorEvent : TJSEvent;
   AvammLogin : string;
   AvammServer : string;
+  UserOptions : TJSObject;
   OnLoginForm : TOnLoginForm = nil;
 
 resourcestring
@@ -35,6 +37,34 @@ resourcestring
 
 implementation
 
+uses dhtmlx_base;
+
+procedure AppendCSS(url : string;onLoad,onError : JSValue);
+begin
+  asm
+    var file = url;
+    var link = document.createElement( "link" );
+    link.href = file;
+    link.type = "text/css";
+    link.rel = "stylesheet";
+    link.media = "screen,print";
+    link.onload = onLoad;
+    link.onerror = onError;
+    document.getElementsByTagName( "head" )[0].appendChild( link );
+  end;
+end;
+procedure AppendJS(url : string;onLoad,onError : JSValue);
+begin
+  asm
+    var file = url;
+    var link = document.createElement( "script" );
+    link.src = file;
+    link.type = "text/javascript";
+    link.onload = onLoad;
+    link.onerror = onError;
+    document.getElementsByTagName( "head" )[0].appendChild( link );
+  end;
+end;
 function CheckLogin : TJSPromise;
   procedure IntDoCheckLogin(resolve, reject: TJSPromiseResolver);
     function CheckStatus(aValue: JSValue): JSValue;
@@ -113,7 +143,12 @@ function CheckLogin : TJSPromise;
         function CheckRightsData(aValue: JSValue): JSValue;
         begin
           if TJSXMLHttpRequest(aValue).Status=200 then
-            resolve(aValue)
+            begin
+              asm
+                pas.Avamm.UserOptions = JSON.parse(aValue.responseText);
+              end;
+              resolve(aValue)
+            end
           else reject(aValue);
         end;
       begin
@@ -245,26 +280,10 @@ var
 begin
   window.setTimeout(@check,interval);
 end;
-procedure setCookie(cname, cvalue : string);varargs;
-begin
-  asm
-    var d = new Date();
-    if (!exdays) exdays = 2;
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-    if (getCookie(cname)=='') console.log('failed to store Cookie');
-  end;
-end;
-procedure deleteCookie(cname : string);
-begin
-  asm
-    document.cookie = cname + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-  end;
-end;
 function getCookie(cname : string) : string;
 begin
   asm
+    Result = "";
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
     var ca = decodedCookie.split(';');
@@ -274,10 +293,25 @@ begin
             c = c.substring(1);
         }
         if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
+            Result = c.substring(name.length, c.length);
         }
     }
-    return "";
+  end;
+end;
+procedure setCookie(cname, cvalue : string;exdays : Integer);varargs;
+begin
+  asm
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    if (pas.Avamm.getCookie(cname)=='') console.log('failed to store Cookie');
+  end;
+end;
+procedure deleteCookie(cname : string);
+begin
+  asm
+    document.cookie = cname + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
   end;
 end;
 procedure InitAvammApp;
