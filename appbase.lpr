@@ -1,7 +1,6 @@
 program appbase;
   uses js, web, classes, sysutils, webrouter, Avamm, dhtmlx_base, dhtmlx_form,
-    dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, promet_dhtmlx, AvammDB,
-    dhtmlx_db;
+    dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, promet_dhtmlx;
 
 var
   LoadEnviroment : Boolean = True;
@@ -85,6 +84,7 @@ var
       else
         dhtmlx.message(js.new(['type','error',
                                'text',aValue]));
+      Avamm.deleteCookie('login');
       CheckLogin;
     end;
   begin

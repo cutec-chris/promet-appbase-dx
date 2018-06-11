@@ -3776,6 +3776,9 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
     if (pas.Avamm.getCookie(cname)=='') console.log('failed to store Cookie');
   };
+  this.deleteCookie = function (cname) {
+    document.cookie = cname + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  };
   this.getCookie = function (cname) {
     var Result = "";
     Result = "";
@@ -4021,6 +4024,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
         if (!rtl.isExt(aValue,Error,1)) {
           dhtmlx.message(pas.JS.New(["type","error","text",rtl.getResStr(pas.Avamm,"strLoginFailed")]))}
          else dhtmlx.message(pas.JS.New(["type","error","text",aValue]));
+        pas.Avamm.deleteCookie("login");
         pas.Avamm.CheckLogin();
         return Result;
       };
