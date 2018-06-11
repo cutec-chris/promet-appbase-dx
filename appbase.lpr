@@ -7,6 +7,7 @@ var
   LoadEnviroment : Boolean = True;
   Treeview: TDHTMLXTreeview;
   Layout: TDHTMLXLayout;
+  InitRouteFound: Boolean;
 
 
 resourcestring
@@ -16,6 +17,7 @@ resourcestring
 
 procedure LoadStartpage(URl : String; aRoute : TRoute; Params: TStrings);
 begin
+  writeln('Startpage should be shown ...');
 end;
 procedure RouterBeforeRequest(Sender: TObject; var ARouteURL: String);
 begin
@@ -30,6 +32,13 @@ begin
   TreeView.addItem(Name,Name);
   Treeview.setUserData(Name,'route',Route);
 end;
+procedure TreeviewItemSelected(aItem : JSValue);
+var
+  aData: TRoute;
+begin
+  aData := TRoute(Treeview.getUserData(aItem,'route'));
+  Router.Push(aData.URLPattern);
+end;
 function FillEnviroment(aValue : JSValue) : JSValue;
 var
   i: Integer;
@@ -42,6 +51,10 @@ var
         console.log(aObj);
         rtl.run(aObj.originalTarget.id.split("/")[0]);
       end;
+      if not InitRouteFound then
+        if THashHistory(Router.History).getHash<>'' then
+          if Router.FindHTTPRoute(THashHistory(Router.History).getHash,nil) <> nil then
+            InitRouteFound := Router.Push(THashHistory(Router.History).getHash) = trOK;
     end;
   var
     aRights: TJSArray;
@@ -107,6 +120,7 @@ begin
   Layout.cells('a').collapse;
   Layout.cells('b').hideHeader;
   Treeview := TDHTMLXTreeview(Layout.cells('a').attachTreeView());
+  Treeview.attachEvent('onSelect',@TreeviewItemSelected);
   window.addEventListener('AfterLogin',@FillEnviromentAfterLogin);
   window.addEventListener('AfterLogout',@LoginFailed);
   window.addEventListener('ConnectionError',@TryReconnect);
@@ -118,5 +132,6 @@ begin
   if LoadEnviroment then
     WidgetsetLoaded._then(@FillEnviroment);
   if THashHistory(Router.History).getHash<>'' then
-    Router.Push(THashHistory(Router.History).getHash);
+    if Router.FindHTTPRoute(THashHistory(Router.History).getHash,nil) <> nil then
+      InitRouteFound := Router.Push(THashHistory(Router.History).getHash) = trOK;
 end.

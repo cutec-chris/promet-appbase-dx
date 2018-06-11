@@ -3967,7 +3967,9 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
   this.LoadEnviroment = true;
   this.Treeview = null;
   this.Layout = null;
+  this.InitRouteFound = false;
   this.LoadStartpage = function (URl, aRoute, Params) {
+    pas.System.Writeln("Startpage should be shown ...");
   };
   this.RouterBeforeRequest = function (Sender, ARouteURL) {
     $mod.Layout.progressOn();
@@ -3979,6 +3981,11 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
     $mod.Treeview.addItem(Name,Name);
     $mod.Treeview.setUserData(Name,"route",Route);
   };
+  this.TreeviewItemSelected = function (aItem) {
+    var aData = null;
+    aData = rtl.getObject($mod.Treeview.getUserData(aItem,"route"));
+    pas.webrouter.Router().Push(aData.FURLPattern);
+  };
   var Timeout = 5000;
   this.FillEnviroment = function (aValue) {
     var Result = undefined;
@@ -3988,6 +3995,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
       function ModuleLoaded(aObj) {
         console.log(aObj);
         rtl.run(aObj.originalTarget.id.split("/")[0]);
+        if (!$mod.InitRouteFound) if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") if (pas.webrouter.Router().FindHTTPRoute(pas.webrouter.Router().GetHistory().$class.getHash(),null) !== null) $mod.InitRouteFound = pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash()) === pas.webrouter.TTransitionResult.trOK;
       };
       var aRights = null;
       var aRight = "";
@@ -4047,6 +4055,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
     $mod.Layout.cells("a").collapse();
     $mod.Layout.cells("b").hideHeader();
     $mod.Treeview = rtl.getObject($mod.Layout.cells("a").attachTreeView());
+    $mod.Treeview.attachEvent("onSelect",$mod.TreeviewItemSelected);
     window.addEventListener("AfterLogin",FillEnviromentAfterLogin);
     window.addEventListener("AfterLogout",LoginFailed);
     window.addEventListener("ConnectionError",TryReconnect);
@@ -4058,7 +4067,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
   $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}};
   $mod.$main = function () {
     if ($mod.LoadEnviroment) pas.dhtmlx_base.WidgetsetLoaded.then($mod.FillEnviroment);
-    if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash());
+    if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") if (pas.webrouter.Router().FindHTTPRoute(pas.webrouter.Router().GetHistory().$class.getHash(),null) !== null) $mod.InitRouteFound = pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash()) === pas.webrouter.TTransitionResult.trOK;
   };
 });
 //# sourceMappingURL=appbase.js.map
