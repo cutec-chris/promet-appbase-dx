@@ -31,6 +31,8 @@ var
         begin
           Avamm.AvammLogin:=window.btoa(LoginForm.getItemValue('eUsername')+':'+LoginForm.getItemValue('ePassword'));
           resolve(true);
+          if LoginForm.getItemValue('cbSaveLogin') = 'Y' then
+            Avamm.setCookie('login',Avamm.AvammLogin);
           isResolved:=True;
           aWin.close;
         end;
@@ -51,6 +53,12 @@ var
       result := True;
     end;
   begin
+    Avamm.AvammLogin:=Avamm.getCookie('login');
+    if Avamm.AvammLogin <> '' then
+      begin
+        resolve(true);
+        exit;
+      end;
     if dhtmlx_windows.Windows.window('LoginFormWindow') = null then
       begin
         dhtmlx_windows.Windows.createWindow('LoginFormWindow',document.body.clientWidth div 2-200,document.body.clientHeight div 2-100,400,210);

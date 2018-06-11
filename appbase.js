@@ -3799,6 +3799,31 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils","dhtmlx
     Result = new Promise(doTimeout);
     return Result;
   };
+  this.setCookie = function (cname, cvalue) {
+    var d = new Date();
+    if (!exdays) exdays = 2;
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    if (getCookie(cname)=='') console.log('failed to store Cookie');
+  };
+  this.getCookie = function (cname) {
+    var Result = "";
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+    return Result;
+  };
   this.AvammLogin = "";
   this.AvammServer = "";
   this.OnLoginForm = null;
@@ -3896,6 +3921,7 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","Avamm","dh
         if (status) {
           pas.Avamm.AvammLogin = window.btoa((LoginForm.getItemValue("eUsername") + ":") + LoginForm.getItemValue("ePassword"));
           resolve(true);
+          if (LoginForm.getItemValue("cbSaveLogin") === "Y") pas.Avamm.setCookie("login",pas.Avamm.AvammLogin);
           isResolved = true;
           aWin.close();
         };
@@ -3911,6 +3937,11 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","Avamm","dh
         };
         Result = true;
         return Result;
+      };
+      pas.Avamm.AvammLogin = pas.Avamm.getCookie("login");
+      if (pas.Avamm.AvammLogin !== "") {
+        resolve(true);
+        return;
       };
       if (pas.dhtmlx_windows.Windows.window("LoginFormWindow") == null) {
         pas.dhtmlx_windows.Windows.createWindow("LoginFormWindow",Math.floor(document.body.clientWidth / 2) - 200,Math.floor(document.body.clientHeight / 2) - 100,400,210);
