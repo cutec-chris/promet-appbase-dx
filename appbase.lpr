@@ -7,6 +7,7 @@ var
   Treeview: TDHTMLXTreeview;
   Layout: TDHTMLXLayout;
   InitRouteFound: Boolean;
+  TreeviewSelectionChanged : JSValue;
 
 
 resourcestring
@@ -23,21 +24,29 @@ begin
   Layout.progressOn;
 end;
 procedure RouterAfterRequest(Sender: TObject; const ARouteURL: String);
+var
+  aRoute: TRoute;
 begin
   Layout.progressOff;
 end;
 procedure AddToSidebar(Name: string; Route: TRoute);
 begin
-  TreeView.addItem(Name,Name);
-  Treeview.setUserData(Name,'route',Route);
+  TreeView.addItem(Route.ID,Name);
+  Treeview.setUserData(Route.ID,'route',Route);
 end;
 procedure TreeviewItemSelected(aItem : JSValue);
 var
   aData: TRoute;
 begin
   aData := TRoute(Treeview.getUserData(aItem,'route'));
-  Router.Push(aData.URLPattern);
+  if THashHistory(Router.History).getHash<>aData.URLPattern then
+    Router.Push(aData.URLPattern);
 end;
+procedure OnReady(Sender: THistory; aLocation: String; aRoute: TRoute);
+begin
+  Treeview.selectItem(aRoute.ID);
+end;
+
 function FillEnviroment(aValue : JSValue) : JSValue;
 var
   i: Integer;
@@ -120,13 +129,14 @@ begin
   Layout.cells('a').collapse;
   Layout.cells('b').hideHeader;
   Treeview := TDHTMLXTreeview(Layout.cells('a').attachTreeView());
-  Treeview.attachEvent('onSelect',@TreeviewItemSelected);
+  TreeviewSelectionChanged := Treeview.attachEvent('onClick',@TreeviewItemSelected);
   window.addEventListener('AfterLogin',@FillEnviromentAfterLogin);
   window.addEventListener('AfterLogout',@LoginFailed);
   window.addEventListener('ConnectionError',@TryReconnect);
   CheckLogin;
   Router.BeforeRequest:=@RouterBeforeRequest;
   Router.AfterRequest:=@RouterAfterRequest;
+  Router.History.OnReady:=@Onready;
 end;
 begin
   if LoadEnviroment then
