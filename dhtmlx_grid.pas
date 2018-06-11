@@ -9,20 +9,40 @@ uses
   js,web;
 
 type
+  TDHTMLXGridCellObject = class external name 'dhtmlXGridCellObject' (TJSElement)
+    function isChecked : Boolean;
+    function isDisabled : Boolean;
+    procedure setAttribute(name : string;value : JSValue);
+    function getAttribute(name : string) : JSValue;
+    procedure setBgColor(color : string);
+    function getBgColor : string;
+    function getCellCombo : JSValue; //dhtmlXCombo
+    procedure setHorAlign(align : string);
+    function getHorAlign : string;
+    function getMathValue : string;
+    procedure setTextColor(color : string);
+    function getTextColor : string;
+    function getTitle : string;
+    procedure setValue(value : string);
+    function getValue : string;
+    function getWidth : Integer;
+    procedure setDisabled(mode : boolean);
+  end;
+
   TDHTMLXGrid = class external name 'dhtmlXGrid' (TJSElement)
     constructor New(parent : JSValue);varargs;
-    //addRow	adds a row to the grid
+    procedure addRow(new_id : JSValue;text : string);varargs;                   //adds a row to the grid
     //addRowFromClipboard	allows the user to add a new row from clipboard
     //adjustColumnSize	adjusts a column's size to make all content visible
-    //attachEvent	adds any user-defined handler to available events
+    function attachEvent(event : string;aCallback : JSValue) : Integer;         //adds any user-defined handler to available events
     //attachFooter	attaches an additional line to the footer
     //attachHeader	attaches an additional line to the header
     //attachToObject	attaches Grid to some object in DOM
     //cellById	gets dhtmlXGridCellObject object
     //cellByIndex	gets dhtmlXGridCellObject object
     //cellToClipboard	copies the value of a cell to the clipboard
-    //cells	gets dhtmlXGridCellObject object
-    //cells2	gets dhtmlXGridCellObject object
+    function cells(row_id : JSValue;col : Integer) : TDHTMLXGridCellObject; 	//gets dhtmlXGridCellObject object
+    function cells2(row_index : integer;col : integer) : TDHTMLXGridCellObject;	//gets dhtmlXGridCellObject object
     //changePage	changes the current page in grid
     //changePageRelative	changes the current page in grid
     //changeRowId	changes id of the row to the new one
@@ -42,7 +62,7 @@ type
     //deleteRow	deletes a row from the grid
     //deleteSelectedRows	deletes selected row(s)
     //destructor	destructor, removes the grid and cleans used memory
-    //detachEvent	removes an event handler
+    procedure detachEvent(id : JSValue);	                                //detaches a handler from an event
     //detachFooter	removes a footer line from the grid (opposite to attachFooter)
     //detachHeader	removes a header line from the grid (opposite to attachHeader)
     //disableUndoRedo	disables the Undo/Redo functionality in the grid
@@ -52,7 +72,7 @@ type
     //editCell	creates an Editor object and switches the selected cell to the edit mode, if allowed
     //editStop	returns the value from the editor(if presents) to the cell and closes the editor
     //enableAccessKeyMap	enables Access keyboard navigation
-    //enableAlterCss	sets css styles for even/odd rows
+    procedure enableAlterCss(cssE,cssU : string);varargs;	                //sets css styles for even/odd rows
     //enableAutoHeight	enables autoheight of the grid
     //enableAutoHiddenColumnsSaving	enables automatic saving of a column's state ( hidden/shown )
     //enableAutoSaving	enables automatic saving of size, sorting order and columns order
@@ -143,7 +163,7 @@ type
     //gridToTreeElement	redefine this method in your code to define how grid row values should be used in tree
     //groupBy	groups grid content by values of the specified column
     //groupStat	returns the result of aggregation for a column
-    //init	initializes grid
+    procedure init;	                                                        //initializes grid
     //insertColumn	adds a new column to the grid
     //isColumnHidden	gets the shown/hidden status of the column
     //load	loads data from an external file ( xml, json, jsarray, csv )
@@ -202,7 +222,7 @@ type
     //setColumnExcellType	sets an excell type for all the cells in the specified column
     //setColumnHidden	hides/shows a column
     //setColumnId	sets id for the specified column
-    //setColumnIds	sets id for every column
+    procedure setColumnIds(ids : string);	                                //sets id for every column
     //setColumnLabel	sets a new column header label
     //setColumnMinWidth	sets the minimum column width (works only for manual resizing)
     //setColumnsVisibility	sets the list of visible/hidden columns
@@ -210,14 +230,14 @@ type
     //setDateFormat	sets a mask for date formatting in the grid (works for "dhxCalendar" and "dhxCalendarA" types only)
     //setDelimiter	sets a delimiter character used in list values (default is ",")
     //setDragBehavior	sets Drag-And-Drop behavior
-    //setEditable	manages the editability of the grid
+    procedure setEditable(mode : boolean);	                                //manages the editability of the grid
     //setExternalTabOrder	sets elements which get focus when the Tab button is pressed in the last or in the first (Tab+Shift) cell
     //setFieldName	allows defining an input's name which will be used for data sending,
     //setFooterLabel	sets a new label for a cell in the footer
-    //setHeader	sets the header label and default params for new headers
+    procedure setHeader(hdrStr,splitSign : string;styles : TJSArray);	        //sets the header label and default params for new headers
     //setIconsPath	sets the path to external images used in the grid (tree and img column type)
     //setIconset	sets the font awesome iconset
-    //setImagesPath	defines the path to the imgs folder
+    procedure setImagesPath(path : string);	                                //defines the path to the imgs folder
     //setInitWidths	sets the width of columns in pixels
     //setInitWidthsP	sets the width of columns in percents
     //setMathRound	enables/disables rounding during the math calculations
@@ -238,7 +258,7 @@ type
     //setRowspan	sets rowspan of the specified length starting from the specified cell
     //setSerializableColumns	specifies which column must be serialized (if you don't use this method, all columns will be serialized)
     //setSerializationLevel	configures XML serialization
-    //setSizes	resets sizes of the grid's elements
+    procedure setSizes;	                                                        //resets sizes of the grid's elements
     //setSkin	sets one of the predefined css styles (xp, mt, gray, light, clear, modern, sb_dark)
     //setSortImgState	sets the position and visibility of a sort arrow
     //setStyle	modifies the default style of the grid and its elements
