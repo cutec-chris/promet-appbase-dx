@@ -3567,7 +3567,7 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
   };
   $mod.$resourcestrings = {EDuplicateRoute: {org: "Duplicate route pattern: %s"}, EDuplicateDefaultRoute: {org: "Duplicate default route registered with pattern: %s"}};
 });
-rtl.module("dhtmlx_base",["System","JS","Web","Avamm"],function () {
+rtl.module("dhtmlx_base",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
@@ -3580,6 +3580,29 @@ rtl.module("dhtmlx_base",["System","JS","Web","Avamm"],function () {
   var $mod = this;
   var $impl = $mod.$impl;
   $impl.LoadDHTMLX = function () {
+    function AppendCSS(url, onLoad, onError) {
+      var file = url;
+      var link = document.createElement( "link" );
+      link.href = file;
+      link.type = "text/css";
+      link.rel = "stylesheet";
+      link.media = "screen,print";
+      link.onload = onLoad;
+      link.onerror = onError;
+      document.getElementsByTagName( "head" )[0].appendChild( link );
+    };
+    function AppendJS(url, onLoad, onError) {
+      if (document.getElementById(url) == null) {
+        var file = url;
+        var link = document.createElement( "script" );
+        link.id = url;
+        link.src = file;
+        link.type = "text/javascript";
+        link.onload = onLoad;
+        link.onerror = onError;
+        document.getElementsByTagName( "head" )[0].appendChild( link );
+      };
+    };
     function DoLoadDHTMLX(resolve, reject) {
       function ScriptLoaded() {
         window.dhx4.skin = 'material';
@@ -3587,24 +3610,24 @@ rtl.module("dhtmlx_base",["System","JS","Web","Avamm"],function () {
         resolve(true);
       };
       function ScriptError() {
-        pas.Avamm.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoaded,null);
+        AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoaded,null);
       };
       pas.System.Writeln("Loading DHTMLX...");
-      pas.Avamm.AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoaded,ScriptError);
+      AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoaded,ScriptError);
     };
     function DoLoadCSS(resolve, reject) {
       function ScriptLoaded() {
-        pas.Avamm.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
+        AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
         resolve(true);
       };
       function ScriptLoaded2() {
-        pas.Avamm.AppendCSS("appbase\/dhtmlx\/font-awesome.min.css",null,null);
+        AppendCSS("appbase\/dhtmlx\/font-awesome.min.css",null,null);
         resolve(true);
       };
       function ScriptError() {
-        pas.Avamm.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoaded,null);
+        AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoaded,null);
       };
-      pas.Avamm.AppendCSS("appbase\/dhtmlx\/dhtmlx.css",ScriptLoaded2,ScriptError);
+      AppendCSS("appbase\/dhtmlx\/dhtmlx.css",ScriptLoaded2,ScriptError);
     };
     $mod.WidgetsetLoaded = Promise.all([new Promise(DoLoadDHTMLX),new Promise(DoLoadCSS)]);
   };
@@ -3771,17 +3794,6 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
   };
   this.deleteCookie = function (cname) {
     document.cookie = cname + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-  };
-  this.AppendCSS = function (url, onLoad, onError) {
-    var file = url;
-    var link = document.createElement( "link" );
-    link.href = file;
-    link.type = "text/css";
-    link.rel = "stylesheet";
-    link.media = "screen,print";
-    link.onload = onLoad;
-    link.onerror = onError;
-    document.getElementsByTagName( "head" )[0].appendChild( link );
   };
   this.AppendJS = function (url, onLoad, onError) {
     if (document.getElementById(url) == null) {

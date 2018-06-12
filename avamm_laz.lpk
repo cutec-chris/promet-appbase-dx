@@ -14,7 +14,7 @@
       <Other>
         <CompilerPath Value="pas2js"/>
         <ExecuteBefore>
-          <Command Value="$MakeExe(IDE,pas2js) -O- -vbq avamm_laz.pas"/>
+          <Command Value="$MakeExe(IDE,pas2js) -O- -vbq -Fudhtmlx-for-pas2js avamm_laz.pas"/>
           <ScanForFPCMsgs Value="True"/>
         </ExecuteBefore>
       </Other>
@@ -50,7 +50,7 @@
       </Item2>
     </RequiredPkgs>
     <UsageOptions>
-      <UnitPath Value="$(PkgOutDir)"/>
+      <UnitPath Value="$(PkgOutDir);dhtmlx-for-pas2js"/>
     </UsageOptions>
     <PublishOptions>
       <Version Value="2"/>
