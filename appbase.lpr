@@ -1,13 +1,13 @@
 program appbase;
   uses js, web, classes, sysutils, webrouter, Avamm, dhtmlx_base, dhtmlx_form,
-    dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, promet_dhtmlx, AvammDB,
-    dhtmlx_db;
+    dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, promet_dhtmlx, AvammForms;
 
 var
   LoadEnviroment : Boolean = True;
   Treeview: TDHTMLXTreeview;
   Layout: TDHTMLXLayout;
   InitRouteFound: Boolean;
+  TreeviewSelectionChanged : JSValue;
 
 
 resourcestring
@@ -24,21 +24,29 @@ begin
   Layout.progressOn;
 end;
 procedure RouterAfterRequest(Sender: TObject; const ARouteURL: String);
+var
+  aRoute: TRoute;
 begin
   Layout.progressOff;
 end;
 procedure AddToSidebar(Name: string; Route: TRoute);
 begin
-  TreeView.addItem(Name,Name);
-  Treeview.setUserData(Name,'route',Route);
+  TreeView.addItem(Route.ID,Name);
+  Treeview.setUserData(Route.ID,'route',Route);
 end;
 procedure TreeviewItemSelected(aItem : JSValue);
 var
   aData: TRoute;
 begin
   aData := TRoute(Treeview.getUserData(aItem,'route'));
-  Router.Push(aData.URLPattern);
+  if THashHistory(Router.History).getHash<>aData.URLPattern then
+    Router.Push(aData.URLPattern);
 end;
+procedure OnReady(Sender: THistory; aLocation: String; aRoute: TRoute);
+begin
+  Treeview.selectItem(aRoute.ID);
+end;
+
 function FillEnviroment(aValue : JSValue) : JSValue;
 var
   i: Integer;
@@ -85,6 +93,7 @@ var
       else
         dhtmlx.message(js.new(['type','error',
                                'text',aValue]));
+      Avamm.deleteCookie('login');
       CheckLogin;
     end;
   begin
@@ -120,13 +129,14 @@ begin
   Layout.cells('a').collapse;
   Layout.cells('b').hideHeader;
   Treeview := TDHTMLXTreeview(Layout.cells('a').attachTreeView());
-  Treeview.attachEvent('onSelect',@TreeviewItemSelected);
+  TreeviewSelectionChanged := Treeview.attachEvent('onClick',@TreeviewItemSelected);
   window.addEventListener('AfterLogin',@FillEnviromentAfterLogin);
   window.addEventListener('AfterLogout',@LoginFailed);
   window.addEventListener('ConnectionError',@TryReconnect);
   CheckLogin;
   Router.BeforeRequest:=@RouterBeforeRequest;
   Router.AfterRequest:=@RouterAfterRequest;
+  Router.History.OnReady:=@Onready;
 end;
 begin
   if LoadEnviroment then

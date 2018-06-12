@@ -3776,6 +3776,9 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
     if (pas.Avamm.getCookie(cname)=='') console.log('failed to store Cookie');
   };
+  this.deleteCookie = function (cname) {
+    document.cookie = cname + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  };
   this.getCookie = function (cname) {
     var Result = "";
     Result = "";
@@ -3968,6 +3971,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
   this.Treeview = null;
   this.Layout = null;
   this.InitRouteFound = false;
+  this.TreeviewSelectionChanged = undefined;
   this.LoadStartpage = function (URl, aRoute, Params) {
     pas.System.Writeln("Startpage should be shown ...");
   };
@@ -3978,13 +3982,16 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
     $mod.Layout.progressOff();
   };
   this.AddToSidebar = function (Name, Route) {
-    $mod.Treeview.addItem(Name,Name);
-    $mod.Treeview.setUserData(Name,"route",Route);
+    $mod.Treeview.addItem(Route.FID,Name);
+    $mod.Treeview.setUserData(Route.FID,"route",Route);
   };
   this.TreeviewItemSelected = function (aItem) {
     var aData = null;
     aData = rtl.getObject($mod.Treeview.getUserData(aItem,"route"));
-    pas.webrouter.Router().Push(aData.FURLPattern);
+    if (pas.webrouter.Router().GetHistory().$class.getHash() !== aData.FURLPattern) pas.webrouter.Router().Push(aData.FURLPattern);
+  };
+  this.OnReady = function (Sender, aLocation, aRoute) {
+    $mod.Treeview.selectItem(aRoute.FID);
   };
   var Timeout = 5000;
   this.FillEnviroment = function (aValue) {
@@ -4021,6 +4028,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
         if (!rtl.isExt(aValue,Error,1)) {
           dhtmlx.message(pas.JS.New(["type","error","text",rtl.getResStr(pas.Avamm,"strLoginFailed")]))}
          else dhtmlx.message(pas.JS.New(["type","error","text",aValue]));
+        pas.Avamm.deleteCookie("login");
         pas.Avamm.CheckLogin();
         return Result;
       };
@@ -4055,13 +4063,14 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avam
     $mod.Layout.cells("a").collapse();
     $mod.Layout.cells("b").hideHeader();
     $mod.Treeview = rtl.getObject($mod.Layout.cells("a").attachTreeView());
-    $mod.Treeview.attachEvent("onSelect",$mod.TreeviewItemSelected);
+    $mod.TreeviewSelectionChanged = $mod.Treeview.attachEvent("onClick",$mod.TreeviewItemSelected);
     window.addEventListener("AfterLogin",FillEnviromentAfterLogin);
     window.addEventListener("AfterLogout",LoginFailed);
     window.addEventListener("ConnectionError",TryReconnect);
     pas.Avamm.CheckLogin();
     pas.webrouter.Router().FBeforeRequest = $mod.RouterBeforeRequest;
     pas.webrouter.Router().FAfterRequest = $mod.RouterAfterRequest;
+    pas.webrouter.Router().GetHistory().FOnReady = $mod.OnReady;
     return Result;
   };
   $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}};
