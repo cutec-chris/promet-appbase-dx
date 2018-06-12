@@ -3769,32 +3769,8 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
     Result = new Promise(doTimeout);
     return Result;
   };
-  this.setCookie = function (cname, cvalue, exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-    if (pas.Avamm.getCookie(cname)=='') console.log('failed to store Cookie');
-  };
   this.deleteCookie = function (cname) {
     document.cookie = cname + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-  };
-  this.getCookie = function (cname) {
-    var Result = "";
-    Result = "";
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            Result = c.substring(name.length, c.length);
-        }
-    };
-    return Result;
   };
   this.AppendCSS = function (url, onLoad, onError) {
     var file = url;
@@ -3865,10 +3841,6 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
     $mod.CheckLogin();
   };
 });
-rtl.module("dhtmlx_form",["System","JS","Web"],function () {
-  "use strict";
-  var $mod = this;
-});
 rtl.module("dhtmlx_treeview",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
@@ -3877,99 +3849,7 @@ rtl.module("dhtmlx_layout",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
 });
-rtl.module("dhtmlx_windows",["System","JS","Web","dhtmlx_base"],function () {
-  "use strict";
-  var $mod = this;
-  var $impl = $mod.$impl;
-  this.Windows = null;
-  $mod.$init = function () {
-    pas.dhtmlx_base.WidgetsetLoaded.then($impl.LoadWindows);
-  };
-},null,function () {
-  "use strict";
-  var $mod = this;
-  var $impl = $mod.$impl;
-  $impl.LoadWindows = function (aValue) {
-    var Result = undefined;
-    $mod.Windows = new dhtmlXWindows();
-    return Result;
-  };
-});
-rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","Avamm","dhtmlx_form","dhtmlx_windows"],function () {
-  "use strict";
-  var $mod = this;
-  var $impl = $mod.$impl;
-  $mod.$resourcestrings = {strLoginText: {org: "Anmeldung"}, strLogin: {org: "Login"}, strPassword: {org: "Passwort"}, strSaveLogin: {org: "Anmeldedaten speichern"}, strUserAbort: {org: "Benutzerabbruch"}};
-  $mod.$init = function () {
-    pas.Avamm.OnLoginForm = $impl.DHTMLXoginForm;
-  };
-},null,function () {
-  "use strict";
-  var $mod = this;
-  var $impl = $mod.$impl;
-  $impl.DHTMLXoginForm = function () {
-    var Result = null;
-    var LoginForm = null;
-    var Formdata = null;
-    var aWin = null;
-    var isResolved = false;
-    function IntDoLoginForm(resolve, reject) {
-      function AfterValidate(status) {
-        if (status) {
-          pas.Avamm.AvammLogin = window.btoa((("" + LoginForm.getItemValue("eUsername")) + ":") + ("" + LoginForm.getItemValue("ePassword")));
-          resolve(true);
-          if (LoginForm.getItemValue("cbSaveLogin") == 1) pas.Avamm.setCookie("login",pas.Avamm.AvammLogin,2);
-          isResolved = true;
-          aWin.close();
-        };
-      };
-      function eSubmitClick() {
-        LoginForm.validate();
-      };
-      function CloseWindow() {
-        var Result = false;
-        if (!isResolved) {
-          reject(rtl.getResStr(pas.promet_dhtmlx,"strUserAbort"));
-          window.dispatchEvent(pas.Avamm.ConnectionErrorEvent);
-        };
-        Result = true;
-        return Result;
-      };
-      pas.Avamm.AvammLogin = pas.Avamm.getCookie("login");
-      if (pas.Avamm.AvammLogin !== "") {
-        resolve(true);
-        return;
-      };
-      if (pas.dhtmlx_windows.Windows.window("LoginFormWindow") == null) {
-        pas.dhtmlx_windows.Windows.createWindow("LoginFormWindow",Math.floor(document.body.clientWidth / 2) - 200,Math.floor(document.body.clientHeight / 2) - 100,400,210);
-        aWin = pas.dhtmlx_windows.Windows.window("LoginFormWindow");
-        aWin.setText(rtl.getResStr(pas.promet_dhtmlx,"strLoginText"));
-        LoginForm = rtl.getObject(aWin.attachForm(Formdata));
-        LoginForm.addItem(null,pas.JS.New(["type","block","width","auto","name","LoginBlock"]));
-        LoginForm.addItem("LoginBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.promet_dhtmlx,"strLogin"),"name","eUsername","required",true]));
-        LoginForm.addItem("LoginBlock",pas.JS.New(["type","password","label",rtl.getResStr(pas.promet_dhtmlx,"strPassword"),"name","ePassword"]));
-        LoginForm.addItem("LoginBlock",pas.JS.New(["type","checkbox","label",rtl.getResStr(pas.promet_dhtmlx,"strSaveLogin"),"name","cbSaveLogin"]));
-        LoginForm.addItem("LoginBlock",pas.JS.New(["type","button","value",rtl.getResStr(pas.promet_dhtmlx,"strLogin"),"name","eSubmit"]));
-        LoginForm.setItemFocus("eUsername");
-        LoginForm.attachEvent("onEnter",eSubmitClick);
-        LoginForm.enableLiveValidation(true);
-        LoginForm.attachEvent("onButtonClick",eSubmitClick);
-        aWin.attachEvent("onClose",CloseWindow);
-        LoginForm.attachEvent("onAfterValidate",AfterValidate);
-      } else {
-        aWin = pas.dhtmlx_windows.Windows.window("LoginFormWindow");
-      };
-    };
-    Result = new Promise(IntDoLoginForm);
-    return Result;
-  };
-});
-rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form","dhtmlx_layout","webrouter"],function () {
-  "use strict";
-  var $mod = this;
-  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}};
-});
-rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avamm","dhtmlx_base","dhtmlx_form","dhtmlx_treeview","dhtmlx_layout","promet_dhtmlx","AvammForms"],function () {
+rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avamm","dhtmlx_treeview","dhtmlx_layout","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
   this.LoadEnviroment = true;

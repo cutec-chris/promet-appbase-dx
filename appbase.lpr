@@ -1,6 +1,6 @@
 program appbase;
-  uses js, web, classes, sysutils, webrouter, Avamm, dhtmlx_base, dhtmlx_form,
-    dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, promet_dhtmlx, AvammForms;
+  uses js, web, classes, sysutils, webrouter, dhtmlx_form,Avamm,
+    dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, dhtmlx_base;
 
 var
   LoadEnviroment : Boolean = True;

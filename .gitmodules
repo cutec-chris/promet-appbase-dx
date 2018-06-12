@@ -1,3 +1,6 @@
 [submodule "dhtmlx"]
 	path = dhtmlx
 	url = https://github.com/cutec-chris/dhtmlx.git
+[submodule "dhtmlx-for-pas2js"]
+	path = dhtmlx-for-pas2js
+	url = https://github.com/cutec-chris/dhtmlx-for-pas2js.git

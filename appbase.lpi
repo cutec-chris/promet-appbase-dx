@@ -94,15 +94,18 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="2">
+    <RequiredPackages Count="3">
       <Item1>
-        <PackageName Value="pas2js_fcldb"/>
+        <PackageName Value="avamm_laz"/>
       </Item1>
       <Item2>
-        <PackageName Value="pas2js_rtl"/>
+        <PackageName Value="pas2js_fcldb"/>
       </Item2>
+      <Item3>
+        <PackageName Value="pas2js_rtl"/>
+      </Item3>
     </RequiredPackages>
-    <Units Count="8">
+    <Units Count="2">
       <Unit0>
         <Filename Value="appbase.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -111,33 +114,6 @@
         <Filename Value="../index.html"/>
         <IsPartOfProject Value="True"/>
       </Unit1>
-      <Unit2>
-        <Filename Value="dhtmlx_base.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit2>
-      <Unit3>
-        <Filename Value="avamm.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="Avamm"/>
-      </Unit3>
-      <Unit4>
-        <Filename Value="promet_dhtmlx.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit4>
-      <Unit5>
-        <Filename Value="avammdb.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="AvammDB"/>
-      </Unit5>
-      <Unit6>
-        <Filename Value="dhtmlx_db.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit6>
-      <Unit7>
-        <Filename Value="avammforms.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="AvammForms"/>
-      </Unit7>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

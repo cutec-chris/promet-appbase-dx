@@ -20,7 +20,7 @@
       </Other>
       <SkipCompiler Value="True"/>
     </CompilerOptions>
-    <Files Count="4">
+    <Files Count="5">
       <Item1>
         <HasRegisterProc Value="True"/>
       </Item1>
@@ -36,11 +36,18 @@
         <Filename Value="promet_dhtmlx.pas"/>
         <UnitName Value="promet_dhtmlx"/>
       </Item4>
+      <Item5>
+        <Filename Value="avammforms.pas"/>
+        <UnitName Value="AvammForms"/>
+      </Item5>
     </Files>
-    <RequiredPkgs Count="1">
+    <RequiredPkgs Count="2">
       <Item1>
-        <PackageName Value="pas2js_rtl"/>
+        <PackageName Value="dhtmlx_laz"/>
       </Item1>
+      <Item2>
+        <PackageName Value="pas2js_rtl"/>
+      </Item2>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

@@ -24,7 +24,7 @@ type
     Page : TDHTMLXLayout;
     Toolbar : TDHTMLXToolbar;
     Grid : TDHTMLXGrid;
-    constructor Create(aParent : JSValue;aDataSet : string);
+    constructor Create(aParent : JSValue;aDataSet : string);reintroduce;
     procedure RefreshList;
   end;
 
@@ -34,7 +34,7 @@ type
   public
     Grid : TDHTMLXGrid;
     Popup : TDHTMLXPopup;
-    constructor Create(aPopupParams,aTable,aRow,aHeader,aColIDs,Filter : string;aDblClick : JSValue);
+    constructor Create(aPopupParams,aTable,aRow,aHeader,aColIDs,Filter : string;aDblClick : JSValue);reintroduce;
     procedure DoFilter(aFilter : string;DoSelect : Boolean);
   end;
 
@@ -109,11 +109,12 @@ begin
   Page := TDHTMLXLayout.New(js.new(['parent',aParent,'pattern','1U']));
   Toolbar := TDHTMLXToolbar(Page.attachToolbar(js.new(['parent',Page,
                                        'items',TJSArray._of([
-                                         js.new(['id','refresh',
+{                                         js.new(['id','refresh',
                                                  'type', 'button',
                                                  'text', strRefresh,
                                                  'img', 'fa fa-refresh'
-                                               ])]),
+                                               ])}
+                                               ]),
                                        'iconset','awesome'])));
   Toolbar.attachEvent('onClick', @ButtonClick);
   Grid := TDHTMLXGrid(Page.cells('a').attachGrid(js.new([])));
