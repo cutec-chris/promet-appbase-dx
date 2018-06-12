@@ -24,7 +24,7 @@ type
     Page : TDHTMLXLayout;
     Toolbar : TDHTMLXToolbar;
     Grid : TDHTMLXGrid;
-    constructor Create(aParent : JSValue;aDataSet : string);reintroduce;
+    constructor Create(aParent : JSValue;aDataSet : string);
     procedure RefreshList;
   end;
 
@@ -34,7 +34,7 @@ type
   public
     Grid : TDHTMLXGrid;
     Popup : TDHTMLXPopup;
-    constructor Create(aPopupParams,aTable,aRow,aHeader,aColIDs,Filter : string;aDblClick : JSValue);reintroduce;
+    constructor Create(aPopupParams,aTable,aRow,aHeader,aColIDs,Filter : string;aDblClick : JSValue);
     procedure DoFilter(aFilter : string;DoSelect : Boolean);
   end;
 
@@ -108,14 +108,7 @@ begin
   writeln('Loading '+aDataSet+' as List...');
   Page := TDHTMLXLayout.New(js.new(['parent',aParent,'pattern','1U']));
   Toolbar := TDHTMLXToolbar(Page.attachToolbar(js.new(['parent',Page,
-                                       'items',TJSArray._of([
-{                                         js.new(['id','refresh',
-                                                 'type', 'button',
-                                                 'text', strRefresh,
-                                                 'img', 'fa fa-refresh'
-                                               ])}
-                                               ]),
-                                       'iconset','awesome'])));
+                                                       'iconset','awesome'])));
   Toolbar.attachEvent('onClick', @ButtonClick);
   Grid := TDHTMLXGrid(Page.cells('a').attachGrid(js.new([])));
   Grid.setImagesPath('codebase/imgs/');
@@ -140,8 +133,10 @@ begin
     //FillGrid(Grid,OldFilter,0,@SwitchProgressOff);
   except
     on e : Exception do
-      writeln('Refresh Exception:'+e.message);
-    Page.progressOff();
+      begin
+        writeln('Refresh Exception:'+e.message);
+        Page.progressOff();
+      end;
   end;
 end;
 

@@ -20,8 +20,9 @@ function getCookie(cname : string) : string;
 procedure AppendCSS(url : string;onLoad,onError : JSValue);
 procedure AppendJS(url : string;onLoad,onError : JSValue);
 type
-  TOnLoginForm = function : TJSPromise;
+  TPromiseFunction = function : TJSPromise;
   TRegisterToSidebarEvent = procedure(Name : string;Route : TRoute);
+  TJSValueFunction = function : JSValue;
 
 var
   AfterLoginEvent : TJSEvent;
@@ -30,8 +31,9 @@ var
   AvammLogin : string;
   AvammServer : string;
   UserOptions : TJSObject;
-  OnLoginForm : TOnLoginForm = nil;
+  OnLoginForm : TPromiseFunction = nil;
   OnAddToSidebar : TRegisterToSidebarEvent = nil;
+  GetAvammContainer : TJSValueFunction = nil;
 
 resourcestring
   strServerNotRea                = 'Server nicht erreichbar';

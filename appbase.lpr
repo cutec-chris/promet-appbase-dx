@@ -1,6 +1,6 @@
 program appbase;
-  uses js, web, classes, sysutils, webrouter, dhtmlx_form,Avamm,
-    dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, dhtmlx_base;
+  uses js, web, classes, sysutils, webrouter, dhtmlx_form,Avamm, promet_dhtmlx,
+    dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, dhtmlx_base,AvammForms;
 
 var
   LoadEnviroment : Boolean = True;
@@ -138,7 +138,14 @@ begin
   Router.AfterRequest:=@RouterAfterRequest;
   Router.History.OnReady:=@Onready;
 end;
+
+function DoGetAvammContainer: JSValue;
 begin
+  Result := Layout.cells('b');
+end;
+
+begin
+  GetAvammContainer := @DoGetAvammContainer;
   if LoadEnviroment then
     WidgetsetLoaded._then(@FillEnviroment);
   if THashHistory(Router.History).getHash<>'' then
