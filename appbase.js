@@ -3964,7 +3964,12 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","Avamm","dh
     return Result;
   };
 });
-rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avamm","dhtmlx_base","dhtmlx_form","dhtmlx_treeview","dhtmlx_layout","promet_dhtmlx"],function () {
+rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form","dhtmlx_layout","webrouter"],function () {
+  "use strict";
+  var $mod = this;
+  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}};
+});
+rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","Avamm","dhtmlx_base","dhtmlx_form","dhtmlx_treeview","dhtmlx_layout","promet_dhtmlx","AvammForms"],function () {
   "use strict";
   var $mod = this;
   this.LoadEnviroment = true;

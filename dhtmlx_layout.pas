@@ -12,15 +12,15 @@ type
 
   TDHTMLXLayoutCell = class external name 'dhtmlXLayoutCell' (TJSElement)
     procedure appendObject(aObj : JSValue);	                                //attaches an object to a cell without clearing cell content
-    //attachAccordion	attaches dhtmlxAccordion to a cell
-    //attachCarousel	attaches a carousel object to a cell
-    //attachChart	attaches dhtmlxChart to a cell
-    //attachDataView	attaches dhtmlxDataView to a cell
+    function attachAccordion(conf : TJSObject): JSValue;	                //attaches dhtmlxAccordion to a cell
+    function attachCarousel(conf : TJSObject): JSValue;	                        //attaches a carousel object to a cell
+    function attachChart(conf : TJSObject): JSValue;	                        //attaches dhtmlxChart to a cell
+    function attachDataView(conf : TJSObject): JSValue;	                        //attaches dhtmlxDataView to a cell
     //attachEditor	attaches dhtmlxEditor to a cell
-    //attachForm	attaches dhtmlxForm to a cell
-    //attachGrid	attaches dhtmlxGrid to a cell
+    function attachForm(conf : TJSObject): JSValue;	                        //attaches dhtmlxForm to a cell
+    function attachGrid(conf : TJSObject): JSValue;	                        //attaches dhtmlxGrid to a cell
     //attachHTMLString	attaches HTML content to a cell
-    //attachLayout	attaches dhtmlxLayout to a cell
+    function attachLayout(conf : TJSObject): JSValue;	                        //attaches dhtmlxLayout to a cell
     //attachList	attaches dhtmlxList to a cell
     //attachMap	attaches Google Maps to a cell
     //attachMenu	attaches dhtmlxMenu to a cell
@@ -97,7 +97,7 @@ type
     //attachMenu	attaches dhtmlxMenu to component's top
     //attachRibbon	attaches dhtmlxRibbon to component's top
     //attachStatusBar	attaches a status bar object to component's bottom
-    //attachToolbar	attaches dhtmlxToolbar to component's top
+    function attachToolbar(conf : TJSObject) : JSValue;	                        //attaches dhtmlxToolbar to component's top
     function cells(name : string) : TDHTMLXLayoutCell;                          //returns the cell object by the id
     conf : TJSObject;
     //detachEvent	detaches a handler from an event

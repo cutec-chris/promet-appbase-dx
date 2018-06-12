@@ -20,12 +20,12 @@ type
     //addSlider	adds a slider to the toolbar
     //addSpacer	moves all items to the right side of the specified one
     //addText	adds a text item to the toolbar
-    //attachEvent	adds any user-defined handler to available events
+    function attachEvent(event : string;aCallback : JSValue) : Integer;         //adds any user-defined handler to available events
     //clearAll	removes all items from the toolbar
     //clearItemImage	removes an image of an item in the enabled state
     //clearItemImageDis	removes the image of an item in the disabled state
     //clearListOptionImage	removes an image (if exists) of a listed option
-    //detachEvent	detaches a handler from an event
+    procedure detachEvent(id : JSValue);	                                //detaches a handler from an event
     //disableItem	disables the specified item
     //disableListOption	disables a listed option
     //enableItem	enables the specified item

@@ -135,7 +135,7 @@ type
     //getColTypeById	gets the column type by its ID
     //getColWidth	gets the width of the specified column in pixels
     //getColumnCombo	returns dhtmlXCombo column object
-    //getColumnId	gets the id of the column specified by index
+    function getColumnId(cin : Integer) : JSValue;	                        //gets the id of the column specified by index
     //getColumnLabel	gets the label of the column specified by index
     //getColumnsNum	returns the number of columns in the grid (including [hidden columns](setColumnHidden))
     //getCombo	gets Combo object of the specified column
@@ -149,10 +149,10 @@ type
     //getRowData	returns the row data
     //getRowId	gets the row id by the row index
     //getRowIndex	gets the row index by the row id (grid only)
-    //getRowsNum	returns the number of rows in the grid (in case of dynamic mode it will return an expected number of rows)
+    function getRowsNum : Integer;	                                        //returns the number of rows in the grid (in case of dynamic mode it will return an expected number of rows)
     //getSelectedBlock	returns the attributes of the current block selection
     //getSelectedCellIndex	returns the index of the selected cell or -1, if there is no selected cell
-    //getSelectedRowId	returns the id of the selected row (a list of ids with default delimiter) or null, if there are no selected rows
+    function getSelectedRowId : JSValue;	                                //returns the id of the selected row (a list of ids with default delimiter) or null, if there are no selected rows
     //getSortingState	gets the sorting state of the grid
     //getStateOfView	returns details about current grid state
     //getUndo	gets length of available UnDo operations
@@ -200,7 +200,7 @@ type
     //selectAll	selects all rows in the grid, doesn't trigger any events
     //selectBlock	selects a block in the Grid, according to the specified rows' ids and columns' indexes
     //selectCell	sets selection to the specified row-cell
-    //selectRow	selects a row (and its first cell)
+    procedure selectRow(row : Integer);	                                        //selects a row (and its first cell)
     //selectRowById	selects row by ID
     //serialize	gets actual xml of the grid
     //serializeToCSV	serializes to CSV string
