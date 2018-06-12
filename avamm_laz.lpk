@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <PathDelim Value="\"/>
+    <Name Value="avamm_laz"/>
+    <Type Value="RunTimeOnly"/>
+    <AutoUpdate Value="Manually"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <UnitOutputDirectory Value="."/>
+      </SearchPaths>
+      <Other>
+        <CompilerPath Value="pas2js"/>
+        <ExecuteBefore>
+          <Command Value="$MakeExe(IDE,pas2js) -O- -vbq avamm_laz.pas"/>
+          <ScanForFPCMsgs Value="True"/>
+        </ExecuteBefore>
+      </Other>
+      <SkipCompiler Value="True"/>
+    </CompilerOptions>
+    <Files Count="4">
+      <Item1>
+        <HasRegisterProc Value="True"/>
+      </Item1>
+      <Item2>
+        <Filename Value="avamm.pas"/>
+        <UnitName Value="Avamm"/>
+      </Item2>
+      <Item3>
+        <Filename Value="avammdb.pas"/>
+        <UnitName Value="AvammDB"/>
+      </Item3>
+      <Item4>
+        <Filename Value="promet_dhtmlx.pas"/>
+        <UnitName Value="promet_dhtmlx"/>
+      </Item4>
+    </Files>
+    <RequiredPkgs Count="1">
+      <Item1>
+        <PackageName Value="pas2js_rtl"/>
+      </Item1>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>
