@@ -18,13 +18,15 @@ type
 
   TAvammListForm = class
   private
-    OldFilter: String;
+    FParent : TJSElement;
+    FOldFilter: String;
     procedure SwitchProgressOff;
   public
     Page : TDHTMLXLayout;
     Toolbar : TDHTMLXToolbar;
     Grid : TDHTMLXGrid;
-    constructor Create(aParent : JSValue;aDataSet : string);
+    constructor Create(aParent : TJSElement;aDataSet : string);
+    procedure Show;
     procedure RefreshList;
   end;
 
@@ -73,7 +75,7 @@ end;
 
 { TAvammListForm }
 
-constructor TAvammListForm.Create(aParent : JSValue;aDataSet: string);
+constructor TAvammListForm.Create(aParent : TJSElement;aDataSet: string);
   procedure ButtonClick(id : string);
   begin
     if (id='new') then
@@ -86,13 +88,13 @@ constructor TAvammListForm.Create(aParent : JSValue;aDataSet: string);
   var
     i: Integer;
   begin
-    OldFilter := '';
+    FOldFilter := '';
     for i := 0 to indexes.length do
       begin
         if (values[i]<>'') then
-          OldFilter := OldFilter+' AND lower("'+string(Grid.getColumnId(Integer(indexes[i])))+'")'+' like lower(\%'+string(values[i])+'%\)';
+          FOldFilter := FOldFilter+' AND lower("'+string(Grid.getColumnId(Integer(indexes[i])))+'")'+' like lower(\%'+string(values[i])+'%\)';
       end;
-    OldFilter := TJSString(OldFilter).subString(5,TJSString(OldFilter).length);
+    FOldFilter := TJSString(FOldFilter).subString(5,TJSString(FOldFilter).length);
     Page.progressOn();
     try
       //DataSource.FillGrid(aList.Grid,OldFilter,0,@SwitchProgressOff);
@@ -106,8 +108,10 @@ constructor TAvammListForm.Create(aParent : JSValue;aDataSet: string);
   end;
 begin
   writeln('Loading '+aDataSet+' as List...');
-  Page := TDHTMLXLayout.New(js.new(['parent',document.body,'pattern','1U']));
-  Toolbar := TDHTMLXToolbar(Page.attachToolbar(js.new(['parent',Page,
+  FParent := aParent;
+  Page := TDHTMLXLayout.New(js.new(['parent',aParent,'pattern','1C']));
+  Page.cells('a').hideHeader;
+  Toolbar := TDHTMLXToolbar(Page.cells('a').attachToolbar(js.new(['parent',Page,
                                                        'iconset','awesome'])));
   Toolbar.attachEvent('onClick', @ButtonClick);
   Grid := TDHTMLXGrid(Page.cells('a').attachGrid(js.new([])));
@@ -120,6 +124,16 @@ begin
   //DataSource = newPrometDataStore(aName);
   //DataSource.DataProcessor.init(Grid);
   Grid.attachEvent('onRowDblClicked',@RowDblClick);
+end;
+procedure TAvammListForm.Show;
+  procedure HideElement(currentValue: TJSNode;
+    currentIndex: NativeInt; list: TJSNodeList);
+  begin
+    TJSHTMLElement(currentValue).style.setProperty('display','none');
+  end;
+begin
+  FParent.childNodes.forEach(@HideElement);
+  Page.style.setProperty('display','none');
 end;
 procedure TAvammListForm.SwitchProgressOff;
 begin

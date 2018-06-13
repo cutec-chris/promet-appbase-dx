@@ -10890,12 +10890,14 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form",
   rtl.createClass($mod,"TAvammListForm",pas.System.TObject,function () {
     this.$init = function () {
       pas.System.TObject.$init.call(this);
-      this.OldFilter = "";
+      this.FParent = null;
+      this.FOldFilter = "";
       this.Page = null;
       this.Toolbar = null;
       this.Grid = null;
     };
     this.$final = function () {
+      this.FParent = undefined;
       this.Page = undefined;
       this.Toolbar = undefined;
       this.Grid = undefined;
@@ -10912,12 +10914,12 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form",
       };
       function FilterStart(indexes, values) {
         var i = 0;
-        Self.OldFilter = "";
+        Self.FOldFilter = "";
         for (var $l1 = 0, $end2 = indexes.length; $l1 <= $end2; $l1++) {
           i = $l1;
-          if (values[i] != "") Self.OldFilter = (((((Self.OldFilter + ' AND lower("') + ("" + Self.Grid.getColumnId(Math.floor(indexes[i])))) + '")') + " like lower(\\%") + ("" + values[i])) + "%\\)";
+          if (values[i] != "") Self.FOldFilter = (((((Self.FOldFilter + ' AND lower("') + ("" + Self.Grid.getColumnId(Math.floor(indexes[i])))) + '")') + " like lower(\\%") + ("" + values[i])) + "%\\)";
         };
-        Self.OldFilter = Self.OldFilter.subString(5,Self.OldFilter.length);
+        Self.FOldFilter = Self.FOldFilter.subString(5,Self.FOldFilter.length);
         Self.Page.progressOn();
         try {} catch ($e) {
           Self.Page.progressOff();
@@ -10927,8 +10929,10 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form",
         Self.Grid.getSelectedRowId();
       };
       pas.System.Writeln(("Loading " + aDataSet) + " as List...");
-      Self.Page = new dhtmlXLayoutObject(pas.JS.New(["parent",document.body,"pattern","1U"]));
-      Self.Toolbar = rtl.getObject(Self.Page.attachToolbar(pas.JS.New(["parent",Self.Page,"iconset","awesome"])));
+      Self.FParent = aParent;
+      Self.Page = new dhtmlXLayoutObject(pas.JS.New(["parent",aParent,"pattern","1C"]));
+      Self.Page.cells("a").hideHeader();
+      Self.Toolbar = rtl.getObject(Self.Page.cells("a").attachToolbar(pas.JS.New(["parent",Self.Page,"iconset","awesome"])));
       Self.Toolbar.attachEvent("onClick",ButtonClick);
       Self.Grid = rtl.getObject(Self.Page.cells("a").attachGrid(pas.JS.New([])));
       Self.Grid.setImagesPath("codebase\/imgs\/");
@@ -10938,6 +10942,14 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form",
       Self.Grid.attachEvent("onFilterStart",FilterStart);
       Self.Grid.init();
       Self.Grid.attachEvent("onRowDblClicked",RowDblClick);
+    };
+    this.Show = function () {
+      var Self = this;
+      function HideElement(currentValue, currentIndex, list) {
+        currentValue.style.setProperty("display","none");
+      };
+      Self.FParent.childNodes.forEach(HideElement);
+      Self.Page.style.setProperty("display","none");
     };
     this.RefreshList = function () {
       try {
