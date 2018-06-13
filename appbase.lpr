@@ -57,7 +57,7 @@ var
     begin
       asm
         console.log(aObj);
-        rtl.run(aObj.originalTarget.id.split("/")[0]);
+        rtl.run(aObj.target.id.split("/")[0]);
       end;
       if not InitRouteFound then
         if THashHistory(Router.History).getHash<>'' then

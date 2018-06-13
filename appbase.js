@@ -11010,7 +11010,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
       var Result = undefined;
       function ModuleLoaded(aObj) {
         console.log(aObj);
-        rtl.run(aObj.originalTarget.id.split("/")[0]);
+        rtl.run(aObj.target.id.split("/")[0]);
         if (!$mod.InitRouteFound) if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") if (pas.webrouter.Router().FindHTTPRoute(pas.webrouter.Router().GetHistory().$class.getHash(),null) !== null) $mod.InitRouteFound = pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash()) === pas.webrouter.TTransitionResult.trOK;
       };
       var aRights = null;
