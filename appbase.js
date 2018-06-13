@@ -10960,6 +10960,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form",
       };
       Self.FParent.childNodes.forEach(HideElement);
       Self.Page.cont.style.setProperty("display","block");
+      Self.Page.setSizes();
     };
     this.RefreshList = function () {
       try {
@@ -11128,8 +11129,11 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
   };
   this.DoGetAvammContainer = function () {
     var Result = undefined;
-    function DoResizePanels() {
+    function ResizePanelsLater() {
       window.dispatchEvent(pas.Avamm.ContainerResizedEvent);
+    };
+    function DoResizePanels() {
+      window.setTimeout(ResizePanelsLater,10);
     };
     if ($mod.FContainer === null) {
       $mod.FContainer = document.createElement("div");
@@ -11138,7 +11142,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
       $mod.Layout.cells("b").appendObject($mod.FContainer);
     };
     Result = $mod.FContainer;
-    $mod.Layout.attachEvent("onPanelResizeFinish",DoResizePanels);
+    $mod.Layout.attachEvent("onResizeFinish",DoResizePanels);
     return Result;
   };
   $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}};

@@ -155,11 +155,15 @@ begin
   Router.History.OnReady:=@Onready;
 end;
 function DoGetAvammContainer: JSValue;
-  procedure DoResizePanels;
+  procedure ResizePanelsLater;
   begin
     asm
       window.dispatchEvent(pas.Avamm.ContainerResizedEvent);
     end;
+  end;
+  procedure DoResizePanels;
+  begin
+    window.setTimeout(@ResizePanelsLater,10);
   end;
 begin
   if FContainer = nil then
@@ -170,7 +174,7 @@ begin
       Layout.cells('b').appendObject(FContainer);
     end;
   Result := FContainer;
-  Layout.attachEvent('onPanelResizeFinish',@DoResizePanels);
+  Layout.attachEvent('onResizeFinish',@DoResizePanels);
 end;
 begin
   GetAvammContainer := @DoGetAvammContainer;

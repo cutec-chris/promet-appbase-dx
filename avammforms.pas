@@ -147,6 +147,7 @@ procedure TAvammListForm.Show;
 begin
   FParent.childNodes.forEach(@HideElement);
   Page.cont.style.setProperty('display','block');
+  Page.setSizes;
 end;
 procedure TAvammListForm.SwitchProgressOff;
 begin
