@@ -28,6 +28,7 @@ var
   AfterLoginEvent : TJSEvent;
   AfterLogoutEvent : TJSEvent;
   ConnectionErrorEvent : TJSEvent;
+  ContainerResizedEvent : TJSEvent;
   AvammLogin : string;
   AvammServer : string;
   UserOptions : TJSObject;
@@ -359,6 +360,7 @@ begin
       pas.Avamm.AfterLoginEvent = createNewEvent('AfterLogin');
       pas.Avamm.AfterLogoutEvent = createNewEvent('AfterLogout');
       pas.Avamm.ConnectionErrorEvent = createNewEvent('ConnectionError');
+      pas.Avamm.ContainerResizedEvent = createNewEvent('ContainerResized');
     } catch (err) {}
   end;
   CheckLogin;

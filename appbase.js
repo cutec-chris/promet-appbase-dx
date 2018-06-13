@@ -10716,6 +10716,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
   this.AfterLoginEvent = null;
   this.AfterLogoutEvent = null;
   this.ConnectionErrorEvent = null;
+  this.ContainerResizedEvent = null;
   this.AvammLogin = "";
   this.AvammServer = "";
   this.UserOptions = null;
@@ -10761,6 +10762,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       pas.Avamm.AfterLoginEvent = createNewEvent('AfterLogin');
       pas.Avamm.AfterLogoutEvent = createNewEvent('AfterLogout');
       pas.Avamm.ConnectionErrorEvent = createNewEvent('ConnectionError');
+      pas.Avamm.ContainerResizedEvent = createNewEvent('ContainerResized');
     } catch (err) {};
     $mod.CheckLogin();
   };
@@ -10928,7 +10930,14 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form",
       function RowDblClick() {
         pas.webrouter.Router().Push(((aDataSet + "\/by-id\/") + ("" + Self.Grid.getSelectedRowId())) + "\/");
       };
+      function DoResizeLayout() {
+        function DoResizeLayoutNow() {
+          Self.Page.setSizes();
+        };
+        window.setTimeout(DoResizeLayoutNow,50);
+      };
       pas.System.Writeln(("Loading " + aDataSet) + " as List...");
+      window.addEventListener("ContainerResized",DoResizeLayout);
       Self.FParent = aParent;
       Self.Page = new dhtmlXLayoutObject(pas.JS.New(["parent",aParent,"pattern","1C"]));
       Self.Page.cells("a").hideHeader();
@@ -11119,11 +11128,17 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
   };
   this.DoGetAvammContainer = function () {
     var Result = undefined;
+    function DoResizePanels() {
+      window.dispatchEvent(pas.Avamm.ContainerResizedEvent);
+    };
     if ($mod.FContainer === null) {
       $mod.FContainer = document.createElement("div");
+      $mod.FContainer.style.setProperty("height","100%");
+      $mod.FContainer.style.setProperty("width","100%");
       $mod.Layout.cells("b").appendObject($mod.FContainer);
     };
     Result = $mod.FContainer;
+    $mod.Layout.attachEvent("onPanelResizeFinish",DoResizePanels);
     return Result;
   };
   $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}};

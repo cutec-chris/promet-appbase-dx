@@ -106,10 +106,22 @@ constructor TAvammListForm.Create(aParent : TJSElement;aDataSet: string);
   begin
     router.Push(aDataSet+'/by-id/'+string(Grid.getSelectedRowId())+'/');
   end;
+  procedure DoResizeLayout;
+    procedure DoResizeLayoutNow;
+    begin
+      Page.setSizes;
+    end;
+  begin
+    window.setTimeout(@DoResizeLayoutNow,50);
+  end;
 begin
   writeln('Loading '+aDataSet+' as List...');
+  window.addEventListener('ContainerResized',@DoResizeLayout);
   FParent := aParent;
   Page := TDHTMLXLayout.New(js.new(['parent',aParent,'pattern','1C']));
+  //Page.cont.style.setProperty('height','100%');
+  //Page.cont.style.setProperty('width','100%');
+  //window.addEventListener('resize',@DoResizeLayout);
   Page.cells('a').hideHeader;
   Toolbar := TDHTMLXToolbar(Page.cells('a').attachToolbar(js.new(['parent',Page,
                                                        'iconset','awesome'])));

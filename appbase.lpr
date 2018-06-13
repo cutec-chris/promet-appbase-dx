@@ -8,7 +8,7 @@ var
   Layout: TDHTMLXLayout;
   InitRouteFound: Boolean;
   TreeviewSelectionChanged : JSValue;
-  FContainer : TJSElement;
+  FContainer : TJSHTMLElement;
 
 resourcestring
   strMenu                   = 'Menü';
@@ -155,13 +155,22 @@ begin
   Router.History.OnReady:=@Onready;
 end;
 function DoGetAvammContainer: JSValue;
+  procedure DoResizePanels;
+  begin
+    asm
+      window.dispatchEvent(pas.Avamm.ContainerResizedEvent);
+    end;
+  end;
 begin
   if FContainer = nil then
     begin
-      FContainer := document.createElement('div');
+      FContainer := TJSHTMLElement(document.createElement('div'));
+      FContainer.style.setProperty('height','100%');
+      FContainer.style.setProperty('width','100%');
       Layout.cells('b').appendObject(FContainer);
     end;
   Result := FContainer;
+  Layout.attachEvent('onPanelResizeFinish',@DoResizePanels);
 end;
 begin
   GetAvammContainer := @DoGetAvammContainer;
