@@ -106,7 +106,7 @@ constructor TAvammListForm.Create(aParent : JSValue;aDataSet: string);
   end;
 begin
   writeln('Loading '+aDataSet+' as List...');
-  Page := TDHTMLXLayout.New(js.new(['parent',aParent,'pattern','1U']));
+  Page := TDHTMLXLayout.New(js.new(['parent',document.body,'pattern','1U']));
   Toolbar := TDHTMLXToolbar(Page.attachToolbar(js.new(['parent',Page,
                                                        'iconset','awesome'])));
   Toolbar.attachEvent('onClick', @ButtonClick);

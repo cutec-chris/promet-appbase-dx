@@ -34,6 +34,7 @@ var
   OnLoginForm : TPromiseFunction = nil;
   OnAddToSidebar : TRegisterToSidebarEvent = nil;
   GetAvammContainer : TJSValueFunction = nil;
+  OnException : TJSValueCallback = nil;
 
 resourcestring
   strServerNotRea                = 'Server nicht erreichbar';
@@ -74,6 +75,7 @@ begin
     }
   end;
 end;
+
 function CheckLogin : TJSPromise;
   procedure IntDoCheckLogin(resolve, reject: TJSPromiseResolver);
     function CheckStatus(aValue: JSValue): JSValue;
@@ -361,9 +363,15 @@ begin
   end;
   CheckLogin;
 end;
+function WindowError(aEvent : TJSErrorEvent) : boolean;
+begin
+  if OnException<>nil then
+    OnException(aEvent);
+end;
 
 initialization
   writeln('Appbase initializing...');
+  window.onerror:=@WindowError;
   Router.InitHistory(hkHash);
   InitAvammApp;
 end.

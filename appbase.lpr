@@ -46,7 +46,16 @@ procedure OnReady(Sender: THistory; aLocation: String; aRoute: TRoute);
 begin
   Treeview.selectItem(aRoute.ID);
 end;
-
+procedure DoHandleException(aName: JSValue);
+  function ShowError(aValue: JSValue): JSValue;
+  begin
+    dhtmlx.message(js.new(['type','error',
+                           'text',aName]));
+  end;
+begin
+  writeln('Unhandled Exception:',aName);
+  WidgetsetLoaded._then(@ShowError);
+end;
 function FillEnviroment(aValue : JSValue) : JSValue;
 var
   i: Integer;
@@ -121,6 +130,7 @@ var
                    ._then(@Reconnect);
   end;
 begin
+  Avamm.OnException:=@DoHandleException;
   Avamm.OnAddToSidebar:=@AddToSidebar;
   Layout := TDHTMLXLayout.New(js.new(['parent',window.document.body,'pattern','2U']));
   Layout.cells('a').setWidth(200);

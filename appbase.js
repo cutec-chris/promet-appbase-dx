@@ -10722,9 +10722,11 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
   this.OnLoginForm = null;
   this.OnAddToSidebar = null;
   this.GetAvammContainer = null;
+  this.OnException = null;
   $mod.$resourcestrings = {strServerNotRea: {org: "Server nicht erreichbar"}, strNoLoginFormA: {org: "keine Login Form verfügbar"}, strLoginFailed: {org: "Login fehlgeschlagen"}, strServerMustbeConfigured: {org: "Server muss konfiguriert werden"}};
   $mod.$init = function () {
     pas.System.Writeln("Appbase initializing...");
+    window.onerror = $impl.WindowError;
     pas.webrouter.Router().InitHistory(pas.webrouter.THistoryKind.hkHash,"");
     $impl.InitAvammApp();
   };
@@ -10761,6 +10763,11 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       pas.Avamm.ConnectionErrorEvent = createNewEvent('ConnectionError');
     } catch (err) {};
     $mod.CheckLogin();
+  };
+  $impl.WindowError = function (aEvent) {
+    var Result = false;
+    if ($mod.OnException !== null) $mod.OnException(aEvent);
+    return Result;
   };
 });
 rtl.module("dhtmlx_windows",["System","JS","Web","dhtmlx_base"],function () {
@@ -10920,7 +10927,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form",
         Self.Grid.getSelectedRowId();
       };
       pas.System.Writeln(("Loading " + aDataSet) + " as List...");
-      Self.Page = new dhtmlXLayoutObject(pas.JS.New(["parent",aParent,"pattern","1U"]));
+      Self.Page = new dhtmlXLayoutObject(pas.JS.New(["parent",document.body,"pattern","1U"]));
       Self.Toolbar = rtl.getObject(Self.Page.attachToolbar(pas.JS.New(["parent",Self.Page,"iconset","awesome"])));
       Self.Toolbar.attachEvent("onClick",ButtonClick);
       Self.Grid = rtl.getObject(Self.Page.cells("a").attachGrid(pas.JS.New([])));
@@ -10999,6 +11006,15 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
   this.OnReady = function (Sender, aLocation, aRoute) {
     $mod.Treeview.selectItem(aRoute.FID);
   };
+  this.DoHandleException = function (aName) {
+    function ShowError(aValue) {
+      var Result = undefined;
+      dhtmlx.message(pas.JS.New(["type","error","text",aName]));
+      return Result;
+    };
+    pas.System.Writeln("Unhandled Exception:",aName);
+    pas.dhtmlx_base.WidgetsetLoaded.then(ShowError);
+  };
   var Timeout = 5000;
   this.FillEnviroment = function (aValue) {
     var Result = undefined;
@@ -11064,6 +11080,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
       pas.dhtmlx_base.WidgetsetLoaded.then(ShowError).then(Reconnect);
       return Result;
     };
+    pas.Avamm.OnException = $mod.DoHandleException;
     pas.Avamm.OnAddToSidebar = $mod.AddToSidebar;
     $mod.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",window.document.body,"pattern","2U"]));
     $mod.Layout.cells("a").setWidth(200);
