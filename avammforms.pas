@@ -104,7 +104,7 @@ constructor TAvammListForm.Create(aParent : TJSElement;aDataSet: string);
   end;
   procedure RowDblClick;
   begin
-     Grid.getSelectedRowId()
+    router.Push(aDataSet+'/by-id/'+string(Grid.getSelectedRowId())+'/');
   end;
 begin
   writeln('Loading '+aDataSet+' as List...');
@@ -113,6 +113,7 @@ begin
   Page.cells('a').hideHeader;
   Toolbar := TDHTMLXToolbar(Page.cells('a').attachToolbar(js.new(['parent',Page,
                                                        'iconset','awesome'])));
+  Toolbar.addButton('refresh',0,strRefresh,'fa fa-refresh','fa fa-refresh');
   Toolbar.attachEvent('onClick', @ButtonClick);
   Grid := TDHTMLXGrid(Page.cells('a').attachGrid(js.new([])));
   Grid.setImagesPath('codebase/imgs/');
@@ -133,7 +134,7 @@ procedure TAvammListForm.Show;
   end;
 begin
   FParent.childNodes.forEach(@HideElement);
-  Page.style.setProperty('display','none');
+  Page.cont.style.setProperty('display','block');
 end;
 procedure TAvammListForm.SwitchProgressOff;
 begin

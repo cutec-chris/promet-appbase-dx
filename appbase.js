@@ -10926,13 +10926,14 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form",
         };
       };
       function RowDblClick() {
-        Self.Grid.getSelectedRowId();
+        pas.webrouter.Router().Push(((aDataSet + "\/by-id\/") + ("" + Self.Grid.getSelectedRowId())) + "\/");
       };
       pas.System.Writeln(("Loading " + aDataSet) + " as List...");
       Self.FParent = aParent;
       Self.Page = new dhtmlXLayoutObject(pas.JS.New(["parent",aParent,"pattern","1C"]));
       Self.Page.cells("a").hideHeader();
       Self.Toolbar = rtl.getObject(Self.Page.cells("a").attachToolbar(pas.JS.New(["parent",Self.Page,"iconset","awesome"])));
+      Self.Toolbar.addButton("refresh",0,rtl.getResStr(pas.AvammForms,"strRefresh"),"fa fa-refresh","fa fa-refresh");
       Self.Toolbar.attachEvent("onClick",ButtonClick);
       Self.Grid = rtl.getObject(Self.Page.cells("a").attachGrid(pas.JS.New([])));
       Self.Grid.setImagesPath("codebase\/imgs\/");
@@ -10949,7 +10950,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form",
         currentValue.style.setProperty("display","none");
       };
       Self.FParent.childNodes.forEach(HideElement);
-      Self.Page.style.setProperty("display","none");
+      Self.Page.cont.style.setProperty("display","block");
     };
     this.RefreshList = function () {
       try {
@@ -10996,8 +10997,13 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
   this.Layout = null;
   this.InitRouteFound = false;
   this.TreeviewSelectionChanged = undefined;
+  this.FContainer = null;
   this.LoadStartpage = function (URl, aRoute, Params) {
+    function HideElement(currentValue, currentIndex, list) {
+      currentValue.style.setProperty("display","none");
+    };
     pas.System.Writeln("Startpage should be shown ...");
+    $mod.FContainer.childNodes.forEach(HideElement);
   };
   this.RouterBeforeRequest = function (Sender, ARouteURL) {
     $mod.Layout.progressOn();
@@ -11113,7 +11119,11 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
   };
   this.DoGetAvammContainer = function () {
     var Result = undefined;
-    Result = $mod.Layout.cells("b");
+    if ($mod.FContainer === null) {
+      $mod.FContainer = document.createElement("div");
+      $mod.Layout.cells("b").appendObject($mod.FContainer);
+    };
+    Result = $mod.FContainer;
     return Result;
   };
   $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}};

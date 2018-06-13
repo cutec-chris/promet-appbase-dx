@@ -8,7 +8,7 @@ var
   Layout: TDHTMLXLayout;
   InitRouteFound: Boolean;
   TreeviewSelectionChanged : JSValue;
-
+  FContainer : TJSElement;
 
 resourcestring
   strMenu                   = 'Menü';
@@ -16,8 +16,14 @@ resourcestring
   strReconnecting           = 'Verbindung zum Server fehlgeschlagen,'+#10#13+'Verbindung wird automatisch wiederhergestellt';
 
 procedure LoadStartpage(URl : String; aRoute : TRoute; Params: TStrings);
+  procedure HideElement(currentValue: TJSNode;
+    currentIndex: NativeInt; list: TJSNodeList);
+  begin
+    TJSHTMLElement(currentValue).style.setProperty('display','none');
+  end;
 begin
   writeln('Startpage should be shown ...');
+  FContainer.childNodes.forEach(@HideElement);
 end;
 procedure RouterBeforeRequest(Sender: TObject; var ARouteURL: String);
 begin
@@ -148,12 +154,15 @@ begin
   Router.AfterRequest:=@RouterAfterRequest;
   Router.History.OnReady:=@Onready;
 end;
-
 function DoGetAvammContainer: JSValue;
 begin
-  Result := Layout.cells('b');
+  if FContainer = nil then
+    begin
+      FContainer := document.createElement('div');
+      Layout.cells('b').appendObject(FContainer);
+    end;
+  Result := FContainer;
 end;
-
 begin
   GetAvammContainer := @DoGetAvammContainer;
   if LoadEnviroment then
