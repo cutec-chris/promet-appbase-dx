@@ -10872,6 +10872,10009 @@ rtl.module("dhtmlx_sidebar",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
 });
+rtl.module("math",["System","SysUtils"],function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  this.MinInteger = -0x10000000000000;
+  this.MaxInteger = 0xfffffffffffff;
+  this.MinDouble = 5.0e-324;
+  this.MaxDouble = 1.7e+308;
+  this.InRange = function (AValue, AMin, AMax) {
+    return (AValue >= AMin) && (AValue <= AMax);
+  };
+  this.InRange$1 = function (AValue, AMin, AMax) {
+    return (AValue >= AMin) && (AValue <= AMax);
+  };
+  this.EnsureRange = function (AValue, AMin, AMax) {
+    if (AValue<AMin){ return AMin;
+    } else if (AValue>AMax){ return AMax;
+    } else return AValue;
+  };
+  this.EnsureRange$1 = function (AValue, AMin, AMax) {
+    if (AValue<AMin){ return AMin;
+    } else if (AValue>AMax){ return AMax;
+    } else return AValue;
+  };
+  $mod.$rtti.$Int("TRoundToRange",{minvalue: -37, maxvalue: 37, ordtype: 0});
+  this.RoundTo = function (AValue, Digits) {
+    var Result = 0.0;
+    var RV = 0.0;
+    RV = $mod.IntPower(10,Digits);
+    Result = Math.round(AValue / RV) * RV;
+    return Result;
+  };
+  this.SimpleRoundTo = function (AValue, Digits) {
+    var Result = 0.0;
+    var RV = 0.0;
+    RV = $mod.IntPower(10,-Digits);
+    if (AValue < 0) {
+      Result = pas.System.Int((AValue * RV) - 0.5) / RV}
+     else Result = pas.System.Int((AValue * RV) + 0.5) / RV;
+    return Result;
+  };
+  this.randg = function (mean, stddev) {
+    var Result = 0.0;
+    var U1 = 0.0;
+    var S2 = 0.0;
+    do {
+      U1 = (2 * Math.random()) - 1;
+      S2 = pas.System.Sqr$1(U1) + pas.System.Sqr$1((2 * Math.random()) - 1);
+    } while (!(S2 < 1));
+    Result = ((Math.sqrt((-2 * Math.log(S2)) / S2) * U1) * stddev) + mean;
+    return Result;
+  };
+  this.RandomRange = function (aFrom, aTo) {
+    var Result = 0;
+    Result = pas.System.Random(Math.abs(aFrom - aTo)) + Math.min(aTo,aFrom);
+    return Result;
+  };
+  this.RandomRange$1 = function (aFrom, aTo) {
+    var Result = 0;
+    var m = 0;
+    if (aFrom < aTo) {
+      m = aFrom}
+     else m = aTo;
+    Result = pas.System.Random(Math.abs(aFrom - aTo)) + m;
+    return Result;
+  };
+  this.NegativeValue = -1;
+  this.ZeroValue = 0;
+  this.PositiveValue = 1;
+  this.IsZero = function (d, Epsilon) {
+    var Result = false;
+    if (Epsilon === 0) Epsilon = 1E-12;
+    Result = Math.abs(d) <= Epsilon;
+    return Result;
+  };
+  this.IsZero$1 = function (d) {
+    var Result = false;
+    Result = Math.abs(d) <= 1E-12;
+    return Result;
+  };
+  this.IsInfinite = function (d) {
+    return (d==Infinite) || (d==-Infinite);
+  };
+  this.SameValue = function (A, B, Epsilon) {
+    var Result = false;
+    if (Epsilon === 0.0) Epsilon = Math.max(Math.min(Math.abs(A),Math.abs(B)) * 1E-12,1E-12);
+    if (A > B) {
+      Result = (A - B) <= Epsilon}
+     else Result = (B - A) <= Epsilon;
+    return Result;
+  };
+  this.LogN = function (A, Base) {
+    var Result = 0.0;
+    Result = Math.log(A) / Math.log(Base);
+    return Result;
+  };
+  this.Ceil = function (A) {
+    var Result = 0;
+    Result = pas.System.Trunc(Math.ceil(A));
+    return Result;
+  };
+  this.Floor = function (A) {
+    var Result = 0;
+    Result = pas.System.Trunc(Math.floor(A));
+    return Result;
+  };
+  this.Ceil64 = function (A) {
+    var Result = 0;
+    Result = pas.System.Trunc(Math.ceil(A));
+    return Result;
+  };
+  this.Floor64 = function (A) {
+    var Result = 0;
+    Result = pas.System.Trunc(Math.ceil(A));
+    return Result;
+  };
+  this.ldexp = function (x, p) {
+    var Result = 0.0;
+    Result = x * $mod.IntPower(2.0,p);
+    return Result;
+  };
+  this.Frexp = function (X, Mantissa, Exponent) {
+    Exponent.set(0);
+    if (X !== 0) if (Math.abs(X) < 0.5) {
+      do {
+        X = X * 2;
+        Exponent.set(Exponent.get() - 1);
+      } while (!(Math.abs(X) >= 0.5))}
+     else while (Math.abs(X) >= 1) {
+      X = X / 2;
+      Exponent.set(Exponent.get() + 1);
+    };
+    Mantissa.set(X);
+  };
+  this.lnxp1 = function (x) {
+    var Result = 0.0;
+    var y = 0.0;
+    if (x >= 4.0) {
+      Result = Math.log(1.0 + x)}
+     else {
+      y = 1.0 + x;
+      if (y === 1.0) {
+        Result = x}
+       else {
+        Result = Math.log(y);
+        if (y > 0.0) Result = Result + ((x - (y - 1.0)) / y);
+      };
+    };
+    return Result;
+  };
+  this.IntPower = function (base, exponent) {
+    var Result = 0.0;
+    var i = 0;
+    if ((base === 0.0) && (exponent === 0)) {
+      Result = 1}
+     else {
+      i = Math.abs(exponent);
+      Result = 1.0;
+      while (i > 0) {
+        while ((i & 1) === 0) {
+          i = i >>> 1;
+          base = pas.System.Sqr$1(base);
+        };
+        i = i - 1;
+        Result = Result * base;
+      };
+      if (exponent < 0) Result = 1.0 / Result;
+    };
+    return Result;
+  };
+  this.DivMod = function (Dividend, Divisor, Result, Remainder) {
+    if (Dividend < 0) {
+      Dividend = -Dividend;
+      Result.set(-Math.floor(Dividend / Divisor));
+      Remainder.set(-(Dividend + (Result.get() * Divisor)));
+    } else {
+      Result.set(Math.floor(Dividend / Divisor));
+      Remainder.set(Dividend - (Result.get() * Divisor));
+    };
+  };
+  this.DivMod$1 = function (Dividend, Divisor, Result, Remainder) {
+    if (Dividend < 0) {
+      Dividend = -Dividend;
+      Result.set(-Math.floor(Dividend / Divisor));
+      Remainder.set(-(Dividend + (Result.get() * Divisor)));
+    } else {
+      Result.set(Math.floor(Dividend / Divisor));
+      Remainder.set(Dividend - (Result.get() * Divisor));
+    };
+  };
+  this.DivMod$2 = function (Dividend, Divisor, Result, Remainder) {
+    Result.set(Math.floor(Dividend / Divisor));
+    Remainder.set(Dividend - (Result.get() * Divisor));
+  };
+  this.DivMod$3 = function (Dividend, Divisor, Result, Remainder) {
+    if (Dividend < 0) {
+      Dividend = -Dividend;
+      Result.set(-Math.floor(Dividend / Divisor));
+      Remainder.set(-(Dividend + (Result.get() * Divisor)));
+    } else {
+      Result.set(Math.floor(Dividend / Divisor));
+      Remainder.set(Dividend - (Result.get() * Divisor));
+    };
+  };
+  this.DegToRad = function (deg) {
+    var Result = 0.0;
+    Result = deg * (Math.PI / 180.0);
+    return Result;
+  };
+  this.RadToDeg = function (rad) {
+    var Result = 0.0;
+    Result = rad * (180.0 / Math.PI);
+    return Result;
+  };
+  this.GradToRad = function (grad) {
+    var Result = 0.0;
+    Result = grad * (Math.PI / 200.0);
+    return Result;
+  };
+  this.RadToGrad = function (rad) {
+    var Result = 0.0;
+    Result = rad * (200.0 / Math.PI);
+    return Result;
+  };
+  this.DegToGrad = function (deg) {
+    var Result = 0.0;
+    Result = deg * (200.0 / 180.0);
+    return Result;
+  };
+  this.GradToDeg = function (grad) {
+    var Result = 0.0;
+    Result = grad * (180.0 / 200.0);
+    return Result;
+  };
+  this.CycleToRad = function (cycle) {
+    var Result = 0.0;
+    Result = (2 * Math.PI) * cycle;
+    return Result;
+  };
+  this.RadToCycle = function (rad) {
+    var Result = 0.0;
+    Result = rad * (1 / (2 * Math.PI));
+    return Result;
+  };
+  this.DegNormalize = function (deg) {
+    var Result = 0.0;
+    Result = deg - (pas.System.Int(deg / 360) * 360);
+    if (Result < 0) Result = Result + 360;
+    return Result;
+  };
+  this.Norm = function (data) {
+    var Result = 0.0;
+    Result = Math.sqrt($impl.sumofsquares(data));
+    return Result;
+  };
+  this.Mean = function (data) {
+    var Result = 0.0;
+    var N = 0;
+    N = rtl.length(data);
+    if (N === 0) {
+      Result = 0}
+     else Result = $mod.Sum(data) / N;
+    return Result;
+  };
+  this.Sum = function (data) {
+    var Result = 0.0;
+    var i = 0;
+    var N = 0;
+    N = rtl.length(data);
+    Result = 0.0;
+    for (var $l1 = 0, $end2 = N - 1; $l1 <= $end2; $l1++) {
+      i = $l1;
+      Result = Result + data[i];
+    };
+    return Result;
+  };
+  this.SumsAndSquares = function (data, Sum, SumOfSquares) {
+    var i = 0;
+    var n = 0;
+    var t = 0.0;
+    var s = 0.0;
+    var ss = 0.0;
+    n = rtl.length(data);
+    ss = 0.0;
+    s = 0.0;
+    for (var $l1 = 0, $end2 = n - 1; $l1 <= $end2; $l1++) {
+      i = $l1;
+      t = data[i];
+      ss = ss + pas.System.Sqr$1(t);
+      s = s + t;
+    };
+    Sum.set(s);
+    SumOfSquares.set(ss);
+  };
+  this.StdDev = function (data) {
+    var Result = 0.0;
+    Result = Math.sqrt($mod.Variance(data));
+    return Result;
+  };
+  this.MeanAndStdDev = function (data, Mean, StdDev) {
+    var I = 0;
+    var N = 0;
+    var M = 0.0;
+    var S = 0.0;
+    N = rtl.length(data);
+    M = 0;
+    S = 0;
+    for (var $l1 = 0, $end2 = N - 1; $l1 <= $end2; $l1++) {
+      I = $l1;
+      M = M + data[I];
+      S = S + pas.System.Sqr$1(data[I]);
+    };
+    M = M / N;
+    S = S - (N * pas.System.Sqr$1(M));
+    if (N > 1) {
+      S = Math.sqrt(S / (N - 1))}
+     else S = 0;
+    Mean.set(M);
+    StdDev.set(S);
+  };
+  this.Variance = function (data) {
+    var Result = 0.0;
+    var n = 0;
+    n = rtl.length(data);
+    if (n === 1) {
+      Result = 0}
+     else Result = $mod.TotalVariance(data) / (n - 1);
+    return Result;
+  };
+  this.TotalVariance = function (data) {
+    var Result = 0.0;
+    var S = 0.0;
+    var SS = 0.0;
+    var N = 0;
+    N = rtl.length(data);
+    if (rtl.length(data) === 1) {
+      Result = 0}
+     else {
+      $mod.SumsAndSquares(data,{get: function () {
+          return S;
+        }, set: function (v) {
+          S = v;
+        }},{get: function () {
+          return SS;
+        }, set: function (v) {
+          SS = v;
+        }});
+      Result = SS - (pas.System.Sqr$1(S) / N);
+    };
+    return Result;
+  };
+  this.PopNStdDev = function (data) {
+    var Result = 0.0;
+    Result = Math.sqrt($mod.PopNVariance(data));
+    return Result;
+  };
+  this.PopNVariance = function (data) {
+    var Result = 0.0;
+    var N = 0;
+    N = rtl.length(data);
+    if (N === 0) {
+      Result = 0}
+     else Result = $mod.TotalVariance(data) / N;
+    return Result;
+  };
+  this.MomentSkewKurtosis = function (data, m1, m2, m3, m4, skew, kurtosis) {
+    var i = 0;
+    var N = 0;
+    var deviation = 0.0;
+    var deviation2 = 0.0;
+    var reciprocalN = 0.0;
+    var lm1 = 0.0;
+    var lm2 = 0.0;
+    var lm3 = 0.0;
+    var lm4 = 0.0;
+    var lskew = 0.0;
+    var lkurtosis = 0.0;
+    N = rtl.length(data);
+    lm1 = 0;
+    reciprocalN = 1 / N;
+    for (var $l1 = 0, $end2 = N - 1; $l1 <= $end2; $l1++) {
+      i = $l1;
+      lm1 = lm1 + data[i];
+    };
+    lm1 = reciprocalN * lm1;
+    lm2 = 0;
+    lm3 = 0;
+    lm4 = 0;
+    for (var $l3 = 0, $end4 = N - 1; $l3 <= $end4; $l3++) {
+      i = $l3;
+      deviation = data[i] - lm1;
+      deviation2 = deviation * deviation;
+      lm2 = lm2 + deviation2;
+      lm3 = lm3 + (deviation2 * deviation);
+      lm4 = lm4 + (deviation2 * deviation2);
+    };
+    lm2 = reciprocalN * lm2;
+    lm3 = reciprocalN * lm3;
+    lm4 = reciprocalN * lm4;
+    lskew = lm3 / (Math.sqrt(lm2) * lm2);
+    lkurtosis = lm4 / (lm2 * lm2);
+    m1.set(lm1);
+    m2.set(lm2);
+    m3.set(lm3);
+    m4.set(lm4);
+    skew.set(lskew);
+    kurtosis.set(lkurtosis);
+  };
+  this.TPaymentTime = {"0": "ptEndOfPeriod", ptEndOfPeriod: 0, "1": "ptStartOfPeriod", ptStartOfPeriod: 1};
+  $mod.$rtti.$Enum("TPaymentTime",{minvalue: 0, maxvalue: 1, ordtype: 1, enumtype: this.TPaymentTime});
+  this.FutureValue = function (ARate, NPeriods, APayment, APresentValue, APaymentTime) {
+    var Result = 0.0;
+    var q = 0.0;
+    var qn = 0.0;
+    var factor = 0.0;
+    if (ARate === 0) {
+      Result = -APresentValue - (APayment * NPeriods)}
+     else {
+      q = 1.0 + ARate;
+      qn = Math.pow(q,NPeriods);
+      factor = (qn - 1) / (q - 1);
+      if (APaymentTime === $mod.TPaymentTime.ptStartOfPeriod) factor = factor * q;
+      Result = -((APresentValue * qn) + (APayment * factor));
+    };
+    return Result;
+  };
+  var DELTA = 0.001;
+  var EPS = 1E-9;
+  var MAXIT = 20;
+  this.InterestRate = function (NPeriods, APayment, APresentValue, AFutureValue, APaymentTime) {
+    var Result = 0.0;
+    var r1 = 0.0;
+    var r2 = 0.0;
+    var dr = 0.0;
+    var fv1 = 0.0;
+    var fv2 = 0.0;
+    var iteration = 0;
+    iteration = 0;
+    r1 = 0.05;
+    do {
+      r2 = r1 + 0.001;
+      fv1 = $mod.FutureValue(r1,NPeriods,APayment,APresentValue,APaymentTime);
+      fv2 = $mod.FutureValue(r2,NPeriods,APayment,APresentValue,APaymentTime);
+      dr = ((AFutureValue - fv1) / (fv2 - fv1)) * 0.001;
+      r1 = r1 + dr;
+      iteration += 1;
+    } while (!((Math.abs(dr) < 1.0E-9) || (iteration >= 20)));
+    Result = r1;
+    return Result;
+  };
+  this.NumberOfPeriods = function (ARate, APayment, APresentValue, AFutureValue, APaymentTime) {
+    var Result = 0.0;
+    var q = 0.0;
+    var x1 = 0.0;
+    var x2 = 0.0;
+    if (ARate === 0) {
+      Result = -(APresentValue + AFutureValue) / APayment}
+     else {
+      q = 1.0 + ARate;
+      if (APaymentTime === $mod.TPaymentTime.ptStartOfPeriod) APayment = APayment * q;
+      x1 = APayment - (AFutureValue * ARate);
+      x2 = APayment + (APresentValue * ARate);
+      if ((x2 === 0) || ((Math.sign(x1) * Math.sign(x2)) < 0)) {
+        Result = Infinity}
+       else {
+        Result = Math.log(x1 / x2) / Math.log(q);
+      };
+    };
+    return Result;
+  };
+  this.Payment = function (ARate, NPeriods, APresentValue, AFutureValue, APaymentTime) {
+    var Result = 0.0;
+    var q = 0.0;
+    var qn = 0.0;
+    var factor = 0.0;
+    if (ARate === 0) {
+      Result = -(AFutureValue + APresentValue) / NPeriods}
+     else {
+      q = 1.0 + ARate;
+      qn = Math.pow(q,NPeriods);
+      factor = (qn - 1) / (q - 1);
+      if (APaymentTime === $mod.TPaymentTime.ptStartOfPeriod) factor = factor * q;
+      Result = -(AFutureValue + (APresentValue * qn)) / factor;
+    };
+    return Result;
+  };
+  this.PresentValue = function (ARate, NPeriods, APayment, AFutureValue, APaymentTime) {
+    var Result = 0.0;
+    var q = 0.0;
+    var qn = 0.0;
+    var factor = 0.0;
+    if (ARate === 0.0) {
+      Result = -AFutureValue - (APayment * NPeriods)}
+     else {
+      q = 1.0 + ARate;
+      qn = Math.pow(q,NPeriods);
+      factor = (qn - 1) / (q - 1);
+      if (APaymentTime === $mod.TPaymentTime.ptStartOfPeriod) factor = factor * q;
+      Result = -(AFutureValue + (APayment * factor)) / qn;
+    };
+    return Result;
+  };
+  this.IfThen = function (val, ifTrue, ifFalse) {
+    var Result = 0;
+    if (val) {
+      Result = ifTrue}
+     else Result = ifFalse;
+    return Result;
+  };
+  this.IfThen$1 = function (val, ifTrue, ifFalse) {
+    var Result = 0.0;
+    if (val) {
+      Result = ifTrue}
+     else Result = ifFalse;
+    return Result;
+  };
+  $mod.$rtti.$Int("TValueRelationship",{minvalue: -1, maxvalue: 1, ordtype: 0});
+  this.EqualsValue = 0;
+  this.LessThanValue = -1;
+  this.GreaterThanValue = 1;
+  this.CompareValue = function (A, B) {
+    var Result = -1;
+    Result = 1;
+    if (A === B) {
+      Result = 0}
+     else if (A < B) Result = -1;
+    return Result;
+  };
+  this.CompareValue$1 = function (A, B) {
+    var Result = -1;
+    Result = 1;
+    if (A === B) {
+      Result = 0}
+     else if (A < B) Result = -1;
+    return Result;
+  };
+  this.CompareValue$2 = function (A, B) {
+    var Result = -1;
+    Result = 1;
+    if (A === B) {
+      Result = 0}
+     else if (A < B) Result = -1;
+    return Result;
+  };
+  this.CompareValue$3 = function (A, B, delta) {
+    var Result = -1;
+    Result = 1;
+    if (Math.abs(A - B) <= delta) {
+      Result = 0}
+     else if (A < B) Result = -1;
+    return Result;
+  };
+},null,function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $impl.DZeroResolution = 1E-12;
+  $impl.sumofsquares = function (data) {
+    var Result = 0.0;
+    var i = 0;
+    var N = 0;
+    N = rtl.length(data);
+    Result = 0.0;
+    for (var $l1 = 0, $end2 = N - 1; $l1 <= $end2; $l1++) {
+      i = $l1;
+      Result = Result + pas.System.Sqr$1(data[i]);
+    };
+    return Result;
+  };
+});
+rtl.module("DateUtils",["System","SysUtils","math"],function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  this.DaysPerWeek = 7;
+  this.WeeksPerFortnight = 2;
+  this.MonthsPerYear = 12;
+  this.YearsPerDecade = 10;
+  this.YearsPerCentury = 100;
+  this.YearsPerMillennium = 1000;
+  this.DayMonday = 1;
+  this.DayTuesday = 2;
+  this.DayWednesday = 3;
+  this.DayThursday = 4;
+  this.DayFriday = 5;
+  this.DaySaturday = 6;
+  this.DaySunday = 7;
+  this.OneHour = 1 / 24;
+  this.OneMinute = 1 / 1440;
+  this.OneSecond = 1 / 86400;
+  this.OneMillisecond = 1 / 86400000;
+  this.DaysPerYear = [365,366];
+  this.RecodeLeaveFieldAsIs = 65535;
+  this.ApproxDaysPerMonth = 30.4375;
+  this.ApproxDaysPerYear = 365.25;
+  this.DateOf = function (AValue) {
+    var Result = 0.0;
+    Result = pas.System.Trunc(AValue);
+    return Result;
+  };
+  this.TimeOf = function (AValue) {
+    var Result = 0.0;
+    Result = pas.System.Frac(AValue);
+    return Result;
+  };
+  this.IsInLeapYear = function (AValue) {
+    var Result = false;
+    Result = pas.SysUtils.IsLeapYear($mod.YearOf(AValue));
+    return Result;
+  };
+  this.IsPM = function (AValue) {
+    var Result = false;
+    Result = $mod.HourOf(AValue) >= 12;
+    return Result;
+  };
+  this.IsValidDate = function (AYear, AMonth, ADay) {
+    var Result = false;
+    Result = ((((AYear !== 0) && (AYear < 10000)) && $impl.IsValidMonth(AMonth)) && (ADay !== 0)) && (ADay <= pas.SysUtils.MonthDays[+pas.SysUtils.IsLeapYear(AYear)][AMonth - 1]);
+    return Result;
+  };
+  this.IsValidTime = function (AHour, AMinute, ASecond, AMilliSecond) {
+    var Result = false;
+    Result = (((AHour === 24) && (AMinute === 0)) && (ASecond === 0)) && (AMilliSecond === 0);
+    Result = Result || ((((AHour < 24) && (AMinute < 60)) && (ASecond < 60)) && (AMilliSecond < 1000));
+    return Result;
+  };
+  this.IsValidDateTime = function (AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond) {
+    var Result = false;
+    Result = $mod.IsValidDate(AYear,AMonth,ADay) && $mod.IsValidTime(AHour,AMinute,ASecond,AMilliSecond);
+    return Result;
+  };
+  this.IsValidDateDay = function (AYear, ADayOfYear) {
+    var Result = false;
+    Result = (((AYear !== 0) && (ADayOfYear !== 0)) && (AYear < 10000)) && (ADayOfYear <= $mod.DaysPerYear[+pas.SysUtils.IsLeapYear(AYear)]);
+    return Result;
+  };
+  this.IsValidDateWeek = function (AYear, AWeekOfYear, ADayOfWeek) {
+    var Result = false;
+    Result = ((((AYear !== 0) && (AYear < 10000)) && $impl.IsValidDayOfWeek(ADayOfWeek)) && (AWeekOfYear !== 0)) && (AWeekOfYear <= $mod.WeeksInAYear(AYear));
+    return Result;
+  };
+  this.IsValidDateMonthWeek = function (AYear, AMonth, AWeekOfMonth, ADayOfWeek) {
+    var Result = false;
+    Result = ((((AYear !== 0) && (AYear < 10000)) && $impl.IsValidMonth(AMonth)) && $impl.IsValidWeekOfMonth(AWeekOfMonth)) && $impl.IsValidDayOfWeek(ADayOfWeek);
+    return Result;
+  };
+  this.WeeksInYear = function (AValue) {
+    var Result = 0;
+    Result = $mod.WeeksInAYear($mod.YearOf(AValue));
+    return Result;
+  };
+  this.WeeksInAYear = function (AYear) {
+    var Result = 0;
+    var DOW = 0;
+    Result = 52;
+    DOW = $mod.DayOfTheWeek($mod.StartOfAYear(AYear));
+    if ((DOW === 4) || ((DOW === 3) && pas.SysUtils.IsLeapYear(AYear))) Result += 1;
+    return Result;
+  };
+  this.DaysInYear = function (AValue) {
+    var Result = 0;
+    Result = $mod.DaysPerYear[+pas.SysUtils.IsLeapYear($mod.YearOf(AValue))];
+    return Result;
+  };
+  this.DaysInAYear = function (AYear) {
+    var Result = 0;
+    Result = $mod.DaysPerYear[+pas.SysUtils.IsLeapYear(AYear)];
+    return Result;
+  };
+  this.DaysInMonth = function (AValue) {
+    var Result = 0;
+    var Y = 0;
+    var M = 0;
+    var D = 0;
+    pas.SysUtils.DecodeDate(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }});
+    Result = pas.SysUtils.MonthDays[+pas.SysUtils.IsLeapYear(Y)][M - 1];
+    return Result;
+  };
+  this.DaysInAMonth = function (AYear, AMonth) {
+    var Result = 0;
+    Result = pas.SysUtils.MonthDays[+pas.SysUtils.IsLeapYear(AYear)][AMonth - 1];
+    return Result;
+  };
+  this.Today = function () {
+    var Result = 0.0;
+    Result = pas.SysUtils.date();
+    return Result;
+  };
+  this.Yesterday = function () {
+    var Result = 0.0;
+    Result = pas.SysUtils.date() - 1;
+    return Result;
+  };
+  this.Tomorrow = function () {
+    var Result = 0.0;
+    Result = pas.SysUtils.date() + 1;
+    return Result;
+  };
+  this.IsToday = function (AValue) {
+    var Result = false;
+    Result = $mod.IsSameDay(AValue,pas.SysUtils.date());
+    return Result;
+  };
+  this.IsSameDay = function (AValue, ABasis) {
+    var Result = false;
+    var D = 0.0;
+    D = AValue - pas.System.Trunc(ABasis);
+    Result = (D >= 0) && (D < 1);
+    return Result;
+  };
+  this.IsSameMonth = function (Avalue, ABasis) {
+    var Result = false;
+    Result = $mod.YearOf(Avalue) === $mod.YearOf(ABasis);
+    Result = Result && ($mod.MonthOf(Avalue) === $mod.MonthOf(ABasis));
+    return Result;
+  };
+  this.PreviousDayOfWeek = function (DayOfWeek) {
+    var Result = 0;
+    if (!$impl.IsValidDayOfWeek(DayOfWeek)) throw pas.SysUtils.EConvertError.$create("CreateFmt",[pas.RTLConsts.SErrInvalidDayOfWeek,[DayOfWeek]]);
+    Result = $impl.DOWMap[DayOfWeek - 1];
+    return Result;
+  };
+  this.YearOf = function (AValue) {
+    var Result = 0;
+    var D = 0;
+    var M = 0;
+    pas.SysUtils.DecodeDate(AValue,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }},{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }});
+    return Result;
+  };
+  this.MonthOf = function (AValue) {
+    var Result = 0;
+    var Y = 0;
+    var D = 0;
+    pas.SysUtils.DecodeDate(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }},{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }});
+    return Result;
+  };
+  this.WeekOf = function (AValue) {
+    var Result = 0;
+    Result = $mod.WeekOfTheYear(AValue);
+    return Result;
+  };
+  this.DayOf = function (AValue) {
+    var Result = 0;
+    var Y = 0;
+    var M = 0;
+    pas.SysUtils.DecodeDate(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }});
+    return Result;
+  };
+  this.HourOf = function (AValue) {
+    var Result = 0;
+    var N = 0;
+    var S = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }},{get: function () {
+        return N;
+      }, set: function (v) {
+        N = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    return Result;
+  };
+  this.MinuteOf = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var S = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    return Result;
+  };
+  this.SecondOf = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var N = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return N;
+      }, set: function (v) {
+        N = v;
+      }},{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    return Result;
+  };
+  this.MilliSecondOf = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var N = 0;
+    var S = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return N;
+      }, set: function (v) {
+        N = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }});
+    return Result;
+  };
+  this.StartOfTheYear = function (AValue) {
+    var Result = 0.0;
+    Result = pas.SysUtils.EncodeDate($mod.YearOf(AValue),1,1);
+    return Result;
+  };
+  this.EndOfTheYear = function (AValue) {
+    var Result = 0.0;
+    Result = $mod.EncodeDateTime($mod.YearOf(AValue),12,31,23,59,59,999);
+    return Result;
+  };
+  this.StartOfAYear = function (AYear) {
+    var Result = 0.0;
+    Result = pas.SysUtils.EncodeDate(AYear,1,1);
+    return Result;
+  };
+  this.EndOfAYear = function (AYear) {
+    var Result = 0.0;
+    Result = $mod.EncodeDateTime(AYear,12,31,23,59,59,999);
+    return Result;
+  };
+  this.StartOfTheMonth = function (AValue) {
+    var Result = 0.0;
+    var Y = 0;
+    var M = 0;
+    var D = 0;
+    pas.SysUtils.DecodeDate(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }});
+    Result = pas.SysUtils.EncodeDate(Y,M,1);
+    return Result;
+  };
+  this.EndOfTheMonth = function (AValue) {
+    var Result = 0.0;
+    var Y = 0;
+    var M = 0;
+    var D = 0;
+    pas.SysUtils.DecodeDate(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }});
+    Result = $mod.EncodeDateTime(Y,M,pas.SysUtils.MonthDays[+pas.SysUtils.IsLeapYear(Y)][M - 1],23,59,59,999);
+    return Result;
+  };
+  this.StartOfAMonth = function (AYear, AMonth) {
+    var Result = 0.0;
+    Result = pas.SysUtils.EncodeDate(AYear,AMonth,1);
+    return Result;
+  };
+  this.EndOfAMonth = function (AYear, AMonth) {
+    var Result = 0.0;
+    Result = $mod.EncodeDateTime(AYear,AMonth,pas.SysUtils.MonthDays[+pas.SysUtils.IsLeapYear(AYear)][AMonth - 1],23,59,59,999);
+    return Result;
+  };
+  this.StartOfTheWeek = function (AValue) {
+    var Result = 0.0;
+    Result = (pas.System.Trunc(AValue) - $mod.DayOfTheWeek(AValue)) + 1;
+    return Result;
+  };
+  this.EndOfTheWeek = function (AValue) {
+    var Result = 0.0;
+    Result = $mod.EndOfTheDay((AValue - $mod.DayOfTheWeek(AValue)) + 7);
+    return Result;
+  };
+  this.StartOfAWeek = function (AYear, AWeekOfYear, ADayOfWeek) {
+    var Result = 0.0;
+    Result = $mod.EncodeDateWeek(AYear,AWeekOfYear,ADayOfWeek);
+    return Result;
+  };
+  this.StartOfAWeek$1 = function (AYear, AWeekOfYear) {
+    var Result = 0.0;
+    Result = $mod.StartOfAWeek(AYear,AWeekOfYear,1);
+    return Result;
+  };
+  this.EndOfAWeek = function (AYear, AWeekOfYear, ADayOfWeek) {
+    var Result = 0.0;
+    Result = $mod.EndOfTheDay($mod.EncodeDateWeek(AYear,AWeekOfYear,ADayOfWeek));
+    return Result;
+  };
+  this.EndOfAWeek$1 = function (AYear, AWeekOfYear) {
+    var Result = 0.0;
+    Result = $mod.EndOfAWeek(AYear,AWeekOfYear,7);
+    return Result;
+  };
+  this.StartOfTheDay = function (AValue) {
+    var Result = 0.0;
+    Result = pas.System.Trunc(AValue);
+    return Result;
+  };
+  this.EndOfTheDay = function (AValue) {
+    var Result = 0.0;
+    var Y = 0;
+    var M = 0;
+    var D = 0;
+    pas.SysUtils.DecodeDate(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }});
+    Result = $mod.EncodeDateTime(Y,M,D,23,59,59,999);
+    return Result;
+  };
+  this.StartOfADay = function (AYear, AMonth, ADay) {
+    var Result = 0.0;
+    Result = pas.SysUtils.EncodeDate(AYear,AMonth,ADay);
+    return Result;
+  };
+  this.StartOfADay$1 = function (AYear, ADayOfYear) {
+    var Result = 0.0;
+    Result = ($mod.StartOfAYear(AYear) + ADayOfYear) - 1;
+    return Result;
+  };
+  this.EndOfADay = function (AYear, AMonth, ADay) {
+    var Result = 0.0;
+    Result = $mod.EndOfTheDay(pas.SysUtils.EncodeDate(AYear,AMonth,ADay));
+    return Result;
+  };
+  this.EndOfADay$1 = function (AYear, ADayOfYear) {
+    var Result = 0.0;
+    Result = (($mod.StartOfAYear(AYear) + ADayOfYear) - 1) + pas.SysUtils.EncodeTime(23,59,59,999);
+    return Result;
+  };
+  this.MonthOfTheYear = function (AValue) {
+    var Result = 0;
+    Result = $mod.MonthOf(AValue);
+    return Result;
+  };
+  this.WeekOfTheYear = function (AValue) {
+    var Result = 0;
+    var Y = 0;
+    var DOW = 0;
+    $mod.DecodeDateWeek(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }},{get: function () {
+        return DOW;
+      }, set: function (v) {
+        DOW = v;
+      }});
+    return Result;
+  };
+  this.WeekOfTheYear$1 = function (AValue, AYear) {
+    var Result = 0;
+    var DOW = 0;
+    $mod.DecodeDateWeek(AValue,AYear,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }},{get: function () {
+        return DOW;
+      }, set: function (v) {
+        DOW = v;
+      }});
+    return Result;
+  };
+  this.DayOfTheYear = function (AValue) {
+    var Result = 0;
+    Result = pas.System.Trunc((AValue - $mod.StartOfTheYear(AValue)) + 1);
+    return Result;
+  };
+  this.HourOfTheYear = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var M = 0;
+    var S = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = H + (($mod.DayOfTheYear(AValue) - 1) * 24);
+    return Result;
+  };
+  this.MinuteOfTheYear = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var M = 0;
+    var S = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = M + ((H + (($mod.DayOfTheYear(AValue) - 1) * 24)) * 60);
+    return Result;
+  };
+  this.SecondOfTheYear = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var M = 0;
+    var S = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = ((M + ((H + (($mod.DayOfTheYear(AValue) - 1) * 24)) * 60)) * 60) + S;
+    return Result;
+  };
+  this.MilliSecondOfTheYear = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var M = 0;
+    var S = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = ((((M + ((H + (($mod.DayOfTheYear(AValue) - 1) * 24)) * 60)) * 60) + S) * 1000) + MS;
+    return Result;
+  };
+  this.WeekOfTheMonth = function (AValue) {
+    var Result = 0;
+    var Y = 0;
+    var M = 0;
+    var DOW = 0;
+    $mod.DecodeDateMonthWeek(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }},{get: function () {
+        return DOW;
+      }, set: function (v) {
+        DOW = v;
+      }});
+    return Result;
+  };
+  this.WeekOfTheMonth$1 = function (AValue, AYear, AMonth) {
+    var Result = 0;
+    var DOW = 0;
+    $mod.DecodeDateMonthWeek(AValue,AYear,AMonth,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }},{get: function () {
+        return DOW;
+      }, set: function (v) {
+        DOW = v;
+      }});
+    return Result;
+  };
+  this.DayOfTheMonth = function (AValue) {
+    var Result = 0;
+    var Y = 0;
+    var M = 0;
+    pas.SysUtils.DecodeDate(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }});
+    return Result;
+  };
+  this.HourOfTheMonth = function (AValue) {
+    var Result = 0;
+    var Y = 0;
+    var M = 0;
+    var D = 0;
+    var H = 0;
+    var N = 0;
+    var S = 0;
+    var MS = 0;
+    $mod.DecodeDateTime(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }},{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return N;
+      }, set: function (v) {
+        N = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = ((D - 1) * 24) + H;
+    return Result;
+  };
+  this.MinuteOfTheMonth = function (AValue) {
+    var Result = 0;
+    var Y = 0;
+    var M = 0;
+    var D = 0;
+    var H = 0;
+    var N = 0;
+    var S = 0;
+    var MS = 0;
+    $mod.DecodeDateTime(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }},{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return N;
+      }, set: function (v) {
+        N = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = ((((D - 1) * 24) + H) * 60) + N;
+    return Result;
+  };
+  this.SecondOfTheMonth = function (AValue) {
+    var Result = 0;
+    var Y = 0;
+    var M = 0;
+    var D = 0;
+    var H = 0;
+    var N = 0;
+    var S = 0;
+    var MS = 0;
+    $mod.DecodeDateTime(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }},{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return N;
+      }, set: function (v) {
+        N = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = ((((((D - 1) * 24) + H) * 60) + N) * 60) + S;
+    return Result;
+  };
+  this.MilliSecondOfTheMonth = function (AValue) {
+    var Result = 0;
+    var Y = 0;
+    var M = 0;
+    var D = 0;
+    var H = 0;
+    var N = 0;
+    var S = 0;
+    var MS = 0;
+    $mod.DecodeDateTime(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }},{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return N;
+      }, set: function (v) {
+        N = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = ((((((((D - 1) * 24) + H) * 60) + N) * 60) + S) * 1000) + MS;
+    return Result;
+  };
+  this.DayOfTheWeek = function (AValue) {
+    var Result = 0;
+    Result = $impl.DOWMap[pas.SysUtils.DayOfWeek(AValue) - 1];
+    return Result;
+  };
+  this.HourOfTheWeek = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var M = 0;
+    var S = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = (($mod.DayOfTheWeek(AValue) - 1) * 24) + H;
+    return Result;
+  };
+  this.MinuteOfTheWeek = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var M = 0;
+    var S = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = (((($mod.DayOfTheWeek(AValue) - 1) * 24) + H) * 60) + M;
+    return Result;
+  };
+  this.SecondOfTheWeek = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var M = 0;
+    var S = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = (((((($mod.DayOfTheWeek(AValue) - 1) * 24) + H) * 60) + M) * 60) + S;
+    return Result;
+  };
+  this.MilliSecondOfTheWeek = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var M = 0;
+    var S = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = (((((((($mod.DayOfTheWeek(AValue) - 1) * 24) + H) * 60) + M) * 60) + S) * 1000) + MS;
+    return Result;
+  };
+  this.HourOfTheDay = function (AValue) {
+    var Result = 0;
+    Result = $mod.HourOf(AValue);
+    return Result;
+  };
+  this.MinuteOfTheDay = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var M = 0;
+    var S = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = (H * 60) + M;
+    return Result;
+  };
+  this.SecondOfTheDay = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var M = 0;
+    var S = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = (((H * 60) + M) * 60) + S;
+    return Result;
+  };
+  this.MilliSecondOfTheDay = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var M = 0;
+    var S = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = (((((H * 60) + M) * 60) + S) * 1000) + MS;
+    return Result;
+  };
+  this.MinuteOfTheHour = function (AValue) {
+    var Result = 0;
+    Result = $mod.MinuteOf(AValue);
+    return Result;
+  };
+  this.SecondOfTheHour = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var S = 0;
+    var M = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = (M * 60) + S;
+    return Result;
+  };
+  this.MilliSecondOfTheHour = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var S = 0;
+    var M = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = (((M * 60) + S) * 1000) + MS;
+    return Result;
+  };
+  this.SecondOfTheMinute = function (AValue) {
+    var Result = 0;
+    Result = $mod.SecondOf(AValue);
+    return Result;
+  };
+  this.MilliSecondOfTheMinute = function (AValue) {
+    var Result = 0;
+    var H = 0;
+    var S = 0;
+    var M = 0;
+    var MS = 0;
+    pas.SysUtils.DecodeTime(AValue,{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Result = (S * 1000) + MS;
+    return Result;
+  };
+  this.MilliSecondOfTheSecond = function (AValue) {
+    var Result = 0;
+    Result = $mod.MilliSecondOf(AValue);
+    return Result;
+  };
+  this.WithinPastYears = function (ANow, AThen, AYears) {
+    var Result = false;
+    Result = $mod.YearsBetween(ANow,AThen,false) <= AYears;
+    return Result;
+  };
+  this.WithinPastMonths = function (ANow, AThen, AMonths) {
+    var Result = false;
+    Result = $mod.MonthsBetween(ANow,AThen,false) <= AMonths;
+    return Result;
+  };
+  this.WithinPastWeeks = function (ANow, AThen, AWeeks) {
+    var Result = false;
+    Result = $mod.WeeksBetween(ANow,AThen) <= AWeeks;
+    return Result;
+  };
+  this.WithinPastDays = function (ANow, AThen, ADays) {
+    var Result = false;
+    Result = $mod.DaysBetween(ANow,AThen) <= ADays;
+    return Result;
+  };
+  this.WithinPastHours = function (ANow, AThen, AHours) {
+    var Result = false;
+    Result = $mod.HoursBetween(ANow,AThen) <= AHours;
+    return Result;
+  };
+  this.WithinPastMinutes = function (ANow, AThen, AMinutes) {
+    var Result = false;
+    Result = $mod.MinutesBetween(ANow,AThen) <= AMinutes;
+    return Result;
+  };
+  this.WithinPastSeconds = function (ANow, AThen, ASeconds) {
+    var Result = false;
+    Result = $mod.SecondsBetween(ANow,AThen) <= ASeconds;
+    return Result;
+  };
+  this.WithinPastMilliSeconds = function (ANow, AThen, AMilliSeconds) {
+    var Result = false;
+    Result = $mod.MilliSecondsBetween(ANow,AThen) <= AMilliSeconds;
+    return Result;
+  };
+  this.YearsBetween = function (ANow, AThen, AExact) {
+    var Result = 0;
+    var yy = 0;
+    var mm = 0;
+    var dd = 0;
+    if ((((AExact && (ANow >= -693594)) && (AThen >= -693594)) && (ANow <= pas.SysUtils.MaxDateTime)) && (AThen <= pas.SysUtils.MaxDateTime)) {
+      $mod.PeriodBetween(ANow,AThen,{get: function () {
+          return yy;
+        }, set: function (v) {
+          yy = v;
+        }},{get: function () {
+          return mm;
+        }, set: function (v) {
+          mm = v;
+        }},{get: function () {
+          return dd;
+        }, set: function (v) {
+          dd = v;
+        }});
+      Result = yy;
+    } else Result = pas.System.Trunc((Math.abs($impl.DateTimeDiff(ANow,AThen)) + 5.7870370370370369E-9) / $mod.ApproxDaysPerYear);
+    return Result;
+  };
+  this.MonthsBetween = function (ANow, AThen, AExact) {
+    var Result = 0;
+    var y = 0;
+    var m = 0;
+    var d = 0;
+    if ((((AExact && (ANow >= -693594)) && (AThen >= -693594)) && (ANow <= pas.SysUtils.MaxDateTime)) && (AThen <= pas.SysUtils.MaxDateTime)) {
+      $mod.PeriodBetween(ANow,AThen,{get: function () {
+          return y;
+        }, set: function (v) {
+          y = v;
+        }},{get: function () {
+          return m;
+        }, set: function (v) {
+          m = v;
+        }},{get: function () {
+          return d;
+        }, set: function (v) {
+          d = v;
+        }});
+      Result = (y * 12) + m;
+    } else Result = pas.System.Trunc((Math.abs($impl.DateTimeDiff(ANow,AThen)) + 5.7870370370370369E-9) / $mod.ApproxDaysPerMonth);
+    return Result;
+  };
+  this.WeeksBetween = function (ANow, AThen) {
+    var Result = 0;
+    Result = Math.floor(pas.System.Trunc(Math.abs($impl.DateTimeDiff(ANow,AThen)) + 5.7870370370370369E-9) / 7);
+    return Result;
+  };
+  this.DaysBetween = function (ANow, AThen) {
+    var Result = 0;
+    Result = pas.System.Trunc(Math.abs($impl.DateTimeDiff(ANow,AThen)) + 5.7870370370370369E-9);
+    return Result;
+  };
+  this.HoursBetween = function (ANow, AThen) {
+    var Result = 0;
+    Result = pas.System.Trunc((Math.abs($impl.DateTimeDiff(ANow,AThen)) + 5.7870370370370369E-9) * 24);
+    return Result;
+  };
+  this.MinutesBetween = function (ANow, AThen) {
+    var Result = 0;
+    Result = pas.System.Trunc((Math.abs($impl.DateTimeDiff(ANow,AThen)) + 5.7870370370370369E-9) * 1440);
+    return Result;
+  };
+  this.SecondsBetween = function (ANow, AThen) {
+    var Result = 0;
+    Result = pas.System.Trunc((Math.abs($impl.DateTimeDiff(ANow,AThen)) + 5.7870370370370369E-9) * 86400);
+    return Result;
+  };
+  this.MilliSecondsBetween = function (ANow, AThen) {
+    var Result = 0;
+    Result = pas.System.Trunc((Math.abs($impl.DateTimeDiff(ANow,AThen)) + 5.7870370370370369E-9) * 86400000);
+    return Result;
+  };
+  this.PeriodBetween = function (ANow, AThen, Years, months, days) {
+    var Y1 = 0;
+    var Y2 = 0;
+    var M1 = 0;
+    var M2 = 0;
+    var D1 = 0;
+    var D2 = 0;
+    if (AThen > ANow) {
+      pas.SysUtils.DecodeDate(ANow,{get: function () {
+          return Y1;
+        }, set: function (v) {
+          Y1 = v;
+        }},{get: function () {
+          return M1;
+        }, set: function (v) {
+          M1 = v;
+        }},{get: function () {
+          return D1;
+        }, set: function (v) {
+          D1 = v;
+        }});
+      pas.SysUtils.DecodeDate(AThen,{get: function () {
+          return Y2;
+        }, set: function (v) {
+          Y2 = v;
+        }},{get: function () {
+          return M2;
+        }, set: function (v) {
+          M2 = v;
+        }},{get: function () {
+          return D2;
+        }, set: function (v) {
+          D2 = v;
+        }});
+    } else {
+      pas.SysUtils.DecodeDate(AThen,{get: function () {
+          return Y1;
+        }, set: function (v) {
+          Y1 = v;
+        }},{get: function () {
+          return M1;
+        }, set: function (v) {
+          M1 = v;
+        }},{get: function () {
+          return D1;
+        }, set: function (v) {
+          D1 = v;
+        }});
+      pas.SysUtils.DecodeDate(ANow,{get: function () {
+          return Y2;
+        }, set: function (v) {
+          Y2 = v;
+        }},{get: function () {
+          return M2;
+        }, set: function (v) {
+          M2 = v;
+        }},{get: function () {
+          return D2;
+        }, set: function (v) {
+          D2 = v;
+        }});
+    };
+    Years.set(Y2 - Y1);
+    if ((M1 > M2) || ((M1 === M2) && (D1 > D2))) Years.set(Years.get() - 1);
+    if (M1 > M2) M2 += 12;
+    months.set(M2 - M1);
+    if (D2 >= D1) {
+      days.set(D2 - D1)}
+     else {
+      if (months.get() === 0) {
+        months.set(11)}
+       else months.set(months.get() - 1);
+      days.set(($mod.DaysInAMonth(Y1,M1) - D1) + D2);
+    };
+  };
+  this.YearSpan = function (ANow, AThen) {
+    var Result = 0.0;
+    Result = Math.abs($impl.DateTimeDiff(ANow,AThen)) / $mod.ApproxDaysPerYear;
+    return Result;
+  };
+  this.MonthSpan = function (ANow, AThen) {
+    var Result = 0.0;
+    Result = Math.abs($impl.DateTimeDiff(ANow,AThen)) / $mod.ApproxDaysPerMonth;
+    return Result;
+  };
+  this.WeekSpan = function (ANow, AThen) {
+    var Result = 0.0;
+    Result = Math.abs($impl.DateTimeDiff(ANow,AThen)) / 7;
+    return Result;
+  };
+  this.DaySpan = function (ANow, AThen) {
+    var Result = 0.0;
+    Result = Math.abs($impl.DateTimeDiff(ANow,AThen));
+    return Result;
+  };
+  this.HourSpan = function (ANow, AThen) {
+    var Result = 0.0;
+    Result = Math.abs($impl.DateTimeDiff(ANow,AThen)) * 24;
+    return Result;
+  };
+  this.MinuteSpan = function (ANow, AThen) {
+    var Result = 0.0;
+    Result = Math.abs($impl.DateTimeDiff(ANow,AThen)) * 1440;
+    return Result;
+  };
+  this.SecondSpan = function (ANow, AThen) {
+    var Result = 0.0;
+    Result = Math.abs($impl.DateTimeDiff(ANow,AThen)) * 86400;
+    return Result;
+  };
+  this.MilliSecondSpan = function (ANow, AThen) {
+    var Result = 0.0;
+    Result = Math.abs($impl.DateTimeDiff(ANow,AThen)) * 86400000;
+    return Result;
+  };
+  this.IncYear = function (AValue, ANumberOfYears) {
+    var Result = 0.0;
+    var Y = 0;
+    var M = 0;
+    var D = 0;
+    var H = 0;
+    var N = 0;
+    var S = 0;
+    var MS = 0;
+    $mod.DecodeDateTime(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }},{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return N;
+      }, set: function (v) {
+        N = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Y = Y + ANumberOfYears;
+    if (((M === 2) && (D === 29)) && !pas.SysUtils.IsLeapYear(Y)) D = 28;
+    Result = $mod.EncodeDateTime(Y,M,D,H,N,S,MS);
+    return Result;
+  };
+  this.IncYear$1 = function (AValue) {
+    var Result = 0.0;
+    Result = $mod.IncYear(AValue,1);
+    return Result;
+  };
+  this.IncWeek = function (AValue, ANumberOfWeeks) {
+    var Result = 0.0;
+    Result = AValue + (ANumberOfWeeks * 7);
+    $impl.MaybeSkipTimeWarp(AValue,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }});
+    return Result;
+  };
+  this.IncWeek$1 = function (AValue) {
+    var Result = 0.0;
+    Result = $mod.IncWeek(AValue,1);
+    return Result;
+  };
+  this.IncDay = function (AValue, ANumberOfDays) {
+    var Result = 0.0;
+    Result = AValue + ANumberOfDays;
+    $impl.MaybeSkipTimeWarp(AValue,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }});
+    return Result;
+  };
+  this.IncDay$1 = function (AValue) {
+    var Result = 0.0;
+    Result = $mod.IncDay(AValue,1);
+    return Result;
+  };
+  this.IncHour = function (AValue, ANumberOfHours) {
+    var Result = 0.0;
+    if (AValue >= 0) {
+      Result = AValue + (ANumberOfHours / 24)}
+     else Result = $impl.IncNegativeTime(AValue,ANumberOfHours / 24);
+    $impl.MaybeSkipTimeWarp(AValue,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }});
+    return Result;
+  };
+  this.IncHour$1 = function (AValue) {
+    var Result = 0.0;
+    Result = $mod.IncHour(AValue,1);
+    return Result;
+  };
+  this.IncMinute = function (AValue, ANumberOfMinutes) {
+    var Result = 0.0;
+    if (AValue >= 0) {
+      Result = AValue + (ANumberOfMinutes / 1440)}
+     else Result = $impl.IncNegativeTime(AValue,ANumberOfMinutes / 1440);
+    $impl.MaybeSkipTimeWarp(AValue,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }});
+    return Result;
+  };
+  this.IncMinute$1 = function (AValue) {
+    var Result = 0.0;
+    Result = $mod.IncMinute(AValue,1);
+    return Result;
+  };
+  this.IncSecond = function (AValue, ANumberOfSeconds) {
+    var Result = 0.0;
+    if (AValue >= 0) {
+      Result = AValue + (ANumberOfSeconds / 86400)}
+     else Result = $impl.IncNegativeTime(AValue,ANumberOfSeconds / 86400);
+    $impl.MaybeSkipTimeWarp(AValue,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }});
+    return Result;
+  };
+  this.IncSecond$1 = function (AValue) {
+    var Result = 0.0;
+    Result = $mod.IncSecond(AValue,1);
+    return Result;
+  };
+  this.IncMilliSecond = function (AValue, ANumberOfMilliSeconds) {
+    var Result = 0.0;
+    if (AValue >= 0) {
+      Result = AValue + (ANumberOfMilliSeconds / 86400000)}
+     else Result = $impl.IncNegativeTime(AValue,ANumberOfMilliSeconds / 86400000);
+    $impl.MaybeSkipTimeWarp(AValue,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }});
+    return Result;
+  };
+  this.IncMilliSecond$1 = function (AValue) {
+    var Result = 0.0;
+    Result = $mod.IncMilliSecond(AValue,1);
+    return Result;
+  };
+  this.EncodeDateTime = function (AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond) {
+    var Result = 0.0;
+    if (!$mod.TryEncodeDateTime(AYear,AMonth,ADay,AHour,AMinute,ASecond,AMilliSecond,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }})) $mod.InvalidDateTimeError$1(AYear,AMonth,ADay,AHour,AMinute,ASecond,AMilliSecond);
+    return Result;
+  };
+  this.DecodeDateTime = function (AValue, AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond) {
+    pas.SysUtils.DecodeTime(AValue,AHour,AMinute,ASecond,AMilliSecond);
+    if (AHour.get() === 24) {
+      AHour.set(0);
+      pas.SysUtils.DecodeDate(Math.round(AValue),AYear,AMonth,ADay);
+    } else pas.SysUtils.DecodeDate(AValue,AYear,AMonth,ADay);
+  };
+  this.TryEncodeDateTime = function (AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond, AValue) {
+    var Result = false;
+    var tmp = 0.0;
+    Result = pas.SysUtils.TryEncodeDate(AYear,AMonth,ADay,AValue);
+    Result = Result && pas.SysUtils.TryEncodeTime(AHour,AMinute,ASecond,AMilliSecond,{get: function () {
+        return tmp;
+      }, set: function (v) {
+        tmp = v;
+      }});
+    if (Result) AValue.set(pas.SysUtils.ComposeDateTime(AValue.get(),tmp));
+    return Result;
+  };
+  this.EncodeDateWeek = function (AYear, AWeekOfYear, ADayOfWeek) {
+    var Result = 0.0;
+    if (!$mod.TryEncodeDateWeek(AYear,AWeekOfYear,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }},ADayOfWeek)) $mod.InvalidDateWeekError(AYear,AWeekOfYear,ADayOfWeek);
+    return Result;
+  };
+  this.EncodeDateWeek$1 = function (AYear, AWeekOfYear) {
+    var Result = 0.0;
+    Result = $mod.EncodeDateWeek(AYear,AWeekOfYear,1);
+    return Result;
+  };
+  this.DecodeDateWeek = function (AValue, AYear, AWeekOfYear, ADayOfWeek) {
+    var DOY = 0;
+    var D = 0;
+    var YS = 0.0;
+    var YSDOW = 0;
+    var YEDOW = 0;
+    AYear.set($mod.YearOf(AValue));
+    ADayOfWeek.set(pas.SysUtils.DayOfWeek(AValue) - 1);
+    if (ADayOfWeek.get() === 0) ADayOfWeek.set(7);
+    YS = $mod.StartOfAYear(AYear.get());
+    DOY = pas.System.Trunc(AValue - YS) + 1;
+    YSDOW = $mod.DayOfTheWeek(YS);
+    if (YSDOW < 5) {
+      DOY += YSDOW - 1}
+     else DOY -= 8 - YSDOW;
+    if (DOY <= 0) {
+      $mod.DecodeDateWeek(YS - 1,AYear,AWeekOfYear,{get: function () {
+          return D;
+        }, set: function (v) {
+          D = v;
+        }})}
+     else {
+      AWeekOfYear.set(Math.floor(DOY / 7));
+      if ((DOY % 7) !== 0) AWeekOfYear.set(AWeekOfYear.get() + 1);
+      if (AWeekOfYear.get() > 52) {
+        YEDOW = YSDOW;
+        if (pas.SysUtils.IsLeapYear(AYear.get())) {
+          YEDOW += 1;
+          if (YEDOW > 7) YEDOW = 1;
+        };
+        if (YEDOW < 4) {
+          AYear.set(AYear.get() + 1);
+          AWeekOfYear.set(1);
+        };
+      };
+    };
+  };
+  this.TryEncodeDateWeek = function (AYear, AWeekOfYear, AValue, ADayOfWeek) {
+    var Result = false;
+    var DOW = 0;
+    var Rest = 0;
+    Result = $mod.IsValidDateWeek(AYear,AWeekOfYear,ADayOfWeek);
+    if (Result) {
+      AValue.set(pas.SysUtils.EncodeDate(AYear,1,1) + (7 * (AWeekOfYear - 1)));
+      DOW = $mod.DayOfTheWeek(AValue.get());
+      Rest = ADayOfWeek - DOW;
+      if (DOW > 4) Rest += 7;
+      AValue.set(AValue.get() + Rest);
+    };
+    return Result;
+  };
+  this.TryEncodeDateWeek$1 = function (AYear, AWeekOfYear, AValue) {
+    var Result = false;
+    Result = $mod.TryEncodeDateWeek(AYear,AWeekOfYear,AValue,1);
+    return Result;
+  };
+  this.EncodeDateDay = function (AYear, ADayOfYear) {
+    var Result = 0.0;
+    if (!$mod.TryEncodeDateDay(AYear,ADayOfYear,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }})) $mod.InvalidDateDayError(AYear,ADayOfYear);
+    return Result;
+  };
+  this.DecodeDateDay = function (AValue, AYear, ADayOfYear) {
+    var M = 0;
+    var D = 0;
+    pas.SysUtils.DecodeDate(AValue,AYear,{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }});
+    ADayOfYear.set(pas.System.Trunc(AValue - pas.SysUtils.EncodeDate(AYear.get(),1,1)) + 1);
+  };
+  this.TryEncodeDateDay = function (AYear, ADayOfYear, AValue) {
+    var Result = false;
+    Result = (ADayOfYear !== 0) && (ADayOfYear <= $mod.DaysPerYear[+pas.SysUtils.IsLeapYear(AYear)]);
+    if (Result) AValue.set((pas.SysUtils.EncodeDate(AYear,1,1) + ADayOfYear) - 1);
+    return Result;
+  };
+  this.EncodeDateMonthWeek = function (AYear, AMonth, AWeekOfMonth, ADayOfWeek) {
+    var Result = 0.0;
+    if (!$mod.TryEncodeDateMonthWeek(AYear,AMonth,AWeekOfMonth,ADayOfWeek,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }})) $mod.InvalidDateMonthWeekError(AYear,AMonth,AWeekOfMonth,ADayOfWeek);
+    return Result;
+  };
+  this.DecodeDateMonthWeek = function (AValue, AYear, AMonth, AWeekOfMonth, ADayOfWeek) {
+    var D = 0;
+    var SDOM = 0;
+    var EDOM = 0;
+    var SOM = 0.0;
+    var DOM = 0;
+    pas.SysUtils.DecodeDate(AValue,AYear,AMonth,{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }});
+    ADayOfWeek.set($mod.DayOfTheWeek(AValue));
+    SOM = pas.SysUtils.EncodeDate(AYear.get(),AMonth.get(),1);
+    SDOM = $mod.DayOfTheWeek(SOM);
+    DOM = (D - 1) + SDOM;
+    if (SDOM > 4) DOM -= 7;
+    if (DOM <= 0) {
+      $mod.DecodeDateMonthWeek(SOM - 1,AYear,AMonth,AWeekOfMonth,{get: function () {
+          return D;
+        }, set: function (v) {
+          D = v;
+        }})}
+     else {
+      AWeekOfMonth.set(Math.floor(DOM / 7));
+      if ((DOM % 7) !== 0) AWeekOfMonth.set(AWeekOfMonth.get() + 1);
+      EDOM = $mod.DayOfTheWeek($mod.EndOfAMonth(AYear.get(),AMonth.get()));
+      if ((EDOM < 4) && (($mod.DaysInAMonth(AYear.get(),AMonth.get()) - D) < EDOM)) {
+        AWeekOfMonth.set(1);
+        AMonth.set(AMonth.get() + 1);
+        if (AMonth.get() === 13) {
+          AMonth.set(1);
+          AYear.set(AYear.get() + 1);
+        };
+      };
+    };
+  };
+  this.TryEncodeDateMonthWeek = function (AYear, AMonth, AWeekOfMonth, ADayOfWeek, AValue) {
+    var Result = false;
+    var S = 0;
+    var DOM = 0;
+    Result = $mod.IsValidDateMonthWeek(AYear,AMonth,AWeekOfMonth,ADayOfWeek);
+    if (Result) {
+      AValue.set(pas.SysUtils.EncodeDate(AYear,AMonth,1));
+      DOM = (((AWeekOfMonth - 1) * 7) + ADayOfWeek) - 1;
+      S = $mod.DayOfTheWeek(AValue.get());
+      DOM -= S - 1;
+      if (((S === 5) || (S === 6)) || (S === 7)) DOM += 7;
+      AValue.set(AValue.get() + DOM);
+    };
+    return Result;
+  };
+  this.TryEncodeTimeInterval = function (Hour, Min, Sec, MSec, Time) {
+    var Result = false;
+    Result = ((Min < 60) && (Sec < 60)) && (MSec < 1000);
+    if (Result) Time.set(((((Hour * 3600000) + (Min * 60000)) + (Sec * 1000)) + MSec) / 86400000);
+    return Result;
+  };
+  this.EncodeTimeInterval = function (Hour, Minute, Second, MilliSecond) {
+    var Result = 0.0;
+    if (!$mod.TryEncodeTimeInterval(Hour,Minute,Second,MilliSecond,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }})) throw pas.SysUtils.EConvertError.$create("CreateFmt",[pas.RTLConsts.SErrInvalidHourMinuteSecMsec,[Hour,Minute,Second,MilliSecond]]);
+    return Result;
+  };
+  this.RecodeYear = function (AValue, AYear) {
+    var Result = 0.0;
+    Result = $mod.RecodeDateTime(AValue,AYear,65535,65535,65535,65535,65535,65535);
+    return Result;
+  };
+  this.RecodeMonth = function (AValue, AMonth) {
+    var Result = 0.0;
+    Result = $mod.RecodeDateTime(AValue,65535,AMonth,65535,65535,65535,65535,65535);
+    return Result;
+  };
+  this.RecodeDay = function (AValue, ADay) {
+    var Result = 0.0;
+    Result = $mod.RecodeDateTime(AValue,65535,65535,ADay,65535,65535,65535,65535);
+    return Result;
+  };
+  this.RecodeHour = function (AValue, AHour) {
+    var Result = 0.0;
+    Result = $mod.RecodeDateTime(AValue,65535,65535,65535,AHour,65535,65535,65535);
+    return Result;
+  };
+  this.RecodeMinute = function (AValue, AMinute) {
+    var Result = 0.0;
+    Result = $mod.RecodeDateTime(AValue,65535,65535,65535,65535,AMinute,65535,65535);
+    return Result;
+  };
+  this.RecodeSecond = function (AValue, ASecond) {
+    var Result = 0.0;
+    Result = $mod.RecodeDateTime(AValue,65535,65535,65535,65535,65535,ASecond,65535);
+    return Result;
+  };
+  this.RecodeMilliSecond = function (AValue, AMilliSecond) {
+    var Result = 0.0;
+    Result = $mod.RecodeDateTime(AValue,65535,65535,65535,65535,65535,65535,AMilliSecond);
+    return Result;
+  };
+  this.RecodeDate = function (AValue, AYear, AMonth, ADay) {
+    var Result = 0.0;
+    Result = $mod.RecodeDateTime(AValue,AYear,AMonth,ADay,65535,65535,65535,65535);
+    return Result;
+  };
+  this.RecodeTime = function (AValue, AHour, AMinute, ASecond, AMilliSecond) {
+    var Result = 0.0;
+    Result = $mod.RecodeDateTime(AValue,65535,65535,65535,AHour,AMinute,ASecond,AMilliSecond);
+    return Result;
+  };
+  this.RecodeDateTime = function (AValue, AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond) {
+    var Result = 0.0;
+    if (!$mod.TryRecodeDateTime(AValue,AYear,AMonth,ADay,AHour,AMinute,ASecond,AMilliSecond,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }})) $mod.InvalidDateTimeError(AYear,AMonth,ADay,AHour,AMinute,ASecond,AMilliSecond,AValue);
+    return Result;
+  };
+  this.TryRecodeDateTime = function (AValue, AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond, AResult) {
+    var Result = false;
+    function FV(AV, Arg) {
+      if (Arg !== 65535) AV.set(Arg);
+    };
+    var Y = 0;
+    var M = 0;
+    var D = 0;
+    var H = 0;
+    var N = 0;
+    var S = 0;
+    var MS = 0;
+    $mod.DecodeDateTime(AValue,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }},{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return N;
+      }, set: function (v) {
+        N = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    FV({get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},AYear);
+    FV({get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},AMonth);
+    FV({get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }},ADay);
+    FV({get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},AHour);
+    FV({get: function () {
+        return N;
+      }, set: function (v) {
+        N = v;
+      }},AMinute);
+    FV({get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},ASecond);
+    FV({get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }},AMilliSecond);
+    Result = $mod.TryEncodeDateTime(Y,M,D,H,N,S,MS,AResult);
+    return Result;
+  };
+  this.CompareDateTime = function (A, B) {
+    var Result = -1;
+    if ($mod.SameDateTime(A,B)) {
+      Result = 0}
+     else if (pas.System.Trunc(A) === pas.System.Trunc(B)) {
+      if (Math.abs(pas.System.Frac(A)) > Math.abs(pas.System.Frac(B))) {
+        Result = 1}
+       else Result = -1;
+    } else {
+      if (A > B) {
+        Result = 1}
+       else Result = -1;
+    };
+    return Result;
+  };
+  this.CompareDate = function (A, B) {
+    var Result = -1;
+    if ($mod.SameDate(A,B)) {
+      Result = 0}
+     else if (A < B) {
+      Result = -1}
+     else Result = 1;
+    return Result;
+  };
+  this.CompareTime = function (A, B) {
+    var Result = -1;
+    if ($mod.SameTime(A,B)) {
+      Result = 0}
+     else if (pas.System.Frac(A) < pas.System.Frac(B)) {
+      Result = -1}
+     else Result = 1;
+    return Result;
+  };
+  this.SameDateTime = function (A, B) {
+    var Result = false;
+    Result = Math.abs(A - B) < 1.1574074074074074E-8;
+    return Result;
+  };
+  this.SameDate = function (A, B) {
+    var Result = false;
+    Result = pas.System.Trunc(A) === pas.System.Trunc(B);
+    return Result;
+  };
+  this.SameTime = function (A, B) {
+    var Result = false;
+    Result = pas.System.Frac(Math.abs(A - B)) < 1.1574074074074074E-8;
+    return Result;
+  };
+  this.NthDayOfWeek = function (AValue) {
+    var Result = 0;
+    Result = $impl.InternalNthDayOfWeek($mod.DayOfTheMonth(AValue));
+    return Result;
+  };
+  this.DecodeDayOfWeekInMonth = function (AValue, AYear, AMonth, ANthDayOfWeek, ADayOfWeek) {
+    var D = 0;
+    pas.SysUtils.DecodeDate(AValue,AYear,AMonth,{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }});
+    ADayOfWeek.set($mod.DayOfTheWeek(AValue));
+    ANthDayOfWeek.set($impl.InternalNthDayOfWeek(D));
+  };
+  this.EncodeDayOfWeekInMonth = function (AYear, AMonth, ANthDayOfWeek, ADayOfWeek) {
+    var Result = 0.0;
+    if (!$mod.TryEncodeDayOfWeekInMonth(AYear,AMonth,ANthDayOfWeek,ADayOfWeek,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }})) $mod.InvalidDayOfWeekInMonthError(AYear,AMonth,ANthDayOfWeek,ADayOfWeek);
+    return Result;
+  };
+  this.TryEncodeDayOfWeekInMonth = function (AYear, AMonth, ANthDayOfWeek, ADayOfWeek, AValue) {
+    var Result = false;
+    var SOM = 0;
+    var D = 0;
+    SOM = $mod.DayOfTheWeek(pas.SysUtils.EncodeDate(AYear,AMonth,1));
+    D = ((1 + ADayOfWeek) - SOM) + (7 * (ANthDayOfWeek - 1));
+    if (SOM > ADayOfWeek) D = D + 7;
+    Result = pas.SysUtils.TryEncodeDate(AYear,AMonth,D,AValue);
+    return Result;
+  };
+  this.InvalidDateTimeError = function (AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond, ABaseDate) {
+    function DoField(Arg, Def, Unknown) {
+      var Result = "";
+      if (Def === 0) ;
+      if (Arg !== 65535) {
+        Result = pas.SysUtils.Format("%.*d",[Unknown.length,Arg])}
+       else if (ABaseDate === 0) {
+        Result = Unknown}
+       else Result = pas.SysUtils.Format("%.*d",[Unknown.length,Arg]);
+      return Result;
+    };
+    var Y = 0;
+    var M = 0;
+    var D = 0;
+    var H = 0;
+    var N = 0;
+    var S = 0;
+    var MS = 0;
+    var Msg = "";
+    $mod.DecodeDateTime(ABaseDate,{get: function () {
+        return Y;
+      }, set: function (v) {
+        Y = v;
+      }},{get: function () {
+        return M;
+      }, set: function (v) {
+        M = v;
+      }},{get: function () {
+        return D;
+      }, set: function (v) {
+        D = v;
+      }},{get: function () {
+        return H;
+      }, set: function (v) {
+        H = v;
+      }},{get: function () {
+        return N;
+      }, set: function (v) {
+        N = v;
+      }},{get: function () {
+        return S;
+      }, set: function (v) {
+        S = v;
+      }},{get: function () {
+        return MS;
+      }, set: function (v) {
+        MS = v;
+      }});
+    Msg = DoField(AYear,Y,"????");
+    Msg = (Msg + pas.SysUtils.DateSeparator) + DoField(AMonth,M,"??");
+    Msg = (Msg + pas.SysUtils.DateSeparator) + DoField(ADay,D,"??");
+    Msg = (Msg + " ") + DoField(AHour,H,"??");
+    Msg = (Msg + pas.SysUtils.TimeSeparator) + DoField(AMinute,N,"??");
+    Msg = (Msg + pas.SysUtils.TimeSeparator) + DoField(ASecond,S,"??");
+    Msg = (Msg + pas.SysUtils.DecimalSeparator) + DoField(AMilliSecond,MS,"???");
+    throw pas.SysUtils.EConvertError.$create("CreateFmt",[pas.RTLConsts.SErrInvalidTimeStamp,[Msg]]);
+  };
+  this.InvalidDateTimeError$1 = function (AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond) {
+    $mod.InvalidDateTimeError(AYear,AMonth,ADay,AHour,AMinute,ASecond,AMilliSecond,0);
+  };
+  this.InvalidDateWeekError = function (AYear, AWeekOfYear, ADayOfWeek) {
+    throw pas.SysUtils.EConvertError.$create("CreateFmt",[pas.RTLConsts.SErrInvalidDateWeek,[AYear,AWeekOfYear,ADayOfWeek]]);
+  };
+  this.InvalidDateDayError = function (AYear, ADayOfYear) {
+    throw pas.SysUtils.EConvertError.$create("CreateFmt",[pas.RTLConsts.SErrInvalidDayOfYear,[AYear,ADayOfYear]]);
+  };
+  this.InvalidDateMonthWeekError = function (AYear, AMonth, AWeekOfMonth, ADayOfWeek) {
+    throw pas.SysUtils.EConvertError.$create("CreateFmt",[pas.RTLConsts.SErrInvalidDateMonthWeek,[AYear,AMonth,AWeekOfMonth,ADayOfWeek]]);
+  };
+  this.InvalidDayOfWeekInMonthError = function (AYear, AMonth, ANthDayOfWeek, ADayOfWeek) {
+    throw pas.SysUtils.EConvertError.$create("CreateFmt",[pas.RTLConsts.SErrInvalidDayOfWeekInMonth,[AYear,AMonth,ANthDayOfWeek,ADayOfWeek]]);
+  };
+  this.DateTimeToJulianDate = function (AValue) {
+    var Result = 0.0;
+    var day = 0;
+    var month = 0;
+    var year = 0;
+    var a = 0;
+    var y = 0;
+    var m = 0;
+    pas.SysUtils.DecodeDate(AValue,{get: function () {
+        return year;
+      }, set: function (v) {
+        year = v;
+      }},{get: function () {
+        return month;
+      }, set: function (v) {
+        month = v;
+      }},{get: function () {
+        return day;
+      }, set: function (v) {
+        day = v;
+      }});
+    a = Math.floor((14 - month) / 12);
+    y = (year + 4800) - a;
+    m = (month + (12 * a)) - 3;
+    Result = ((((((day + Math.floor(((153 * m) + 2) / 5)) + (365 * y)) + Math.floor(y / 4)) - Math.floor(y / 100)) + Math.floor(y / 400)) - 32045.5) + pas.System.Frac(AValue);
+    return Result;
+  };
+  this.JulianDateToDateTime = function (AValue) {
+    var Result = 0.0;
+    if (!$mod.TryJulianDateToDateTime(AValue,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }})) throw pas.SysUtils.EConvertError.$create("CreateFmt",[pas.RTLConsts.SInvalidJulianDate,[AValue]]);
+    return Result;
+  };
+  this.TryJulianDateToDateTime = function (AValue, ADateTime) {
+    var Result = false;
+    var a = 0;
+    var b = 0;
+    var c = 0;
+    var d = 0;
+    var e = 0;
+    var m = 0;
+    var day = 0;
+    var month = 0;
+    var year = 0;
+    a = pas.System.Trunc(AValue + 32044.5);
+    b = Math.floor(((4 * a) + 3) / 146097);
+    c = a - Math.floor((146097 * b) / 4);
+    d = Math.floor(((4 * c) + 3) / 1461);
+    e = c - Math.floor((1461 * d) / 4);
+    m = Math.floor(((5 * e) + 2) / 153);
+    day = (e - Math.floor(((153 * m) + 2) / 5)) + 1;
+    month = (m + 3) - (12 * Math.floor(m / 10));
+    year = (((100 * b) + d) - 4800) + Math.floor(m / 10);
+    Result = pas.SysUtils.TryEncodeDate(year,month,day,ADateTime);
+    if (Result) ADateTime.set(ADateTime.get() + pas.System.Frac(AValue - 0.5));
+    return Result;
+  };
+  this.DateTimeToModifiedJulianDate = function (AValue) {
+    var Result = 0.0;
+    Result = $mod.DateTimeToJulianDate(AValue) - 2400000.5;
+    return Result;
+  };
+  this.ModifiedJulianDateToDateTime = function (AValue) {
+    var Result = 0.0;
+    Result = $mod.JulianDateToDateTime(AValue + 2400000.5);
+    return Result;
+  };
+  this.TryModifiedJulianDateToDateTime = function (AValue, ADateTime) {
+    var Result = false;
+    Result = $mod.TryJulianDateToDateTime(AValue + 2400000.5,ADateTime);
+    return Result;
+  };
+  this.DateTimeToUnix = function (AValue) {
+    var Result = 0;
+    Result = Math.round($impl.DateTimeDiff($mod.RecodeMilliSecond(AValue,0),25569) * 86400);
+    return Result;
+  };
+  this.UnixToDateTime = function (AValue) {
+    var Result = 0.0;
+    Result = $mod.IncSecond(25569,AValue);
+    return Result;
+  };
+  var Epoch = (24107 * 24) * 3600;
+  this.UnixTimeStampToMac = function (AValue) {
+    var Result = 0;
+    Result = AValue + 2082844800;
+    return Result;
+  };
+  this.DateTimeToMac = function (AValue) {
+    var Result = 0;
+    var Epoch = 0.0;
+    Epoch = $mod.EncodeDateTime(1904,1,1,0,0,0,0);
+    Result = $mod.SecondsBetween(Epoch,AValue);
+    return Result;
+  };
+  this.MacToDateTime = function (AValue) {
+    var Result = 0.0;
+    var Epoch = 0.0;
+    Epoch = $mod.EncodeDateTime(1904,1,1,0,0,0,0);
+    Result = $mod.IncSecond(Epoch,AValue);
+    return Result;
+  };
+  var Epoch$1 = (24107 * 24) * 3600;
+  this.MacTimeStampToUnix = function (AValue) {
+    var Result = 0;
+    Result = AValue - 2082844800;
+    return Result;
+  };
+  this.DateTimeToDosDateTime = function (AValue) {
+    var Result = 0;
+    var year = 0;
+    var month = 0;
+    var day = 0;
+    var hour = 0;
+    var min = 0;
+    var sec = 0;
+    var msec = 0;
+    var zs = 0;
+    $mod.DecodeDateTime(AValue,{get: function () {
+        return year;
+      }, set: function (v) {
+        year = v;
+      }},{get: function () {
+        return month;
+      }, set: function (v) {
+        month = v;
+      }},{get: function () {
+        return day;
+      }, set: function (v) {
+        day = v;
+      }},{get: function () {
+        return hour;
+      }, set: function (v) {
+        hour = v;
+      }},{get: function () {
+        return min;
+      }, set: function (v) {
+        min = v;
+      }},{get: function () {
+        return sec;
+      }, set: function (v) {
+        sec = v;
+      }},{get: function () {
+        return msec;
+      }, set: function (v) {
+        msec = v;
+      }});
+    Result = -1980;
+    Result = Result + (year & 127);
+    Result = Result << 4;
+    Result = Result + month;
+    Result = Result << 5;
+    Result = Result + day;
+    Result = Result << 16;
+    zs = hour;
+    zs = zs << 6;
+    zs = zs + min;
+    zs = zs << 5;
+    zs = zs + Math.floor(sec / 2);
+    Result = Result + (zs & 0xffff);
+    return Result;
+  };
+  this.DosDateTimeToDateTime = function (AValue) {
+    var Result = 0.0;
+    var year = 0;
+    var month = 0;
+    var day = 0;
+    var hour = 0;
+    var min = 0;
+    var sec = 0;
+    sec = (AValue & 31) * 2;
+    AValue = AValue >>> 5;
+    min = AValue & 63;
+    AValue = AValue >>> 6;
+    hour = AValue & 31;
+    AValue = AValue >>> 5;
+    day = AValue & 31;
+    AValue = AValue >>> 5;
+    month = AValue & 15;
+    AValue = AValue >>> 4;
+    year = AValue + 1980;
+    Result = $mod.EncodeDateTime(year,month,day,hour,min,sec,0);
+    return Result;
+  };
+  this.UniversalTimeToLocal = function (UT) {
+    var Result = 0.0;
+    Result = $mod.UniversalTimeToLocal$1(UT,-$impl.GetLocalTimeOffset());
+    return Result;
+  };
+  this.UniversalTimeToLocal$1 = function (UT, TZOffset) {
+    var Result = 0.0;
+    if (TZOffset > 0) {
+      Result = UT + pas.SysUtils.EncodeTime(Math.floor(TZOffset / 60),TZOffset % 60,0,0)}
+     else if (TZOffset < 0) {
+      Result = UT - pas.SysUtils.EncodeTime(Math.floor(Math.abs(TZOffset) / 60),Math.abs(TZOffset) % 60,0,0)}
+     else Result = UT;
+    return Result;
+  };
+  this.LocalTimeToUniversal = function (LT) {
+    var Result = 0.0;
+    Result = $mod.LocalTimeToUniversal$1(LT,-$impl.GetLocalTimeOffset());
+    return Result;
+  };
+  this.LocalTimeToUniversal$1 = function (LT, TZOffset) {
+    var Result = 0.0;
+    if (TZOffset > 0) {
+      Result = LT - pas.SysUtils.EncodeTime(Math.floor(TZOffset / 60),TZOffset % 60,0,0)}
+     else if (TZOffset < 0) {
+      Result = LT + pas.SysUtils.EncodeTime(Math.floor(Math.abs(TZOffset) / 60),Math.abs(TZOffset) % 60,0,0)}
+     else Result = LT;
+    return Result;
+  };
+  this.DateTimeToRFC3339 = function (ADate) {
+    var Result = "";
+    Result = pas.SysUtils.FormatDateTime('yyyy-mm-dd"T"hh":"nn":"ss"."zzz"Z"',ADate);
+    return Result;
+  };
+  this.DateToRFC3339 = function (ADate) {
+    var Result = "";
+    Result = pas.SysUtils.FormatDateTime("yyyy-mm-dd",ADate);
+    return Result;
+  };
+  this.TimeToRFC3339 = function (ADate) {
+    var Result = "";
+    Result = pas.SysUtils.FormatDateTime('hh":"nn":"ss"."zzz',ADate);
+    return Result;
+  };
+  var P = [11,1,6,9,12,15,18];
+  this.TryRFC3339ToDateTime = function (Avalue, ADateTime) {
+    var Result = false;
+    this.TPartPos = {"0": "ppTime", ppTime: 0, "1": "ppYear", ppYear: 1, "2": "ppMonth", ppMonth: 2, "3": "ppDay", ppDay: 3, "4": "ppHour", ppHour: 4, "5": "ppMinute", ppMinute: 5, "6": "ppSec", ppSec: 6};
+    var lY = 0;
+    var lM = 0;
+    var lD = 0;
+    var lH = 0;
+    var lMi = 0;
+    var lS = 0;
+    if (pas.SysUtils.Trim(Avalue) === "") {
+      Result = true;
+      ADateTime.set(0);
+    };
+    lY = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[$mod.TPartPos.ppYear],4),-1);
+    lM = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[$mod.TPartPos.ppMonth],2),-1);
+    lD = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[$mod.TPartPos.ppDay],2),-1);
+    if (Avalue.length >= P[$mod.TPartPos.ppTime]) {
+      lH = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[$mod.TPartPos.ppHour],2),-1);
+      lMi = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[$mod.TPartPos.ppMinute],2),-1);
+      lS = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[$mod.TPartPos.ppSec],2),-1);
+    } else {
+      lH = 0;
+      lMi = 0;
+      lS = 0;
+    };
+    Result = (((((lY >= 0) && (lM >= 0)) && (lD >= 0)) && (lH >= 0)) && (lMi >= 0)) && (lS >= 0);
+    if (!Result) {
+      ADateTime.set(0)}
+     else if (((lY === 0) || (lM === 0)) || (lD === 0)) {
+      ADateTime.set(pas.SysUtils.EncodeTime(lH,lMi,lS,0))}
+     else ADateTime.set(pas.SysUtils.EncodeDate(lY,lM,lD) + pas.SysUtils.EncodeTime(lH,lMi,lS,0));
+    return Result;
+  };
+  this.RFC3339ToDateTime = function (Avalue) {
+    var Result = 0.0;
+    if (!$mod.TryRFC3339ToDateTime(Avalue,{get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }})) Result = 0;
+    return Result;
+  };
+  rtl.createClass($mod,"TDateTimeScanner",pas.System.TObject,function () {
+    this.$init = function () {
+      pas.System.TObject.$init.call(this);
+      this.FPattern = "";
+      this.FText = "";
+      this.FPatternOffset = 0;
+      this.FLen = 0;
+      this.FPatternLen = 0;
+      this.FPatternPos = 0;
+      this.FPos = 0;
+      this.FY = 0;
+      this.FM = 0;
+      this.FD = 0;
+      this.FTimeval = 0.0;
+    };
+    this.ArrayMatchError = function () {
+      $impl.raiseexception(pas.SysUtils.Format($impl.SNoArrayMatch,[this.FPatternPos + 1,this.FPos]));
+    };
+    this.DoDateTime = function () {
+      this.MatchPattern(pas.SysUtils.ShortDateFormat);
+      this.MatchPattern("\t");
+      this.MatchPattern(pas.SysUtils.LongTimeFormat);
+      this.FPatternPos += 1;
+    };
+    this.SetPattern = function (AValue) {
+      if (this.FPattern === AValue) return;
+      this.FPattern = AValue;
+      this.FPatternLen = this.FPattern.length;
+    };
+    this.SetText = function (AValue) {
+      if (this.FText === AValue) return;
+      this.FText = AValue;
+      this.FLen = this.FText.length;
+    };
+    this.ScanFixedInt = function (maxv) {
+      var Result = 0;
+      var c = "";
+      var n = "";
+      var oi = 0;
+      Result = 0;
+      oi = this.FPos;
+      c = this.FPattern.charAt(this.FPatternPos - 1);
+      while ((this.FPatternPos <= this.FPatternLen) && (this.FPattern.charAt(this.FPatternPos - 1) === c)) this.FPatternPos += 1;
+      n = this.FText.charAt(this.FPos - 1);
+      while (((maxv > 0) && (this.FPos <= this.FLen)) && (n.charCodeAt() in rtl.createSet(null,48,57))) {
+        Result = ((Result * 10) + n.charCodeAt()) - 48;
+        this.FPos += 1;
+        maxv -= 1;
+        if (this.FPos <= this.FLen) n = this.FText.charAt(this.FPos - 1);
+      };
+      if (oi === this.FPos) $impl.raiseexception(pas.SysUtils.Format($impl.SPatternCharMismatch,[c,oi]));
+      return Result;
+    };
+    this.ScanPatternLength = function () {
+      var Result = 0;
+      var c = "";
+      var i = 0;
+      Result = this.FPatternPos;
+      i = this.FPatternPos;
+      c = this.FPattern.charAt(i - 1);
+      while ((i <= this.FPatternLen) && (this.FPattern.charAt(i - 1) === c)) i += 1;
+      Result = i - Result;
+      return Result;
+    };
+    this.MatchChar = function (c) {
+      var N = "";
+      if (this.FPos <= this.FLen) {
+        N = this.FText.charAt(this.FPos - 1)}
+       else N = "?";
+      if (N !== c) $impl.raiseexception(pas.SysUtils.Format($impl.SNoCharMatch,[N,c,this.FPatternPos + this.FPatternOffset,this.FPos]));
+      this.FPatternPos += 1;
+      this.FPos += 1;
+    };
+    this.FindIMatch = function (values, aTerm) {
+      var Result = 0;
+      var l = 0;
+      var i = 0;
+      Result = -1;
+      l = rtl.length(values) - 1;
+      i = 0;
+      while ((i <= l) && (Result === -1)) {
+        if (pas.SysUtils.SameText(pas.System.Copy(aTerm,1,values[i].length),values[i])) Result = i;
+        i += 1;
+      };
+      return Result;
+    };
+    this.FindMatch = function (Values) {
+      var Result = 0;
+      Result = this.FindIMatch(Values,pas.System.Copy(this.FText,this.FPos,(this.FLen - this.FPos) + 1));
+      if (Result === -1) {
+        this.ArrayMatchError()}
+       else {
+        this.FPos += Values[Result].length + 1;
+        this.FPatternPos += Values[Result].length + 1;
+        Result += 1;
+      };
+      return Result;
+    };
+    this.MatchPattern = function (aPattern) {
+      var T = "";
+      var cPos = 0;
+      T = this.FPattern;
+      cPos = this.FPatternPos;
+      this.FPatternOffset = this.FPatternPos;
+      this.FPattern = aPattern;
+      this.FPatternLen = aPattern.length;
+      try {
+        this.Scan(-1);
+      } finally {
+        this.FPattern = T;
+        this.FPatternLen = aPattern.length;
+        this.FPatternPos = cPos;
+        this.FPatternOffset = 0;
+      };
+    };
+    this.DoYear = function () {
+      var I = 0;
+      var pivot = 0;
+      I = this.ScanPatternLength();
+      this.FY = this.ScanFixedInt(4);
+      if (I <= 2) {
+        pivot = $mod.YearOf(pas.SysUtils.Now()) - pas.SysUtils.TwoDigitYearCenturyWindow;
+        this.FY += Math.floor(pivot / 100) * 100;
+        if ((pas.SysUtils.TwoDigitYearCenturyWindow > 0) && (this.FY < pivot)) this.FY += 100;
+      };
+    };
+    this.DoMonth = function () {
+      var I = 0;
+      I = this.ScanPatternLength();
+      var $tmp1 = I;
+      if (($tmp1 === 1) || ($tmp1 === 2)) {
+        this.FM = this.ScanFixedInt(2)}
+       else if ($tmp1 === 3) {
+        this.FM = this.FindMatch(pas.SysUtils.ShortMonthNames)}
+       else if ($tmp1 === 4) this.FM = this.FindMatch(pas.SysUtils.LongMonthNames);
+    };
+    this.DoDay = function () {
+      var I = 0;
+      I = this.ScanPatternLength();
+      var $tmp1 = I;
+      if (($tmp1 === 1) || ($tmp1 === 2)) {
+        this.FD = this.ScanFixedInt(2)}
+       else if ($tmp1 === 3) {
+        this.FD = this.FindMatch(pas.SysUtils.ShortDayNames)}
+       else if ($tmp1 === 4) {
+        this.FD = this.FindMatch(pas.SysUtils.LongDayNames)}
+       else if ($tmp1 === 5) {
+        this.MatchPattern(pas.SysUtils.ShortDateFormat)}
+       else if ($tmp1 === 6) this.MatchPattern(pas.SysUtils.LongDateFormat);
+    };
+    this.DoTime = function () {
+      var I = 0;
+      I = this.ScanPatternLength();
+      var $tmp1 = I;
+      if ($tmp1 === 1) {
+        this.MatchPattern(pas.SysUtils.ShortTimeFormat)}
+       else if ($tmp1 === 2) this.MatchPattern(pas.SysUtils.LongTimeFormat);
+    };
+    this.DoAMPM = function () {
+      var I = 0;
+      I = this.FindIMatch($impl.AMPMformatting,pas.System.Copy(this.FPattern,this.FPatternPos,5));
+      var $tmp1 = I;
+      if ($tmp1 === 0) {
+        I = this.FindIMatch(["AM","PM"],pas.System.Copy(this.FText,this.FPos,2));
+        var $tmp2 = I;
+        if ($tmp2 === 0) {}
+        else if ($tmp2 === 1) {
+          this.FTimeval = this.FTimeval + (12 * 0.041666666666666664)}
+         else {
+          this.ArrayMatchError();
+        };
+        this.FPatternPos += $impl.AMPMformatting[0].length;
+        this.FPos += 2;
+      } else if ($tmp1 === 1) {
+        var $tmp3 = pas.System.upcase(this.FText.charAt(this.FPos - 1));
+        if ($tmp3 === "A") {}
+        else if ($tmp3 === "P") {
+          this.FTimeval = this.FTimeval + (12 * 0.041666666666666664)}
+         else {
+          this.ArrayMatchError();
+        };
+        this.FPatternPos += $impl.AMPMformatting[1].length;
+        this.FPos += 1;
+      } else if ($tmp1 === 2) {
+        I = this.FindIMatch([pas.SysUtils.TimeAMString,pas.SysUtils.TimePMString],pas.System.Copy(this.FText,this.FPos,5));
+        var $tmp4 = I;
+        if ($tmp4 === 0) {
+          this.FPos += pas.SysUtils.TimeAMString.length}
+         else if ($tmp4 === 1) {
+          this.FTimeval = this.FTimeval + (12 * 0.041666666666666664);
+          this.FPos += pas.SysUtils.TimePMString.length;
+        } else {
+          this.ArrayMatchError();
+        };
+        this.FPatternPos += $impl.AMPMformatting[2].length;
+        this.FPatternPos += 2;
+        this.FPos += 2;
+      } else {
+        this.MatchChar(this.FPattern.charAt(this.FPatternPos - 1));
+      };
+    };
+    this.Scan = function (StartPos) {
+      var Result = 0.0;
+      var lasttoken = "";
+      var activequote = "";
+      var lch = "";
+      var i = 0;
+      if (StartPos < 1) StartPos = 1;
+      if (this.FPos < StartPos) this.FPos = StartPos;
+      this.FPatternPos = 1;
+      activequote = "\x00";
+      lasttoken = " ";
+      while ((this.FPos <= this.FLen) && (this.FPatternPos <= this.FPatternLen)) {
+        lch = pas.System.upcase(this.FPattern.charAt(this.FPatternPos - 1));
+        if (activequote !== "\x00") {
+          if (activequote !== lch) {
+            this.MatchChar(lch)}
+           else {
+            activequote = "\x00";
+            this.FPatternPos += 1;
+          };
+        } else {
+          if ((lch === "M") && (lasttoken === "H")) {
+            i = this.ScanPatternLength();
+            if (i > 2) $impl.raiseexception(pas.SysUtils.Format($impl.SHHMMError,[(this.FPatternOffset + this.FPatternPos) + 1]));
+            this.FTimeval = this.FTimeval + (this.ScanFixedInt(2) * 0.00069444444444444447);
+          } else {
+            var $tmp1 = lch;
+            if ($tmp1 === "Y") {
+              this.DoYear()}
+             else if ($tmp1 === "M") {
+              this.DoMonth()}
+             else if ($tmp1 === "D") {
+              this.DoDay()}
+             else if ($tmp1 === "T") {
+              this.DoTime()}
+             else if ($tmp1 === "H") {
+              this.FTimeval = this.FTimeval + (this.ScanFixedInt(2) * 0.041666666666666664)}
+             else if ($tmp1 === "N") {
+              this.FTimeval = this.FTimeval + (this.ScanFixedInt(2) * 0.00069444444444444447)}
+             else if ($tmp1 === "S") {
+              this.FTimeval = this.FTimeval + (this.ScanFixedInt(2) * 0.000011574074074074073)}
+             else if ($tmp1 === "Z") {
+              this.FTimeval = this.FTimeval + (this.ScanFixedInt(3) * 1.1574074074074074E-8)}
+             else if ($tmp1 === "A") {
+              this.DoAMPM()}
+             else if ($tmp1 === "\/") {
+              this.MatchChar(pas.SysUtils.DateSeparator)}
+             else if ($tmp1 === ":") {
+              this.MatchChar(pas.SysUtils.TimeSeparator);
+              lch = lasttoken;
+            } else if (($tmp1 === "'") || ($tmp1 === '"')) {
+              activequote = lch;
+              this.FPatternPos += 1;
+            } else if ($tmp1 === "C") {
+              this.DoDateTime()}
+             else if ($tmp1 === "?") {
+              this.FPatternPos += 1;
+              this.FPos += 1;
+            } else if ($tmp1 === "\t") {
+              while ((this.FPos <= this.FLen) && (this.FText.charCodeAt(this.FPos - 1) in $impl.whitespace)) this.FPos += 1;
+              this.FPatternPos += 1;
+            } else {
+              this.MatchChar(this.FPattern.charAt(this.FPatternPos - 1));
+            };
+          };
+          lasttoken = lch;
+        };
+      };
+      Result = this.FTimeval;
+      if (((this.FY > 0) && (this.FM > 0)) && (this.FD > 0)) Result = Result + pas.SysUtils.EncodeDate(this.FY,this.FM,this.FD);
+      return Result;
+    };
+  });
+  this.ScanDateTime = function (APattern, AValue, APos) {
+    var Result = 0.0;
+    var T = null;
+    T = $mod.TDateTimeScanner.$create("Create");
+    try {
+      T.SetPattern(APattern);
+      T.SetText(AValue);
+      Result = T.Scan(APos);
+    } finally {
+      T = rtl.freeLoc(T);
+    };
+    return Result;
+  };
+},["JS","RTLConsts"],function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $impl.TDateTimeEpsilon = 2.2204460493e-16;
+  $impl.HalfMilliSecond = 1.1574074074074074E-8 / 2;
+  $impl.IsValidMonth = function (AMonth) {
+    var Result = false;
+    Result = (AMonth >= 1) && (AMonth <= 12);
+    return Result;
+  };
+  $impl.IsValidDayOfWeek = function (ADayOfWeek) {
+    var Result = false;
+    Result = (ADayOfWeek >= 1) && (ADayOfWeek <= 7);
+    return Result;
+  };
+  $impl.IsValidWeekOfMonth = function (AWeekOfMonth) {
+    var Result = false;
+    Result = (AWeekOfMonth >= 1) && (AWeekOfMonth <= 5);
+    return Result;
+  };
+  $impl.DOWMap = [7,1,2,3,4,5,6];
+  $impl.DateTimeDiff = function (ANow, AThen) {
+    var Result = 0.0;
+    Result = ANow - AThen;
+    if ((ANow > 0) && (AThen < 0)) {
+      Result = Result - 0.5}
+     else if ((ANow < -1.0) && (AThen > -1.0)) Result = Result + 0.5;
+    return Result;
+  };
+  $impl.MaybeSkipTimeWarp = function (OldDate, NewDate) {
+    if ((OldDate >= 0) && (NewDate.get() < -2.2204460493E-16)) {
+      NewDate.set(pas.System.Int((NewDate.get() - 1.0) + 2.2204460493E-16) - pas.System.Frac(1.0 + pas.System.Frac(NewDate.get())))}
+     else if ((OldDate <= -1.0) && (NewDate.get() > (-1.0 + 2.2204460493E-16))) NewDate.set(pas.System.Int((NewDate.get() + 1.0) - 2.2204460493E-16) + pas.System.Frac(1.0 - Math.abs(pas.System.Frac(1.0 + NewDate.get()))));
+  };
+  $impl.IncNegativeTime = function (AValue, Addend) {
+    var Result = 0.0;
+    var newtime = 0.0;
+    newtime = -pas.System.Frac(AValue) + pas.System.Frac(Addend);
+    if (pas.math.SameValue(newtime,pas.System.Int(newtime) + 1,2.2204460493E-16)) {
+      newtime = pas.System.Int(newtime) + 1}
+     else if (pas.math.SameValue(newtime,pas.System.Int(newtime),2.2204460493E-16)) newtime = pas.System.Int(newtime);
+    if (newtime < -2.2204460493E-16) {
+      newtime = 1.0 + newtime;
+      AValue = pas.System.Int(AValue) - 1;
+    } else if (newtime >= (1.0 - 2.2204460493E-16)) {
+      newtime = newtime - 1.0;
+      AValue = pas.System.Int(AValue) + 1;
+    };
+    Result = (pas.System.Int(AValue) + pas.System.Int(Addend)) - newtime;
+    return Result;
+  };
+  $impl.LFAI = 65535;
+  $impl.InternalNthDayOfWeek = function (DoM) {
+    var Result = 0;
+    Result = Math.floor((DoM - 1) / 7) + 1;
+    return Result;
+  };
+  $impl.whitespace = rtl.createSet(32,13,10);
+  $impl.hrfactor = 1 / 24;
+  $impl.minfactor = 1 / (24 * 60);
+  $impl.secfactor = 1 / ((24 * 60) * 60);
+  $impl.mssecfactor = 1 / (((24 * 60) * 60) * 1000);
+  $impl.AMPMformatting = ["am\/pm","a\/p","ampm"];
+  $impl.raiseexception = function (s) {
+    throw pas.SysUtils.EConvertError.$create("Create$1",[s]);
+  };
+  $impl.GetLocalTimeOffset = function () {
+    var Result = 0;
+    Result = (new Date()).getTimezoneOffset();
+    return Result;
+  };
+  $impl.SPatternCharMismatch = 'Pattern mismatch char "%s" at position %d.';
+  $impl.SNoCharMatch = 'Mismatch char "%s" <> "%s" at pattern position %d, string position %d.';
+  $impl.SHHMMError = "mm in a sequence hh:mm is interpreted as minutes. No longer versions allowed! (Position : %d).";
+  $impl.SNoArrayMatch = "Can't match any allowed value at pattern position %d, string position %d.";
+});
+rtl.module("DBConst",["System"],function () {
+  "use strict";
+  var $mod = this;
+  $mod.$resourcestrings = {SActiveDataset: {org: "Operation cannot be performed on an active dataset"}, SBadParamFieldType: {org: 'Bad fieldtype for parameter "%s".'}, SCantSetAutoIncFields: {org: "AutoInc Fields are read-only"}, SConnected: {org: "Operation cannot be performed on a connected database"}, SDatasetReadOnly: {org: "Dataset is read-only."}, SDatasetRegistered: {org: 'Dataset already registered : "%s"'}, SDuplicateFieldName: {org: 'Duplicate fieldname : "%s"'}, SErrAssTransaction: {org: "Cannot assign transaction while old transaction active!"}, SErrColumnNotFound: {org: 'Column "%s" not found.'}, SErrDatabasenAssigned: {org: "Database not assigned!"}, SErrNoDatabaseAvailable: {org: "Invalid operation: Not attached to database"}, SErrNoDatabaseName: {org: "Database connect string (DatabaseName) not filled in!"}, SErrNoSelectStatement: {org: "Cannot open a non-select statement"}, SErrNoStatement: {org: "SQL statement not set"}, SErrTransAlreadyActive: {org: "Transaction already active"}, SErrTransactionnSet: {org: "Transaction not set"}, SErrIndexResultTooLong: {org: 'Index result for "%s" too long, >100 characters (%d).'}, SErrIndexBasedOnInvField: {org: 'Field "%s" has an invalid field type (%s) to base index on.'}, SErrIndexBasedOnUnkField: {org: 'Index based on unknown field "%s".'}, SErrConnTransactionnSet: {org: "Transaction of connection not set"}, SErrNotASQLConnection: {org: '"%s" is not a TSQLConnection'}, SErrNotASQLQuery: {org: '"%s" is not a TCustomSQLQuery'}, STransNotActive: {org: "Operation cannot be performed on an inactive transaction"}, STransActive: {org: "Operation cannot be performed on an active transaction"}, SFieldNotFound: {org: 'Field not found : "%s"'}, SInactiveDataset: {org: "Operation cannot be performed on an inactive dataset"}, SInvalidDisplayValues: {org: '"%s" are not valid boolean displayvalues'}, SInvalidFieldKind: {org: "%s : invalid field kind : "}, SInvalidBookmark: {org: "Invalid bookmark"}, SInvalidFieldSize: {org: "Invalid field size : %d"}, SInvalidTypeConversion: {org: "Invalid type conversion to %s in field %s"}, SNeedField: {org: "Field %s is required, but not supplied."}, SNeedFieldName: {org: "Field needs a name"}, SNoDataset: {org: 'No dataset asssigned for field : "%s"'}, SNoDatasetRegistered: {org: 'No such dataset registered : "%s"'}, SNoDatasets: {org: "No datasets are attached to the database"}, SNoSuchRecord: {org: "Could not find the requested record."}, SNoTransactionRegistered: {org: 'No such transaction registered : "%s"'}, SNoTransactions: {org: "No transactions are attached to the database"}, SNotABoolean: {org: '"%s" is not a valid boolean'}, SNotAFloat: {org: '"%s" is not a valid float'}, SNotAninteger: {org: '"%s" is not a valid integer'}, SNotConnected: {org: "Operation cannot be performed on an disconnected database"}, SNotEditing: {org: 'Operation not allowed, dataset "%s" is not in an edit or insert state.'}, SParameterNotFound: {org: 'Parameter "%s" not found'}, SRangeError: {org: "%f is not between %f and %f for %s"}, SReadOnlyField: {org: "Field %s cannot be modified, it is read-only."}, STransactionRegistered: {org: 'Transaction already registered : "%s"'}, SUniDirectional: {org: "Operation cannot be performed on an unidirectional dataset"}, SUnknownField: {org: 'No field named "%s" was found in dataset "%s"'}, SUnknownFieldType: {org: "Unknown field type : %s"}, SUnknownParamFieldType: {org: 'Unknown fieldtype for parameter "%s".'}, SMetadataUnavailable: {org: "The metadata is not available for this type of database."}, SDeletedRecord: {org: "The record is deleted."}, SIndexNotFound: {org: "Index '%s' not found"}, SParameterCountIncorrect: {org: "The number of parameters is incorrect."}, SUnsupportedParameter: {org: "Parameters of the type '%s' are not (yet) supported."}, SFieldValueError: {org: "Invalid value for field '%s'"}, SInvalidCalcType: {org: "Field '%s' cannot be a calculated or lookup field"}, SDuplicateName: {org: "Duplicate name '%s' in %s"}, SNoParseSQL: {org: "%s is only possible if ParseSQL is True"}, SLookupInfoError: {org: "Lookup information for field '%s' is incomplete"}, SUnsupportedFieldType: {org: "Fieldtype %s is not supported"}, SInvPacketRecordsValue: {org: "PacketRecords has to be larger then 0"}, SInvPacketRecordsValueFieldNames: {org: "PacketRecords must be -1 if IndexFieldNames is set"}, SInvalidSearchFieldType: {org: "Searching in fields of type %s is not supported"}, SDatasetEmpty: {org: "The dataset is empty"}, SFieldIsNull: {org: "The field is null"}, SOnUpdateError: {org: "An error occurred while applying the updates in a record: %s"}, SApplyRecNotSupported: {org: "Applying updates is not supported by this TDataset descendent"}, SNoWhereFields: {org: "No %s query specified and failed to generate one. (No fields for inclusion in where statement found)"}, SNoUpdateFields: {org: "No %s query specified and failed to generate one. (No fields found for insert- or update-statement found)"}, SNotSupported: {org: "Operation is not supported by this type of database"}, SDBCreateDropFailed: {org: "Creation or dropping of database failed"}, SMaxIndexes: {org: "The maximum amount of indexes is reached"}, SMinIndexes: {org: "The minimum amount of indexes is 1"}, STooManyFields: {org: "More fields specified then really exist"}, SFieldIndexError: {org: "Field index out of range"}, SIndexFieldMissing: {org: "Cannot access index field '%s'"}, SNoFieldIndexes: {org: "No index currently active"}, SNotIndexField: {org: "Field '%s' is not indexed and cannot be modified"}, SErrUnknownConnectorType: {org: 'Unknown connector type: "%s"'}, SNoIndexFieldNameGiven: {org: "There are no fields selected to base the index on"}, SStreamNotRecognised: {org: "The data-stream format is not recognized"}, SNoReaderClassRegistered: {org: "There is no TDatapacketReaderClass registered for this kind of data-stream"}, SErrCircularDataSourceReferenceNotAllowed: {org: "Circular datasource references are not allowed."}, SCommitting: {org: "Committing transaction"}, SRollingBack: {org: "Rolling back transaction"}, SCommitRetaining: {org: "Commit and retaining transaction"}, SRollBackRetaining: {org: "Rollback and retaining transaction"}, SErrNoFieldsDefined: {org: "Can not create a dataset when there are no fielddefinitions or fields defined"}, SErrApplyUpdBeforeRefresh: {org: "Must apply updates before refreshing data"}, SErrNoDataset: {org: "Missing (compatible) underlying dataset, can not open"}, SErrDisconnectedPacketRecords: {org: "For disconnected TSQLQuery instances, packetrecords must be -1"}, SErrImplicitNoRollBack: {org: "Implicit use of transactions does not allow rollback."}, SErrNoImplicitTransaction: {org: "Connection %s does not allow implicit transactions."}, SErrImplictTransactionStart: {org: 'Error: attempt to implicitly start a transaction on Connection "%s", transaction "%s".'}, SErrImplicitConnect: {org: 'Error: attempt to implicitly activate connection "%s".'}, SErrFailedToUpdateRecord: {org: "Failed to apply record updates: %d rows updated."}, SErrRefreshNotSingleton: {org: "Refresh SQL resulted in multiple records: %d."}, SErrRefreshEmptyResult: {org: "Refresh SQL resulted in empty result set."}, SErrNoKeyFieldForRefreshClause: {org: "No key field found to construct refresh SQL WHERE clause"}, SErrFailedToFetchReturningResult: {org: "Failed to fetch returning result"}, SLogParamValue: {org: 'Parameter "%s" value : "%s"'}, SErrInvalidDateTime: {org: 'Invalid date\/time value : "%s"'}, SatEOFInternalOnly: {org: "loAtEOF is for internal use only."}, SErrInsertingSameRecordtwice: {org: "Attempt to insert the same record twice."}, SErrDoApplyUpdatesNeedsProxy: {org: "Cannot apply updates without Data proxy"}};
+});
+rtl.module("TypInfo",["System","SysUtils","Types","RTLConsts","JS"],function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  this.TTypeKind = {"0": "tkUnknown", tkUnknown: 0, "1": "tkInteger", tkInteger: 1, "2": "tkChar", tkChar: 2, "3": "tkString", tkString: 3, "4": "tkEnumeration", tkEnumeration: 4, "5": "tkSet", tkSet: 5, "6": "tkDouble", tkDouble: 6, "7": "tkBool", tkBool: 7, "8": "tkProcVar", tkProcVar: 8, "9": "tkMethod", tkMethod: 9, "10": "tkArray", tkArray: 10, "11": "tkDynArray", tkDynArray: 11, "12": "tkRecord", tkRecord: 12, "13": "tkClass", tkClass: 13, "14": "tkClassRef", tkClassRef: 14, "15": "tkPointer", tkPointer: 15, "16": "tkJSValue", tkJSValue: 16, "17": "tkRefToProcVar", tkRefToProcVar: 17, "18": "tkInterface", tkInterface: 18};
+  $mod.$rtti.$Enum("TTypeKind",{minvalue: 0, maxvalue: 18, ordtype: 1, enumtype: this.TTypeKind});
+  $mod.$rtti.$Set("TTypeKinds",{comptype: $mod.$rtti["TTypeKind"]});
+  this.tkFloat = $mod.TTypeKind.tkDouble;
+  this.tkProcedure = $mod.TTypeKind.tkProcVar;
+  this.tkAny = rtl.createSet(null,$mod.TTypeKind.tkUnknown,$mod.TTypeKind.tkInterface);
+  this.tkMethods = rtl.createSet($mod.TTypeKind.tkMethod);
+  this.tkProperties = rtl.diffSet(rtl.diffSet($mod.tkAny,$mod.tkMethods),rtl.createSet($mod.TTypeKind.tkUnknown));
+  $mod.$rtti.$ClassRef("TTypeInfoClassOf",{instancetype: $mod.$rtti["TTypeInfo"]});
+  this.TOrdType = {"0": "otSByte", otSByte: 0, "1": "otUByte", otUByte: 1, "2": "otSWord", otSWord: 2, "3": "otUWord", otUWord: 3, "4": "otSLong", otSLong: 4, "5": "otULong", otULong: 5, "6": "otSIntDouble", otSIntDouble: 6, "7": "otUIntDouble", otUIntDouble: 7};
+  $mod.$rtti.$Enum("TOrdType",{minvalue: 0, maxvalue: 7, ordtype: 1, enumtype: this.TOrdType});
+  this.TParamFlag = {"0": "pfVar", pfVar: 0, "1": "pfConst", pfConst: 1, "2": "pfOut", pfOut: 2, "3": "pfArray", pfArray: 3};
+  $mod.$rtti.$Enum("TParamFlag",{minvalue: 0, maxvalue: 3, ordtype: 1, enumtype: this.TParamFlag});
+  $mod.$rtti.$Set("TParamFlags",{comptype: $mod.$rtti["TParamFlag"]});
+  $mod.$rtti.$DynArray("TProcedureParams",{eltype: $mod.$rtti["TProcedureParam"]});
+  this.TProcedureFlag = {"0": "pfStatic", pfStatic: 0, "1": "pfVarargs", pfVarargs: 1, "2": "pfExternal", pfExternal: 2};
+  $mod.$rtti.$Enum("TProcedureFlag",{minvalue: 0, maxvalue: 2, ordtype: 1, enumtype: this.TProcedureFlag});
+  $mod.$rtti.$Set("TProcedureFlags",{comptype: $mod.$rtti["TProcedureFlag"]});
+  this.TMethodKind = {"0": "mkProcedure", mkProcedure: 0, "1": "mkFunction", mkFunction: 1, "2": "mkConstructor", mkConstructor: 2, "3": "mkDestructor", mkDestructor: 3, "4": "mkClassProcedure", mkClassProcedure: 4, "5": "mkClassFunction", mkClassFunction: 5};
+  $mod.$rtti.$Enum("TMethodKind",{minvalue: 0, maxvalue: 5, ordtype: 1, enumtype: this.TMethodKind});
+  $mod.$rtti.$Set("TMethodKinds",{comptype: $mod.$rtti["TMethodKind"]});
+  this.TTypeMemberKind = {"0": "tmkUnknown", tmkUnknown: 0, "1": "tmkField", tmkField: 1, "2": "tmkMethod", tmkMethod: 2, "3": "tmkProperty", tmkProperty: 3};
+  $mod.$rtti.$Enum("TTypeMemberKind",{minvalue: 0, maxvalue: 3, ordtype: 1, enumtype: this.TTypeMemberKind});
+  $mod.$rtti.$Set("TTypeMemberKinds",{comptype: $mod.$rtti["TTypeMemberKind"]});
+  $mod.$rtti.$DynArray("TTypeMemberDynArray",{eltype: $mod.$rtti["TTypeMember"]});
+  $mod.$rtti.$DynArray("TTypeMemberMethodDynArray",{eltype: $mod.$rtti["TTypeMemberMethod"]});
+  this.pfGetFunction = 1;
+  this.pfSetProcedure = 2;
+  this.pfStoredFalse = 4;
+  this.pfStoredField = 8;
+  this.pfStoredFunction = 12;
+  this.pfHasIndex = 16;
+  $mod.$rtti.$DynArray("TTypeMemberPropertyDynArray",{eltype: $mod.$rtti["TTypeMemberProperty"]});
+  rtl.createClass($mod,"EPropertyError",pas.SysUtils.Exception,function () {
+  });
+  this.GetClassMembers = function (aTIClass) {
+    var Result = [];
+    var C = null;
+    var i = 0;
+    var Cnt = 0;
+    var j = 0;
+    Cnt = 0;
+    C = aTIClass;
+    while (C !== null) {
+      Cnt += rtl.length(C.names);
+      C = C.ancestor;
+    };
+    Result = rtl.arraySetLength(Result,null,Cnt);
+    C = aTIClass;
+    i = 0;
+    while (C !== null) {
+      for (var $l1 = 0, $end2 = rtl.length(C.names) - 1; $l1 <= $end2; $l1++) {
+        j = $l1;
+        Result[i] = C.members[C.names[j]];
+        i += 1;
+      };
+      C = C.ancestor;
+    };
+    return Result;
+  };
+  this.GetClassMember = function (aTIClass, aName) {
+    var Result = null;
+    var C = null;
+    var i = 0;
+    C = aTIClass;
+    while (C !== null) {
+      if (C.members.hasOwnProperty(aName)) return C.members[aName];
+      C = C.ancestor;
+    };
+    C = aTIClass;
+    while (C !== null) {
+      for (var $l1 = 0, $end2 = rtl.length(C.names) - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        if (pas.SysUtils.CompareText(C.names[i],aName) === 0) return C.members[C.names[i]];
+      };
+      C = C.ancestor;
+    };
+    Result = null;
+    return Result;
+  };
+  this.GetInstanceMethod = function (Instance, aName) {
+    var Result = null;
+    var TI = null;
+    if (Instance === null) return null;
+    TI = $mod.GetClassMember(Instance.$rtti,aName);
+    if (!rtl.isExt(TI,rtl.tTypeMemberMethod)) return null;
+    Result = rtl.createCallback(Instance,TI.name);
+    return Result;
+  };
+  this.GetClassMethods = function (aTIClass) {
+    var Result = [];
+    var C = null;
+    var i = 0;
+    var Cnt = 0;
+    var j = 0;
+    Cnt = 0;
+    C = aTIClass;
+    while (C !== null) {
+      Cnt += C.methods.length;
+      C = C.ancestor;
+    };
+    Result = rtl.arraySetLength(Result,null,Cnt);
+    C = aTIClass;
+    i = 0;
+    while (C !== null) {
+      for (var $l1 = 0, $end2 = C.methods.length - 1; $l1 <= $end2; $l1++) {
+        j = $l1;
+        Result[i] = C.members[C.methods[j]];
+        i += 1;
+      };
+      C = C.ancestor;
+    };
+    return Result;
+  };
+  this.GetInterfaceMembers = function (aTIInterface) {
+    var Result = [];
+    var Intf = null;
+    var i = 0;
+    var Cnt = 0;
+    var j = 0;
+    Cnt = 0;
+    Intf = aTIInterface;
+    while (Intf !== null) {
+      Cnt += rtl.length(Intf.names);
+      Intf = Intf.ancestor;
+    };
+    Result = rtl.arraySetLength(Result,null,Cnt);
+    Intf = aTIInterface;
+    i = 0;
+    while (Intf !== null) {
+      for (var $l1 = 0, $end2 = rtl.length(Intf.names) - 1; $l1 <= $end2; $l1++) {
+        j = $l1;
+        Result[i] = Intf.members[Intf.names[j]];
+        i += 1;
+      };
+      Intf = Intf.ancestor;
+    };
+    return Result;
+  };
+  this.GetInterfaceMember = function (aTIInterface, aName) {
+    var Result = null;
+    var Intf = null;
+    var i = 0;
+    Intf = aTIInterface;
+    while (Intf !== null) {
+      if (Intf.members.hasOwnProperty(aName)) return Intf.members[aName];
+      Intf = Intf.ancestor;
+    };
+    Intf = aTIInterface;
+    while (Intf !== null) {
+      for (var $l1 = 0, $end2 = rtl.length(Intf.names) - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        if (pas.SysUtils.CompareText(Intf.names[i],aName) === 0) return Intf.members[Intf.names[i]];
+      };
+      Intf = Intf.ancestor;
+    };
+    Result = null;
+    return Result;
+  };
+  this.GetInterfaceMethods = function (aTIInterface) {
+    var Result = [];
+    var Intf = null;
+    var i = 0;
+    var Cnt = 0;
+    var j = 0;
+    Cnt = 0;
+    Intf = aTIInterface;
+    while (Intf !== null) {
+      Cnt += Intf.methods.length;
+      Intf = Intf.ancestor;
+    };
+    Result = rtl.arraySetLength(Result,null,Cnt);
+    Intf = aTIInterface;
+    i = 0;
+    while (Intf !== null) {
+      for (var $l1 = 0, $end2 = Intf.methods.length - 1; $l1 <= $end2; $l1++) {
+        j = $l1;
+        Result[i] = Intf.members[Intf.methods[j]];
+        i += 1;
+      };
+      Intf = Intf.ancestor;
+    };
+    return Result;
+  };
+  this.GetPropInfos = function (aTIClass) {
+    var Result = [];
+    var C = null;
+    var i = 0;
+    var Cnt = 0;
+    var j = 0;
+    Cnt = 0;
+    C = aTIClass;
+    while (C !== null) {
+      Cnt += C.properties.length;
+      C = C.ancestor;
+    };
+    Result = rtl.arraySetLength(Result,null,Cnt);
+    C = aTIClass;
+    i = 0;
+    while (C !== null) {
+      for (var $l1 = 0, $end2 = C.properties.length - 1; $l1 <= $end2; $l1++) {
+        j = $l1;
+        Result[i] = C.members[C.properties[j]];
+        i += 1;
+      };
+      C = C.ancestor;
+    };
+    return Result;
+  };
+  this.GetPropInfo = function (TI, PropName) {
+    var Result = null;
+    var m = null;
+    var i = 0;
+    var C = null;
+    C = TI;
+    while (C !== null) {
+      m = C.members[PropName];
+      if (rtl.isExt(m,rtl.tTypeMemberProperty)) return m;
+      C = C.ancestor;
+    };
+    Result = null;
+    do {
+      for (var $l1 = 0, $end2 = TI.properties.length - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        if (pas.SysUtils.CompareText(PropName,TI.properties[i]) === 0) {
+          m = TI.members[TI.properties[i]];
+          if (rtl.isExt(m,rtl.tTypeMemberProperty)) Result = m;
+          return Result;
+        };
+      };
+      TI = TI.ancestor;
+    } while (!(TI === null));
+    return Result;
+  };
+  this.GetPropInfo$1 = function (TI, PropName, Kinds) {
+    var Result = null;
+    Result = $mod.GetPropInfo(TI,PropName);
+    if ((rtl.neSet(Kinds,{}) && (Result !== null)) && !(Result.typeinfo.kind in Kinds)) Result = null;
+    return Result;
+  };
+  this.GetPropInfo$2 = function (Instance, PropName) {
+    var Result = null;
+    Result = $mod.GetPropInfo$1(Instance.$rtti,PropName,{});
+    return Result;
+  };
+  this.GetPropInfo$3 = function (Instance, PropName, Kinds) {
+    var Result = null;
+    Result = $mod.GetPropInfo$1(Instance.$rtti,PropName,Kinds);
+    return Result;
+  };
+  this.GetPropInfo$4 = function (aClass, PropName) {
+    var Result = null;
+    Result = $mod.GetPropInfo$1(aClass.$rtti,PropName,{});
+    return Result;
+  };
+  this.GetPropInfo$5 = function (aClass, PropName, Kinds) {
+    var Result = null;
+    Result = $mod.GetPropInfo$1(aClass.$rtti,PropName,Kinds);
+    return Result;
+  };
+  this.FindPropInfo = function (Instance, PropName) {
+    var Result = null;
+    Result = $mod.GetPropInfo(Instance.$rtti,PropName);
+    if (Result === null) throw $mod.EPropertyError.$create("CreateFmt",[pas.RTLConsts.SErrPropertyNotFound,[PropName]]);
+    return Result;
+  };
+  this.FindPropInfo$1 = function (Instance, PropName, Kinds) {
+    var Result = null;
+    Result = $mod.GetPropInfo$1(Instance.$rtti,PropName,Kinds);
+    if (Result === null) throw $mod.EPropertyError.$create("CreateFmt",[pas.RTLConsts.SErrPropertyNotFound,[PropName]]);
+    return Result;
+  };
+  this.FindPropInfo$2 = function (aClass, PropName) {
+    var Result = null;
+    Result = $mod.GetPropInfo(aClass.$rtti,PropName);
+    if (Result === null) throw $mod.EPropertyError.$create("CreateFmt",[pas.RTLConsts.SErrPropertyNotFound,[PropName]]);
+    return Result;
+  };
+  this.FindPropInfo$3 = function (aClass, PropName, Kinds) {
+    var Result = null;
+    Result = $mod.GetPropInfo$1(aClass.$rtti,PropName,Kinds);
+    if (Result === null) throw $mod.EPropertyError.$create("CreateFmt",[pas.RTLConsts.SErrPropertyNotFound,[PropName]]);
+    return Result;
+  };
+  this.IsStoredProp = function (Instance, PropInfo) {
+    var Result = false;
+    var $tmp1 = PropInfo.flags & 12;
+    if ($tmp1 === 0) {
+      Result = true}
+     else if ($tmp1 === 4) {
+      Result = false}
+     else if ($tmp1 === 8) {
+      Result = !(Instance[PropInfo.stored] == false)}
+     else {
+      Result = Instance[PropInfo.stored]();
+    };
+    return Result;
+  };
+  this.IsStoredProp$1 = function (Instance, PropName) {
+    var Result = false;
+    Result = $mod.IsStoredProp(Instance,$mod.FindPropInfo(Instance,PropName));
+    return Result;
+  };
+  this.IsPublishedProp = function (Instance, PropName) {
+    var Result = false;
+    Result = $mod.GetPropInfo$2(Instance,PropName) !== null;
+    return Result;
+  };
+  this.IsPublishedProp$1 = function (aClass, PropName) {
+    var Result = false;
+    Result = $mod.GetPropInfo$4(aClass,PropName) !== null;
+    return Result;
+  };
+  this.PropType = function (Instance, PropName) {
+    var Result = 0;
+    Result = $mod.FindPropInfo(Instance,PropName).typeinfo.kind;
+    return Result;
+  };
+  this.PropType$1 = function (aClass, PropName) {
+    var Result = 0;
+    Result = $mod.FindPropInfo$2(aClass,PropName).typeinfo.kind;
+    return Result;
+  };
+  this.PropIsType = function (Instance, PropName, TypeKind) {
+    var Result = false;
+    Result = $mod.PropType(Instance,PropName) === TypeKind;
+    return Result;
+  };
+  this.PropIsType$1 = function (aClass, PropName, TypeKind) {
+    var Result = false;
+    Result = $mod.PropType$1(aClass,PropName) === TypeKind;
+    return Result;
+  };
+  this.GetJSValueProp = function (Instance, PropName) {
+    var Result = undefined;
+    Result = $mod.GetJSValueProp$1(Instance,$mod.FindPropInfo(Instance,PropName));
+    return Result;
+  };
+  this.GetJSValueProp$1 = function (Instance, PropInfo) {
+    var Result = undefined;
+    var gk = 0;
+    gk = $impl.GetPropGetterKind(PropInfo);
+    var $tmp1 = gk;
+    if ($tmp1 === $impl.TGetterKind.gkNone) {
+      throw $mod.EPropertyError.$create("CreateFmt",[pas.RTLConsts.SCantReadPropertyS,[PropInfo.name]])}
+     else if ($tmp1 === $impl.TGetterKind.gkField) {
+      Result = Instance[PropInfo.getter]}
+     else if ($tmp1 === $impl.TGetterKind.gkFunction) {
+      if ((16 & PropInfo.flags) > 0) {
+        Result = Instance[PropInfo.getter](PropInfo.index)}
+       else Result = Instance[PropInfo.getter]()}
+     else if ($tmp1 === $impl.TGetterKind.gkFunctionWithParams) throw $mod.EPropertyError.$create("CreateFmt",[pas.RTLConsts.SIndexedPropertyNeedsParams,[PropInfo.name]]);
+    return Result;
+  };
+  this.SetJSValueProp = function (Instance, PropName, Value) {
+    $mod.SetJSValueProp$1(Instance,$mod.FindPropInfo(Instance,PropName),Value);
+  };
+  this.SetJSValueProp$1 = function (Instance, PropInfo, Value) {
+    var sk = 0;
+    sk = $impl.GetPropSetterKind(PropInfo);
+    var $tmp1 = sk;
+    if ($tmp1 === $impl.TSetterKind.skNone) {
+      throw $mod.EPropertyError.$create("CreateFmt",[pas.RTLConsts.SCantWritePropertyS,[PropInfo.name]])}
+     else if ($tmp1 === $impl.TSetterKind.skField) {
+      Instance[PropInfo.setter] = Value}
+     else if ($tmp1 === $impl.TSetterKind.skProcedure) {
+      if ((16 & PropInfo.flags) > 0) {
+        Instance[PropInfo.setter](PropInfo.index,Value)}
+       else Instance[PropInfo.setter](Value)}
+     else if ($tmp1 === $impl.TSetterKind.skProcedureWithParams) throw $mod.EPropertyError.$create("CreateFmt",[pas.RTLConsts.SIndexedPropertyNeedsParams,[PropInfo.name]]);
+  };
+  this.GetNativeIntProp = function (Instance, PropName) {
+    var Result = 0;
+    Result = $mod.GetNativeIntProp$1(Instance,$mod.FindPropInfo(Instance,PropName));
+    return Result;
+  };
+  this.GetNativeIntProp$1 = function (Instance, PropInfo) {
+    var Result = 0;
+    Result = Math.floor($mod.GetJSValueProp$1(Instance,PropInfo));
+    return Result;
+  };
+  this.SetNativeIntProp = function (Instance, PropName, Value) {
+    $mod.SetJSValueProp$1(Instance,$mod.FindPropInfo(Instance,PropName),Value);
+  };
+  this.SetNativeIntProp$1 = function (Instance, PropInfo, Value) {
+    $mod.SetJSValueProp$1(Instance,PropInfo,Value);
+  };
+  this.GetStringProp = function (Instance, PropName) {
+    var Result = "";
+    Result = $mod.GetStringProp$1(Instance,$mod.FindPropInfo(Instance,PropName));
+    return Result;
+  };
+  this.GetStringProp$1 = function (Instance, PropInfo) {
+    var Result = "";
+    Result = "" + $mod.GetJSValueProp$1(Instance,PropInfo);
+    return Result;
+  };
+  this.SetStringProp = function (Instance, PropName, Value) {
+    $mod.SetStringProp$1(Instance,$mod.FindPropInfo(Instance,PropName),Value);
+  };
+  this.SetStringProp$1 = function (Instance, PropInfo, Value) {
+    $mod.SetJSValueProp$1(Instance,PropInfo,Value);
+  };
+  this.GetBoolProp = function (Instance, PropName) {
+    var Result = false;
+    Result = $mod.GetBoolProp$1(Instance,$mod.FindPropInfo(Instance,PropName));
+    return Result;
+  };
+  this.GetBoolProp$1 = function (Instance, PropInfo) {
+    var Result = false;
+    Result = !($mod.GetJSValueProp$1(Instance,PropInfo) == false);
+    return Result;
+  };
+  this.SetBoolProp = function (Instance, PropName, Value) {
+    $mod.SetBoolProp$1(Instance,$mod.FindPropInfo(Instance,PropName),Value);
+  };
+  this.SetBoolProp$1 = function (Instance, PropInfo, Value) {
+    $mod.SetJSValueProp$1(Instance,PropInfo,Value);
+  };
+  this.GetObjectProp = function (Instance, PropName) {
+    var Result = null;
+    Result = $mod.GetObjectProp$2(Instance,$mod.FindPropInfo(Instance,PropName));
+    return Result;
+  };
+  this.GetObjectProp$1 = function (Instance, PropName, MinClass) {
+    var Result = null;
+    Result = $mod.GetObjectProp$2(Instance,$mod.FindPropInfo(Instance,PropName));
+    if ((MinClass !== null) && (Result !== null)) if (!Result.$class.InheritsFrom(MinClass)) Result = null;
+    return Result;
+  };
+  this.GetObjectProp$2 = function (Instance, PropInfo) {
+    var Result = null;
+    Result = $mod.GetObjectProp$3(Instance,PropInfo,null);
+    return Result;
+  };
+  this.GetObjectProp$3 = function (Instance, PropInfo, MinClass) {
+    var Result = null;
+    var O = null;
+    O = rtl.getObject($mod.GetJSValueProp$1(Instance,PropInfo));
+    if ((MinClass !== null) && !O.$class.InheritsFrom(MinClass)) {
+      Result = null}
+     else Result = O;
+    return Result;
+  };
+  this.SetObjectProp = function (Instance, PropName, Value) {
+    $mod.SetObjectProp$1(Instance,$mod.FindPropInfo(Instance,PropName),Value);
+  };
+  this.SetObjectProp$1 = function (Instance, PropInfo, Value) {
+    $mod.SetJSValueProp$1(Instance,PropInfo,Value);
+  };
+  this.GetFloatProp = function (Instance, PropName) {
+    var Result = 0.0;
+    Result = $mod.GetFloatProp$1(Instance,$mod.FindPropInfo(Instance,PropName));
+    return Result;
+  };
+  this.GetFloatProp$1 = function (Instance, PropInfo) {
+    var Result = 0.0;
+    Result = rtl.getNumber($mod.GetJSValueProp$1(Instance,PropInfo));
+    return Result;
+  };
+  this.SetFloatProp = function (Instance, PropName, Value) {
+    $mod.SetFloatProp$1(Instance,$mod.FindPropInfo(Instance,PropName),Value);
+  };
+  this.SetFloatProp$1 = function (Instance, PropInfo, Value) {
+    $mod.SetJSValueProp$1(Instance,PropInfo,Value);
+  };
+},null,function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $impl.TGetterKind = {"0": "gkNone", gkNone: 0, "1": "gkField", gkField: 1, "2": "gkFunction", gkFunction: 2, "3": "gkFunctionWithParams", gkFunctionWithParams: 3};
+  $mod.$rtti.$Enum("TGetterKind",{minvalue: 0, maxvalue: 3, ordtype: 1, enumtype: $impl.TGetterKind});
+  $impl.GetPropGetterKind = function (PropInfo) {
+    var Result = 0;
+    if (PropInfo.getter === "") {
+      Result = $impl.TGetterKind.gkNone}
+     else if ((1 & PropInfo.flags) > 0) {
+      if (rtl.length(PropInfo.params) > 0) {
+        Result = $impl.TGetterKind.gkFunctionWithParams}
+       else Result = $impl.TGetterKind.gkFunction;
+    } else Result = $impl.TGetterKind.gkField;
+    return Result;
+  };
+  $impl.TSetterKind = {"0": "skNone", skNone: 0, "1": "skField", skField: 1, "2": "skProcedure", skProcedure: 2, "3": "skProcedureWithParams", skProcedureWithParams: 3};
+  $mod.$rtti.$Enum("TSetterKind",{minvalue: 0, maxvalue: 3, ordtype: 1, enumtype: $impl.TSetterKind});
+  $impl.GetPropSetterKind = function (PropInfo) {
+    var Result = 0;
+    if (PropInfo.setter === "") {
+      Result = $impl.TSetterKind.skNone}
+     else if ((2 & PropInfo.flags) > 0) {
+      if (rtl.length(PropInfo.params) > 0) {
+        Result = $impl.TSetterKind.skProcedureWithParams}
+       else Result = $impl.TSetterKind.skProcedure;
+    } else Result = $impl.TSetterKind.skField;
+    return Result;
+  };
+});
+rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  this.dsMaxBufferCount = Math.floor(2147483647 / 8);
+  this.dsMaxStringSize = 8192;
+  this.YesNoChars = ["N","Y"];
+  this.SQLDelimiterCharacters = rtl.createSet(59,44,32,40,41,13,10,9);
+  this.TDataSetState = {"0": "dsInactive", dsInactive: 0, "1": "dsBrowse", dsBrowse: 1, "2": "dsEdit", dsEdit: 2, "3": "dsInsert", dsInsert: 3, "4": "dsSetKey", dsSetKey: 4, "5": "dsCalcFields", dsCalcFields: 5, "6": "dsFilter", dsFilter: 6, "7": "dsNewValue", dsNewValue: 7, "8": "dsOldValue", dsOldValue: 8, "9": "dsCurValue", dsCurValue: 9, "10": "dsBlockRead", dsBlockRead: 10, "11": "dsInternalCalc", dsInternalCalc: 11, "12": "dsOpening", dsOpening: 12, "13": "dsRefreshFields", dsRefreshFields: 13};
+  $mod.$rtti.$Enum("TDataSetState",{minvalue: 0, maxvalue: 13, ordtype: 1, enumtype: this.TDataSetState});
+  this.TDataEvent = {"0": "deFieldChange", deFieldChange: 0, "1": "deRecordChange", deRecordChange: 1, "2": "deDataSetChange", deDataSetChange: 2, "3": "deDataSetScroll", deDataSetScroll: 3, "4": "deLayoutChange", deLayoutChange: 4, "5": "deUpdateRecord", deUpdateRecord: 5, "6": "deUpdateState", deUpdateState: 6, "7": "deCheckBrowseMode", deCheckBrowseMode: 7, "8": "dePropertyChange", dePropertyChange: 8, "9": "deFieldListChange", deFieldListChange: 9, "10": "deFocusControl", deFocusControl: 10, "11": "deParentScroll", deParentScroll: 11, "12": "deConnectChange", deConnectChange: 12, "13": "deReconcileError", deReconcileError: 13, "14": "deDisabledStateChange", deDisabledStateChange: 14};
+  $mod.$rtti.$Enum("TDataEvent",{minvalue: 0, maxvalue: 14, ordtype: 1, enumtype: this.TDataEvent});
+  this.TUpdateStatus = {"0": "usUnmodified", usUnmodified: 0, "1": "usModified", usModified: 1, "2": "usInserted", usInserted: 2, "3": "usDeleted", usDeleted: 3, "4": "usResolved", usResolved: 4, "5": "usResolveFailed", usResolveFailed: 5};
+  $mod.$rtti.$Enum("TUpdateStatus",{minvalue: 0, maxvalue: 5, ordtype: 1, enumtype: this.TUpdateStatus});
+  $mod.$rtti.$Set("TUpdateStatusSet",{comptype: $mod.$rtti["TUpdateStatus"]});
+  this.TUpdateMode = {"0": "upWhereAll", upWhereAll: 0, "1": "upWhereChanged", upWhereChanged: 1, "2": "upWhereKeyOnly", upWhereKeyOnly: 2};
+  $mod.$rtti.$Enum("TUpdateMode",{minvalue: 0, maxvalue: 2, ordtype: 1, enumtype: this.TUpdateMode});
+  this.TResolverResponse = {"0": "rrSkip", rrSkip: 0, "1": "rrAbort", rrAbort: 1, "2": "rrMerge", rrMerge: 2, "3": "rrApply", rrApply: 3, "4": "rrIgnore", rrIgnore: 4};
+  $mod.$rtti.$Enum("TResolverResponse",{minvalue: 0, maxvalue: 4, ordtype: 1, enumtype: this.TResolverResponse});
+  this.TProviderFlag = {"0": "pfInUpdate", pfInUpdate: 0, "1": "pfInWhere", pfInWhere: 1, "2": "pfInKey", pfInKey: 2, "3": "pfHidden", pfHidden: 3, "4": "pfRefreshOnInsert", pfRefreshOnInsert: 4, "5": "pfRefreshOnUpdate", pfRefreshOnUpdate: 5};
+  $mod.$rtti.$Enum("TProviderFlag",{minvalue: 0, maxvalue: 5, ordtype: 1, enumtype: this.TProviderFlag});
+  $mod.$rtti.$Set("TProviderFlags",{comptype: $mod.$rtti["TProviderFlag"]});
+  $mod.$rtti.$Class("TFieldDef");
+  $mod.$rtti.$Class("TFieldDefs");
+  $mod.$rtti.$Class("TField");
+  $mod.$rtti.$Class("TFields");
+  $mod.$rtti.$Class("TDataSet");
+  $mod.$rtti.$Class("TDataSource");
+  $mod.$rtti.$Class("TDataLink");
+  $mod.$rtti.$Class("TDataProxy");
+  $mod.$rtti.$Class("TDataRequest");
+  $mod.$rtti.$Class("TRecordUpdateDescriptor");
+  $mod.$rtti.$Class("TRecordUpdateDescriptorList");
+  $mod.$rtti.$Class("TRecordUpdateBatch");
+  rtl.createClass($mod,"EDatabaseError",pas.SysUtils.Exception,function () {
+  });
+  rtl.createClass($mod,"EUpdateError",$mod.EDatabaseError,function () {
+    this.$init = function () {
+      $mod.EDatabaseError.$init.call(this);
+      this.FContext = "";
+      this.FErrorCode = 0;
+      this.FOriginalException = null;
+      this.FPreviousError = 0;
+    };
+    this.$final = function () {
+      this.FOriginalException = undefined;
+      $mod.EDatabaseError.$final.call(this);
+    };
+    this.Create$2 = function (NativeError, Context, ErrCode, PrevError, E) {
+      pas.SysUtils.Exception.CreateFmt.call(this,NativeError,[Context]);
+      this.FContext = Context;
+      this.FErrorCode = ErrCode;
+      this.FPreviousError = PrevError;
+      this.FOriginalException = E;
+    };
+    this.Destroy = function () {
+      rtl.free(this,"FOriginalException");
+      pas.System.TObject.Destroy.apply(this,arguments);
+    };
+  });
+  $mod.$rtti.$ClassRef("TFieldClass",{instancetype: $mod.$rtti["TField"]});
+  this.TFieldType = {"0": "ftUnknown", ftUnknown: 0, "1": "ftString", ftString: 1, "2": "ftInteger", ftInteger: 2, "3": "ftLargeInt", ftLargeInt: 3, "4": "ftBoolean", ftBoolean: 4, "5": "ftFloat", ftFloat: 5, "6": "ftDate", ftDate: 6, "7": "ftTime", ftTime: 7, "8": "ftDateTime", ftDateTime: 8, "9": "ftAutoInc", ftAutoInc: 9, "10": "ftBlob", ftBlob: 10, "11": "ftMemo", ftMemo: 11, "12": "ftFixedChar", ftFixedChar: 12, "13": "ftVariant", ftVariant: 13};
+  $mod.$rtti.$Enum("TFieldType",{minvalue: 0, maxvalue: 13, ordtype: 1, enumtype: this.TFieldType});
+  this.TFieldAttribute = {"0": "faHiddenCol", faHiddenCol: 0, "1": "faReadonly", faReadonly: 1, "2": "faRequired", faRequired: 2, "3": "faLink", faLink: 3, "4": "faUnNamed", faUnNamed: 4, "5": "faFixed", faFixed: 5};
+  $mod.$rtti.$Enum("TFieldAttribute",{minvalue: 0, maxvalue: 5, ordtype: 1, enumtype: this.TFieldAttribute});
+  $mod.$rtti.$Set("TFieldAttributes",{comptype: $mod.$rtti["TFieldAttribute"]});
+  rtl.createClass($mod,"TNamedItem",pas.Classes.TCollectionItem,function () {
+    this.$init = function () {
+      pas.Classes.TCollectionItem.$init.call(this);
+      this.FName = "";
+    };
+    this.GetDisplayName = function () {
+      var Result = "";
+      Result = this.FName;
+      return Result;
+    };
+    this.SetDisplayName = function (Value) {
+      var TmpInd = 0;
+      if (this.FName === Value) return;
+      if ((Value !== "") && $mod.TFieldDefs.isPrototypeOf(this.FCollection)) {
+        TmpInd = this.FCollection.IndexOf(Value);
+        if ((TmpInd >= 0) && (TmpInd !== this.GetIndex())) $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SDuplicateName"),[Value,this.FCollection.$classname]);
+      };
+      this.FName = Value;
+      pas.Classes.TCollectionItem.SetDisplayName.call(this,Value);
+    };
+    var $r = this.$rtti;
+    $r.addProperty("Name",2,rtl.string,"FName","SetDisplayName");
+  });
+  rtl.createClass($mod,"TDefCollection",pas.Classes.TOwnedCollection,function () {
+    this.$init = function () {
+      pas.Classes.TOwnedCollection.$init.call(this);
+      this.FDataset = null;
+      this.FUpdated = false;
+    };
+    this.$final = function () {
+      this.FDataset = undefined;
+      pas.Classes.TOwnedCollection.$final.call(this);
+    };
+    this.SetItemName = function (Item) {
+      var N = null;
+      var TN = "";
+      N = rtl.as(Item,$mod.TNamedItem);
+      if (N.FName === "") {
+        TN = pas.System.Copy(this.$classname,2,5) + pas.SysUtils.IntToStr(N.FID + 1);
+        if (this.FDataset != null) TN = this.FDataset.FName + TN;
+        N.SetDisplayName(TN);
+      } else pas.Classes.TCollection.SetItemName.call(this,Item);
+    };
+    this.create$3 = function (ADataset, AOwner, AClass) {
+      pas.Classes.TOwnedCollection.Create$2.call(this,AOwner,AClass);
+      this.FDataset = ADataset;
+    };
+    this.Find = function (AName) {
+      var Result = null;
+      var i = 0;
+      Result = null;
+      for (var $l1 = 0, $end2 = this.GetCount() - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        if (pas.SysUtils.AnsiSameText(this.GetItem(i).FName,AName)) {
+          Result = this.GetItem(i);
+          break;
+        };
+      };
+      return Result;
+    };
+    this.GetItemNames = function (List) {
+      var i = 0;
+      for (var $l1 = 0, $end2 = this.GetCount() - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        List.Add(this.GetItem(i).FName);
+      };
+    };
+    this.IndexOf = function (AName) {
+      var Result = 0;
+      var i = 0;
+      Result = -1;
+      for (var $l1 = 0, $end2 = this.GetCount() - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        if (pas.SysUtils.AnsiSameText(this.GetItem(i).FName,AName)) {
+          Result = i;
+          break;
+        };
+      };
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TFieldDef",$mod.TNamedItem,function () {
+    this.$init = function () {
+      $mod.TNamedItem.$init.call(this);
+      this.FAttributes = {};
+      this.FDataType = 0;
+      this.FFieldNo = 0;
+      this.FInternalCalcField = false;
+      this.FPrecision = 0;
+      this.FRequired = false;
+      this.FSize = 0;
+    };
+    this.$final = function () {
+      this.FAttributes = undefined;
+      $mod.TNamedItem.$final.call(this);
+    };
+    this.GetFieldClass = function () {
+      var Result = null;
+      if (((this.FCollection != null) && $mod.TFieldDefs.isPrototypeOf(this.FCollection)) && (this.FCollection.FDataset != null)) {
+        Result = this.FCollection.FDataset.GetFieldClass(this.FDataType)}
+       else Result = null;
+      return Result;
+    };
+    this.SetAttributes = function (AValue) {
+      this.FAttributes = rtl.refSet(AValue);
+      this.Changed(false);
+    };
+    this.SetDataType = function (AValue) {
+      this.FDataType = AValue;
+      this.Changed(false);
+    };
+    this.SetPrecision = function (AValue) {
+      this.FPrecision = AValue;
+      this.Changed(false);
+    };
+    this.SetSize = function (AValue) {
+      this.FSize = AValue;
+      this.Changed(false);
+    };
+    this.SetRequired = function (AValue) {
+      this.FRequired = AValue;
+      this.Changed(false);
+    };
+    this.Create$1 = function (ACollection) {
+      pas.Classes.TCollectionItem.Create$1.call(this,ACollection);
+      this.FFieldNo = this.GetIndex() + 1;
+    };
+    this.Create$3 = function (AOwner, AName, ADataType, ASize, ARequired, AFieldNo) {
+      pas.Classes.TCollectionItem.Create$1.call(this,AOwner);
+      this.SetDisplayName(AName);
+      this.FDataType = ADataType;
+      this.FSize = ASize;
+      this.FRequired = ARequired;
+      this.FPrecision = -1;
+      this.FFieldNo = AFieldNo;
+    };
+    this.Destroy = function () {
+      pas.Classes.TCollectionItem.Destroy.call(this);
+    };
+    this.Assign = function (Source) {
+      var fd = null;
+      fd = null;
+      if ($mod.TFieldDef.isPrototypeOf(Source)) fd = rtl.as(Source,$mod.TFieldDef);
+      if (fd != null) {
+        this.FCollection.BeginUpdate();
+        try {
+          this.SetDisplayName(fd.FName);
+          this.SetDataType(fd.FDataType);
+          this.SetSize(fd.FSize);
+          this.SetPrecision(fd.FPrecision);
+          this.FRequired = fd.FRequired;
+        } finally {
+          this.FCollection.EndUpdate();
+        };
+      } else pas.Classes.TPersistent.Assign.call(this,Source);
+    };
+    this.CreateField = function (AOwner) {
+      var Result = null;
+      var TheField = null;
+      TheField = this.GetFieldClass();
+      if (TheField === null) $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SUnknownFieldType"),[this.FName]);
+      Result = TheField.$create("Create$1",[AOwner]);
+      try {
+        Result.FFieldDef = this;
+        Result.SetSize(this.FSize);
+        Result.FRequired = this.FRequired;
+        Result.FFieldName = this.FName;
+        Result.FDisplayLabel = this.GetDisplayName();
+        Result.FFieldNo = this.FFieldNo;
+        Result.SetFieldType(this.FDataType);
+        Result.FReadOnly = $mod.TFieldAttribute.faReadonly in this.FAttributes;
+        Result.SetDataset(this.FCollection.FDataset);
+        if ($mod.TFloatField.isPrototypeOf(Result)) Result.SetPrecision(this.FPrecision);
+      } catch ($e) {
+        Result = rtl.freeLoc(Result);
+        throw $e;
+      };
+      return Result;
+    };
+    var $r = this.$rtti;
+    $r.addProperty("Attributes",2,$mod.$rtti["TFieldAttributes"],"FAttributes","SetAttributes",{Default: {}});
+    $r.addProperty("DataType",2,$mod.$rtti["TFieldType"],"FDataType","SetDataType");
+    $r.addProperty("Precision",2,rtl.longint,"FPrecision","SetPrecision",{Default: 0});
+    $r.addProperty("Size",2,rtl.longint,"FSize","SetSize",{Default: 0});
+  });
+  $mod.$rtti.$ClassRef("TFieldDefClass",{instancetype: $mod.$rtti["TFieldDef"]});
+  rtl.createClass($mod,"TFieldDefs",$mod.TDefCollection,function () {
+    this.$init = function () {
+      $mod.TDefCollection.$init.call(this);
+      this.FHiddenFields = false;
+    };
+    this.GetItem$1 = function (Index) {
+      var Result = null;
+      Result = this.GetItem(Index);
+      return Result;
+    };
+    this.SetItem$1 = function (Index, AValue) {
+      this.SetItem(Index,AValue);
+    };
+    this.FieldDefClass = function () {
+      var Result = null;
+      Result = $mod.TFieldDef;
+      return Result;
+    };
+    this.Create$4 = function (ADataSet) {
+      $mod.TDefCollection.create$3.call(this,ADataSet,this.Owner(),this.$class.FieldDefClass());
+    };
+    this.Add$1 = function (AName, ADataType, ASize, APrecision, ARequired, AReadOnly, AFieldNo) {
+      var Result = null;
+      Result = this.$class.FieldDefClass().$create("Create$3",[this,this.MakeNameUnique(AName),ADataType,ASize,ARequired,AFieldNo]);
+      if (AReadOnly) Result.SetAttributes(rtl.unionSet(Result.FAttributes,rtl.createSet($mod.TFieldAttribute.faReadonly)));
+      return Result;
+    };
+    this.Add$2 = function (AName, ADataType, ASize, ARequired, AFieldNo) {
+      var Result = null;
+      Result = this.$class.FieldDefClass().$create("Create$3",[this,AName,ADataType,ASize,ARequired,AFieldNo]);
+      return Result;
+    };
+    this.Add$3 = function (AName, ADataType, ASize, ARequired) {
+      if (AName.length === 0) $mod.DatabaseError$1(rtl.getResStr(pas.DBConst,"SNeedFieldName"),this.FDataset);
+      this.BeginUpdate();
+      try {
+        this.Add$2(AName,ADataType,ASize,ARequired,this.GetCount() + 1);
+      } finally {
+        this.EndUpdate();
+      };
+    };
+    this.Add$4 = function (AName, ADataType, ASize) {
+      this.Add$3(AName,ADataType,ASize,false);
+    };
+    this.Add$5 = function (AName, ADataType) {
+      this.Add$3(AName,ADataType,0,false);
+    };
+    this.AddFieldDef = function () {
+      var Result = null;
+      Result = this.$class.FieldDefClass().$create("Create$3",[this,"",$mod.TFieldType.ftUnknown,0,false,this.GetCount() + 1]);
+      return Result;
+    };
+    this.Assign$2 = function (FieldDefs) {
+      var I = 0;
+      this.Clear();
+      for (var $l1 = 0, $end2 = FieldDefs.GetCount() - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        var $with3 = FieldDefs.GetItem$1(I);
+        this.Add$3($with3.FName,$with3.FDataType,$with3.FSize,$with3.FRequired);
+      };
+    };
+    this.Find$1 = function (AName) {
+      var Result = null;
+      Result = rtl.as($mod.TDefCollection.Find.call(this,AName),$mod.TFieldDef);
+      if (Result === null) $mod.DatabaseErrorFmt$1(rtl.getResStr(pas.DBConst,"SFieldNotFound"),[AName],this.FDataset);
+      return Result;
+    };
+    this.Update$1 = function () {
+      if (!this.FUpdated) {
+        if (this.FDataset != null) this.FDataset.InitFieldDefs();
+        this.FUpdated = true;
+      };
+    };
+    this.MakeNameUnique = function (AName) {
+      var Result = "";
+      var DblFieldCount = 0;
+      DblFieldCount = 0;
+      Result = AName;
+      while ($mod.TDefCollection.Find.call(this,Result) != null) {
+        DblFieldCount += 1;
+        Result = (AName + "_") + pas.SysUtils.IntToStr(DblFieldCount);
+      };
+      return Result;
+    };
+  });
+  $mod.$rtti.$ClassRef("TFieldDefsClass",{instancetype: $mod.$rtti["TFieldDefs"]});
+  this.TFieldKind = {"0": "fkData", fkData: 0, "1": "fkCalculated", fkCalculated: 1, "2": "fkLookup", fkLookup: 2, "3": "fkInternalCalc", fkInternalCalc: 3};
+  $mod.$rtti.$Enum("TFieldKind",{minvalue: 0, maxvalue: 3, ordtype: 1, enumtype: this.TFieldKind});
+  $mod.$rtti.$Set("TFieldKinds",{comptype: $mod.$rtti["TFieldKind"]});
+  $mod.$rtti.$MethodVar("TFieldNotifyEvent",{procsig: rtl.newTIProcSig([["Sender",$mod.$rtti["TField"]]]), methodkind: 0});
+  $mod.$rtti.$MethodVar("TFieldGetTextEvent",{procsig: rtl.newTIProcSig([["Sender",$mod.$rtti["TField"]],["aText",rtl.string,1],["DisplayText",rtl.boolean]]), methodkind: 0});
+  $mod.$rtti.$MethodVar("TFieldSetTextEvent",{procsig: rtl.newTIProcSig([["Sender",$mod.$rtti["TField"]],["aText",rtl.string,2]]), methodkind: 0});
+  $mod.$rtti.$DynArray("TFieldChars",{eltype: rtl.char});
+  rtl.createClass($mod,"TLookupList",pas.System.TObject,function () {
+    this.$init = function () {
+      pas.System.TObject.$init.call(this);
+      this.FList = null;
+    };
+    this.$final = function () {
+      this.FList = undefined;
+      pas.System.TObject.$final.call(this);
+    };
+    this.Create$1 = function () {
+      this.FList = pas.Classes.TFPList.$create("Create");
+    };
+    this.Destroy = function () {
+      this.Clear();
+      this.FList.$destroy("Destroy");
+      pas.System.TObject.Destroy.call(this);
+    };
+    this.Add = function (AKey, AValue) {
+      var LookupRec = null;
+      LookupRec = pas.JS.New(["Key",AKey,"Value",AValue]);
+      this.FList.Add(LookupRec);
+    };
+    this.Clear = function () {
+      this.FList.Clear();
+    };
+    this.FirstKeyByValue = function (AValue) {
+      var Result = undefined;
+      var i = 0;
+      for (var $l1 = 0, $end2 = this.FList.FCount - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        var $with3 = rtl.getObject(this.FList.Get(i));
+        if ($with3["Value"] == AValue) {
+          Result = $with3["Key"];
+          return Result;
+        };
+      };
+      Result = null;
+      return Result;
+    };
+    this.ValueOfKey = function (AKey) {
+      var Self = this;
+      var Result = undefined;
+      function VarArraySameValues(VarArray1, VarArray2) {
+        var Result = false;
+        var i = 0;
+        Result = true;
+        if (rtl.length(VarArray1) !== rtl.length(VarArray2)) return Result;
+        for (var $l1 = 0, $end2 = rtl.length(VarArray1); $l1 <= $end2; $l1++) {
+          i = $l1;
+          if (VarArray1[i] != VarArray2[i]) {
+            Result = false;
+            return Result;
+          };
+        };
+        return Result;
+      };
+      var I = 0;
+      Result = null;
+      if (pas.JS.isNull(AKey)) return Result;
+      I = Self.FList.FCount - 1;
+      if (rtl.isArray(AKey)) {
+        while ((I >= 0) && !VarArraySameValues(rtl.getObject(Self.FList.Get(I))["Key"],AKey)) I -= 1}
+       else while ((I >= 0) && (rtl.getObject(Self.FList.Get(I))["Key"] != AKey)) I -= 1;
+      if (I >= 0) Result = rtl.getObject(Self.FList.Get(I))["Value"];
+      return Result;
+    };
+    this.ValuesToStrings = function (AStrings) {
+      var i = 0;
+      var p = null;
+      AStrings.Clear();
+      for (var $l1 = 0, $end2 = this.FList.FCount - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        p = rtl.getObject(this.FList.Get(i));
+        AStrings.AddObject("" + p["Value"],p);
+      };
+    };
+  });
+  rtl.createClass($mod,"TField",pas.Classes.TComponent,function () {
+    this.$init = function () {
+      pas.Classes.TComponent.$init.call(this);
+      this.FAlignment = 0;
+      this.FAttributeSet = "";
+      this.FCalculated = false;
+      this.FConstraintErrorMessage = "";
+      this.FCustomConstraint = "";
+      this.FDataSet = null;
+      this.FDataType = 0;
+      this.FDefaultExpression = "";
+      this.FDisplayLabel = "";
+      this.FDisplayWidth = 0;
+      this.FFieldDef = null;
+      this.FFieldKind = 0;
+      this.FFieldName = "";
+      this.FFieldNo = 0;
+      this.FFields = null;
+      this.FHasConstraints = false;
+      this.FImportedConstraint = "";
+      this.FIsIndexField = false;
+      this.FKeyFields = "";
+      this.FLookupCache = false;
+      this.FLookupDataSet = null;
+      this.FLookupKeyfields = "";
+      this.FLookupresultField = "";
+      this.FLookupList = null;
+      this.FOffset = 0;
+      this.FOnChange = null;
+      this.FOnGetText = null;
+      this.FOnSetText = null;
+      this.FOnValidate = null;
+      this.FOrigin = "";
+      this.FReadOnly = false;
+      this.FRequired = false;
+      this.FSize = 0;
+      this.FValidChars = [];
+      this.FValueBuffer = undefined;
+      this.FValidating = false;
+      this.FVisible = false;
+      this.FProviderFlags = {};
+    };
+    this.$final = function () {
+      this.FDataSet = undefined;
+      this.FFieldDef = undefined;
+      this.FFields = undefined;
+      this.FLookupDataSet = undefined;
+      this.FLookupList = undefined;
+      this.FOnChange = undefined;
+      this.FOnGetText = undefined;
+      this.FOnSetText = undefined;
+      this.FOnValidate = undefined;
+      this.FValidChars = undefined;
+      this.FProviderFlags = undefined;
+      pas.Classes.TComponent.$final.call(this);
+    };
+    this.GetIndex = function () {
+      var Result = 0;
+      if (this.FDataSet != null) {
+        Result = this.FDataSet.FFieldList.IndexOf(this)}
+       else Result = -1;
+      return Result;
+    };
+    this.GetLookup = function () {
+      var Result = false;
+      Result = this.FFieldKind === $mod.TFieldKind.fkLookup;
+      return Result;
+    };
+    this.SetAlignment = function (AValue) {
+      if (this.FAlignment !== AValue) {
+        this.FAlignment = AValue;
+        this.PropertyChanged(false);
+      };
+    };
+    this.SetIndex = function (AValue) {
+      if (this.FFields !== null) this.FFields.SetFieldIndex(this,AValue);
+    };
+    this.GetDisplayText = function () {
+      var Result = "";
+      Result = rtl.strSetLength(Result,0);
+      if (this.FOnGetText != null) {
+        this.FOnGetText(this,{get: function () {
+            return Result;
+          }, set: function (v) {
+            Result = v;
+          }},true)}
+       else this.GetText({get: function () {
+          return Result;
+        }, set: function (v) {
+          Result = v;
+        }},true);
+      return Result;
+    };
+    this.GetEditText = function () {
+      var Result = "";
+      Result = rtl.strSetLength(Result,0);
+      if (this.FOnGetText != null) {
+        this.FOnGetText(this,{get: function () {
+            return Result;
+          }, set: function (v) {
+            Result = v;
+          }},false)}
+       else this.GetText({get: function () {
+          return Result;
+        }, set: function (v) {
+          Result = v;
+        }},false);
+      return Result;
+    };
+    this.SetEditText = function (AValue) {
+      if (this.FOnSetText != null) {
+        this.FOnSetText(this,AValue)}
+       else this.SetText(AValue);
+    };
+    this.SetDisplayLabel = function (AValue) {
+      if (this.FDisplayLabel !== AValue) {
+        this.FDisplayLabel = AValue;
+        this.PropertyChanged(true);
+      };
+    };
+    this.SetDisplayWidth = function (AValue) {
+      if (this.FDisplayWidth !== AValue) {
+        this.FDisplayWidth = AValue;
+        this.PropertyChanged(true);
+      };
+    };
+    this.GetDisplayWidth = function () {
+      var Result = 0;
+      if (this.FDisplayWidth === 0) {
+        Result = this.GetDefaultWidth()}
+       else Result = this.FDisplayWidth;
+      return Result;
+    };
+    var ValueToLookupMap = [$mod.TFieldKind.fkData,$mod.TFieldKind.fkLookup];
+    this.SetLookup = function (AValue) {
+      this.FFieldKind = ValueToLookupMap[+AValue];
+    };
+    this.SetReadOnly = function (AValue) {
+      if (this.FReadOnly !== AValue) {
+        this.FReadOnly = AValue;
+        this.PropertyChanged(true);
+      };
+    };
+    this.SetVisible = function (AValue) {
+      if (this.FVisible !== AValue) {
+        this.FVisible = AValue;
+        this.PropertyChanged(true);
+      };
+    };
+    this.IsDisplayLabelStored = function () {
+      var Result = false;
+      Result = this.GetDisplayName() !== this.FFieldName;
+      return Result;
+    };
+    this.IsDisplayWidthStored = function () {
+      var Result = false;
+      Result = this.FDisplayWidth !== 0;
+      return Result;
+    };
+    this.GetLookupList = function () {
+      var Result = null;
+      if (!(this.FLookupList != null)) this.FLookupList = $mod.TLookupList.$create("Create$1");
+      Result = this.FLookupList;
+      return Result;
+    };
+    this.CalcLookupValue = function () {
+    };
+    this.RaiseAccessError = function (TypeName) {
+      var E = null;
+      E = this.AccessError(TypeName);
+      throw E;
+    };
+    this.AccessError = function (TypeName) {
+      var Result = null;
+      Result = $mod.EDatabaseError.$create("CreateFmt",[rtl.getResStr(pas.DBConst,"SInvalidTypeConversion"),[TypeName,this.FFieldName]]);
+      return Result;
+    };
+    this.CheckInactive = function () {
+      if (this.FDataSet != null) this.FDataSet.CheckInactive();
+    };
+    this.CheckTypeSize = function (AValue) {
+      if ((AValue !== 0) && !this.IsBlob()) $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SInvalidFieldSize"),[AValue]);
+    };
+    this.Change = function () {
+      if (this.FOnChange != null) this.FOnChange(this);
+    };
+    this.Bind = function (Binding) {
+      if (Binding && (this.FFieldKind === $mod.TFieldKind.fkLookup)) {
+        if ((((this.FLookupDataSet === null) || (this.FLookupKeyfields === "")) || (this.FLookupresultField === "")) || (this.FKeyFields === "")) $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SLookupInfoError"),[this.GetDisplayName()]);
+        this.FFields.CheckFieldNames(this.FKeyFields);
+        this.FLookupDataSet.Open();
+        this.FLookupDataSet.FFieldList.CheckFieldNames(this.FLookupKeyfields);
+        this.FLookupDataSet.FieldByName(this.FLookupresultField);
+        if (this.FLookupCache) this.RefreshLookupList();
+      };
+    };
+    this.DataChanged = function () {
+      this.FDataSet.DataEvent($mod.TDataEvent.deFieldChange,this);
+    };
+    this.GetAsBoolean = function () {
+      var Result = false;
+      this.RaiseAccessError($impl.SBoolean);
+      Result = false;
+      return Result;
+    };
+    this.GetAsBytes = function () {
+      var Result = [];
+      this.RaiseAccessError($impl.SBytes);
+      Result = [];
+      return Result;
+    };
+    this.GetAsLargeInt = function () {
+      var Result = 0;
+      this.RaiseAccessError($impl.SLargeInt);
+      Result = 0;
+      return Result;
+    };
+    this.GetAsDateTime = function () {
+      var Result = 0.0;
+      this.RaiseAccessError($impl.SDateTime);
+      Result = 0.0;
+      return Result;
+    };
+    this.GetAsFloat = function () {
+      var Result = 0.0;
+      this.RaiseAccessError($impl.SDateTime);
+      Result = 0.0;
+      return Result;
+    };
+    this.GetAsLongint = function () {
+      var Result = 0;
+      Result = this.GetAsInteger();
+      return Result;
+    };
+    this.GetAsInteger = function () {
+      var Result = 0;
+      this.RaiseAccessError($impl.SInteger);
+      Result = 0;
+      return Result;
+    };
+    this.GetAsJSValue = function () {
+      var Result = undefined;
+      Result = this.GetData();
+      return Result;
+    };
+    this.GetOldValue = function () {
+      var Result = undefined;
+      var SaveState = 0;
+      SaveState = this.FDataSet.FState;
+      try {
+        this.FDataSet.SetTempState($mod.TDataSetState.dsOldValue);
+        Result = this.GetAsJSValue();
+      } finally {
+        this.FDataSet.RestoreState(SaveState);
+      };
+      return Result;
+    };
+    this.GetAsString = function () {
+      var Result = "";
+      Result = this.GetClassDesc();
+      return Result;
+    };
+    this.GetCanModify = function () {
+      var Result = false;
+      Result = !this.FReadOnly;
+      if (Result) {
+        Result = this.FFieldKind in rtl.createSet($mod.TFieldKind.fkData,$mod.TFieldKind.fkInternalCalc);
+        if (Result) {
+          Result = (this.FDataSet != null) && this.FDataSet.GetActive();
+          if (Result) Result = this.FDataSet.GetCanModify();
+        };
+      };
+      return Result;
+    };
+    this.GetClassDesc = function () {
+      var Result = "";
+      var ClassN = "";
+      ClassN = pas.System.Copy(this.$classname,2,pas.System.Pos("Field",this.$classname) - 2);
+      if (this.GetIsNull()) {
+        Result = ("(" + pas.SysUtils.LowerCase(ClassN)) + ")"}
+       else Result = ("(" + pas.SysUtils.UpperCase(ClassN)) + ")";
+      return Result;
+    };
+    this.GetDataSize = function () {
+      var Result = 0;
+      Result = 0;
+      return Result;
+    };
+    this.GetDefaultWidth = function () {
+      var Result = 0;
+      Result = 10;
+      return Result;
+    };
+    this.GetDisplayName = function () {
+      var Result = "";
+      if (this.FDisplayLabel !== "") {
+        Result = this.FDisplayLabel}
+       else Result = this.FFieldName;
+      return Result;
+    };
+    this.GetCurValue = function () {
+      var Result = undefined;
+      var SaveState = 0;
+      SaveState = this.FDataSet.FState;
+      try {
+        this.FDataSet.SetTempState($mod.TDataSetState.dsCurValue);
+        Result = this.GetAsJSValue();
+      } finally {
+        this.FDataSet.RestoreState(SaveState);
+      };
+      return Result;
+    };
+    this.GetNewValue = function () {
+      var Result = undefined;
+      var SaveState = 0;
+      SaveState = this.FDataSet.FState;
+      try {
+        this.FDataSet.SetTempState($mod.TDataSetState.dsNewValue);
+        Result = this.GetAsJSValue();
+      } finally {
+        this.FDataSet.RestoreState(SaveState);
+      };
+      return Result;
+    };
+    this.GetIsNull = function () {
+      var Result = false;
+      Result = pas.JS.isNull(this.GetData());
+      return Result;
+    };
+    this.GetText = function (AText, ADisplayText) {
+      AText.set(this.GetAsString());
+    };
+    this.Notification = function (AComponent, Operation) {
+      pas.Classes.TComponent.Notification.call(this,AComponent,Operation);
+      if ((Operation === pas.Classes.TOperation.opRemove) && (AComponent === this.FLookupDataSet)) this.FLookupDataSet = null;
+    };
+    this.PropertyChanged = function (LayoutAffected) {
+      if ((this.FDataSet !== null) && this.FDataSet.GetActive()) if (LayoutAffected) {
+        this.FDataSet.DataEvent($mod.TDataEvent.deLayoutChange,0)}
+       else this.FDataSet.DataEvent($mod.TDataEvent.deDataSetChange,0);
+    };
+    this.SetAsBoolean = function (AValue) {
+      this.RaiseAccessError($impl.SBoolean);
+    };
+    this.SetAsDateTime = function (AValue) {
+      this.RaiseAccessError($impl.SDateTime);
+    };
+    this.SetAsFloat = function (AValue) {
+      this.RaiseAccessError($impl.SFloat);
+    };
+    this.SetAsLongint = function (AValue) {
+      this.SetAsInteger(AValue);
+    };
+    this.SetAsInteger = function (AValue) {
+      this.RaiseAccessError($impl.SInteger);
+    };
+    this.SetAsLargeInt = function (AValue) {
+      this.RaiseAccessError($impl.SLargeInt);
+    };
+    this.SetAsJSValue = function (AValue) {
+      if (pas.JS.isNull(AValue)) {
+        this.Clear()}
+       else try {
+        this.SetVarValue(AValue);
+      } catch ($e) {
+        if (pas.SysUtils.EVariantError.isPrototypeOf($e)) {
+          $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SFieldValueError"),[this.GetDisplayName()])}
+         else throw $e
+      };
+    };
+    this.SetAsString = function (AValue) {
+      this.RaiseAccessError($impl.SString);
+    };
+    this.SetDataset = function (AValue) {
+      if (AValue === this.FDataSet) return;
+      if (this.FDataSet != null) {
+        this.FDataSet.CheckInactive();
+        this.FDataSet.FFieldList.Remove(this);
+      };
+      if (AValue != null) {
+        AValue.CheckInactive();
+        AValue.FFieldList.Add(this);
+      };
+      this.FDataSet = AValue;
+    };
+    this.SetDataType = function (AValue) {
+      this.FDataType = AValue;
+    };
+    this.SetNewValue = function (AValue) {
+      var SaveState = 0;
+      SaveState = this.FDataSet.FState;
+      try {
+        this.FDataSet.SetTempState($mod.TDataSetState.dsNewValue);
+        this.SetAsJSValue(AValue);
+      } finally {
+        this.FDataSet.RestoreState(SaveState);
+      };
+    };
+    this.SetSize = function (AValue) {
+      this.CheckInactive();
+      this.$class.CheckTypeSize(AValue);
+      this.FSize = AValue;
+    };
+    this.SetParentComponent = function (Value) {
+      if (!(pas.Classes.TComponentStateItem.csLoading in this.FComponentState)) this.SetDataset(rtl.as(Value,$mod.TDataSet));
+    };
+    this.SetText = function (AValue) {
+      this.SetAsString(AValue);
+    };
+    this.SetVarValue = function (AValue) {
+      this.RaiseAccessError($impl.SJSValue);
+    };
+    this.SetAsBytes = function (AValue) {
+      this.RaiseAccessError($impl.SBytes);
+    };
+    this.Create$1 = function (AOwner) {
+      pas.Classes.TComponent.Create$1.call(this,AOwner);
+      this.FVisible = true;
+      this.FValidChars = rtl.arraySetLength(this.FValidChars,"",255);
+      this.FProviderFlags = rtl.createSet($mod.TProviderFlag.pfInUpdate,$mod.TProviderFlag.pfInWhere);
+    };
+    this.Destroy = function () {
+      if (this.FDataSet != null) {
+        this.FDataSet.SetActive(false);
+        if (this.FFields != null) this.FFields.Remove(this);
+      };
+      rtl.free(this,"FLookupList");
+      pas.Classes.TComponent.Destroy.call(this);
+    };
+    this.GetParentComponent = function () {
+      var Result = null;
+      Result = this.FDataSet;
+      return Result;
+    };
+    this.HasParent = function () {
+      var Result = false;
+      Result = true;
+      return Result;
+    };
+    this.Assign = function (Source) {
+      if (Source === null) {
+        this.Clear()}
+       else if ($mod.TField.isPrototypeOf(Source)) {
+        this.SetAsJSValue(Source.GetAsJSValue());
+      } else pas.Classes.TPersistent.Assign.call(this,Source);
+    };
+    this.AssignValue = function (AValue) {
+      var Self = this;
+      function error() {
+        $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SFieldValueError"),[Self.GetDisplayName()]);
+      };
+      var $tmp1 = pas.JS.GetValueType(AValue);
+      if ($tmp1 === pas.JS.TJSValueType.jvtNull) {
+        Self.Clear()}
+       else if ($tmp1 === pas.JS.TJSValueType.jvtBoolean) {
+        Self.SetAsBoolean(!(AValue == false))}
+       else if ($tmp1 === pas.JS.TJSValueType.jvtInteger) {
+        Self.SetAsLargeInt(Math.floor(AValue))}
+       else if ($tmp1 === pas.JS.TJSValueType.jvtFloat) {
+        Self.SetAsFloat(rtl.getNumber(AValue))}
+       else if ($tmp1 === pas.JS.TJSValueType.jvtString) {
+        Self.SetAsString("" + AValue)}
+       else if ($tmp1 === pas.JS.TJSValueType.jvtArray) {
+        Self.SetAsBytes(AValue)}
+       else {
+        error();
+      };
+    };
+    this.Clear = function () {
+      this.SetData(null);
+    };
+    this.FocusControl = function () {
+      var Field1 = null;
+      Field1 = this;
+      this.FDataSet.DataEvent($mod.TDataEvent.deFocusControl,Field1);
+    };
+    this.GetData = function () {
+      var Result = undefined;
+      if (this.FDataSet === null) $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SNoDataset"),[this.FFieldName]);
+      if (this.FValidating) {
+        Result = this.FValueBuffer}
+       else Result = this.FDataSet.GetFieldData(this);
+      return Result;
+    };
+    this.IsBlob = function () {
+      var Result = false;
+      Result = false;
+      return Result;
+    };
+    this.IsValidChar = function (InputChar) {
+      var Result = false;
+      Result = pas.SysUtils.CharInSet(InputChar,this.FValidChars);
+      return Result;
+    };
+    this.RefreshLookupList = function () {
+      var tmpActive = false;
+      if (((!(this.FLookupDataSet != null) || (this.FLookupKeyfields.length === 0)) || (this.FLookupresultField.length === 0)) || (this.FKeyFields.length === 0)) return;
+      tmpActive = this.FLookupDataSet.GetActive();
+      try {
+        this.FLookupDataSet.SetActive(true);
+        this.FFields.CheckFieldNames(this.FKeyFields);
+        this.FLookupDataSet.FFieldList.CheckFieldNames(this.FLookupKeyfields);
+        this.FLookupDataSet.FieldByName(this.FLookupresultField);
+        this.GetLookupList().Clear();
+        this.FLookupDataSet.DisableControls();
+        try {
+          this.FLookupDataSet.First();
+          while (!this.FLookupDataSet.FEOF) {
+            this.FLookupDataSet.Next();
+          };
+        } finally {
+          this.FLookupDataSet.EnableControls();
+        };
+      } finally {
+        this.FLookupDataSet.SetActive(tmpActive);
+      };
+    };
+    this.SetData = function (Buffer) {
+      if (!(this.FDataSet != null)) $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SNoDataset"),[this.FFieldName]);
+      this.FDataSet.SetFieldData(this,Buffer);
+    };
+    this.SetFieldType = function (AValue) {
+    };
+    this.Validate = function (Buffer) {
+      if (this.FOnValidate != null) {
+        this.FValueBuffer = Buffer;
+        this.FValidating = true;
+        try {
+          this.FOnValidate(this);
+        } finally {
+          this.FValidating = false;
+        };
+      };
+    };
+    var $r = this.$rtti;
+    $r.addProperty("Alignment",2,pas.Classes.$rtti["TAlignment"],"FAlignment","SetAlignment",{Default: pas.Classes.TAlignment.taLeftJustify});
+    $r.addProperty("CustomConstraint",0,rtl.string,"FCustomConstraint","FCustomConstraint");
+    $r.addProperty("ConstraintErrorMessage",0,rtl.string,"FConstraintErrorMessage","FConstraintErrorMessage");
+    $r.addProperty("DefaultExpression",0,rtl.string,"FDefaultExpression","FDefaultExpression");
+    $r.addProperty("DisplayLabel",15,rtl.string,"GetDisplayName","SetDisplayLabel",{stored: "IsDisplayLabelStored"});
+    $r.addProperty("DisplayWidth",15,rtl.longint,"GetDisplayWidth","SetDisplayWidth",{stored: "IsDisplayWidthStored"});
+    $r.addProperty("FieldKind",0,$mod.$rtti["TFieldKind"],"FFieldKind","FFieldKind");
+    $r.addProperty("FieldName",0,rtl.string,"FFieldName","FFieldName");
+    $r.addProperty("HasConstraints",0,rtl.boolean,"FHasConstraints","");
+    $r.addProperty("Index",3,rtl.longint,"GetIndex","SetIndex");
+    $r.addProperty("ImportedConstraint",0,rtl.string,"FImportedConstraint","FImportedConstraint");
+    $r.addProperty("KeyFields",0,rtl.string,"FKeyFields","FKeyFields");
+    $r.addProperty("LookupCache",0,rtl.boolean,"FLookupCache","FLookupCache");
+    $r.addProperty("LookupDataSet",0,$mod.$rtti["TDataSet"],"FLookupDataSet","FLookupDataSet");
+    $r.addProperty("LookupKeyFields",0,rtl.string,"FLookupKeyfields","FLookupKeyfields");
+    $r.addProperty("LookupResultField",0,rtl.string,"FLookupresultField","FLookupresultField");
+    $r.addProperty("Origin",0,rtl.string,"FOrigin","FOrigin");
+    $r.addProperty("ProviderFlags",0,$mod.$rtti["TProviderFlags"],"FProviderFlags","FProviderFlags");
+    $r.addProperty("ReadOnly",2,rtl.boolean,"FReadOnly","SetReadOnly");
+    $r.addProperty("Required",0,rtl.boolean,"FRequired","FRequired");
+    $r.addProperty("Visible",2,rtl.boolean,"FVisible","SetVisible",{Default: true});
+    $r.addProperty("OnChange",0,$mod.$rtti["TFieldNotifyEvent"],"FOnChange","FOnChange");
+    $r.addProperty("OnGetText",0,$mod.$rtti["TFieldGetTextEvent"],"FOnGetText","FOnGetText");
+    $r.addProperty("OnSetText",0,$mod.$rtti["TFieldSetTextEvent"],"FOnSetText","FOnSetText");
+    $r.addProperty("OnValidate",0,$mod.$rtti["TFieldNotifyEvent"],"FOnValidate","FOnValidate");
+  });
+  rtl.createClass($mod,"TStringField",$mod.TField,function () {
+    this.$init = function () {
+      $mod.TField.$init.call(this);
+      this.FFixedChar = false;
+      this.FTransliterate = false;
+    };
+    this.CheckTypeSize = function (AValue) {
+      if (AValue < 0) $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SInvalidFieldSize"),[AValue]);
+    };
+    this.GetAsBoolean = function () {
+      var Result = false;
+      var S = "";
+      S = this.GetAsString();
+      Result = (S.length > 0) && (pas.System.upcase(S.charAt(0)).charCodeAt() in rtl.createSet(84,$mod.YesNoChars[1].charCodeAt()));
+      return Result;
+    };
+    this.GetAsDateTime = function () {
+      var Result = 0.0;
+      Result = pas.SysUtils.StrToDateTime(this.GetAsString());
+      return Result;
+    };
+    this.GetAsFloat = function () {
+      var Result = 0.0;
+      Result = pas.SysUtils.StrToFloat(this.GetAsString());
+      return Result;
+    };
+    this.GetAsInteger = function () {
+      var Result = 0;
+      Result = pas.SysUtils.StrToInt(this.GetAsString());
+      return Result;
+    };
+    this.GetAsLargeInt = function () {
+      var Result = 0;
+      Result = pas.SysUtils.StrToInt64(this.GetAsString());
+      return Result;
+    };
+    this.GetAsString = function () {
+      var Result = "";
+      var V = undefined;
+      V = this.GetData();
+      if (rtl.isString(V)) {
+        Result = "" + V}
+       else Result = "";
+      return Result;
+    };
+    this.GetAsJSValue = function () {
+      var Result = undefined;
+      Result = this.GetData();
+      return Result;
+    };
+    this.GetDefaultWidth = function () {
+      var Result = 0;
+      Result = this.FSize;
+      return Result;
+    };
+    this.GetText = function (AText, ADisplayText) {
+      AText.set(this.GetAsString());
+    };
+    this.SetAsBoolean = function (AValue) {
+      if (AValue) {
+        this.SetAsString("T")}
+       else this.SetAsString("F");
+    };
+    this.SetAsDateTime = function (AValue) {
+      this.SetAsString(pas.SysUtils.DateTimeToStr(AValue,false));
+    };
+    this.SetAsFloat = function (AValue) {
+      this.SetAsString(pas.SysUtils.FloatToStr(AValue));
+    };
+    this.SetAsInteger = function (AValue) {
+      this.SetAsString(pas.SysUtils.IntToStr(AValue));
+    };
+    this.SetAsLargeInt = function (AValue) {
+      this.SetAsString(pas.SysUtils.IntToStr(AValue));
+    };
+    this.SetAsString = function (AValue) {
+      this.SetData(AValue);
+    };
+    this.SetVarValue = function (AValue) {
+      if (rtl.isString(AValue)) {
+        this.SetAsString("" + AValue)}
+       else this.RaiseAccessError(rtl.getResStr(pas.DBConst,"SFieldValueError"));
+    };
+    this.Create$1 = function (AOwner) {
+      $mod.TField.Create$1.call(this,AOwner);
+      this.SetDataType($mod.TFieldType.ftString);
+      this.FFixedChar = false;
+      this.FTransliterate = false;
+      this.FSize = 20;
+    };
+    this.SetFieldType = function (AValue) {
+      if (AValue in rtl.createSet($mod.TFieldType.ftString,$mod.TFieldType.ftFixedChar)) this.SetDataType(AValue);
+    };
+    var $r = this.$rtti;
+    $r.addProperty("Size",2,rtl.longint,"FSize","SetSize",{Default: 20});
+  });
+  rtl.createClass($mod,"TNumericField",$mod.TField,function () {
+    this.$init = function () {
+      $mod.TField.$init.call(this);
+      this.FDisplayFormat = "";
+      this.FEditFormat = "";
+    };
+    this.CheckTypeSize = function (AValue) {
+      if (AValue > 16) $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SInvalidFieldSize"),[AValue]);
+    };
+    this.rangeError = function (AValue, Min, Max) {
+      $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SRangeError"),[AValue,Min,Max,this.FFieldName]);
+    };
+    this.SetDisplayFormat = function (AValue) {
+      if (this.FDisplayFormat !== AValue) {
+        this.FDisplayFormat = AValue;
+        this.PropertyChanged(true);
+      };
+    };
+    this.SetEditFormat = function (AValue) {
+      if (this.FEditFormat !== AValue) {
+        this.FEditFormat = AValue;
+        this.PropertyChanged(true);
+      };
+    };
+    this.GetAsBoolean = function () {
+      var Result = false;
+      Result = this.GetAsInteger() !== 0;
+      return Result;
+    };
+    this.SetAsBoolean = function (AValue) {
+      this.SetAsInteger(AValue + 0);
+    };
+    this.Create$1 = function (AOwner) {
+      $mod.TField.Create$1.call(this,AOwner);
+      this.SetAlignment(pas.Classes.TAlignment.taRightJustify);
+    };
+    var $r = this.$rtti;
+    $r.addProperty("Alignment",2,pas.Classes.$rtti["TAlignment"],"FAlignment","SetAlignment",{Default: pas.Classes.TAlignment.taRightJustify});
+    $r.addProperty("DisplayFormat",2,rtl.string,"FDisplayFormat","SetDisplayFormat");
+    $r.addProperty("EditFormat",2,rtl.string,"FEditFormat","SetEditFormat");
+  });
+  rtl.createClass($mod,"TIntegerField",$mod.TNumericField,function () {
+    this.$init = function () {
+      $mod.TNumericField.$init.call(this);
+      this.FMinValue = 0;
+      this.FMaxValue = 0;
+      this.FMinRange = 0;
+      this.FMaxRange = 0;
+    };
+    this.SetMinValue = function (AValue) {
+      if ((AValue >= this.FMinRange) && (AValue <= this.FMaxRange)) {
+        this.FMinValue = AValue}
+       else this.rangeError(AValue,this.FMinRange,this.FMaxRange);
+    };
+    this.SetMaxValue = function (AValue) {
+      if ((AValue >= this.FMinRange) && (AValue <= this.FMaxRange)) {
+        this.FMaxValue = AValue}
+       else this.rangeError(AValue,this.FMinRange,this.FMaxRange);
+    };
+    this.GetAsFloat = function () {
+      var Result = 0.0;
+      Result = this.GetAsInteger();
+      return Result;
+    };
+    this.GetAsInteger = function () {
+      var Result = 0;
+      if (!this.GetValue({get: function () {
+          return Result;
+        }, set: function (v) {
+          Result = v;
+        }})) Result = 0;
+      return Result;
+    };
+    this.GetAsString = function () {
+      var Result = "";
+      var L = 0;
+      if (this.GetValue({get: function () {
+          return L;
+        }, set: function (v) {
+          L = v;
+        }})) {
+        Result = pas.SysUtils.IntToStr(L)}
+       else Result = "";
+      return Result;
+    };
+    this.GetAsJSValue = function () {
+      var Result = undefined;
+      var L = 0;
+      if (this.GetValue({get: function () {
+          return L;
+        }, set: function (v) {
+          L = v;
+        }})) {
+        Result = L}
+       else Result = null;
+      return Result;
+    };
+    this.GetText = function (AText, ADisplayText) {
+      var l = 0;
+      var fmt = "";
+      AText.set("");
+      if (!this.GetValue({get: function () {
+          return l;
+        }, set: function (v) {
+          l = v;
+        }})) return;
+      if (ADisplayText || (this.FEditFormat === "")) {
+        fmt = this.FDisplayFormat}
+       else fmt = this.FEditFormat;
+      if (fmt.length !== 0) {
+        AText.set(pas.SysUtils.FormatFloat(fmt,l))}
+       else AText.set("" + l);
+    };
+    this.GetValue = function (AValue) {
+      var Result = false;
+      var V = undefined;
+      V = this.GetData();
+      Result = pas.JS.isInteger(V);
+      if (Result) AValue.set(Math.floor(V));
+      return Result;
+    };
+    this.SetAsFloat = function (AValue) {
+      this.SetAsInteger(Math.round(AValue));
+    };
+    this.SetAsInteger = function (AValue) {
+      if (this.CheckRange(AValue)) {
+        this.SetData(AValue)}
+       else if ((this.FMinValue !== 0) || (this.FMaxValue !== 0)) {
+        this.rangeError(AValue,this.FMinValue,this.FMaxValue)}
+       else this.rangeError(AValue,this.FMinRange,this.FMaxRange);
+    };
+    this.SetAsString = function (AValue) {
+      var L = 0;
+      var Code = 0;
+      if (AValue.length === 0) {
+        this.Clear()}
+       else {
+        pas.System.val$5(AValue,{get: function () {
+            return L;
+          }, set: function (v) {
+            L = v;
+          }},{get: function () {
+            return Code;
+          }, set: function (v) {
+            Code = v;
+          }});
+        if (Code === 0) {
+          this.SetAsInteger(L)}
+         else $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SNotAninteger"),[AValue]);
+      };
+    };
+    this.SetVarValue = function (AValue) {
+      if (pas.JS.isInteger(AValue)) {
+        this.SetAsInteger(Math.floor(AValue))}
+       else this.RaiseAccessError($impl.SInteger);
+    };
+    this.GetAsLargeInt = function () {
+      var Result = 0;
+      Result = this.GetAsInteger();
+      return Result;
+    };
+    this.SetAsLargeInt = function (AValue) {
+      if ((AValue >= this.FMinRange) && (AValue <= this.FMaxRange)) {
+        this.SetAsInteger(AValue)}
+       else this.rangeError(AValue,this.FMinRange,this.FMaxRange);
+    };
+    this.Create$1 = function (AOwner) {
+      $mod.TNumericField.Create$1.call(this,AOwner);
+      this.SetDataType($mod.TFieldType.ftInteger);
+      this.FMinRange = -2147483648;
+      this.FMaxRange = 2147483647;
+    };
+    this.CheckRange = function (AValue) {
+      var Result = false;
+      if ((this.FMinValue !== 0) || (this.FMaxValue !== 0)) {
+        Result = (AValue >= this.FMinValue) && (AValue <= this.FMaxValue)}
+       else Result = (AValue >= this.FMinRange) && (AValue <= this.FMaxRange);
+      return Result;
+    };
+    var $r = this.$rtti;
+    $r.addProperty("MaxValue",2,rtl.longint,"FMaxValue","SetMaxValue",{Default: 0});
+    $r.addProperty("MinValue",2,rtl.longint,"FMinValue","SetMinValue",{Default: 0});
+  });
+  rtl.createClass($mod,"TLargeintField",$mod.TNumericField,function () {
+    this.$init = function () {
+      $mod.TNumericField.$init.call(this);
+      this.FMinValue = 0;
+      this.FMaxValue = 0;
+      this.FMinRange = 0;
+      this.FMaxRange = 0;
+    };
+    this.SetMinValue = function (AValue) {
+      if ((AValue >= this.FMinRange) && (AValue <= this.FMaxRange)) {
+        this.FMinValue = AValue}
+       else this.rangeError(AValue,this.FMinRange,this.FMaxRange);
+    };
+    this.SetMaxValue = function (AValue) {
+      if ((AValue >= this.FMinRange) && (AValue <= this.FMaxRange)) {
+        this.FMaxValue = AValue}
+       else this.rangeError(AValue,this.FMinRange,this.FMaxRange);
+    };
+    this.GetAsFloat = function () {
+      var Result = 0.0;
+      Result = this.GetAsLargeInt();
+      return Result;
+    };
+    this.GetAsInteger = function () {
+      var Result = 0;
+      Result = this.GetAsLargeInt();
+      return Result;
+    };
+    this.GetAsLargeInt = function () {
+      var Result = 0;
+      if (!this.GetValue({get: function () {
+          return Result;
+        }, set: function (v) {
+          Result = v;
+        }})) Result = 0;
+      return Result;
+    };
+    this.GetAsString = function () {
+      var Result = "";
+      var L = 0;
+      if (this.GetValue({get: function () {
+          return L;
+        }, set: function (v) {
+          L = v;
+        }})) {
+        Result = pas.SysUtils.IntToStr(L)}
+       else Result = "";
+      return Result;
+    };
+    this.GetAsJSValue = function () {
+      var Result = undefined;
+      var L = 0;
+      if (this.GetValue({get: function () {
+          return L;
+        }, set: function (v) {
+          L = v;
+        }})) {
+        Result = L}
+       else Result = null;
+      return Result;
+    };
+    this.GetText = function (AText, ADisplayText) {
+      var l = 0;
+      var fmt = "";
+      AText.set("");
+      if (!this.GetValue({get: function () {
+          return l;
+        }, set: function (v) {
+          l = v;
+        }})) return;
+      if (ADisplayText || (this.FEditFormat === "")) {
+        fmt = this.FDisplayFormat}
+       else fmt = this.FEditFormat;
+      if (fmt.length !== 0) {
+        AText.set(pas.SysUtils.FormatFloat(fmt,l))}
+       else AText.set("" + l);
+    };
+    this.GetValue = function (AValue) {
+      var Result = false;
+      var P = undefined;
+      P = this.GetData();
+      Result = pas.JS.isInteger(P);
+      if (Result) AValue.set(Math.floor(P));
+      return Result;
+    };
+    this.SetAsFloat = function (AValue) {
+      this.SetAsLargeInt(Math.round(AValue));
+    };
+    this.SetAsInteger = function (AValue) {
+      this.SetAsLargeInt(AValue);
+    };
+    this.SetAsLargeInt = function (AValue) {
+      if (this.CheckRange(AValue)) {
+        this.SetData(AValue)}
+       else this.rangeError(AValue,this.FMinValue,this.FMaxValue);
+    };
+    this.SetAsString = function (AValue) {
+      var L = 0;
+      var code = 0;
+      if (AValue.length === 0) {
+        this.Clear()}
+       else {
+        pas.System.val(AValue,{get: function () {
+            return L;
+          }, set: function (v) {
+            L = v;
+          }},{get: function () {
+            return code;
+          }, set: function (v) {
+            code = v;
+          }});
+        if (code === 0) {
+          this.SetAsLargeInt(L)}
+         else $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SNotAninteger"),[AValue]);
+      };
+    };
+    this.SetVarValue = function (AValue) {
+      if (pas.JS.isInteger(AValue)) {
+        this.SetAsLargeInt(Math.floor(AValue))}
+       else this.RaiseAccessError($impl.SLargeInt);
+    };
+    this.Create$1 = function (AOwner) {
+      $mod.TNumericField.Create$1.call(this,AOwner);
+      this.SetDataType($mod.TFieldType.ftLargeInt);
+      this.FMinRange = -4503599627370496;
+      this.FMaxRange = 4503599627370495;
+    };
+    this.CheckRange = function (AValue) {
+      var Result = false;
+      if ((this.FMinValue !== 0) || (this.FMaxValue !== 0)) {
+        Result = (AValue >= this.FMinValue) && (AValue <= this.FMaxValue)}
+       else Result = (AValue >= this.FMinRange) && (AValue <= this.FMaxRange);
+      return Result;
+    };
+    var $r = this.$rtti;
+    $r.addProperty("MaxValue",2,rtl.nativeint,"FMaxValue","SetMaxValue",{Default: 0});
+    $r.addProperty("MinValue",2,rtl.nativeint,"FMinValue","SetMinValue",{Default: 0});
+  });
+  rtl.createClass($mod,"TAutoIncField",$mod.TIntegerField,function () {
+    this.SetAsInteger = function (AValue) {
+      $mod.TIntegerField.SetAsInteger.apply(this,arguments);
+    };
+    this.Create$1 = function (AOwner) {
+      $mod.TIntegerField.Create$1.call(this,AOwner);
+      this.SetDataType($mod.TFieldType.ftAutoInc);
+    };
+  });
+  rtl.createClass($mod,"TFloatField",$mod.TNumericField,function () {
+    this.$init = function () {
+      $mod.TNumericField.$init.call(this);
+      this.FCurrency = false;
+      this.FMaxValue = 0.0;
+      this.FMinValue = 0.0;
+      this.FPrecision = 0;
+    };
+    this.SetCurrency = function (AValue) {
+      if (this.FCurrency === AValue) return;
+      this.FCurrency = AValue;
+    };
+    this.SetPrecision = function (AValue) {
+      if ((AValue === -1) || (AValue > 1)) {
+        this.FPrecision = AValue}
+       else this.FPrecision = 2;
+    };
+    this.GetAsFloat = function () {
+      var Result = 0.0;
+      var P = undefined;
+      P = this.GetData();
+      if (rtl.isNumber(P)) {
+        Result = rtl.getNumber(P)}
+       else Result = 0.0;
+      return Result;
+    };
+    this.GetAsLargeInt = function () {
+      var Result = 0;
+      Result = Math.round(this.GetAsFloat());
+      return Result;
+    };
+    this.GetAsInteger = function () {
+      var Result = 0;
+      Result = Math.round(this.GetAsFloat());
+      return Result;
+    };
+    this.GetAsJSValue = function () {
+      var Result = undefined;
+      var P = undefined;
+      P = this.GetData();
+      if (rtl.isNumber(P)) {
+        Result = P}
+       else Result = null;
+      return Result;
+    };
+    this.GetAsString = function () {
+      var Result = "";
+      var P = undefined;
+      P = this.GetData();
+      if (rtl.isNumber(P)) {
+        Result = pas.SysUtils.FloatToStr(rtl.getNumber(P))}
+       else Result = "";
+      return Result;
+    };
+    this.GetText = function (AText, ADisplayText) {
+      var fmt = "";
+      var E = 0.0;
+      var Digits = 0;
+      var ff = 0;
+      var P = undefined;
+      AText.set("");
+      P = this.GetData();
+      if (!rtl.isNumber(P)) return;
+      E = rtl.getNumber(P);
+      if (ADisplayText || (this.FEditFormat.length === 0)) {
+        fmt = this.FDisplayFormat}
+       else fmt = this.FEditFormat;
+      Digits = 0;
+      if (!this.FCurrency) {
+        ff = pas.SysUtils.TFloatFormat.ffGeneral}
+       else {
+        Digits = 2;
+        ff = pas.SysUtils.TFloatFormat.ffFixed;
+      };
+      if (fmt !== "") {
+        AText.set(pas.SysUtils.FormatFloat(fmt,E))}
+       else AText.set(pas.SysUtils.FloatToStrF(E,ff,this.FPrecision,Digits));
+    };
+    this.SetAsFloat = function (AValue) {
+      if (this.CheckRange(AValue)) {
+        this.SetData(AValue)}
+       else this.rangeError(AValue,this.FMinValue,this.FMaxValue);
+    };
+    this.SetAsLargeInt = function (AValue) {
+      this.SetAsFloat(AValue);
+    };
+    this.SetAsInteger = function (AValue) {
+      this.SetAsFloat(AValue);
+    };
+    this.SetAsString = function (AValue) {
+      var f = 0.0;
+      if (AValue === "") {
+        this.Clear()}
+       else {
+        if (!pas.SysUtils.TryStrToFloat(AValue,{get: function () {
+            return f;
+          }, set: function (v) {
+            f = v;
+          }})) $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SNotAFloat"),[AValue]);
+        this.SetAsFloat(f);
+      };
+    };
+    this.SetVarValue = function (AValue) {
+      if (rtl.isNumber(AValue)) {
+        this.SetAsFloat(rtl.getNumber(AValue))}
+       else this.RaiseAccessError("Float");
+    };
+    this.Create$1 = function (AOwner) {
+      $mod.TNumericField.Create$1.call(this,AOwner);
+      this.SetDataType($mod.TFieldType.ftFloat);
+      this.FPrecision = 15;
+    };
+    this.CheckRange = function (AValue) {
+      var Result = false;
+      if ((this.FMinValue !== 0) || (this.FMaxValue !== 0)) {
+        Result = (AValue >= this.FMinValue) && (AValue <= this.FMaxValue)}
+       else Result = true;
+      return Result;
+    };
+    var $r = this.$rtti;
+    $r.addProperty("Currency",2,rtl.boolean,"FCurrency","SetCurrency",{Default: false});
+    $r.addProperty("MaxValue",0,rtl.double,"FMaxValue","FMaxValue");
+    $r.addProperty("MinValue",0,rtl.double,"FMinValue","FMinValue");
+    $r.addProperty("Precision",2,rtl.longint,"FPrecision","SetPrecision",{Default: 15});
+  });
+  rtl.createClass($mod,"TBooleanField",$mod.TField,function () {
+    this.$init = function () {
+      $mod.TField.$init.call(this);
+      this.FDisplayValues = "";
+      this.FDisplays = rtl.arraySetLength(null,"",2,2);
+    };
+    this.$final = function () {
+      this.FDisplays = undefined;
+      $mod.TField.$final.call(this);
+    };
+    this.SetDisplayValues = function (AValue) {
+      var I = 0;
+      if (this.FDisplayValues !== AValue) {
+        I = pas.System.Pos(";",AValue);
+        if ((I < 2) || (I === AValue.length)) $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SInvalidDisplayValues"),[AValue]);
+        this.FDisplayValues = AValue;
+        this.FDisplays[0][1] = pas.System.Copy(AValue,1,I - 1);
+        this.FDisplays[1][1] = pas.SysUtils.UpperCase(this.FDisplays[0][1]);
+        this.FDisplays[0][0] = pas.System.Copy(AValue,I + 1,AValue.length - I);
+        this.FDisplays[1][0] = pas.SysUtils.UpperCase(this.FDisplays[0][0]);
+        this.PropertyChanged(true);
+      };
+    };
+    this.GetAsBoolean = function () {
+      var Result = false;
+      var P = undefined;
+      P = this.GetData();
+      if (pas.JS.isBoolean(P)) {
+        Result = !(P == false)}
+       else Result = false;
+      return Result;
+    };
+    this.GetAsString = function () {
+      var Result = "";
+      var P = undefined;
+      P = this.GetData();
+      if (pas.JS.isBoolean(P)) {
+        Result = this.FDisplays[0][+!(P == false)]}
+       else Result = "";
+      return Result;
+    };
+    this.GetAsJSValue = function () {
+      var Result = undefined;
+      var P = undefined;
+      P = this.GetData();
+      if (pas.JS.isBoolean(P)) {
+        Result = !(P == false)}
+       else Result = null;
+      return Result;
+    };
+    this.GetAsInteger = function () {
+      var Result = 0;
+      Result = this.GetAsBoolean() + 0;
+      return Result;
+    };
+    this.GetDefaultWidth = function () {
+      var Result = 0;
+      Result = this.FDisplays[0][0].length;
+      if (Result < this.FDisplays[0][1].length) Result = this.FDisplays[0][1].length;
+      return Result;
+    };
+    this.SetAsBoolean = function (AValue) {
+      this.SetData(AValue);
+    };
+    this.SetAsString = function (AValue) {
+      var Temp = "";
+      Temp = pas.SysUtils.UpperCase(AValue);
+      if (Temp === "") {
+        this.Clear()}
+       else if (pas.System.Pos(Temp,this.FDisplays[1][1]) === 1) {
+        this.SetAsBoolean(true)}
+       else if (pas.System.Pos(Temp,this.FDisplays[1][0]) === 1) {
+        this.SetAsBoolean(false)}
+       else $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SNotABoolean"),[AValue]);
+    };
+    this.SetAsInteger = function (AValue) {
+      this.SetAsBoolean(AValue !== 0);
+    };
+    this.SetVarValue = function (AValue) {
+      if (pas.JS.isBoolean(AValue)) {
+        this.SetAsBoolean(!(AValue == false))}
+       else if (rtl.isNumber(AValue)) this.SetAsBoolean(rtl.getNumber(AValue) !== 0);
+    };
+    this.Create$1 = function (AOwner) {
+      $mod.TField.Create$1.call(this,AOwner);
+      this.SetDataType($mod.TFieldType.ftBoolean);
+      this.SetDisplayValues("True;False");
+    };
+    var $r = this.$rtti;
+    $r.addProperty("DisplayValues",2,rtl.string,"FDisplayValues","SetDisplayValues");
+  });
+  rtl.createClass($mod,"TDateTimeField",$mod.TField,function () {
+    this.$init = function () {
+      $mod.TField.$init.call(this);
+      this.FDisplayFormat = "";
+    };
+    this.SetDisplayFormat = function (AValue) {
+      if (this.FDisplayFormat !== AValue) {
+        this.FDisplayFormat = AValue;
+        this.PropertyChanged(true);
+      };
+    };
+    this.ConvertToDateTime = function (aValue, aRaiseError) {
+      var Result = 0.0;
+      if (this.FDataSet != null) {
+        Result = this.FDataSet.ConvertToDateTime(aValue,aRaiseError)}
+       else Result = $mod.TDataSet.DefaultConvertToDateTime(aValue,aRaiseError);
+      return Result;
+    };
+    this.DateTimeToNativeDateTime = function (aValue) {
+      var Result = undefined;
+      if (this.FDataSet != null) {
+        Result = this.FDataSet.ConvertDateTimeToNative(aValue)}
+       else Result = $mod.TDataSet.DefaultConvertDateTimeToNative(aValue);
+      return Result;
+    };
+    this.GetAsDateTime = function () {
+      var Result = 0.0;
+      Result = this.ConvertToDateTime(this.GetData(),false);
+      return Result;
+    };
+    this.GetAsFloat = function () {
+      var Result = 0.0;
+      Result = this.GetAsDateTime();
+      return Result;
+    };
+    this.GetAsString = function () {
+      var Result = "";
+      this.GetText({get: function () {
+          return Result;
+        }, set: function (v) {
+          Result = v;
+        }},false);
+      return Result;
+    };
+    this.GetAsJSValue = function () {
+      var Result = undefined;
+      Result = this.GetData();
+      if (!rtl.isString(Result)) Result = null;
+      return Result;
+    };
+    this.GetDataSize = function () {
+      var Result = 0;
+      Result = $mod.TField.GetDataSize.call(this);
+      return Result;
+    };
+    this.GetText = function (AText, ADisplayText) {
+      var R = 0.0;
+      var F = "";
+      R = this.ConvertToDateTime(this.GetData(),false);
+      if (R === 0) {
+        AText.set("")}
+       else {
+        if (ADisplayText && (this.FDisplayFormat.length !== 0)) {
+          F = this.FDisplayFormat}
+         else {
+          var $tmp1 = this.FDataType;
+          if ($tmp1 === $mod.TFieldType.ftTime) {
+            F = pas.SysUtils.LongTimeFormat}
+           else if ($tmp1 === $mod.TFieldType.ftDate) {
+            F = pas.SysUtils.ShortDateFormat}
+           else {
+            F = "c";
+          };
+        };
+        AText.set(pas.SysUtils.FormatDateTime(F,R));
+      };
+    };
+    this.SetAsDateTime = function (AValue) {
+      this.SetData(this.DateTimeToNativeDateTime(AValue));
+    };
+    this.SetAsFloat = function (AValue) {
+      this.SetAsDateTime(AValue);
+    };
+    this.SetAsString = function (AValue) {
+      var R = 0.0;
+      if (AValue !== "") {
+        R = pas.SysUtils.StrToDateTime(AValue);
+        this.SetData(this.DateTimeToNativeDateTime(R));
+      } else this.SetData(null);
+    };
+    this.SetVarValue = function (AValue) {
+      this.SetAsDateTime(this.ConvertToDateTime(AValue,true));
+    };
+    this.Create$1 = function (AOwner) {
+      $mod.TField.Create$1.call(this,AOwner);
+      this.SetDataType($mod.TFieldType.ftDateTime);
+    };
+    var $r = this.$rtti;
+    $r.addProperty("DisplayFormat",2,rtl.string,"FDisplayFormat","SetDisplayFormat");
+  });
+  rtl.createClass($mod,"TDateField",$mod.TDateTimeField,function () {
+    this.Create$1 = function (AOwner) {
+      $mod.TDateTimeField.Create$1.call(this,AOwner);
+      this.SetDataType($mod.TFieldType.ftDate);
+    };
+  });
+  rtl.createClass($mod,"TTimeField",$mod.TDateTimeField,function () {
+    this.SetAsString = function (AValue) {
+      var R = 0.0;
+      if (AValue !== "") {
+        R = pas.SysUtils.StrToTime(AValue);
+        this.SetData(this.DateTimeToNativeDateTime(R));
+      } else this.SetData(null);
+    };
+    this.Create$1 = function (AOwner) {
+      $mod.TDateTimeField.Create$1.call(this,AOwner);
+      this.SetDataType($mod.TFieldType.ftTime);
+    };
+  });
+  rtl.createClass($mod,"TBinaryField",$mod.TField,function () {
+    this.CheckTypeSize = function (AValue) {
+      if (AValue < 1) $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SInvalidFieldSize"),[AValue]);
+    };
+    this.BlobToBytes = function (aValue) {
+      var Result = [];
+      if (this.FDataSet != null) {
+        Result = this.FDataSet.BlobDataToBytes(aValue)}
+       else Result = $mod.TDataSet.DefaultBlobDataToBytes(aValue);
+      return Result;
+    };
+    this.BytesToBlob = function (aValue) {
+      var Result = undefined;
+      if (this.FDataSet != null) {
+        Result = this.FDataSet.BytesToBlobData(aValue)}
+       else Result = $mod.TDataSet.DefaultBytesToBlobData(aValue);
+      return Result;
+    };
+    this.GetAsString = function () {
+      var Result = "";
+      var V = undefined;
+      var S = [];
+      var I = 0;
+      Result = "";
+      V = this.GetData();
+      if (V != null) {
+        S = this.BlobToBytes(V);
+        for (var $l1 = 0, $end2 = rtl.length(S); $l1 <= $end2; $l1++) {
+          I = $l1;
+          Result.concat(String.fromCharCode(S[I]));
+        };
+      };
+      return Result;
+    };
+    this.GetAsJSValue = function () {
+      var Result = undefined;
+      Result = this.GetData();
+      return Result;
+    };
+    this.GetValue = function (AValue) {
+      var Result = false;
+      var V = undefined;
+      V = this.GetData();
+      Result = V != null;
+      if (Result) {
+        AValue.set(this.BlobToBytes(V))}
+       else AValue.set(rtl.arraySetLength(AValue.get(),0,0));
+      return Result;
+    };
+    this.SetAsString = function (AValue) {
+      var B = [];
+      var i = 0;
+      B = rtl.arraySetLength(B,0,AValue.length);
+      for (var $l1 = 1, $end2 = AValue.length; $l1 <= $end2; $l1++) {
+        i = $l1;
+        B[i - 1] = AValue.charCodeAt(i - 1);
+      };
+      this.SetAsBytes(B);
+    };
+    this.SetVarValue = function (AValue) {
+      var B = [];
+      var I = 0;
+      var Len = 0;
+      if (rtl.isArray(AValue)) {
+        Len = rtl.length(AValue);
+        B = rtl.arraySetLength(B,0,Len);
+        for (var $l1 = 1, $end2 = Len - 1; $l1 <= $end2; $l1++) {
+          I = $l1;
+          B[I] = AValue[I];
+        };
+        this.SetAsBytes(B);
+      } else if (rtl.isString(AValue)) {
+        this.SetAsString("" + AValue)}
+       else this.RaiseAccessError("Blob");
+    };
+    this.Create$1 = function (AOwner) {
+      $mod.TField.Create$1.call(this,AOwner);
+    };
+    var $r = this.$rtti;
+    $r.addProperty("Size",2,rtl.longint,"FSize","SetSize",{Default: 16});
+  });
+  this.TBlobStreamMode = {"0": "bmRead", bmRead: 0, "1": "bmWrite", bmWrite: 1, "2": "bmReadWrite", bmReadWrite: 2};
+  $mod.$rtti.$Enum("TBlobStreamMode",{minvalue: 0, maxvalue: 2, ordtype: 1, enumtype: this.TBlobStreamMode});
+  rtl.createClass($mod,"TBlobField",$mod.TBinaryField,function () {
+    this.$init = function () {
+      $mod.TBinaryField.$init.call(this);
+      this.FModified = false;
+    };
+    this.GetBlobSize = function () {
+      var Result = 0;
+      var B = [];
+      B = this.GetAsBytes();
+      Result = rtl.length(B);
+      return Result;
+    };
+    this.GetIsNull = function () {
+      var Result = false;
+      if (!this.FModified) {
+        Result = $mod.TField.GetIsNull.call(this)}
+       else Result = this.GetBlobSize() === 0;
+      return Result;
+    };
+    this.GetText = function (AText, ADisplayText) {
+      AText.set($mod.TBinaryField.GetAsString.call(this));
+    };
+    this.Create$1 = function (AOwner) {
+      $mod.TBinaryField.Create$1.call(this,AOwner);
+      this.SetDataType($mod.TFieldType.ftBlob);
+    };
+    this.Clear = function () {
+      this.SetData(null);
+    };
+    this.IsBlob = function () {
+      var Result = false;
+      Result = true;
+      return Result;
+    };
+    this.SetFieldType = function (AValue) {
+      if (AValue in $mod.ftBlobTypes) this.SetDataType(AValue);
+    };
+    var $r = this.$rtti;
+    $r.addProperty("Size",2,rtl.longint,"FSize","SetSize",{Default: 0});
+  });
+  rtl.createClass($mod,"TMemoField",$mod.TBlobField,function () {
+    this.Create$1 = function (AOwner) {
+      $mod.TBlobField.Create$1.call(this,AOwner);
+      this.SetDataType($mod.TFieldType.ftMemo);
+    };
+  });
+  rtl.createClass($mod,"TVariantField",$mod.TField,function () {
+    this.CheckTypeSize = function (aValue) {
+    };
+    this.GetAsBoolean = function () {
+      var Result = false;
+      Result = this.GetAsJSValue() == true;
+      return Result;
+    };
+    this.SetAsBoolean = function (aValue) {
+      this.SetVarValue(aValue);
+    };
+    this.GetAsDateTime = function () {
+      var Result = 0.0;
+      var V = undefined;
+      V = this.GetData();
+      if (this.FDataSet != null) {
+        Result = this.FDataSet.ConvertToDateTime(V,true)}
+       else Result = $mod.TDataSet.DefaultConvertToDateTime(V,true);
+      return Result;
+    };
+    this.SetAsDateTime = function (aValue) {
+      this.SetVarValue(aValue);
+    };
+    this.GetAsFloat = function () {
+      var Result = 0.0;
+      var V = undefined;
+      V = this.GetData();
+      if (rtl.isNumber(V)) {
+        Result = rtl.getNumber(V)}
+       else if (rtl.isString(V)) {
+        Result = parseFloat("" + V)}
+       else this.RaiseAccessError("Variant");
+      return Result;
+    };
+    this.SetAsFloat = function (aValue) {
+      this.SetVarValue(aValue);
+    };
+    this.GetAsInteger = function () {
+      var Result = 0;
+      var V = undefined;
+      V = this.GetData();
+      if (pas.JS.isInteger(V)) {
+        Result = Math.floor(V)}
+       else if (rtl.isString(V)) {
+        Result = parseInt("" + V)}
+       else this.RaiseAccessError("Variant");
+      return Result;
+    };
+    this.SetAsInteger = function (AValue) {
+      this.SetVarValue(AValue);
+    };
+    this.GetAsString = function () {
+      var Result = "";
+      var V = undefined;
+      V = this.GetData();
+      if (pas.JS.isInteger(V)) {
+        Result = pas.SysUtils.IntToStr(Math.floor(V))}
+       else if (rtl.isNumber(V)) {
+        Result = pas.SysUtils.FloatToStr(rtl.getNumber(V))}
+       else if (rtl.isString(V)) {
+        Result = "" + V}
+       else this.RaiseAccessError("Variant");
+      return Result;
+    };
+    this.SetAsString = function (aValue) {
+      this.SetVarValue(aValue);
+    };
+    this.GetAsJSValue = function () {
+      var Result = undefined;
+      Result = this.GetData();
+      return Result;
+    };
+    this.SetVarValue = function (aValue) {
+      this.SetData(aValue);
+    };
+    this.Create$1 = function (AOwner) {
+      $mod.TField.Create$1.call(this,AOwner);
+      this.SetDataType($mod.TFieldType.ftVariant);
+    };
+  });
+  $mod.$rtti.$Class("TIndexDefs");
+  this.TIndexOption = {"0": "ixPrimary", ixPrimary: 0, "1": "ixUnique", ixUnique: 1, "2": "ixDescending", ixDescending: 2, "3": "ixCaseInsensitive", ixCaseInsensitive: 3, "4": "ixExpression", ixExpression: 4, "5": "ixNonMaintained", ixNonMaintained: 5};
+  $mod.$rtti.$Enum("TIndexOption",{minvalue: 0, maxvalue: 5, ordtype: 1, enumtype: this.TIndexOption});
+  $mod.$rtti.$Set("TIndexOptions",{comptype: $mod.$rtti["TIndexOption"]});
+  rtl.createClass($mod,"TIndexDef",$mod.TNamedItem,function () {
+    this.$init = function () {
+      $mod.TNamedItem.$init.call(this);
+      this.FCaseinsFields = "";
+      this.FDescFields = "";
+      this.FExpression = "";
+      this.FFields = "";
+      this.FOptions = {};
+      this.FSource = "";
+    };
+    this.$final = function () {
+      this.FOptions = undefined;
+      $mod.TNamedItem.$final.call(this);
+    };
+    this.GetExpression = function () {
+      var Result = "";
+      Result = this.FExpression;
+      return Result;
+    };
+    this.SetCaseInsFields = function (AValue) {
+      if (this.FCaseinsFields === AValue) return;
+      if (AValue !== "") this.FOptions = rtl.unionSet(this.FOptions,rtl.createSet($mod.TIndexOption.ixCaseInsensitive));
+      this.FCaseinsFields = AValue;
+    };
+    this.SetDescFields = function (AValue) {
+      if (this.FDescFields === AValue) return;
+      if (AValue !== "") this.FOptions = rtl.unionSet(this.FOptions,rtl.createSet($mod.TIndexOption.ixDescending));
+      this.FDescFields = AValue;
+    };
+    this.SetExpression = function (AValue) {
+      this.FExpression = AValue;
+    };
+    this.Create$2 = function (Owner, AName, TheFields, TheOptions) {
+      this.FName = AName;
+      pas.Classes.TCollectionItem.Create$1.call(this,Owner);
+      this.FFields = TheFields;
+      this.FOptions = rtl.refSet(TheOptions);
+    };
+    this.Assign = function (Source) {
+      var idef = null;
+      idef = null;
+      if ($mod.TIndexDef.isPrototypeOf(Source)) idef = rtl.as(Source,$mod.TIndexDef);
+      if (idef != null) {
+        this.FName = idef.FName;
+        this.FFields = idef.FFields;
+        this.FOptions = rtl.refSet(idef.FOptions);
+        this.FCaseinsFields = idef.FCaseinsFields;
+        this.FDescFields = idef.FDescFields;
+        this.FSource = idef.FSource;
+        this.FExpression = idef.GetExpression();
+      } else pas.Classes.TPersistent.Assign.call(this,Source);
+    };
+    var $r = this.$rtti;
+    $r.addProperty("Expression",3,rtl.string,"GetExpression","SetExpression");
+    $r.addProperty("Fields",0,rtl.string,"FFields","FFields");
+    $r.addProperty("CaseInsFields",2,rtl.string,"FCaseinsFields","SetCaseInsFields");
+    $r.addProperty("DescFields",2,rtl.string,"FDescFields","SetDescFields");
+    $r.addProperty("Options",0,$mod.$rtti["TIndexOptions"],"FOptions","FOptions");
+    $r.addProperty("Source",0,rtl.string,"FSource","FSource");
+  });
+  rtl.createClass($mod,"TIndexDefs",$mod.TDefCollection,function () {
+    this.GetItem$1 = function (Index) {
+      var Result = null;
+      Result = rtl.as(pas.Classes.TCollection.GetItem.call(this,Index),$mod.TIndexDef);
+      return Result;
+    };
+    this.SetItem$1 = function (Index, Value) {
+      pas.Classes.TCollection.SetItem.call(this,Index,Value);
+    };
+    this.Create$4 = function (ADataSet) {
+      $mod.TDefCollection.create$3.call(this,ADataSet,this.Owner(),$mod.TIndexDef);
+    };
+    this.Add$1 = function (Name, Fields, Options) {
+      $mod.TIndexDef.$create("Create$2",[this,Name,Fields,rtl.refSet(Options)]);
+    };
+    this.AddIndexDef = function () {
+      var Result = null;
+      Result = $mod.TIndexDef.$create("Create$2",[this,"","",{}]);
+      return Result;
+    };
+    this.Find$1 = function (IndexName) {
+      var Result = null;
+      Result = rtl.as($mod.TDefCollection.Find.call(this,IndexName),$mod.TIndexDef);
+      if (Result === null) $mod.DatabaseErrorFmt$1(rtl.getResStr(pas.DBConst,"SIndexNotFound"),[IndexName],this.FDataset);
+      return Result;
+    };
+    this.FindIndexForFields = function (Fields) {
+      var Result = null;
+      Result = null;
+      return Result;
+    };
+    this.GetIndexForFields = function (Fields, CaseInsensitive) {
+      var Result = null;
+      var i = 0;
+      var FieldsLen = 0;
+      var Last = null;
+      Last = null;
+      FieldsLen = Fields.length;
+      for (var $l1 = 0, $end2 = this.GetCount() - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        Result = this.GetItem$1(i);
+        if ((rtl.eqSet(rtl.intersectSet(Result.FOptions,rtl.createSet($mod.TIndexOption.ixDescending,$mod.TIndexOption.ixExpression)),{}) && (!CaseInsensitive || ($mod.TIndexOption.ixCaseInsensitive in Result.FOptions))) && pas.SysUtils.AnsiSameText(Fields,Result.FFields)) {
+          return Result;
+        } else if (pas.SysUtils.AnsiSameText(Fields,pas.System.Copy(Result.FFields,1,FieldsLen)) && ((Result.FFields.length === FieldsLen) || (Result.FFields.charAt((FieldsLen + 1) - 1) === ";"))) {
+          if ((Last === null) || ((Last !== null) && (Last.FFields.length > Result.FFields.length))) Last = Result;
+        };
+      };
+      Result = Last;
+      return Result;
+    };
+    this.Update$1 = function () {
+      if (!this.FUpdated && (this.FDataset != null)) {
+        this.FDataset.UpdateIndexDefs();
+        this.FUpdated = true;
+      };
+    };
+  });
+  rtl.createClass($mod,"TCheckConstraint",pas.Classes.TCollectionItem,function () {
+    this.$init = function () {
+      pas.Classes.TCollectionItem.$init.call(this);
+      this.FCustomConstraint = "";
+      this.FErrorMessage = "";
+      this.FFromDictionary = false;
+      this.FImportedConstraint = "";
+    };
+    this.Assign = function (Source) {
+    };
+    var $r = this.$rtti;
+    $r.addProperty("CustomConstraint",0,rtl.string,"FCustomConstraint","FCustomConstraint");
+    $r.addProperty("ErrorMessage",0,rtl.string,"FErrorMessage","FErrorMessage");
+    $r.addProperty("FromDictionary",0,rtl.boolean,"FFromDictionary","FFromDictionary");
+    $r.addProperty("ImportedConstraint",0,rtl.string,"FImportedConstraint","FImportedConstraint");
+  });
+  rtl.createClass($mod,"TCheckConstraints",pas.Classes.TCollection,function () {
+    this.GetItem$1 = function (Index) {
+      var Result = null;
+      Result = null;
+      return Result;
+    };
+    this.SetItem$1 = function (index, Value) {
+    };
+    this.GetOwner = function () {
+      var Result = null;
+      Result = null;
+      return Result;
+    };
+    this.Create$2 = function (AOwner) {
+      pas.Classes.TCollection.Create$1.call(this,$mod.TCheckConstraint);
+    };
+    this.Add$1 = function () {
+      var Result = null;
+      Result = null;
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TFieldsEnumerator",pas.System.TObject,function () {
+    this.$init = function () {
+      pas.System.TObject.$init.call(this);
+      this.FPosition = 0;
+      this.FFields = null;
+    };
+    this.$final = function () {
+      this.FFields = undefined;
+      pas.System.TObject.$final.call(this);
+    };
+    this.GetCurrent = function () {
+      var Result = null;
+      Result = this.FFields.GetField(this.FPosition);
+      return Result;
+    };
+    this.Create$1 = function (AFields) {
+      pas.System.TObject.Create.call(this);
+      this.FFields = AFields;
+      this.FPosition = -1;
+    };
+    this.MoveNext = function () {
+      var Result = false;
+      this.FPosition += 1;
+      Result = this.FPosition < this.FFields.GetCount();
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TFields",pas.System.TObject,function () {
+    this.$init = function () {
+      pas.System.TObject.$init.call(this);
+      this.FDataset = null;
+      this.FFieldList = null;
+      this.FOnChange = null;
+      this.FValidFieldKinds = {};
+    };
+    this.$final = function () {
+      this.FDataset = undefined;
+      this.FFieldList = undefined;
+      this.FOnChange = undefined;
+      this.FValidFieldKinds = undefined;
+      pas.System.TObject.$final.call(this);
+    };
+    this.ClearFieldDefs = function () {
+      var i = 0;
+      for (var $l1 = 0, $end2 = this.GetCount() - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        this.GetField(i).FFieldDef = null;
+      };
+    };
+    this.Changed = function () {
+      if ((this.FDataset !== null) && !(pas.Classes.TComponentStateItem.csDestroying in this.FDataset.FComponentState)) this.FDataset.DataEvent($mod.TDataEvent.deFieldListChange,0);
+      if (this.FOnChange != null) this.FOnChange(this);
+    };
+    this.CheckfieldKind = function (Fieldkind, Field) {
+      if (!(Fieldkind in this.FValidFieldKinds)) $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SInvalidFieldKind"),[Field.FFieldName]);
+    };
+    this.GetCount = function () {
+      var Result = 0;
+      Result = this.FFieldList.FCount;
+      return Result;
+    };
+    this.GetField = function (Index) {
+      var Result = null;
+      Result = rtl.getObject(this.FFieldList.Get(Index));
+      return Result;
+    };
+    this.SetField = function (Index, Value) {
+      this.GetField(Index).Assign(Value);
+    };
+    this.SetFieldIndex = function (Field, Value) {
+      var Old = 0;
+      Old = this.FFieldList.IndexOf(Field);
+      if (Old === -1) return;
+      if (Value < 0) Value = 0;
+      if (Value >= this.GetCount()) Value = this.GetCount() - 1;
+      if (Value !== Old) {
+        this.FFieldList.Delete(Old);
+        this.FFieldList.Insert(Value,Field);
+        Field.PropertyChanged(true);
+        this.Changed();
+      };
+    };
+    this.Create$1 = function (ADataset) {
+      this.FDataset = ADataset;
+      this.FFieldList = pas.Classes.TFPList.$create("Create");
+      this.FValidFieldKinds = rtl.createSet(null,$mod.TFieldKind.fkData,$mod.TFieldKind.fkInternalCalc);
+    };
+    this.Destroy = function () {
+      if (this.FFieldList != null) this.Clear();
+      pas.SysUtils.FreeAndNil({p: this, get: function () {
+          return this.p.FFieldList;
+        }, set: function (v) {
+          this.p.FFieldList = v;
+        }});
+      pas.System.TObject.Destroy.call(this);
+    };
+    this.Add = function (Field) {
+      this.CheckFieldName(Field.FFieldName);
+      this.FFieldList.Add(Field);
+      Field.FFields = this;
+      this.Changed();
+    };
+    this.CheckFieldName = function (Value) {
+      if (this.FindField(Value) !== null) $mod.DatabaseErrorFmt$1(rtl.getResStr(pas.DBConst,"SDuplicateFieldName"),[Value],this.FDataset);
+    };
+    this.CheckFieldNames = function (Value) {
+      var N = "";
+      var StrPos = 0;
+      if (Value === "") return;
+      StrPos = 1;
+      do {
+        N = $mod.ExtractFieldName(Value,{get: function () {
+            return StrPos;
+          }, set: function (v) {
+            StrPos = v;
+          }});
+        this.FieldByName(N);
+      } while (!(StrPos > Value.length));
+    };
+    this.Clear = function () {
+      var AField = null;
+      while (this.FFieldList.FCount > 0) {
+        AField = rtl.getObject(this.FFieldList.Last());
+        AField.FDataSet = null;
+        AField = rtl.freeLoc(AField);
+        this.FFieldList.Delete(this.FFieldList.FCount - 1);
+      };
+      this.Changed();
+    };
+    this.FindField = function (Value) {
+      var Result = null;
+      var S = "";
+      var I = 0;
+      S = pas.SysUtils.UpperCase(Value);
+      for (var $l1 = 0, $end2 = this.FFieldList.FCount - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        Result = rtl.getObject(this.FFieldList.Get(I));
+        if (S === pas.SysUtils.UpperCase(Result.FFieldName)) {
+          return Result;
+        };
+      };
+      Result = null;
+      return Result;
+    };
+    this.FieldByName = function (Value) {
+      var Result = null;
+      Result = this.FindField(Value);
+      if (Result === null) $mod.DatabaseErrorFmt$1(rtl.getResStr(pas.DBConst,"SFieldNotFound"),[Value],this.FDataset);
+      return Result;
+    };
+    this.FieldByNumber = function (FieldNo) {
+      var Result = null;
+      var i = 0;
+      for (var $l1 = 0, $end2 = this.FFieldList.FCount - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        Result = rtl.getObject(this.FFieldList.Get(i));
+        if (FieldNo === Result.FFieldNo) return Result;
+      };
+      Result = null;
+      return Result;
+    };
+    this.GetEnumerator = function () {
+      var Result = null;
+      Result = $mod.TFieldsEnumerator.$create("Create$1",[this]);
+      return Result;
+    };
+    this.GetFieldNames = function (Values) {
+      var i = 0;
+      Values.Clear();
+      for (var $l1 = 0, $end2 = this.FFieldList.FCount - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        Values.Add(rtl.getObject(this.FFieldList.Get(i)).FFieldName);
+      };
+    };
+    this.IndexOf = function (Field) {
+      var Result = 0;
+      Result = this.FFieldList.IndexOf(Field);
+      return Result;
+    };
+    this.Remove = function (Value) {
+      this.FFieldList.Remove(Value);
+      Value.FFields = null;
+      this.Changed();
+    };
+  });
+  $mod.$rtti.$ClassRef("TFieldsClass",{instancetype: $mod.$rtti["TFields"]});
+  $mod.$rtti.$DynArray("TParamBinding",{eltype: rtl.longint});
+  this.TParamType = {"0": "ptUnknown", ptUnknown: 0, "1": "ptInput", ptInput: 1, "2": "ptOutput", ptOutput: 2, "3": "ptInputOutput", ptInputOutput: 3, "4": "ptResult", ptResult: 4};
+  $mod.$rtti.$Enum("TParamType",{minvalue: 0, maxvalue: 4, ordtype: 1, enumtype: this.TParamType});
+  $mod.$rtti.$Set("TParamTypes",{comptype: $mod.$rtti["TParamType"]});
+  this.TParamStyle = {"0": "psInterbase", psInterbase: 0, "1": "psPostgreSQL", psPostgreSQL: 1, "2": "psSimulated", psSimulated: 2};
+  $mod.$rtti.$Enum("TParamStyle",{minvalue: 0, maxvalue: 2, ordtype: 1, enumtype: this.TParamStyle});
+  $mod.$rtti.$Class("TParams");
+  rtl.createClass($mod,"TParam",pas.Classes.TCollectionItem,function () {
+    this.$init = function () {
+      pas.Classes.TCollectionItem.$init.call(this);
+      this.FValue = undefined;
+      this.FPrecision = 0;
+      this.FNumericScale = 0;
+      this.FName = "";
+      this.FDataType = 0;
+      this.FBound = false;
+      this.FParamType = 0;
+      this.FSize = 0;
+    };
+    this.GetDataSet = function () {
+      var Result = null;
+      if ((this.FCollection != null) && $mod.TParams.isPrototypeOf(this.FCollection)) {
+        Result = this.FCollection.GetDataSet()}
+       else Result = null;
+      return Result;
+    };
+    this.IsParamStored = function () {
+      var Result = false;
+      Result = this.FBound;
+      return Result;
+    };
+    this.AssignParam = function (Param) {
+      if (!(Param != null)) {
+        this.Clear();
+        this.FDataType = $mod.TFieldType.ftUnknown;
+        this.FParamType = $mod.TParamType.ptUnknown;
+        this.FName = "";
+        this.FSize = 0;
+        this.FPrecision = 0;
+        this.FNumericScale = 0;
+      } else {
+        this.FDataType = Param.FDataType;
+        if (Param.GetIsNull()) {
+          this.Clear()}
+         else this.FValue = Param.FValue;
+        this.FBound = Param.FBound;
+        this.FName = Param.FName;
+        if (this.FParamType === $mod.TParamType.ptUnknown) this.FParamType = Param.FParamType;
+        this.FSize = Param.FSize;
+        this.FPrecision = Param.FPrecision;
+        this.FNumericScale = Param.FNumericScale;
+      };
+    };
+    this.AssignTo = function (Dest) {
+      if ($mod.TField.isPrototypeOf(Dest)) {
+        this.AssignToField(Dest)}
+       else pas.Classes.TPersistent.AssignTo.call(this,Dest);
+    };
+    this.GetAsBoolean = function () {
+      var Result = false;
+      if (this.GetIsNull()) {
+        Result = false}
+       else Result = this.FValue == true;
+      return Result;
+    };
+    this.GetAsBytes = function () {
+      var Result = [];
+      if (this.GetIsNull()) {
+        Result = []}
+       else if (rtl.isArray(this.FValue)) Result = this.FValue;
+      return Result;
+    };
+    this.GetAsDateTime = function () {
+      var Result = 0.0;
+      if (this.GetIsNull()) {
+        Result = 0.0}
+       else Result = rtl.getNumber(this.FValue);
+      return Result;
+    };
+    this.GetAsFloat = function () {
+      var Result = 0.0;
+      if (this.GetIsNull()) {
+        Result = 0.0}
+       else Result = rtl.getNumber(this.FValue);
+      return Result;
+    };
+    this.GetAsInteger = function () {
+      var Result = 0;
+      if (this.GetIsNull() || !pas.JS.isInteger(this.FValue)) {
+        Result = 0}
+       else Result = Math.floor(this.FValue);
+      return Result;
+    };
+    this.GetAsLargeInt = function () {
+      var Result = 0;
+      if (this.GetIsNull() || !pas.JS.isInteger(this.FValue)) {
+        Result = 0}
+       else Result = Math.floor(this.FValue);
+      return Result;
+    };
+    this.GetAsMemo = function () {
+      var Result = "";
+      if (this.GetIsNull() || !rtl.isString(this.FValue)) {
+        Result = ""}
+       else Result = "" + this.FValue;
+      return Result;
+    };
+    this.GetAsString = function () {
+      var Result = "";
+      if (this.GetIsNull() || !rtl.isString(this.FValue)) {
+        Result = ""}
+       else Result = "" + this.FValue;
+      return Result;
+    };
+    this.GetAsJSValue = function () {
+      var Result = undefined;
+      if (this.GetIsNull()) {
+        Result = null}
+       else Result = this.FValue;
+      return Result;
+    };
+    this.GetDisplayName = function () {
+      var Result = "";
+      if (this.FName !== "") {
+        Result = this.FName}
+       else Result = pas.Classes.TCollectionItem.GetDisplayName.call(this);
+      return Result;
+    };
+    this.GetIsNull = function () {
+      var Result = false;
+      Result = pas.JS.isNull(this.FValue);
+      return Result;
+    };
+    this.IsEqual = function (AValue) {
+      var Result = false;
+      Result = ((((((this.FName === AValue.FName) && (this.GetIsNull() === AValue.GetIsNull())) && (this.FBound === AValue.FBound)) && (this.FDataType === AValue.FDataType)) && (this.FParamType === AValue.FParamType)) && (pas.JS.GetValueType(this.FValue) === pas.JS.GetValueType(AValue.FValue))) && (this.FValue == AValue.FValue);
+      return Result;
+    };
+    this.SetAsBlob = function (AValue) {
+      this.FDataType = $mod.TFieldType.ftBlob;
+      this.SetAsJSValue(AValue);
+    };
+    this.SetAsBoolean = function (AValue) {
+      this.FDataType = $mod.TFieldType.ftBoolean;
+      this.SetAsJSValue(AValue);
+    };
+    this.SetAsBytes = function (AValue) {
+    };
+    this.SetAsDate = function (AValue) {
+      this.FDataType = $mod.TFieldType.ftDate;
+      this.SetAsJSValue(AValue);
+    };
+    this.SetAsDateTime = function (AValue) {
+      this.FDataType = $mod.TFieldType.ftDateTime;
+      this.SetAsJSValue(AValue);
+    };
+    this.SetAsFloat = function (AValue) {
+      this.FDataType = $mod.TFieldType.ftFloat;
+      this.SetAsJSValue(AValue);
+    };
+    this.SetAsInteger = function (AValue) {
+      this.FDataType = $mod.TFieldType.ftInteger;
+      this.SetAsJSValue(AValue);
+    };
+    this.SetAsLargeInt = function (AValue) {
+      this.FDataType = $mod.TFieldType.ftLargeInt;
+      this.SetAsJSValue(AValue);
+    };
+    this.SetAsMemo = function (AValue) {
+      this.FDataType = $mod.TFieldType.ftMemo;
+      this.SetAsJSValue(AValue);
+    };
+    this.SetAsString = function (AValue) {
+      if (this.FDataType !== $mod.TFieldType.ftFixedChar) this.FDataType = $mod.TFieldType.ftString;
+      this.SetAsJSValue(AValue);
+    };
+    this.SetAsTime = function (AValue) {
+      this.FDataType = $mod.TFieldType.ftTime;
+      this.SetAsJSValue(AValue);
+    };
+    this.SetAsJSValue = function (AValue) {
+      this.FValue = AValue;
+      this.FBound = !pas.JS.isNull(AValue);
+      if (this.FBound) {
+        var $tmp1 = pas.JS.GetValueType(AValue);
+        if ($tmp1 === pas.JS.TJSValueType.jvtBoolean) {
+          this.FDataType = $mod.TFieldType.ftBoolean}
+         else if ($tmp1 === pas.JS.TJSValueType.jvtInteger) {
+          this.FDataType = $mod.TFieldType.ftInteger}
+         else if ($tmp1 === pas.JS.TJSValueType.jvtFloat) {
+          this.FDataType = $mod.TFieldType.ftFloat}
+         else if (($tmp1 === pas.JS.TJSValueType.jvtObject) || ($tmp1 === pas.JS.TJSValueType.jvtArray)) this.FDataType = $mod.TFieldType.ftBlob;
+      };
+    };
+    this.SetDataType = function (AValue) {
+      this.FDataType = AValue;
+    };
+    this.SetText = function (AValue) {
+      this.SetAsJSValue(AValue);
+    };
+    this.Create$1 = function (ACollection) {
+      pas.Classes.TCollectionItem.Create$1.call(this,ACollection);
+      this.FParamType = $mod.TParamType.ptUnknown;
+      this.SetDataType($mod.TFieldType.ftUnknown);
+      this.FValue = null;
+    };
+    this.Create$3 = function (AParams, AParamType) {
+      this.Create$1(AParams);
+      this.FParamType = AParamType;
+    };
+    this.Assign = function (Source) {
+      if ($mod.TParam.isPrototypeOf(Source)) {
+        this.AssignParam(Source)}
+       else if ($mod.TField.isPrototypeOf(Source)) {
+        this.AssignField(Source)}
+       else if (pas.Classes.TStrings.isPrototypeOf(Source)) {
+        this.SetAsMemo(Source.GetTextStr())}
+       else pas.Classes.TPersistent.Assign.call(this,Source);
+    };
+    this.AssignField = function (Field) {
+      if (Field != null) {
+        this.AssignFieldValue(Field,Field.GetAsJSValue());
+        this.FName = Field.FFieldName;
+      } else {
+        this.Clear();
+        this.FName = "";
+      };
+    };
+    this.AssignToField = function (Field) {
+      if (Field != null) {
+        var $tmp1 = this.FDataType;
+        if ($tmp1 === $mod.TFieldType.ftUnknown) {
+          $mod.DatabaseErrorFmt$1(rtl.getResStr(pas.DBConst,"SUnknownParamFieldType"),[this.FName],this.GetDataSet())}
+         else if (($tmp1 === $mod.TFieldType.ftInteger) || ($tmp1 === $mod.TFieldType.ftAutoInc)) {
+          Field.SetAsInteger(this.GetAsInteger())}
+         else if ($tmp1 === $mod.TFieldType.ftFloat) {
+          Field.SetAsFloat(this.GetAsFloat())}
+         else if ($tmp1 === $mod.TFieldType.ftBoolean) {
+          Field.SetAsBoolean(this.GetAsBoolean())}
+         else if (((($tmp1 === $mod.TFieldType.ftBlob) || ($tmp1 === $mod.TFieldType.ftString)) || ($tmp1 === $mod.TFieldType.ftMemo)) || ($tmp1 === $mod.TFieldType.ftFixedChar)) {
+          Field.SetAsString(this.GetAsString())}
+         else if ((($tmp1 === $mod.TFieldType.ftTime) || ($tmp1 === $mod.TFieldType.ftDate)) || ($tmp1 === $mod.TFieldType.ftDateTime)) Field.SetAsDateTime(this.GetAsDateTime());
+      };
+    };
+    this.AssignFieldValue = function (Field, AValue) {
+      if (Field != null) {
+        if ((Field.FDataType === $mod.TFieldType.ftString) && Field.FFixedChar) {
+          this.FDataType = $mod.TFieldType.ftFixedChar}
+         else if ((Field.FDataType === $mod.TFieldType.ftMemo) && (Field.FSize > 255)) {
+          this.FDataType = $mod.TFieldType.ftString}
+         else this.FDataType = Field.FDataType;
+        if (pas.JS.isNull(AValue)) {
+          this.Clear()}
+         else this.SetAsJSValue(AValue);
+        this.FSize = Field.GetDataSize();
+        this.FBound = true;
+      };
+    };
+    this.AssignFromField = function (Field) {
+      if (Field != null) {
+        this.FDataType = Field.FDataType;
+        var $tmp1 = Field.FDataType;
+        if ($tmp1 === $mod.TFieldType.ftUnknown) {
+          $mod.DatabaseErrorFmt$1(rtl.getResStr(pas.DBConst,"SUnknownParamFieldType"),[this.FName],this.GetDataSet())}
+         else if (($tmp1 === $mod.TFieldType.ftInteger) || ($tmp1 === $mod.TFieldType.ftAutoInc)) {
+          this.SetAsInteger(Field.GetAsInteger())}
+         else if ($tmp1 === $mod.TFieldType.ftFloat) {
+          this.SetAsFloat(Field.GetAsFloat())}
+         else if ($tmp1 === $mod.TFieldType.ftBoolean) {
+          this.SetAsBoolean(Field.GetAsBoolean())}
+         else if (((($tmp1 === $mod.TFieldType.ftBlob) || ($tmp1 === $mod.TFieldType.ftString)) || ($tmp1 === $mod.TFieldType.ftMemo)) || ($tmp1 === $mod.TFieldType.ftFixedChar)) {
+          this.SetAsString(Field.GetAsString())}
+         else if ((($tmp1 === $mod.TFieldType.ftTime) || ($tmp1 === $mod.TFieldType.ftDate)) || ($tmp1 === $mod.TFieldType.ftDateTime)) this.SetAsDateTime(Field.GetAsDateTime());
+      };
+    };
+    this.Clear = function () {
+      this.FValue = null;
+    };
+    var $r = this.$rtti;
+    $r.addProperty("DataType",2,$mod.$rtti["TFieldType"],"FDataType","SetDataType");
+    $r.addProperty("Name",0,rtl.string,"FName","FName");
+    $r.addProperty("NumericScale",0,rtl.longint,"FNumericScale","FNumericScale",{Default: 0});
+    $r.addProperty("ParamType",0,$mod.$rtti["TParamType"],"FParamType","FParamType");
+    $r.addProperty("Precision",0,rtl.longint,"FPrecision","FPrecision",{Default: 0});
+    $r.addProperty("Size",0,rtl.longint,"FSize","FSize",{Default: 0});
+    $r.addProperty("Value",15,rtl.jsvalue,"GetAsJSValue","SetAsJSValue",{stored: "IsParamStored"});
+  });
+  $mod.$rtti.$ClassRef("TParamClass",{instancetype: $mod.$rtti["TParam"]});
+  rtl.createClass($mod,"TParams",pas.Classes.TCollection,function () {
+    this.$init = function () {
+      pas.Classes.TCollection.$init.call(this);
+      this.FOwner = null;
+    };
+    this.$final = function () {
+      this.FOwner = undefined;
+      pas.Classes.TCollection.$final.call(this);
+    };
+    this.GetItem$1 = function (Index) {
+      var Result = null;
+      Result = rtl.as(pas.Classes.TCollection.GetItem.call(this,Index),$mod.TParam);
+      return Result;
+    };
+    this.GetParamValue = function (ParamName) {
+      var Result = undefined;
+      Result = this.ParamByName(ParamName).GetAsJSValue();
+      return Result;
+    };
+    this.SetItem$1 = function (Index, Value) {
+      pas.Classes.TCollection.SetItem.call(this,Index,Value);
+    };
+    this.SetParamValue = function (ParamName, Value) {
+      this.ParamByName(ParamName).SetAsJSValue(Value);
+    };
+    this.AssignTo = function (Dest) {
+      if ($mod.TParams.isPrototypeOf(Dest)) {
+        Dest.Assign(this)}
+       else pas.Classes.TPersistent.AssignTo.call(this,Dest);
+    };
+    this.GetDataSet = function () {
+      var Result = null;
+      if ($mod.TDataSet.isPrototypeOf(this.FOwner)) {
+        Result = this.FOwner}
+       else Result = null;
+      return Result;
+    };
+    this.GetOwner = function () {
+      var Result = null;
+      Result = this.FOwner;
+      return Result;
+    };
+    this.ParamClass = function () {
+      var Result = null;
+      Result = $mod.TParam;
+      return Result;
+    };
+    this.Create$2 = function (AOwner, AItemClass) {
+      pas.Classes.TCollection.Create$1.call(this,AItemClass);
+      this.FOwner = AOwner;
+    };
+    this.Create$3 = function (AOwner) {
+      this.Create$2(AOwner,this.$class.ParamClass());
+    };
+    this.Create$4 = function () {
+      this.Create$3(null);
+    };
+    this.AddParam = function (Value) {
+      Value.SetCollection(this);
+    };
+    this.AssignValues = function (Value) {
+      var I = 0;
+      var P = null;
+      var PS = null;
+      for (var $l1 = 0, $end2 = Value.GetCount() - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        PS = Value.GetItem$1(I);
+        P = this.FindParam(PS.FName);
+        if (P != null) P.Assign(PS);
+      };
+    };
+    this.CreateParam = function (FldType, ParamName, ParamType) {
+      var Result = null;
+      Result = rtl.as(this.Add(),$mod.TParam);
+      Result.FName = ParamName;
+      Result.SetDataType(FldType);
+      Result.FParamType = ParamType;
+      return Result;
+    };
+    this.FindParam = function (Value) {
+      var Result = null;
+      var I = 0;
+      Result = null;
+      I = this.GetCount() - 1;
+      while ((Result === null) && (I >= 0)) if (pas.SysUtils.CompareText(Value,this.GetItem$1(I).FName) === 0) {
+        Result = this.GetItem$1(I)}
+       else I -= 1;
+      return Result;
+    };
+    this.GetParamList = function (List, ParamNames) {
+      var P = null;
+      var N = "";
+      var StrPos = 0;
+      if ((ParamNames === "") || (List === null)) return;
+      StrPos = 1;
+      do {
+        N = $mod.ExtractFieldName(ParamNames,{get: function () {
+            return StrPos;
+          }, set: function (v) {
+            StrPos = v;
+          }});
+        P = this.ParamByName(N);
+        List.Add(P);
+      } while (!(StrPos > ParamNames.length));
+    };
+    this.IsEqual = function (Value) {
+      var Result = false;
+      var I = 0;
+      Result = Value.GetCount() === this.GetCount();
+      I = this.GetCount() - 1;
+      while (Result && (I >= 0)) {
+        Result = this.GetItem$1(I).IsEqual(Value.GetItem$1(I));
+        I -= 1;
+      };
+      return Result;
+    };
+    this.ParamByName = function (Value) {
+      var Result = null;
+      Result = this.FindParam(Value);
+      if (Result === null) $mod.DatabaseErrorFmt$1(rtl.getResStr(pas.DBConst,"SParameterNotFound"),[Value],this.GetDataSet());
+      return Result;
+    };
+    this.ParseSQL = function (SQL, DoCreate) {
+      var Result = "";
+      var pb = [];
+      var rs = "";
+      Result = this.ParseSQL$3(SQL,DoCreate,true,true,$mod.TParamStyle.psInterbase,{get: function () {
+          return pb;
+        }, set: function (v) {
+          pb = v;
+        }},{get: function () {
+          return rs;
+        }, set: function (v) {
+          rs = v;
+        }});
+      return Result;
+    };
+    this.ParseSQL$1 = function (SQL, DoCreate, EscapeSlash, EscapeRepeat, ParameterStyle) {
+      var Result = "";
+      var pb = [];
+      var rs = "";
+      Result = this.ParseSQL$3(SQL,DoCreate,EscapeSlash,EscapeRepeat,ParameterStyle,{get: function () {
+          return pb;
+        }, set: function (v) {
+          pb = v;
+        }},{get: function () {
+          return rs;
+        }, set: function (v) {
+          rs = v;
+        }});
+      return Result;
+    };
+    this.ParseSQL$2 = function (SQL, DoCreate, EscapeSlash, EscapeRepeat, ParameterStyle, ParamBinding) {
+      var Result = "";
+      var rs = "";
+      Result = this.ParseSQL$3(SQL,DoCreate,EscapeSlash,EscapeRepeat,ParameterStyle,ParamBinding,{get: function () {
+          return rs;
+        }, set: function (v) {
+          rs = v;
+        }});
+      return Result;
+    };
+    var ParamAllocStepSize = 8;
+    var PAramDelimiters = [";",","," ","(",")","\r","\n","\t","\x00","=","+","-","*","\\","\/","[","]","|"];
+    this.ParseSQL$3 = function (SQL, DoCreate, EscapeSlash, EscapeRepeat, ParameterStyle, ParamBinding, ReplaceString) {
+      var Result = "";
+      this.TStringPart = function (s) {
+        if (s) {
+          this.Start = s.Start;
+          this.Stop = s.Stop;
+        } else {
+          this.Start = 0;
+          this.Stop = 0;
+        };
+        this.$equal = function (b) {
+          return (this.Start === b.Start) && (this.Stop === b.Stop);
+        };
+      };
+      var IgnorePart = false;
+      var p = 0;
+      var ParamNameStart = 0;
+      var BufStart = 0;
+      var ParamName = "";
+      var QuestionMarkParamCount = 0;
+      var ParameterIndex = 0;
+      var NewLength = 0;
+      var ParamCount = 0;
+      var ParamPart = [];
+      var NewQueryLength = 0;
+      var NewQuery = "";
+      var NewQueryIndex = 0;
+      var BufIndex = 0;
+      var CopyLen = 0;
+      var i = 0;
+      var tmpParam = null;
+      if (DoCreate) this.Clear();
+      ParamCount = 0;
+      NewQueryLength = SQL.length;
+      ParamPart = rtl.arraySetLength(ParamPart,TStringPart,8);
+      ParamBinding.set(rtl.arraySetLength(ParamBinding.get(),0,8));
+      QuestionMarkParamCount = 0;
+      ReplaceString.set("$");
+      if (ParameterStyle === $mod.TParamStyle.psSimulated) while (pas.System.Pos(ReplaceString.get(),SQL) > 0) ReplaceString.set(ReplaceString.get() + "$");
+      p = 1;
+      BufStart = p;
+      do {
+        while ($impl.SkipComments(SQL,{get: function () {
+            return p;
+          }, set: function (v) {
+            p = v;
+          }},EscapeSlash,EscapeRepeat)) {
+        };
+        var $tmp1 = SQL.charAt(p - 1);
+        if (($tmp1 === ":") || ($tmp1 === "?")) {
+          IgnorePart = false;
+          if (SQL.charAt(p - 1) === ":") {
+            p += 1;
+            if (pas.SysUtils.CharInSet(SQL.charAt(p - 1),[":","="," "])) {
+              IgnorePart = true;
+              p += 1;
+            } else {
+              if (SQL.charAt(p - 1) === '"') {
+                ParamNameStart = p;
+                $impl.SkipQuotesString(SQL,{get: function () {
+                    return p;
+                  }, set: function (v) {
+                    p = v;
+                  }},'"',EscapeSlash,EscapeRepeat);
+                ParamName = pas.System.Copy(SQL,ParamNameStart + 1,(p - ParamNameStart) - 2);
+              } else {
+                ParamNameStart = p;
+                while (!pas.SysUtils.CharInSet(SQL.charAt(p - 1),PAramDelimiters)) p += 1;
+                ParamName = pas.System.Copy(SQL,ParamNameStart,p - ParamNameStart);
+              };
+            };
+          } else {
+            p += 1;
+            ParamNameStart = p;
+            ParamName = "";
+          };
+          if (!IgnorePart) {
+            ParamCount += 1;
+            if (ParamCount > rtl.length(ParamPart)) {
+              NewLength = rtl.length(ParamPart) + 8;
+              ParamPart = rtl.arraySetLength(ParamPart,TStringPart,NewLength);
+              ParamBinding.set(rtl.arraySetLength(ParamBinding.get(),0,NewLength));
+            };
+            if (DoCreate) {
+              tmpParam = this.FindParam(ParamName);
+              if (!(tmpParam != null)) {
+                ParameterIndex = this.CreateParam($mod.TFieldType.ftUnknown,ParamName,$mod.TParamType.ptInput).GetIndex()}
+               else ParameterIndex = tmpParam.GetIndex();
+            } else {
+              if (ParamName !== "") {
+                ParameterIndex = this.ParamByName(ParamName).GetIndex()}
+               else {
+                ParameterIndex = QuestionMarkParamCount;
+                QuestionMarkParamCount += 1;
+              };
+            };
+            if (ParameterStyle in rtl.createSet($mod.TParamStyle.psPostgreSQL,$mod.TParamStyle.psSimulated)) {
+              i = ParameterIndex + 1;
+              do {
+                NewQueryLength += 1;
+                i = Math.floor(i / 10);
+              } while (!(i === 0));
+            };
+            ParamBinding.get()[ParamCount - 1] = ParameterIndex;
+            ParamPart[ParamCount - 1].Start = ParamNameStart - BufStart;
+            ParamPart[ParamCount - 1].Stop = (p - BufStart) + 1;
+            NewQueryLength -= p - ParamNameStart;
+          };
+        } else if ($tmp1 === "\x00") {
+          break}
+         else {
+          p += 1;
+        };
+      } while (!false);
+      ParamPart = rtl.arraySetLength(ParamPart,TStringPart,ParamCount);
+      ParamBinding.set(rtl.arraySetLength(ParamBinding.get(),0,ParamCount));
+      if (ParamCount <= 0) {
+        NewQuery = SQL}
+       else {
+        if ((ParameterStyle === $mod.TParamStyle.psSimulated) && (ReplaceString.get().length > 1)) NewQueryLength += ParamCount * (ReplaceString.get().length - 1);
+        NewQuery = rtl.strSetLength(NewQuery,NewQueryLength);
+        NewQueryIndex = 1;
+        BufIndex = 1;
+        for (var $l2 = 0, $end3 = rtl.length(ParamPart) - 1; $l2 <= $end3; $l2++) {
+          i = $l2;
+          CopyLen = ParamPart[i].Start - BufIndex;
+          NewQuery = NewQuery + pas.System.Copy(SQL,BufIndex,CopyLen);
+          NewQueryIndex += CopyLen;
+          var $tmp4 = ParameterStyle;
+          if ($tmp4 === $mod.TParamStyle.psInterbase) {
+            NewQuery = NewQuery + "?";
+            NewQueryIndex += 1;
+          } else if (($tmp4 === $mod.TParamStyle.psPostgreSQL) || ($tmp4 === $mod.TParamStyle.psSimulated)) {
+            ParamName = pas.SysUtils.IntToStr(ParamBinding.get()[i] + 1);
+            NewQuery = pas.System.StringOfChar("$",ReplaceString.get().length);
+            NewQuery = NewQuery + ParamName;
+          };
+          BufIndex = ParamPart[i].Stop;
+        };
+        CopyLen = (SQL.length + 1) - BufIndex;
+        if (CopyLen > 0) NewQuery = NewQuery + pas.System.Copy(SQL,BufIndex,CopyLen);
+      };
+      Result = NewQuery;
+      return Result;
+    };
+    this.RemoveParam = function (Value) {
+      Value.SetCollection(null);
+    };
+    this.CopyParamValuesFromDataset = function (ADataset, CopyBound) {
+      var I = 0;
+      var P = null;
+      var F = null;
+      if (ADataset != null) for (var $l1 = 0, $end2 = this.GetCount() - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        P = this.GetItem$1(I);
+        if (CopyBound || !P.FBound) {
+          F = ADataset.FieldByName(P.FName);
+          P.AssignField(F);
+          if (!CopyBound) P.FBound = false;
+        };
+      };
+    };
+  });
+  this.TBookmarkFlag = {"0": "bfCurrent", bfCurrent: 0, "1": "bfBOF", bfBOF: 1, "2": "bfEOF", bfEOF: 2, "3": "bfInserted", bfInserted: 3};
+  $mod.$rtti.$Enum("TBookmarkFlag",{minvalue: 0, maxvalue: 3, ordtype: 1, enumtype: this.TBookmarkFlag});
+  this.TBookmark = function (s) {
+    if (s) {
+      this.Data = s.Data;
+      this.Flag = s.Flag;
+    } else {
+      this.Data = undefined;
+      this.Flag = 0;
+    };
+    this.$equal = function (b) {
+      return (this.Data === b.Data) && (this.Flag === b.Flag);
+    };
+  };
+  $mod.$rtti.$Record("TBookmark",{}).addFields("Data",rtl.jsvalue,"Flag",$mod.$rtti["TBookmarkFlag"]);
+  this.TGetMode = {"0": "gmCurrent", gmCurrent: 0, "1": "gmNext", gmNext: 1, "2": "gmPrior", gmPrior: 2};
+  $mod.$rtti.$Enum("TGetMode",{minvalue: 0, maxvalue: 2, ordtype: 1, enumtype: this.TGetMode});
+  this.TGetResult = {"0": "grOK", grOK: 0, "1": "grBOF", grBOF: 1, "2": "grEOF", grEOF: 2, "3": "grError", grError: 3};
+  $mod.$rtti.$Enum("TGetResult",{minvalue: 0, maxvalue: 3, ordtype: 1, enumtype: this.TGetResult});
+  this.TResyncMode$a = {"0": "rmExact", rmExact: 0, "1": "rmCenter", rmCenter: 1};
+  $mod.$rtti.$Enum("TResyncMode$a",{minvalue: 0, maxvalue: 1, ordtype: 1, enumtype: this.TResyncMode$a});
+  $mod.$rtti.$Set("TResyncMode",{comptype: $mod.$rtti["TResyncMode$a"]});
+  this.TDataAction = {"0": "daFail", daFail: 0, "1": "daAbort", daAbort: 1, "2": "daRetry", daRetry: 2};
+  $mod.$rtti.$Enum("TDataAction",{minvalue: 0, maxvalue: 2, ordtype: 1, enumtype: this.TDataAction});
+  this.TUpdateAction = {"0": "uaFail", uaFail: 0, "1": "uaAbort", uaAbort: 1, "2": "uaSkip", uaSkip: 2, "3": "uaRetry", uaRetry: 3, "4": "uaApplied", uaApplied: 4};
+  $mod.$rtti.$Enum("TUpdateAction",{minvalue: 0, maxvalue: 4, ordtype: 1, enumtype: this.TUpdateAction});
+  this.TUpdateKind = {"0": "ukModify", ukModify: 0, "1": "ukInsert", ukInsert: 1, "2": "ukDelete", ukDelete: 2};
+  $mod.$rtti.$Enum("TUpdateKind",{minvalue: 0, maxvalue: 2, ordtype: 1, enumtype: this.TUpdateKind});
+  this.TLocateOption = {"0": "loCaseInsensitive", loCaseInsensitive: 0, "1": "loPartialKey", loPartialKey: 1};
+  $mod.$rtti.$Enum("TLocateOption",{minvalue: 0, maxvalue: 1, ordtype: 1, enumtype: this.TLocateOption});
+  $mod.$rtti.$Set("TLocateOptions",{comptype: $mod.$rtti["TLocateOption"]});
+  $mod.$rtti.$MethodVar("TDataOperation",{procsig: rtl.newTIProcSig(null), methodkind: 0});
+  $mod.$rtti.$MethodVar("TDataSetNotifyEvent",{procsig: rtl.newTIProcSig([["DataSet",$mod.$rtti["TDataSet"]]]), methodkind: 0});
+  $mod.$rtti.$MethodVar("TDataSetErrorEvent",{procsig: rtl.newTIProcSig([["DataSet",$mod.$rtti["TDataSet"]],["E",$mod.$rtti["EDatabaseError"]],["DataAction",$mod.$rtti["TDataAction"],1]]), methodkind: 0});
+  this.TFilterOption = {"0": "foCaseInsensitive", foCaseInsensitive: 0, "1": "foNoPartialCompare", foNoPartialCompare: 1};
+  $mod.$rtti.$Enum("TFilterOption",{minvalue: 0, maxvalue: 1, ordtype: 1, enumtype: this.TFilterOption});
+  $mod.$rtti.$Set("TFilterOptions",{comptype: $mod.$rtti["TFilterOption"]});
+  this.TLoadOption = {"0": "loNoOpen", loNoOpen: 0, "1": "loNoEvents", loNoEvents: 1, "2": "loAtEOF", loAtEOF: 2};
+  $mod.$rtti.$Enum("TLoadOption",{minvalue: 0, maxvalue: 2, ordtype: 1, enumtype: this.TLoadOption});
+  $mod.$rtti.$Set("TLoadOptions",{comptype: $mod.$rtti["TLoadOption"]});
+  $mod.$rtti.$MethodVar("TDatasetLoadEvent",{procsig: rtl.newTIProcSig([["DataSet",$mod.$rtti["TDataSet"]],["Data",rtl.jsvalue]]), methodkind: 0});
+  $mod.$rtti.$MethodVar("TDatasetLoadFailEvent",{procsig: rtl.newTIProcSig([["DataSet",$mod.$rtti["TDataSet"]],["ID",rtl.longint],["ErrorMsg",rtl.string,2]]), methodkind: 0});
+  $mod.$rtti.$MethodVar("TFilterRecordEvent",{procsig: rtl.newTIProcSig([["DataSet",$mod.$rtti["TDataSet"]],["Accept",rtl.boolean,1]]), methodkind: 0});
+  $mod.$rtti.$ClassRef("TDatasetClass",{instancetype: $mod.$rtti["TDataSet"]});
+  this.TRecordState = {"0": "rsNew", rsNew: 0, "1": "rsClean", rsClean: 1, "2": "rsUpdate", rsUpdate: 2, "3": "rsDelete", rsDelete: 3};
+  $mod.$rtti.$Enum("TRecordState",{minvalue: 0, maxvalue: 3, ordtype: 1, enumtype: this.TRecordState});
+  this.TDataRecord = function (s) {
+    if (s) {
+      this.data = s.data;
+      this.state = s.state;
+      this.bookmark = s.bookmark;
+      this.bookmarkFlag = s.bookmarkFlag;
+    } else {
+      this.data = undefined;
+      this.state = 0;
+      this.bookmark = undefined;
+      this.bookmarkFlag = 0;
+    };
+    this.$equal = function (b) {
+      return (this.data === b.data) && ((this.state === b.state) && ((this.bookmark === b.bookmark) && (this.bookmarkFlag === b.bookmarkFlag)));
+    };
+  };
+  $mod.$rtti.$Record("TDataRecord",{}).addFields("data",rtl.jsvalue,"state",$mod.$rtti["TRecordState"],"bookmark",rtl.jsvalue,"bookmarkFlag",$mod.$rtti["TBookmarkFlag"]);
+  $mod.$rtti.$DynArray("TBuffers",{eltype: $mod.$rtti["TDataRecord"]});
+  rtl.createClass($mod,"TDataSet",pas.Classes.TComponent,function () {
+    this.$init = function () {
+      pas.Classes.TComponent.$init.call(this);
+      this.FAfterApplyUpdates = null;
+      this.FAfterLoad = null;
+      this.FBeforeApplyUpdates = null;
+      this.FBeforeLoad = null;
+      this.FBlockReadSize = 0;
+      this.FCalcBuffer = new $mod.TDataRecord();
+      this.FCalcFieldsSize = 0;
+      this.FOnLoadFail = null;
+      this.FOpenAfterRead = false;
+      this.FActiveRecord = 0;
+      this.FAfterCancel = null;
+      this.FAfterClose = null;
+      this.FAfterDelete = null;
+      this.FAfterEdit = null;
+      this.FAfterInsert = null;
+      this.FAfterOpen = null;
+      this.FAfterPost = null;
+      this.FAfterRefresh = null;
+      this.FAfterScroll = null;
+      this.FAutoCalcFields = false;
+      this.FBOF = false;
+      this.FBeforeCancel = null;
+      this.FBeforeClose = null;
+      this.FBeforeDelete = null;
+      this.FBeforeEdit = null;
+      this.FBeforeInsert = null;
+      this.FBeforeOpen = null;
+      this.FBeforePost = null;
+      this.FBeforeRefresh = null;
+      this.FBeforeScroll = null;
+      this.FBlobFieldCount = 0;
+      this.FBuffers = [];
+      this.FBufferCount = 0;
+      this.FConstraints = null;
+      this.FDisableControlsCount = 0;
+      this.FDisableControlsState = 0;
+      this.FCurrentRecord = 0;
+      this.FDataSources = null;
+      this.FDefaultFields = false;
+      this.FEOF = false;
+      this.FEnableControlsEvent = 0;
+      this.FFieldList = null;
+      this.FFieldDefs = null;
+      this.FFilterOptions = {};
+      this.FFilterText = "";
+      this.FFiltered = false;
+      this.FFound = false;
+      this.FInternalCalcFields = false;
+      this.FModified = false;
+      this.FOnCalcFields = null;
+      this.FOnDeleteError = null;
+      this.FOnEditError = null;
+      this.FOnFilterRecord = null;
+      this.FOnNewRecord = null;
+      this.FOnPostError = null;
+      this.FRecordCount = 0;
+      this.FIsUniDirectional = false;
+      this.FState = 0;
+      this.FInternalOpenComplete = false;
+      this.FDataProxy = null;
+      this.FDataRequestID = 0;
+      this.FUpdateBatchID = 0;
+      this.FChangeList = null;
+      this.FBatchList = null;
+    };
+    this.$final = function () {
+      this.FAfterApplyUpdates = undefined;
+      this.FAfterLoad = undefined;
+      this.FBeforeApplyUpdates = undefined;
+      this.FBeforeLoad = undefined;
+      this.FCalcBuffer = undefined;
+      this.FOnLoadFail = undefined;
+      this.FAfterCancel = undefined;
+      this.FAfterClose = undefined;
+      this.FAfterDelete = undefined;
+      this.FAfterEdit = undefined;
+      this.FAfterInsert = undefined;
+      this.FAfterOpen = undefined;
+      this.FAfterPost = undefined;
+      this.FAfterRefresh = undefined;
+      this.FAfterScroll = undefined;
+      this.FBeforeCancel = undefined;
+      this.FBeforeClose = undefined;
+      this.FBeforeDelete = undefined;
+      this.FBeforeEdit = undefined;
+      this.FBeforeInsert = undefined;
+      this.FBeforeOpen = undefined;
+      this.FBeforePost = undefined;
+      this.FBeforeRefresh = undefined;
+      this.FBeforeScroll = undefined;
+      this.FBuffers = undefined;
+      this.FConstraints = undefined;
+      this.FDataSources = undefined;
+      this.FFieldList = undefined;
+      this.FFieldDefs = undefined;
+      this.FFilterOptions = undefined;
+      this.FOnCalcFields = undefined;
+      this.FOnDeleteError = undefined;
+      this.FOnEditError = undefined;
+      this.FOnFilterRecord = undefined;
+      this.FOnNewRecord = undefined;
+      this.FOnPostError = undefined;
+      this.FDataProxy = undefined;
+      this.FChangeList = undefined;
+      this.FBatchList = undefined;
+      pas.Classes.TComponent.$final.call(this);
+    };
+    this.DoInsertAppend = function (DoAppend) {
+      var Self = this;
+      function DoInsert(DoAppend) {
+        var BookBeforeInsert = new $mod.TBookmark();
+        var TempBuf = new $mod.TDataRecord();
+        var I = 0;
+        if (Self.FRecordCount > 0) BookBeforeInsert = new $mod.TBookmark(Self.GetBookmark());
+        if (!DoAppend) {
+          if (Self.FRecordCount > 0) {
+            TempBuf = new $mod.TDataRecord(Self.FBuffers[Self.FBufferCount]);
+            for (var $l1 = Self.FBufferCount, $end2 = Self.FActiveRecord + 1; $l1 >= $end2; $l1--) {
+              I = $l1;
+              Self.FBuffers[I] = new $mod.TDataRecord(Self.FBuffers[I - 1]);
+            };
+            Self.FBuffers[Self.FActiveRecord] = new $mod.TDataRecord(TempBuf);
+          };
+        } else if (Self.FRecordCount === Self.FBufferCount) {
+          Self.ShiftBuffersBackward()}
+         else {
+          if (Self.FRecordCount > 0) Self.FActiveRecord += 1;
+        };
+        Self.InitRecord({a: Self.FActiveRecord, p: Self.FBuffers, get: function () {
+            return this.p[this.a];
+          }, set: function (v) {
+            this.p[this.a] = v;
+          }});
+        Self.CursorPosChanged();
+        if (Self.FRecordCount === 0) {
+          Self.SetBookmarkFlag({a: Self.FActiveRecord, p: Self.FBuffers, get: function () {
+              return this.p[this.a];
+            }, set: function (v) {
+              this.p[this.a] = v;
+            }},$mod.TBookmarkFlag.bfEOF)}
+         else {
+          Self.FBOF = false;
+          if (Self.FRecordCount > 0) {
+            Self.SetBookmarkData({a: Self.FActiveRecord, p: Self.FBuffers, get: function () {
+                return this.p[this.a];
+              }, set: function (v) {
+                this.p[this.a] = v;
+              }},new $mod.TBookmark(BookBeforeInsert));
+            Self.FreeBookmark(new $mod.TBookmark(BookBeforeInsert));
+          };
+        };
+        Self.InternalInsert();
+        if (Self.FRecordCount < Self.FBufferCount) Self.FRecordCount += 1;
+      };
+      Self.CheckBrowseMode();
+      if (!Self.GetCanModify()) $mod.DatabaseError$1(rtl.getResStr(pas.DBConst,"SDatasetReadOnly"),Self);
+      Self.DoBeforeInsert();
+      Self.DoBeforeScroll();
+      if (!DoAppend) {
+        DoInsert(false);
+      } else {
+        Self.ClearBuffers();
+        Self.InternalLast();
+        Self.GetPriorRecords();
+        if (Self.FRecordCount > 0) Self.FActiveRecord = Self.FRecordCount - 1;
+        DoInsert(true);
+        Self.SetBookmarkFlag({a: Self.FActiveRecord, p: Self.FBuffers, get: function () {
+            return this.p[this.a];
+          }, set: function (v) {
+            this.p[this.a] = v;
+          }},$mod.TBookmarkFlag.bfEOF);
+        Self.FBOF = false;
+        Self.FEOF = true;
+      };
+      Self.SetState($mod.TDataSetState.dsInsert);
+      try {
+        Self.DoOnNewRecord();
+      } catch ($e) {
+        Self.SetCurrentRecord(Self.FActiveRecord);
+        Self.Resync({});
+        throw $e;
+      };
+      Self.FModified = false;
+      Self.DataEvent($mod.TDataEvent.deDataSetChange,0);
+      Self.DoAfterInsert();
+      Self.DoAfterScroll();
+    };
+    this.DoInternalOpen = function () {
+      this.InternalOpen();
+      this.FInternalOpenComplete = true;
+      this.FRecordCount = 0;
+      this.RecalcBufListSize();
+      this.FBOF = true;
+      this.FEOF = this.FRecordCount === 0;
+      if (this.GetDataProxy() != null) this.InitChangeList();
+    };
+    this.GetBuffer = function (Index) {
+      var Result = new $mod.TDataRecord();
+      Result = new $mod.TDataRecord(this.FBuffers[Index]);
+      return Result;
+    };
+    this.GetBufferCount = function () {
+      var Result = 0;
+      Result = rtl.length(this.FBuffers);
+      return Result;
+    };
+    this.GetDataProxy = function () {
+      var Result = null;
+      if (this.FDataProxy === null) this.SetDataProxy(this.DoGetDataProxy());
+      Result = this.FDataProxy;
+      return Result;
+    };
+    this.RegisterDataSource = function (ADataSource) {
+      this.FDataSources.Add(ADataSource);
+      this.RecalcBufListSize();
+    };
+    this.SetConstraints = function (Value) {
+      this.FConstraints.Assign(Value);
+    };
+    this.SetDataProxy = function (AValue) {
+      if (AValue === this.FDataProxy) return;
+      if (this.FDataProxy != null) this.FDataProxy.RemoveFreeNotification(this);
+      this.FDataProxy = AValue;
+      if (this.FDataProxy != null) this.FDataProxy.FreeNotification(this);
+    };
+    this.ShiftBuffersForward = function () {
+      var TempBuf = new $mod.TDataRecord();
+      var I = 0;
+      TempBuf = new $mod.TDataRecord(this.FBuffers[this.FBufferCount]);
+      for (var $l1 = this.FBufferCount; $l1 >= 1; $l1--) {
+        I = $l1;
+        this.FBuffers[I] = new $mod.TDataRecord(this.FBuffers[I - 1]);
+      };
+      this.FBuffers[0] = new $mod.TDataRecord(TempBuf);
+    };
+    this.ShiftBuffersBackward = function () {
+      var TempBuf = new $mod.TDataRecord();
+      var I = 0;
+      TempBuf = new $mod.TDataRecord(this.FBuffers[0]);
+      for (var $l1 = 1, $end2 = this.FBufferCount; $l1 <= $end2; $l1++) {
+        I = $l1;
+        this.FBuffers[I - 1] = new $mod.TDataRecord(this.FBuffers[I]);
+      };
+      this.FBuffers[this.GetBufferCount()] = new $mod.TDataRecord(TempBuf);
+    };
+    this.TryDoing = function (P, Ev) {
+      var Result = false;
+      var Retry = 0;
+      Result = true;
+      Retry = $mod.TDataAction.daRetry;
+      while (Retry === $mod.TDataAction.daRetry) try {
+        this.UpdateCursorPos();
+        P();
+        return Result;
+      } catch ($e) {
+        if ($mod.EDatabaseError.isPrototypeOf($e)) {
+          var E = $e;
+          Retry = $mod.TDataAction.daFail;
+          if (Ev != null) Ev(this,E,{get: function () {
+              return Retry;
+            }, set: function (v) {
+              Retry = v;
+            }});
+          var $tmp1 = Retry;
+          if ($tmp1 === $mod.TDataAction.daFail) {
+            throw $e}
+           else if ($tmp1 === $mod.TDataAction.daAbort) pas.SysUtils.Abort();
+        } else {
+          throw $e;
+        }
+      };
+      return Result;
+    };
+    this.GetActive = function () {
+      var Result = false;
+      Result = (this.FState !== $mod.TDataSetState.dsInactive) && (this.FState !== $mod.TDataSetState.dsOpening);
+      return Result;
+    };
+    this.UnRegisterDataSource = function (ADataSource) {
+      this.FDataSources.Remove(ADataSource);
+    };
+    this.SetBlockReadSize = function (AValue) {
+      this.FBlockReadSize = AValue;
+      if (AValue > 0) {
+        this.CheckActive();
+        this.SetState($mod.TDataSetState.dsBlockRead);
+      } else {
+        if (this.FState === $mod.TDataSetState.dsBlockRead) this.SetState($mod.TDataSetState.dsBrowse);
+      };
+    };
+    this.SetFieldDefs = function (AFieldDefs) {
+      this.FFieldList.ClearFieldDefs();
+      this.FFieldDefs.Assign$2(AFieldDefs);
+    };
+    this.DoInsertAppendRecord = function (Values, DoAppend) {
+      var i = 0;
+      var ValuesSize = 0;
+      ValuesSize = rtl.length(Values);
+      if (ValuesSize > this.GetfieldCount()) $mod.DatabaseError$1(rtl.getResStr(pas.DBConst,"STooManyFields"),this);
+      if (DoAppend) {
+        this.Append()}
+       else this.Insert$1();
+      for (var $l1 = 0, $end2 = ValuesSize - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        this.FFieldList.GetField(i).AssignValue(Values[i]);
+      };
+      this.Post();
+    };
+    this.ResolveRecordUpdate = function (anUpdate) {
+      var Result = false;
+      try {
+        Result = this.DoResolveRecordUpdate(anUpdate);
+        if (!Result) anUpdate.FStatus = $mod.TUpdateStatus.usResolveFailed;
+      } catch ($e) {
+        if (pas.SysUtils.Exception.isPrototypeOf($e)) {
+          var E = $e;
+          anUpdate.ResolveFailed((E.$classname + ": ") + E.fMessage);
+        } else throw $e
+      };
+      return Result;
+    };
+    this.HandleRequestresponse = function (ARequest) {
+      var DataAdded = false;
+      if (!(ARequest != null)) return;
+      var $tmp1 = ARequest.FSuccess;
+      if ($tmp1 === $mod.TDataRequestResult.rrFail) {
+        if (this.FOnLoadFail != null) this.FOnLoadFail(this,ARequest.FRequestID,ARequest.FErrorMsg);
+      } else if (($tmp1 === $mod.TDataRequestResult.rrEOF) || ($tmp1 === $mod.TDataRequestResult.rrOK)) {
+        DataAdded = false;
+        if (ARequest.FEvent != null) ARequest.FEvent(this,ARequest.FData);
+        if (ARequest.FSuccess !== $mod.TDataRequestResult.rrEOF) DataAdded = this.DataPacketReceived(ARequest);
+        if (!(this.GetActive() || ($mod.TLoadOption.loNoOpen in ARequest.FLoadOptions))) {
+          if (!($mod.TLoadOption.loNoEvents in ARequest.FLoadOptions)) this.DoAfterLoad();
+          this.Open();
+        } else {
+          if (($mod.TLoadOption.loAtEOF in ARequest.FLoadOptions) && DataAdded) this.FEOF = false;
+          if (!($mod.TLoadOption.loNoEvents in ARequest.FLoadOptions)) this.DoAfterLoad();
+        };
+      };
+      ARequest.$destroy("Destroy");
+    };
+    this.DoResolveRecordUpdate = function (anUpdate) {
+      var Result = false;
+      Result = true;
+      return Result;
+    };
+    this.GetRecordUpdates = function (AList) {
+      var Result = 0;
+      var I = 0;
+      var MinIndex = 0;
+      MinIndex = 0;
+      for (var $l1 = MinIndex, $end2 = this.FChangeList.FCount - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        AList.Add(this.FChangeList.Get(I));
+      };
+      Result = this.FChangeList.FCount;
+      return Result;
+    };
+    this.ResolveUpdateBatch = function (Sender, aBatch) {
+      var BI = 0;
+      var RI = 0;
+      var Idx = 0;
+      var RUD = null;
+      var doRemove = false;
+      if ((this.FBatchList != null) && (aBatch.FDataset === this)) {
+        BI = this.FBatchList.IndexOf(aBatch)}
+       else BI = -1;
+      if (BI === -1) return;
+      this.FBatchList.Delete(BI);
+      for (var $l1 = 0, $end2 = aBatch.FList.FCount - 1; $l1 <= $end2; $l1++) {
+        RI = $l1;
+        RUD = aBatch.FList.GetUpdate(RI);
+        aBatch.FList.Put(RI,null);
+        Idx = this.IndexInChangeList(new $mod.TBookmark(RUD.FBookmark));
+        if (Idx !== -1) {
+          doRemove = false;
+          if (RUD.FStatus === $mod.TUpdateStatus.usResolved) {
+            doRemove = this.ResolveRecordUpdate(RUD)}
+           else doRemove = RUD.FStatus in rtl.createSet($mod.TUpdateStatus.usUnmodified,$mod.TUpdateStatus.usResolveFailed);
+          if (doRemove) {
+            RUD = rtl.freeLoc(RUD);
+            this.FChangeList.Delete(Idx);
+          };
+        };
+      };
+      if (this.FBatchList.FCount === 0) pas.SysUtils.FreeAndNil({p: this, get: function () {
+          return this.p.FBatchList;
+        }, set: function (v) {
+          this.p.FBatchList = v;
+        }});
+      this.DoAfterApplyUpdates();
+    };
+    this.DataPacketReceived = function (ARequest) {
+      var Result = false;
+      Result = false;
+      return Result;
+    };
+    this.DoLoad = function (aOptions, aAfterLoad) {
+      var Result = false;
+      var Request = null;
+      if (!($mod.TLoadOption.loNoEvents in aOptions)) this.DoBeforeLoad();
+      Result = this.GetDataProxy() !== null;
+      if (!Result) return Result;
+      Request = this.GetDataProxy().GetDataRequest(rtl.refSet(aOptions),rtl.createCallback(this,"HandleRequestresponse"),aAfterLoad);
+      Request.FDataset = this;
+      if (this.GetActive()) Request.FBookmark = new $mod.TBookmark(this.GetBookmark());
+      this.FDataRequestID += 1;
+      Request.FRequestID = this.FDataRequestID;
+      this.GetDataProxy().DoGetData(Request);
+      return Result;
+    };
+    this.DoGetDataProxy = function () {
+      var Result = null;
+      Result = null;
+      return Result;
+    };
+    this.InitChangeList = function () {
+      this.DoneChangeList();
+      this.FChangeList = pas.Classes.TFPList.$create("Create");
+    };
+    this.DoneChangeList = function () {
+      this.ClearChangeList();
+      pas.SysUtils.FreeAndNil({p: this, get: function () {
+          return this.p.FChangeList;
+        }, set: function (v) {
+          this.p.FChangeList = v;
+        }});
+    };
+    this.ClearChangeList = function () {
+      var I = 0;
+      if (!(this.FChangeList != null)) return;
+      for (var $l1 = 0, $end2 = this.FChangeList.FCount - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        rtl.getObject(this.FChangeList.Get(I)).$destroy("Destroy");
+        this.FChangeList.Put(I,null);
+      };
+    };
+    this.IndexInChangeList = function (aBookmark) {
+      var Result = 0;
+      Result = -1;
+      if (!(this.FChangeList != null)) return Result;
+      Result = this.FChangeList.FCount - 1;
+      while ((Result >= 0) && (this.CompareBookmarks(new $mod.TBookmark(aBookmark),new $mod.TBookmark(rtl.getObject(this.FChangeList.Get(Result)).FBookmark)) !== 0)) Result -= 1;
+      return Result;
+    };
+    this.AddToChangeList = function (aChange) {
+      var Result = null;
+      var B = new $mod.TBookmark();
+      var I = 0;
+      Result = null;
+      if (!(this.FChangeList != null)) return Result;
+      B = new $mod.TBookmark(this.GetBookmark());
+      I = this.IndexInChangeList(new $mod.TBookmark(B));
+      if (I === -1) {
+        if (this.GetDataProxy() != null) {
+          Result = this.GetDataProxy().GetUpdateDescriptor(this,new $mod.TBookmark(B),this.ActiveBuffer().data,aChange)}
+         else Result = $mod.TRecordUpdateDescriptor.$create("Create$1",[null,this,new $mod.TBookmark(B),this.ActiveBuffer().data,aChange]);
+        this.FChangeList.Add(Result);
+      } else {
+        Result = rtl.getObject(this.FChangeList.Get(I));
+        var $tmp1 = aChange;
+        if ($tmp1 === $mod.TUpdateStatus.usDeleted) {
+          Result.FStatus = $mod.TUpdateStatus.usDeleted}
+         else if ($tmp1 === $mod.TUpdateStatus.usInserted) {
+          $mod.DatabaseError$1(rtl.getResStr(pas.DBConst,"SErrInsertingSameRecordtwice"),this)}
+         else if ($tmp1 === $mod.TUpdateStatus.usModified) Result.FData = this.ActiveBuffer().data;
+      };
+      return Result;
+    };
+    this.RemoveFromChangeList = function (R) {
+      if (!((R != null) && (this.FChangeList != null))) return;
+    };
+    this.DoApplyUpdates = function () {
+      var B = null;
+      var l = null;
+      var I = 0;
+      if (!(this.GetDataProxy() != null)) $mod.DatabaseError$1(rtl.getResStr(pas.DBConst,"SErrDoApplyUpdatesNeedsProxy"),this);
+      if (!((this.FChangeList != null) && (this.FChangeList.FCount > 0))) return;
+      l = $mod.TRecordUpdateDescriptorList.$create("Create");
+      try {
+        I = this.GetRecordUpdates(l);
+      } catch ($e) {
+        l = rtl.freeLoc(l);
+        throw $e;
+      };
+      this.FUpdateBatchID += 1;
+      B = this.GetDataProxy().GetRecordUpdateBatch(this.FUpdateBatchID,l,true);
+      B.FDataset = this;
+      B.FLastChangeIndex = I;
+      B.FOnResolve = rtl.createCallback(this,"ResolveUpdateBatch");
+      if (!(this.FBatchList != null)) this.FBatchList = pas.Classes.TFPList.$create("Create");
+      this.FBatchList.Add(B);
+      this.GetDataProxy().ProcessUpdateBatch(B);
+    };
+    this.RecalcBufListSize = function () {
+      var i = 0;
+      var j = 0;
+      var ABufferCount = 0;
+      var DataLink = null;
+      if (!this.IsCursorOpen()) return;
+      if (this.FIsUniDirectional) {
+        ABufferCount = 1}
+       else ABufferCount = 10;
+      for (var $l1 = 0, $end2 = this.FDataSources.FCount - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        for (var $l3 = 0, $end4 = rtl.getObject(this.FDataSources.Get(i)).FDataLinks.GetCount() - 1; $l3 <= $end4; $l3++) {
+          j = $l3;
+          DataLink = rtl.getObject(rtl.getObject(this.FDataSources.Get(i)).FDataLinks.Get(j));
+          if (ABufferCount < DataLink.GetBufferCount()) ABufferCount = DataLink.GetBufferCount();
+        };
+      };
+      if (this.FBufferCount === ABufferCount) return;
+      this.SetBufListSize(ABufferCount);
+      this.GetNextRecords();
+      if ((this.FRecordCount < this.FBufferCount) && !this.FIsUniDirectional) {
+        this.FActiveRecord = this.FActiveRecord + this.GetPriorRecords();
+        this.CursorPosChanged();
+      };
+    };
+    this.ActivateBuffers = function () {
+      this.FBOF = false;
+      this.FEOF = false;
+      this.FActiveRecord = 0;
+    };
+    this.BindFields = function (Binding) {
+      var i = 0;
+      var FieldIndex = 0;
+      var FieldDef = null;
+      var Field = null;
+      this.FCalcFieldsSize = 0;
+      this.FBlobFieldCount = 0;
+      for (var $l1 = 0, $end2 = this.FFieldList.GetCount() - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        Field = this.FFieldList.GetField(i);
+        Field.FFieldDef = null;
+        if (!Binding) {
+          Field.FFieldNo = 0}
+         else if (Field.FFieldKind in rtl.createSet($mod.TFieldKind.fkCalculated,$mod.TFieldKind.fkLookup)) {
+          Field.FFieldNo = -1;
+          Field.FOffset = this.FCalcFieldsSize;
+          this.FCalcFieldsSize += Field.GetDataSize() + 1;
+        } else {
+          FieldIndex = this.FFieldDefs.IndexOf(Field.FFieldName);
+          if (FieldIndex === -1) {
+            $mod.DatabaseErrorFmt$1(rtl.getResStr(pas.DBConst,"SFieldNotFound"),[Field.FFieldName],this)}
+           else {
+            FieldDef = this.FFieldDefs.GetItem$1(FieldIndex);
+            Field.FFieldDef = FieldDef;
+            Field.FFieldNo = FieldDef.FFieldNo;
+            if (FieldDef.FInternalCalcField) this.FInternalCalcFields = true;
+            if (Field.$class.IsBlob()) {
+              Field.FSize = FieldDef.FSize;
+              Field.FOffset = this.FBlobFieldCount;
+              this.FBlobFieldCount += 1;
+            };
+          };
+        };
+        Field.Bind(Binding);
+      };
+    };
+    this.BlockReadNext = function () {
+      this.MoveBy(1);
+    };
+    var BookmarkStates = rtl.createSet($mod.TDataSetState.dsBrowse,$mod.TDataSetState.dsEdit,$mod.TDataSetState.dsInsert);
+    this.BookmarkAvailable = function () {
+      var Result = false;
+      Result = ((!this.IsEmpty() && !this.FIsUniDirectional) && (this.FState in BookmarkStates)) && (this.GetBookmarkFlag(new $mod.TDataRecord(this.ActiveBuffer())) === $mod.TBookmarkFlag.bfCurrent);
+      return Result;
+    };
+    this.CalculateFields = function (Buffer) {
+      var i = 0;
+      var OldState = 0;
+      this.FCalcBuffer = new $mod.TDataRecord(Buffer.get());
+      if (this.FState !== $mod.TDataSetState.dsInternalCalc) {
+        OldState = this.FState;
+        this.FState = $mod.TDataSetState.dsCalcFields;
+        try {
+          this.ClearCalcFields({p: this, get: function () {
+              return this.p.FCalcBuffer;
+            }, set: function (v) {
+              this.p.FCalcBuffer = v;
+            }});
+          if (!this.FIsUniDirectional) for (var $l1 = 0, $end2 = this.FFieldList.GetCount() - 1; $l1 <= $end2; $l1++) {
+            i = $l1;
+            if (this.FFieldList.GetField(i).FFieldKind === $mod.TFieldKind.fkLookup) this.FFieldList.GetField(i).CalcLookupValue();
+          };
+        } finally {
+          this.DoOnCalcFields();
+          this.FState = OldState;
+        };
+      };
+    };
+    this.CheckActive = function () {
+      if (!this.GetActive()) $mod.DatabaseError$1(rtl.getResStr(pas.DBConst,"SInactiveDataset"),this);
+    };
+    this.CheckInactive = function () {
+      if (this.GetActive()) $mod.DatabaseError$1(rtl.getResStr(pas.DBConst,"SActiveDataset"),this);
+    };
+    this.CheckBiDirectional = function () {
+      if (this.FIsUniDirectional) $mod.DatabaseError$1(rtl.getResStr(pas.DBConst,"SUniDirectional"),this);
+    };
+    this.Loaded = function () {
+      pas.Classes.TComponent.Loaded.apply(this,arguments);
+      try {
+        if (this.FOpenAfterRead) this.SetActive(true);
+      } catch ($e) {
+        if (pas.SysUtils.Exception.isPrototypeOf($e)) {
+          var E = $e;
+          if (pas.Classes.TComponentStateItem.csDesigning in this.FComponentState) this.InternalHandleException(E);
+        } else {
+          throw $e;
+        }
+      };
+    };
+    this.ClearBuffers = function () {
+      this.FRecordCount = 0;
+      this.FActiveRecord = 0;
+      this.FCurrentRecord = -1;
+      this.FBOF = true;
+      this.FEOF = true;
+    };
+    this.ClearCalcFields = function (Buffer) {
+    };
+    this.CloseBlob = function (Field) {
+    };
+    this.CloseCursor = function () {
+      this.ClearBuffers();
+      this.SetBufListSize(0);
+      this.FFieldList.ClearFieldDefs();
+      this.InternalClose();
+      this.FInternalOpenComplete = false;
+    };
+    this.CreateFields = function () {
+      var I = 0;
+      for (var $l1 = 0, $end2 = this.FFieldDefs.GetCount() - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        var $with3 = this.FFieldDefs.GetItem$1(I);
+        if ($with3.FDataType !== $mod.TFieldType.ftUnknown) {
+          $with3.CreateField(this);
+        };
+      };
+    };
+    this.DataEvent = function (Event, Info) {
+      var Self = this;
+      function HandleFieldChange(aField) {
+        if (aField.FFieldKind in rtl.createSet($mod.TFieldKind.fkData,$mod.TFieldKind.fkInternalCalc)) Self.SetModified(true);
+        if (Self.FState !== $mod.TDataSetState.dsSetKey) {
+          if (aField.FFieldKind === $mod.TFieldKind.fkData) {
+            if (Self.FInternalCalcFields) {
+              Self.RefreshInternalCalcFields({a: Self.FActiveRecord, p: Self.FBuffers, get: function () {
+                  return this.p[this.a];
+                }, set: function (v) {
+                  this.p[this.a] = v;
+                }})}
+             else if (Self.FAutoCalcFields && (Self.FCalcFieldsSize !== 0)) Self.CalculateFields({a: Self.FActiveRecord, p: Self.FBuffers, get: function () {
+                return this.p[this.a];
+              }, set: function (v) {
+                this.p[this.a] = v;
+              }});
+          };
+          aField.Change();
+        };
+      };
+      function HandleScrollOrChange() {
+        if (Self.FState !== $mod.TDataSetState.dsInsert) Self.UpdateCursorPos();
+      };
+      var i = 0;
+      var $tmp1 = Event;
+      if ($tmp1 === $mod.TDataEvent.deFieldChange) {
+        HandleFieldChange(rtl.getObject(Info))}
+       else if (($tmp1 === $mod.TDataEvent.deDataSetChange) || ($tmp1 === $mod.TDataEvent.deDataSetScroll)) {
+        HandleScrollOrChange()}
+       else if ($tmp1 === $mod.TDataEvent.deLayoutChange) Self.FEnableControlsEvent = $mod.TDataEvent.deLayoutChange;
+      if (!Self.ControlsDisabled() && (Self.FState !== $mod.TDataSetState.dsBlockRead)) {
+        for (var $l2 = 0, $end3 = Self.FDataSources.FCount - 1; $l2 <= $end3; $l2++) {
+          i = $l2;
+          rtl.getObject(Self.FDataSources.Get(i)).ProcessEvent(Event,Info);
+        };
+      };
+    };
+    this.DestroyFields = function () {
+      this.FFieldList.Clear();
+    };
+    this.DoAfterCancel = function () {
+      if (this.FAfterCancel != null) this.FAfterCancel(this);
+    };
+    this.DoAfterClose = function () {
+      if ((this.FAfterClose != null) && !(pas.Classes.TComponentStateItem.csDestroying in this.FComponentState)) this.FAfterClose(this);
+    };
+    this.DoAfterDelete = function () {
+      if (this.FAfterDelete != null) this.FAfterDelete(this);
+    };
+    this.DoAfterEdit = function () {
+      if (this.FAfterEdit != null) this.FAfterEdit(this);
+    };
+    this.DoAfterInsert = function () {
+      if (this.FAfterInsert != null) this.FAfterInsert(this);
+    };
+    this.DoAfterOpen = function () {
+      if (this.FAfterOpen != null) this.FAfterOpen(this);
+    };
+    this.DoAfterPost = function () {
+      if (this.FAfterPost != null) this.FAfterPost(this);
+    };
+    this.DoAfterScroll = function () {
+      if (this.FAfterScroll != null) this.FAfterScroll(this);
+    };
+    this.DoAfterRefresh = function () {
+      if (this.FAfterRefresh != null) this.FAfterRefresh(this);
+    };
+    this.DoBeforeCancel = function () {
+      if (this.FBeforeCancel != null) this.FBeforeCancel(this);
+    };
+    this.DoBeforeClose = function () {
+      if ((this.FBeforeClose != null) && !(pas.Classes.TComponentStateItem.csDestroying in this.FComponentState)) this.FBeforeClose(this);
+    };
+    this.DoBeforeDelete = function () {
+      if (this.FBeforeDelete != null) this.FBeforeDelete(this);
+    };
+    this.DoBeforeEdit = function () {
+      if (this.FBeforeEdit != null) this.FBeforeEdit(this);
+    };
+    this.DoBeforeInsert = function () {
+      if (this.FBeforeInsert != null) this.FBeforeInsert(this);
+    };
+    this.DoBeforeOpen = function () {
+      if (this.FBeforeOpen != null) this.FBeforeOpen(this);
+    };
+    this.DoBeforePost = function () {
+      if (this.FBeforePost != null) this.FBeforePost(this);
+    };
+    this.DoBeforeScroll = function () {
+      if (this.FBeforeScroll != null) this.FBeforeScroll(this);
+    };
+    this.DoBeforeRefresh = function () {
+      if (this.FBeforeRefresh != null) this.FBeforeRefresh(this);
+    };
+    this.DoOnCalcFields = function () {
+      if (this.FOnCalcFields != null) this.FOnCalcFields(this);
+    };
+    this.DoOnNewRecord = function () {
+      if (this.FOnNewRecord != null) this.FOnNewRecord(this);
+    };
+    this.DoBeforeLoad = function () {
+      if (this.FBeforeLoad != null) this.FBeforeLoad(this);
+    };
+    this.DoAfterLoad = function () {
+      if (this.FAfterLoad != null) this.FAfterLoad(this);
+    };
+    this.DoBeforeApplyUpdates = function () {
+      if (this.FBeforeApplyUpdates != null) this.FBeforeApplyUpdates(this);
+    };
+    this.DoAfterApplyUpdates = function () {
+      if (this.FAfterApplyUpdates != null) this.FAfterApplyUpdates(this);
+    };
+    this.FieldByNumber = function (FieldNo) {
+      var Result = null;
+      Result = this.FFieldList.FieldByNumber(FieldNo);
+      return Result;
+    };
+    this.FindRecord = function (Restart, GoForward) {
+      var Result = false;
+      Result = false;
+      return Result;
+    };
+    this.GetBookmarkStr = function () {
+      var Result = "";
+      var B = new $mod.TBookmark();
+      Result = "";
+      if (this.BookmarkAvailable()) {
+        this.GetBookmarkData(new $mod.TDataRecord(this.ActiveBuffer()),{get: function () {
+            return B;
+          }, set: function (v) {
+            B = v;
+          }});
+        Result = JSON.stringify(new $mod.TBookmark(B));
+      };
+      return Result;
+    };
+    this.GetCalcFields = function (Buffer) {
+      if ((this.FCalcFieldsSize > 0) || this.FInternalCalcFields) this.CalculateFields(Buffer);
+    };
+    this.GetCanModify = function () {
+      var Result = false;
+      Result = !this.FIsUniDirectional;
+      return Result;
+    };
+    this.GetChildren = function (Proc, Root) {
+      var I = 0;
+      var Field = null;
+      for (var $l1 = 0, $end2 = this.FFieldList.GetCount() - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        Field = this.FFieldList.GetField(I);
+        if (Field.FOwner === Root) Proc(Field);
+      };
+    };
+    this.GetFieldClass = function (FieldType) {
+      var Result = null;
+      Result = $mod.DefaultFieldClasses[FieldType];
+      return Result;
+    };
+    this.GetfieldCount = function () {
+      var Result = 0;
+      Result = this.FFieldList.GetCount();
+      return Result;
+    };
+    this.GetFieldValues = function (FieldName) {
+      var Result = undefined;
+      var i = 0;
+      var FieldList = null;
+      var A = [];
+      FieldList = pas.Classes.TList.$create("Create$1");
+      try {
+        this.GetFieldList(FieldList,FieldName);
+        if (FieldList.GetCount() > 1) {
+          A = rtl.arraySetLength(A,undefined,FieldList.GetCount());
+          for (var $l1 = 0, $end2 = FieldList.GetCount() - 1; $l1 <= $end2; $l1++) {
+            i = $l1;
+            A[i] = rtl.getObject(FieldList.Get(i)).GetAsJSValue();
+          };
+          Result = A;
+        } else Result = this.FieldByName(FieldName).GetAsJSValue();
+      } finally {
+        FieldList = rtl.freeLoc(FieldList);
+      };
+      return Result;
+    };
+    this.GetIsIndexField = function (Field) {
+      var Result = false;
+      Result = false;
+      return Result;
+    };
+    this.GetIndexDefs = function (IndexDefs, IndexTypes) {
+      var Result = null;
+      var i = 0;
+      var f = 0;
+      var IndexFields = null;
+      IndexDefs.Update$1();
+      Result = $mod.TIndexDefs.$create("Create$4",[this]);
+      Result.Assign(IndexDefs);
+      i = 0;
+      IndexFields = pas.Classes.TStringList.$create("Create$1");
+      while (i < Result.GetCount()) {
+        if (!(rtl.eqSet(IndexTypes,{}) && rtl.eqSet(Result.GetItem$1(i).FOptions,{})) && rtl.eqSet(rtl.intersectSet(IndexTypes,Result.GetItem$1(i).FOptions),{})) {
+          Result.Delete(i);
+          i -= 1;
+        } else {
+          for (var $l1 = 0, $end2 = IndexFields.GetCount() - 1; $l1 <= $end2; $l1++) {
+            f = $l1;
+            if (this.FindField(IndexFields.Get(f)) === null) {
+              Result.Delete(i);
+              i -= 1;
+              break;
+            };
+          };
+        };
+        i += 1;
+      };
+      IndexFields = rtl.freeLoc(IndexFields);
+      return Result;
+    };
+    this.GetNextRecords = function () {
+      var Result = 0;
+      Result = 0;
+      while ((this.FRecordCount < this.FBufferCount) && this.GetNextRecord()) Result += 1;
+      return Result;
+    };
+    this.GetNextRecord = function () {
+      var Result = false;
+      var T = new $mod.TDataRecord();
+      if (this.FRecordCount > 0) this.SetCurrentRecord(this.FRecordCount - 1);
+      Result = this.GetRecord({a: this.FBufferCount, p: this.FBuffers, get: function () {
+          return this.p[this.a];
+        }, set: function (v) {
+          this.p[this.a] = v;
+        }},$mod.TGetMode.gmNext,true) === $mod.TGetResult.grOK;
+      if (Result) {
+        if (this.FRecordCount === 0) this.ActivateBuffers();
+        if (this.FRecordCount === this.FBufferCount) {
+          this.ShiftBuffersBackward()}
+         else {
+          this.FRecordCount += 1;
+          this.FCurrentRecord = this.FRecordCount - 1;
+          T = new $mod.TDataRecord(this.FBuffers[this.FCurrentRecord]);
+          this.FBuffers[this.FCurrentRecord] = new $mod.TDataRecord(this.FBuffers[this.FBufferCount]);
+          this.FBuffers[this.FBufferCount] = new $mod.TDataRecord(T);
+        };
+      } else this.CursorPosChanged();
+      return Result;
+    };
+    this.GetPriorRecords = function () {
+      var Result = 0;
+      Result = 0;
+      while ((this.FRecordCount < this.FBufferCount) && this.GetPriorRecord()) Result += 1;
+      return Result;
+    };
+    this.GetPriorRecord = function () {
+      var Result = false;
+      this.CheckBiDirectional();
+      if (this.FRecordCount > 0) this.SetCurrentRecord(0);
+      Result = this.GetRecord({a: this.FBufferCount, p: this.FBuffers, get: function () {
+          return this.p[this.a];
+        }, set: function (v) {
+          this.p[this.a] = v;
+        }},$mod.TGetMode.gmPrior,true) === $mod.TGetResult.grOK;
+      if (Result) {
+        if (this.FRecordCount === 0) this.ActivateBuffers();
+        this.ShiftBuffersForward();
+        if (this.FRecordCount < this.FBufferCount) this.FRecordCount += 1;
+      } else this.CursorPosChanged();
+      return Result;
+    };
+    this.GetRecordCount = function () {
+      var Result = 0;
+      Result = -1;
+      return Result;
+    };
+    this.GetRecNo = function () {
+      var Result = 0;
+      Result = -1;
+      return Result;
+    };
+    this.InitFieldDefs = function () {
+      if (this.IsCursorOpen()) {
+        this.InternalInitFieldDefs()}
+       else {
+        try {
+          this.OpenCursor(true);
+        } finally {
+          this.CloseCursor();
+        };
+      };
+    };
+    this.InitFieldDefsFromfields = function () {
+      var i = 0;
+      if (this.FFieldDefs.GetCount() === 0) {
+        this.FFieldDefs.BeginUpdate();
+        try {
+          for (var $l1 = 0, $end2 = this.FFieldList.GetCount() - 1; $l1 <= $end2; $l1++) {
+            i = $l1;
+            var $with3 = this.FFieldList.GetField(i);
+            if (!($with3.FFieldKind in rtl.createSet($mod.TFieldKind.fkCalculated,$mod.TFieldKind.fkLookup))) {
+              $with3.FFieldDef = this.FFieldDefs.$class.FieldDefClass().$create("Create$3",[this.FFieldDefs,$with3.FFieldName,$with3.FDataType,$with3.FSize,$with3.FRequired,this.FFieldDefs.GetCount() + 1]);
+              var $with4 = $with3.FFieldDef;
+              if ($with4.FRequired) $with4.SetAttributes(rtl.unionSet($with4.FAttributes,rtl.createSet($mod.TFieldAttribute.faRequired)));
+              if ($with3.FReadOnly) $with4.SetAttributes(rtl.unionSet($with4.FAttributes,rtl.createSet($mod.TFieldAttribute.faReadonly)));
+            };
+          };
+        } finally {
+          this.FFieldDefs.EndUpdate();
+        };
+      };
+    };
+    this.InitRecord = function (Buffer) {
+      this.InternalInitRecord(Buffer);
+      this.ClearCalcFields(Buffer);
+    };
+    this.InternalCancel = function () {
+    };
+    this.InternalEdit = function () {
+    };
+    this.InternalInsert = function () {
+    };
+    this.InternalRefresh = function () {
+    };
+    this.OpenCursor = function (InfoQuery) {
+      if (InfoQuery) {
+        this.InternalInitFieldDefs()}
+       else if (this.FState !== $mod.TDataSetState.dsOpening) this.DoInternalOpen();
+    };
+    this.OpenCursorcomplete = function () {
+      try {
+        if (this.FState === $mod.TDataSetState.dsOpening) this.DoInternalOpen();
+      } finally {
+        if (this.FInternalOpenComplete) {
+          this.SetState($mod.TDataSetState.dsBrowse);
+          this.DoAfterOpen();
+          if (!this.IsEmpty()) this.DoAfterScroll();
+        } else {
+          this.SetState($mod.TDataSetState.dsInactive);
+          this.CloseCursor();
+        };
+      };
+    };
+    this.RefreshInternalCalcFields = function (Buffer) {
+    };
+    this.RestoreState = function (Value) {
+      this.FState = Value;
+      this.FDisableControlsCount -= 1;
+    };
+    this.SetActive = function (Value) {
+      if (Value && (this.FState === $mod.TDataSetState.dsInactive)) {
+        if (pas.Classes.TComponentStateItem.csLoading in this.FComponentState) {
+          this.FOpenAfterRead = true;
+          return;
+        } else {
+          this.DoBeforeOpen();
+          this.FEnableControlsEvent = $mod.TDataEvent.deLayoutChange;
+          this.FInternalCalcFields = false;
+          try {
+            this.FDefaultFields = this.GetfieldCount() === 0;
+            this.OpenCursor(false);
+          } finally {
+            if (this.FState !== $mod.TDataSetState.dsOpening) this.OpenCursorcomplete();
+          };
+        };
+        this.FModified = false;
+      } else if (!Value && (this.FState !== $mod.TDataSetState.dsInactive)) {
+        this.DoBeforeClose();
+        this.SetState($mod.TDataSetState.dsInactive);
+        this.FDataRequestID = 0;
+        this.DoneChangeList();
+        this.CloseCursor();
+        this.DoAfterClose();
+        this.FModified = false;
+      };
+    };
+    this.SetBookmarkStr = function (Value) {
+      var O = null;
+      var B = new $mod.TBookmark();
+      O = JSON.parse(Value);
+      B.Flag = O["flag"];
+      B.Data = O["Index"];
+      this.GotoBookmark(B);
+    };
+    this.SetBufListSize = function (Value) {
+      var I = 0;
+      if (Value < 0) Value = 0;
+      if (Value === this.FBufferCount) return;
+      if (Value > this.GetBufferCount()) {
+        for (var $l1 = this.FBufferCount, $end2 = Value; $l1 <= $end2; $l1++) {
+          I = $l1;
+          this.FBuffers[I] = new $mod.TDataRecord(this.AllocRecordBuffer());
+        };
+      } else if (Value < this.GetBufferCount()) if ((Value >= 0) && (this.FActiveRecord > (Value - 1))) {
+        for (var $l3 = 0, $end4 = this.FActiveRecord - Value; $l3 <= $end4; $l3++) {
+          I = $l3;
+          this.ShiftBuffersBackward();
+        };
+        this.FActiveRecord = Value - 1;
+      };
+      this.FBuffers = rtl.arraySetLength(this.FBuffers,$mod.TDataRecord,Value + 1);
+      this.FBufferCount = Value;
+      if (this.FRecordCount > this.FBufferCount) this.FRecordCount = this.FBufferCount;
+    };
+    this.SetChildOrder = function (Child, Order) {
+      var Field = null;
+      Field = rtl.as(Child,$mod.TField);
+      if (this.FFieldList.IndexOf(Field) >= 0) Field.SetIndex(Order);
+    };
+    this.SetCurrentRecord = function (Index) {
+      if (this.FCurrentRecord !== Index) {
+        if (!this.FIsUniDirectional) {
+          var $tmp1 = this.GetBookmarkFlag(new $mod.TDataRecord(this.FBuffers[Index]));
+          if ($tmp1 === $mod.TBookmarkFlag.bfCurrent) {
+            this.InternalSetToRecord(new $mod.TDataRecord(this.FBuffers[Index]))}
+           else if ($tmp1 === $mod.TBookmarkFlag.bfBOF) {
+            this.InternalFirst()}
+           else if ($tmp1 === $mod.TBookmarkFlag.bfEOF) this.InternalLast();
+        };
+        this.FCurrentRecord = Index;
+      };
+    };
+    this.SetDefaultFields = function (Value) {
+      this.FDefaultFields = Value;
+    };
+    this.SetFiltered = function (Value) {
+      if (Value) this.CheckBiDirectional();
+      this.FFiltered = Value;
+    };
+    this.SetFilterOptions = function (Value) {
+      this.CheckBiDirectional();
+      this.FFilterOptions = rtl.refSet(Value);
+    };
+    this.SetFilterText = function (Value) {
+      this.FFilterText = Value;
+    };
+    this.SetFieldValues = function (FieldName, Value) {
+      var i = 0;
+      var FieldList = null;
+      var A = [];
+      if (rtl.isArray(Value)) {
+        FieldList = pas.Classes.TList.$create("Create$1");
+        try {
+          this.GetFieldList(FieldList,FieldName);
+          A = Value;
+          if ((FieldList.GetCount() === 1) && (rtl.length(A) > 0)) {
+            this.FieldByName(FieldName).SetAsJSValue(Value)}
+           else for (var $l1 = 0, $end2 = FieldList.GetCount() - 1; $l1 <= $end2; $l1++) {
+            i = $l1;
+            rtl.getObject(FieldList.Get(i)).SetAsJSValue(A[i]);
+          };
+        } finally {
+          FieldList = rtl.freeLoc(FieldList);
+        };
+      } else this.FieldByName(FieldName).SetAsJSValue(Value);
+    };
+    this.SetFound = function (Value) {
+      this.FFound = Value;
+    };
+    this.SetModified = function (Value) {
+      this.FModified = Value;
+    };
+    this.SetName = function (NewName) {
+      var Self = this;
+      function CheckName(FieldName) {
+        var Result = "";
+        var i = 0;
+        var j = 0;
+        Result = FieldName;
+        i = 0;
+        j = 0;
+        while (i < Self.FFieldList.GetCount()) {
+          if (Result === Self.FFieldList.GetField(i).FFieldName) {
+            j += 1;
+            Result = FieldName + pas.SysUtils.IntToStr(j);
+          } else i += 1;
+        };
+        return Result;
+      };
+      var i = 0;
+      var nm = "";
+      var old = "";
+      if (Self.FName === NewName) return;
+      old = Self.FName;
+      pas.Classes.TComponent.SetName.call(Self,NewName);
+      if (pas.Classes.TComponentStateItem.csDesigning in Self.FComponentState) for (var $l1 = 0, $end2 = Self.FFieldList.GetCount() - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        nm = old + Self.FFieldList.GetField(i).FFieldName;
+        if (pas.System.Copy(Self.FFieldList.GetField(i).FName,1,nm.length) === nm) Self.FFieldList.GetField(i).SetName(CheckName(NewName + Self.FFieldList.GetField(i).FFieldName));
+      };
+    };
+    this.SetOnFilterRecord = function (Value) {
+      this.CheckBiDirectional();
+      this.FOnFilterRecord = Value;
+    };
+    this.SetRecNo = function (Value) {
+    };
+    this.SetState = function (Value) {
+      if (Value !== this.FState) {
+        this.FState = Value;
+        if (Value === $mod.TDataSetState.dsBrowse) this.FModified = false;
+        this.DataEvent($mod.TDataEvent.deUpdateState,0);
+      };
+    };
+    this.SetTempState = function (Value) {
+      var Result = 0;
+      Result = this.FState;
+      this.FState = Value;
+      this.FDisableControlsCount += 1;
+      return Result;
+    };
+    this.TempBuffer = function () {
+      var Result = new $mod.TDataRecord();
+      Result = new $mod.TDataRecord(this.FBuffers[this.FRecordCount]);
+      return Result;
+    };
+    this.UpdateIndexDefs = function () {
+    };
+    this.AllocRecordBuffer = function () {
+      var Result = new $mod.TDataRecord();
+      Result.data = null;
+      Result.state = $mod.TRecordState.rsNew;
+      return Result;
+    };
+    this.FreeRecordBuffer = function (Buffer) {
+    };
+    this.GetBookmarkData = function (Buffer, Data) {
+    };
+    this.GetBookmarkFlag = function (Buffer) {
+      var Result = 0;
+      Result = $mod.TBookmarkFlag.bfCurrent;
+      return Result;
+    };
+    this.GetDataSource = function () {
+      var Result = null;
+      Result = null;
+      return Result;
+    };
+    this.GetRecordSize = function () {
+      var Result = 0;
+      Result = 0;
+      return Result;
+    };
+    this.InternalAddRecord = function (Buffer, AAppend) {
+    };
+    this.InternalDelete = function () {
+    };
+    this.InternalFirst = function () {
+    };
+    this.InternalGotoBookmark = function (ABookmark) {
+    };
+    this.InternalHandleException = function (E) {
+      pas.SysUtils.ShowException(E,null);
+    };
+    this.InternalInitRecord = function (Buffer) {
+    };
+    this.InternalLast = function () {
+    };
+    this.InternalPost = function () {
+      var Self = this;
+      function CheckRequiredFields() {
+        var I = 0;
+        for (var $l1 = 0, $end2 = Self.FFieldList.GetCount() - 1; $l1 <= $end2; $l1++) {
+          I = $l1;
+          var $with3 = Self.FFieldList.GetField(I);
+          if (((($with3.FRequired && !$with3.FReadOnly) && ($with3.FFieldKind === $mod.TFieldKind.fkData)) && !($with3.FDataType === $mod.TFieldType.ftAutoInc)) && $with3.GetIsNull()) $mod.DatabaseErrorFmt$1(rtl.getResStr(pas.DBConst,"SNeedField"),[$with3.GetDisplayName()],Self);
+        };
+      };
+      CheckRequiredFields();
+    };
+    this.InternalSetToRecord = function (Buffer) {
+    };
+    this.SetBookmarkFlag = function (Buffer, Value) {
+    };
+    this.SetBookmarkData = function (Buffer, Data) {
+    };
+    this.SetUniDirectional = function (Value) {
+      this.FIsUniDirectional = Value;
+    };
+    this.Notification = function (AComponent, Operation) {
+      pas.Classes.TComponent.Notification.call(this,AComponent,Operation);
+      if ((Operation === pas.Classes.TOperation.opRemove) && (AComponent === this.FDataProxy)) this.FDataProxy = null;
+    };
+    this.GetFieldData = function (Field) {
+      var Result = undefined;
+      Result = this.GetFieldData$1(Field,new $mod.TDataRecord(this.ActiveBuffer()));
+      return Result;
+    };
+    this.SetFieldData = function (Field, AValue) {
+      this.SetFieldData$1(Field,{a: this.FActiveRecord, p: this.FBuffers, get: function () {
+          return this.p[this.a];
+        }, set: function (v) {
+          this.p[this.a] = v;
+        }},AValue);
+    };
+    this.GetFieldData$1 = function (Field, Buffer) {
+      var Result = undefined;
+      Result = rtl.getObject(Buffer.data)[Field.FFieldName];
+      return Result;
+    };
+    this.SetFieldData$1 = function (Field, Buffer, AValue) {
+      rtl.getObject(Buffer.get().data)[Field.FFieldName] = AValue;
+    };
+    this.FieldDefsClass = function () {
+      var Result = null;
+      Result = $mod.TFieldDefs;
+      return Result;
+    };
+    this.FieldsClass = function () {
+      var Result = null;
+      Result = $mod.TFields;
+      return Result;
+    };
+    this.Create$1 = function (AOwner) {
+      pas.Classes.TComponent.Create$1.call(this,AOwner);
+      this.FFieldDefs = this.$class.FieldDefsClass().$create("Create$4",[this]);
+      this.FFieldList = this.$class.FieldsClass().$create("Create$1",[this]);
+      this.FDataSources = pas.Classes.TFPList.$create("Create");
+      this.FConstraints = $mod.TCheckConstraints.$create("Create$2",[this]);
+      this.FBuffers = rtl.arraySetLength(this.FBuffers,$mod.TDataRecord,1);
+      this.FActiveRecord = 0;
+      this.FEOF = true;
+      this.FBOF = true;
+      this.FIsUniDirectional = false;
+      this.FAutoCalcFields = true;
+      this.FDataRequestID = 0;
+    };
+    this.Destroy = function () {
+      var i = 0;
+      this.SetActive(false);
+      rtl.free(this,"FFieldDefs");
+      rtl.free(this,"FFieldList");
+      var $with1 = this.FDataSources;
+      while ($with1.FCount > 0) rtl.getObject($with1.Get($with1.FCount - 1)).SetDataSet(null);
+      $with1.$destroy("Destroy");
+      for (var $l2 = 0, $end3 = this.FBufferCount; $l2 <= $end3; $l2++) {
+        i = $l2;
+        this.FreeRecordBuffer({a: i, p: this.FBuffers, get: function () {
+            return this.p[this.a];
+          }, set: function (v) {
+            this.p[this.a] = v;
+          }});
+      };
+      rtl.free(this,"FConstraints");
+      this.FBuffers = rtl.arraySetLength(this.FBuffers,$mod.TDataRecord,1);
+      pas.Classes.TComponent.Destroy.call(this);
+    };
+    this.ActiveBuffer = function () {
+      var Result = new $mod.TDataRecord();
+      Result = new $mod.TDataRecord(this.FBuffers[this.FActiveRecord]);
+      return Result;
+    };
+    this.Append = function () {
+      this.DoInsertAppend(true);
+    };
+    this.AppendRecord = function (Values) {
+      this.DoInsertAppendRecord(Values,true);
+    };
+    this.BookmarkValid = function (ABookmark) {
+      var Result = false;
+      Result = false;
+      return Result;
+    };
+    this.ConvertToDateTime = function (aValue, ARaiseException) {
+      var Result = 0.0;
+      Result = this.$class.DefaultConvertToDateTime(aValue,ARaiseException);
+      return Result;
+    };
+    this.ConvertDateTimeToNative = function (aValue) {
+      var Result = undefined;
+      Result = this.$class.DefaultConvertDateTimeToNative(aValue);
+      return Result;
+    };
+    this.DefaultConvertToDateTime = function (aValue, ARaiseException) {
+      var Result = 0.0;
+      Result = 0;
+      if (rtl.isString(aValue)) {
+        if (!pas.DateUtils.TryRFC3339ToDateTime("" + aValue,{get: function () {
+            return Result;
+          }, set: function (v) {
+            Result = v;
+          }})) throw pas.SysUtils.EConvertError.$create("CreateFmt",[rtl.getResStr(pas.DBConst,"SErrInvalidDateTime"),["" + aValue]]);
+      } else if (rtl.isNumber(aValue)) Result = rtl.getNumber(aValue);
+      return Result;
+    };
+    this.DefaultConvertDateTimeToNative = function (aValue) {
+      var Result = undefined;
+      Result = pas.DateUtils.DateTimeToRFC3339(aValue);
+      return Result;
+    };
+    this.BlobDataToBytes = function (aValue) {
+      var Result = [];
+      Result = this.$class.DefaultBlobDataToBytes(aValue);
+      return Result;
+    };
+    this.DefaultBlobDataToBytes = function (aValue) {
+      var Result = [];
+      var S = "";
+      var I = 0;
+      var J = 0;
+      var L = 0;
+      Result = rtl.arraySetLength(Result,0,0);
+      if (rtl.isString(aValue)) {
+        S = "" + aValue;
+        L = S.length;
+        Result = rtl.arraySetLength(Result,0,Math.floor((L + 1) / 2));
+        I = 1;
+        J = 0;
+        while (I < L) {
+          Result[J] = pas.SysUtils.StrToInt("$" + pas.System.Copy(S,I,2));
+          I += 2;
+          J += 1;
+        };
+      };
+      return Result;
+    };
+    this.BytesToBlobData = function (aValue) {
+      var Result = undefined;
+      Result = this.$class.DefaultBytesToBlobData(aValue);
+      return Result;
+    };
+    this.DefaultBytesToBlobData = function (aValue) {
+      var Result = undefined;
+      var S = "";
+      var I = 0;
+      if (rtl.length(aValue) === 0) {
+        Result = null}
+       else {
+        S = "";
+        for (var $l1 = 0, $end2 = rtl.length(aValue); $l1 <= $end2; $l1++) {
+          I = $l1;
+          S.concat(pas.SysUtils.IntToHex(aValue[I],2));
+        };
+      };
+      return Result;
+    };
+    this.Cancel = function () {
+      if (this.FState in rtl.createSet($mod.TDataSetState.dsEdit,$mod.TDataSetState.dsInsert)) {
+        this.DataEvent($mod.TDataEvent.deCheckBrowseMode,0);
+        this.DoBeforeCancel();
+        this.UpdateCursorPos();
+        this.InternalCancel();
+        if ((this.FState === $mod.TDataSetState.dsInsert) && (this.FRecordCount === 1)) {
+          this.FEOF = true;
+          this.FBOF = true;
+          this.FRecordCount = 0;
+          this.InitRecord({a: this.FActiveRecord, p: this.FBuffers, get: function () {
+              return this.p[this.a];
+            }, set: function (v) {
+              this.p[this.a] = v;
+            }});
+          this.SetState($mod.TDataSetState.dsBrowse);
+          this.DataEvent($mod.TDataEvent.deDataSetChange,0);
+        } else {
+          this.SetState($mod.TDataSetState.dsBrowse);
+          this.SetCurrentRecord(this.FActiveRecord);
+          this.Resync({});
+        };
+        this.DoAfterCancel();
+      };
+    };
+    this.CheckBrowseMode = function () {
+      this.CheckActive();
+      this.DataEvent($mod.TDataEvent.deCheckBrowseMode,0);
+      var $tmp1 = this.FState;
+      if (($tmp1 === $mod.TDataSetState.dsEdit) || ($tmp1 === $mod.TDataSetState.dsInsert)) {
+        this.UpdateRecord();
+        if (this.FModified) {
+          this.Post()}
+         else this.Cancel();
+      } else if ($tmp1 === $mod.TDataSetState.dsSetKey) this.Post();
+    };
+    this.ClearFields = function () {
+      this.DataEvent($mod.TDataEvent.deCheckBrowseMode,0);
+      this.InternalInitRecord({a: this.FActiveRecord, p: this.FBuffers, get: function () {
+          return this.p[this.a];
+        }, set: function (v) {
+          this.p[this.a] = v;
+        }});
+      if (this.FState !== $mod.TDataSetState.dsSetKey) this.GetCalcFields({a: this.FActiveRecord, p: this.FBuffers, get: function () {
+          return this.p[this.a];
+        }, set: function (v) {
+          this.p[this.a] = v;
+        }});
+      this.DataEvent($mod.TDataEvent.deRecordChange,0);
+    };
+    this.Close = function () {
+      this.SetActive(false);
+    };
+    this.ApplyUpdates = function () {
+      this.DoBeforeApplyUpdates();
+      this.DoApplyUpdates();
+    };
+    this.ControlsDisabled = function () {
+      var Result = false;
+      Result = this.FDisableControlsCount > 0;
+      return Result;
+    };
+    this.CompareBookmarks = function (Bookmark1, Bookmark2) {
+      var Result = 0;
+      Result = 0;
+      return Result;
+    };
+    this.CursorPosChanged = function () {
+      this.FCurrentRecord = -1;
+    };
+    this.Delete = function () {
+      var R = null;
+      if (!this.GetCanModify()) $mod.DatabaseError$1(rtl.getResStr(pas.DBConst,"SDatasetReadOnly"),this);
+      if (this.IsEmpty()) $mod.DatabaseError$1(rtl.getResStr(pas.DBConst,"SDatasetEmpty"),this);
+      if (this.FState in rtl.createSet($mod.TDataSetState.dsInsert)) {
+        this.Cancel();
+      } else {
+        this.DataEvent($mod.TDataEvent.deCheckBrowseMode,0);
+        this.DoBeforeDelete();
+        this.DoBeforeScroll();
+        R = this.AddToChangeList($mod.TUpdateStatus.usDeleted);
+        if (!this.TryDoing(rtl.createCallback(this,"InternalDelete"),this.FOnDeleteError)) {
+          if (R != null) this.RemoveFromChangeList(R);
+          return;
+        };
+        this.SetState($mod.TDataSetState.dsBrowse);
+        this.SetCurrentRecord(this.FActiveRecord);
+        this.Resync({});
+        this.DoAfterDelete();
+        this.DoAfterScroll();
+      };
+    };
+    this.DisableControls = function () {
+      if (this.FDisableControlsCount === 0) {
+        this.FDisableControlsState = this.FState;
+        this.FEnableControlsEvent = $mod.TDataEvent.deDataSetChange;
+      };
+      this.FDisableControlsCount += 1;
+    };
+    this.Edit = function () {
+      if (this.FState in rtl.createSet($mod.TDataSetState.dsEdit,$mod.TDataSetState.dsInsert)) return;
+      this.CheckBrowseMode();
+      if (!this.GetCanModify()) $mod.DatabaseError$1(rtl.getResStr(pas.DBConst,"SDatasetReadOnly"),this);
+      if (this.FRecordCount === 0) {
+        this.Append();
+        return;
+      };
+      this.DoBeforeEdit();
+      if (!this.TryDoing(rtl.createCallback(this,"InternalEdit"),this.FOnEditError)) return;
+      this.GetCalcFields({a: this.FActiveRecord, p: this.FBuffers, get: function () {
+          return this.p[this.a];
+        }, set: function (v) {
+          this.p[this.a] = v;
+        }});
+      this.SetState($mod.TDataSetState.dsEdit);
+      this.DataEvent($mod.TDataEvent.deRecordChange,0);
+      this.DoAfterEdit();
+    };
+    this.EnableControls = function () {
+      if (this.FDisableControlsCount > 0) this.FDisableControlsCount -= 1;
+      if (this.FDisableControlsCount === 0) {
+        if (this.FState !== this.FDisableControlsState) this.DataEvent($mod.TDataEvent.deUpdateState,0);
+        if ((this.FState !== $mod.TDataSetState.dsInactive) && (this.FDisableControlsState !== $mod.TDataSetState.dsInactive)) this.DataEvent(this.FEnableControlsEvent,0);
+      };
+    };
+    this.FieldByName = function (FieldName) {
+      var Result = null;
+      Result = this.FindField(FieldName);
+      if (Result === null) $mod.DatabaseErrorFmt$1(rtl.getResStr(pas.DBConst,"SFieldNotFound"),[FieldName],this);
+      return Result;
+    };
+    this.FindField = function (FieldName) {
+      var Result = null;
+      Result = this.FFieldList.FindField(FieldName);
+      return Result;
+    };
+    this.FindFirst = function () {
+      var Result = false;
+      Result = false;
+      return Result;
+    };
+    this.FindLast = function () {
+      var Result = false;
+      Result = false;
+      return Result;
+    };
+    this.FindNext = function () {
+      var Result = false;
+      Result = false;
+      return Result;
+    };
+    this.FindPrior = function () {
+      var Result = false;
+      Result = false;
+      return Result;
+    };
+    this.First = function () {
+      this.CheckBrowseMode();
+      this.DoBeforeScroll();
+      if (!this.FIsUniDirectional) {
+        this.ClearBuffers()}
+       else if (!this.FBOF) {
+        this.SetActive(false);
+        this.SetActive(true);
+      };
+      try {
+        this.InternalFirst();
+        if (!this.FIsUniDirectional) this.GetNextRecords();
+      } finally {
+        this.FBOF = true;
+        this.DataEvent($mod.TDataEvent.deDataSetChange,0);
+        this.DoAfterScroll();
+      };
+    };
+    this.FreeBookmark = function (ABookmark) {
+    };
+    this.GetBookmark = function () {
+      var Result = new $mod.TBookmark();
+      if (this.BookmarkAvailable()) {
+        this.GetBookmarkData(new $mod.TDataRecord(this.ActiveBuffer()),{get: function () {
+            return Result;
+          }, set: function (v) {
+            Result = v;
+          }})}
+       else Result.Data = null;
+      return Result;
+    };
+    this.GetCurrentRecord = function (Buffer) {
+      var Result = false;
+      Result = false;
+      return Result;
+    };
+    this.GetFieldList = function (List, FieldNames) {
+      var F = null;
+      var N = "";
+      var StrPos = 0;
+      if ((FieldNames === "") || (List === null)) return;
+      StrPos = 1;
+      do {
+        N = $mod.ExtractFieldName(FieldNames,{get: function () {
+            return StrPos;
+          }, set: function (v) {
+            StrPos = v;
+          }});
+        F = this.FieldByName(N);
+        List.Add(F);
+      } while (!(StrPos > FieldNames.length));
+    };
+    this.GetFieldNames = function (List) {
+      this.FFieldList.GetFieldNames(List);
+    };
+    this.GotoBookmark = function (ABookmark) {
+      if (pas.System.Assigned(ABookmark)) {
+        this.CheckBrowseMode();
+        this.DoBeforeScroll();
+        this.InternalGotoBookmark(new $mod.TBookmark(ABookmark));
+        this.Resync(rtl.createSet($mod.TResyncMode$a.rmExact,$mod.TResyncMode$a.rmCenter));
+        this.DoAfterScroll();
+      };
+    };
+    this.Insert$1 = function () {
+      this.DoInsertAppend(false);
+    };
+    this.InsertRecord = function (Values) {
+      this.DoInsertAppendRecord(Values,false);
+    };
+    this.IsEmpty = function () {
+      var Result = false;
+      Result = (this.FBOF && this.FEOF) && !(this.FState === $mod.TDataSetState.dsInsert);
+      return Result;
+    };
+    this.IsLinkedTo = function (ADataSource) {
+      var Result = false;
+      if ((ADataSource === null) || (ADataSource.FDataSet === null)) {
+        Result = false;
+      } else if (ADataSource.FDataSet === this) {
+        Result = true;
+      } else {
+        Result = ADataSource.FDataSet.IsLinkedTo(ADataSource.FDataSet.GetDataSource());
+      };
+      return Result;
+    };
+    this.IsSequenced = function () {
+      var Result = false;
+      Result = true;
+      return Result;
+    };
+    this.Last = function () {
+      this.CheckBiDirectional();
+      this.CheckBrowseMode();
+      this.DoBeforeScroll();
+      this.ClearBuffers();
+      try {
+        this.InternalLast();
+        this.GetPriorRecords();
+        if (this.FRecordCount > 0) this.FActiveRecord = this.FRecordCount - 1;
+      } finally {
+        this.FEOF = true;
+        this.DataEvent($mod.TDataEvent.deDataSetChange,0);
+        this.DoAfterScroll();
+      };
+    };
+    this.Load = function (aOptions, aAfterLoad) {
+      var Result = false;
+      if ($mod.TLoadOption.loAtEOF in aOptions) $mod.DatabaseError$1(rtl.getResStr(pas.DBConst,"SatEOFInternalOnly"),this);
+      Result = this.DoLoad(rtl.refSet(aOptions),aAfterLoad);
+      return Result;
+    };
+    this.Locate = function (KeyFields, KeyValues, Options) {
+      var Result = false;
+      this.CheckBiDirectional();
+      Result = false;
+      return Result;
+    };
+    this.Lookup = function (KeyFields, KeyValues, ResultFields) {
+      var Result = undefined;
+      this.CheckBiDirectional();
+      Result = null;
+      return Result;
+    };
+    this.MoveBy = function (Distance) {
+      var Self = this;
+      var Result = 0;
+      var TheResult = 0;
+      function ScrollForward() {
+        var Result = 0;
+        Result = 0;
+        Self.FBOF = false;
+        while ((Distance > 0) && !Self.FEOF) {
+          if (Self.FActiveRecord < (Self.FRecordCount - 1)) {
+            Self.FActiveRecord += 1;
+            Distance -= 1;
+            TheResult += 1;
+          } else {
+            if (Self.GetNextRecord()) {
+              Distance -= 1;
+              Result -= 1;
+              TheResult += 1;
+            } else {
+              Self.FEOF = true;
+              Self.DoLoad(rtl.createSet($mod.TLoadOption.loNoOpen,$mod.TLoadOption.loAtEOF),null);
+            };
+          };
+        };
+        return Result;
+      };
+      function ScrollBackward() {
+        var Result = 0;
+        Self.CheckBiDirectional();
+        Result = 0;
+        Self.FEOF = false;
+        while ((Distance < 0) && !Self.FBOF) {
+          if (Self.FActiveRecord > 0) {
+            Self.FActiveRecord -= 1;
+            Distance += 1;
+            TheResult -= 1;
+          } else {
+            if (Self.GetPriorRecord()) {
+              Distance += 1;
+              Result += 1;
+              TheResult -= 1;
+            } else Self.FBOF = true;
+          };
+        };
+        return Result;
+      };
+      var Scrolled = 0;
+      Self.CheckBrowseMode();
+      Result = 0;
+      TheResult = 0;
+      Self.DoBeforeScroll();
+      if (((Distance === 0) || ((Distance > 0) && Self.FEOF)) || ((Distance < 0) && Self.FBOF)) return Result;
+      try {
+        Scrolled = 0;
+        if (Distance > 0) {
+          Scrolled = ScrollForward()}
+         else Scrolled = ScrollBackward();
+      } finally {
+        Self.DataEvent($mod.TDataEvent.deDataSetScroll,Scrolled);
+        Self.DoAfterScroll();
+        Result = TheResult;
+      };
+      return Result;
+    };
+    this.Next = function () {
+      if (this.FBlockReadSize > 0) {
+        this.BlockReadNext()}
+       else this.MoveBy(1);
+    };
+    this.Open = function () {
+      this.SetActive(true);
+    };
+    var UpdateStates = [$mod.TUpdateStatus.usModified,$mod.TUpdateStatus.usInserted];
+    this.Post = function () {
+      var R = null;
+      var WasInsert = false;
+      this.UpdateRecord();
+      if (this.FState in rtl.createSet($mod.TDataSetState.dsEdit,$mod.TDataSetState.dsInsert)) {
+        this.DataEvent($mod.TDataEvent.deCheckBrowseMode,0);
+        this.DoBeforePost();
+        WasInsert = this.FState === $mod.TDataSetState.dsInsert;
+        if (!this.TryDoing(rtl.createCallback(this,"InternalPost"),this.FOnPostError)) return;
+        this.CursorPosChanged();
+        this.SetState($mod.TDataSetState.dsBrowse);
+        this.Resync({});
+        R = this.AddToChangeList(UpdateStates[+WasInsert]);
+        if (R != null) R.FBookmark = new $mod.TBookmark(this.GetBookmark());
+        this.DoAfterPost();
+      } else if (this.FState !== $mod.TDataSetState.dsSetKey) $mod.DatabaseErrorFmt$1(rtl.getResStr(pas.DBConst,"SNotEditing"),[this.FName],this);
+    };
+    this.Prior = function () {
+      this.MoveBy(-1);
+    };
+    this.Refresh = function () {
+      this.CheckBrowseMode();
+      this.DoBeforeRefresh();
+      this.UpdateCursorPos();
+      this.InternalRefresh();
+      this.Resync({});
+      this.DoAfterRefresh();
+    };
+    this.Resync = function (Mode) {
+      var i = 0;
+      var count = 0;
+      if (this.FIsUniDirectional) return;
+      if (this.GetRecord({a: 0, p: this.FBuffers, get: function () {
+          return this.p[this.a];
+        }, set: function (v) {
+          this.p[this.a] = v;
+        }},$mod.TGetMode.gmCurrent,false) !== $mod.TGetResult.grOK) if ($mod.TResyncMode$a.rmExact in Mode) {
+        $mod.DatabaseError$1(rtl.getResStr(pas.DBConst,"SNoSuchRecord"),this)}
+       else if ((this.GetRecord({a: 0, p: this.FBuffers, get: function () {
+          return this.p[this.a];
+        }, set: function (v) {
+          this.p[this.a] = v;
+        }},$mod.TGetMode.gmNext,true) !== $mod.TGetResult.grOK) && (this.GetRecord({a: 0, p: this.FBuffers, get: function () {
+          return this.p[this.a];
+        }, set: function (v) {
+          this.p[this.a] = v;
+        }},$mod.TGetMode.gmPrior,true) !== $mod.TGetResult.grOK)) {
+        this.ClearBuffers();
+        this.InternalInitRecord({a: this.FActiveRecord, p: this.FBuffers, get: function () {
+            return this.p[this.a];
+          }, set: function (v) {
+            this.p[this.a] = v;
+          }});
+        this.DataEvent($mod.TDataEvent.deDataSetChange,0);
+        return;
+      };
+      this.FCurrentRecord = 0;
+      this.FEOF = false;
+      this.FBOF = false;
+      if ($mod.TResyncMode$a.rmCenter in Mode) {
+        count = Math.floor(this.FRecordCount / 2)}
+       else count = this.FActiveRecord;
+      i = 0;
+      this.FRecordCount = 1;
+      this.FActiveRecord = 0;
+      while ((i < count) && this.GetPriorRecord()) i += 1;
+      this.FActiveRecord = i;
+      this.GetNextRecords();
+      if (this.FRecordCount < this.FBufferCount) this.FActiveRecord = this.FActiveRecord + this.GetPriorRecords();
+      this.DataEvent($mod.TDataEvent.deDataSetChange,0);
+    };
+    this.SetFields = function (Values) {
+      var I = 0;
+      for (var $l1 = 0, $end2 = rtl.length(Values) - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        this.FFieldList.GetField(I).AssignValue(Values[I]);
+      };
+    };
+    this.UpdateCursorPos = function () {
+      if (this.FRecordCount > 0) this.SetCurrentRecord(this.FActiveRecord);
+    };
+    this.UpdateRecord = function () {
+      if (!(this.FState in $mod.dsEditModes)) $mod.DatabaseErrorFmt$1(rtl.getResStr(pas.DBConst,"SNotEditing"),[this.FName],this);
+      this.DataEvent($mod.TDataEvent.deUpdateRecord,0);
+    };
+    this.UpdateStatus = function () {
+      var Result = 0;
+      Result = $mod.TUpdateStatus.usUnmodified;
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TDataLink",pas.Classes.TPersistent,function () {
+    this.$init = function () {
+      pas.Classes.TPersistent.$init.call(this);
+      this.FFirstRecord = 0;
+      this.FBufferCount = 0;
+      this.FActive = false;
+      this.FDataSourceFixed = false;
+      this.FEditing = false;
+      this.FReadOnly = false;
+      this.FUpdatingRecord = false;
+      this.FVisualControl = false;
+      this.FDataSource = null;
+    };
+    this.$final = function () {
+      this.FDataSource = undefined;
+      pas.Classes.TPersistent.$final.call(this);
+    };
+    this.CalcFirstRecord = function (Index) {
+      var Result = 0;
+      if (this.FDataSource.FDataSet.FActiveRecord > (((this.FFirstRecord + Index) + this.FBufferCount) - 1)) {
+        Result = this.FDataSource.FDataSet.FActiveRecord - (((this.FFirstRecord + Index) + this.FBufferCount) - 1)}
+       else if (this.FDataSource.FDataSet.FActiveRecord < (this.FFirstRecord + Index)) {
+        Result = this.FDataSource.FDataSet.FActiveRecord - (this.FFirstRecord + Index)}
+       else Result = 0;
+      this.FFirstRecord += Index + Result;
+      return Result;
+    };
+    this.CalcRange = function () {
+      var aMax = 0;
+      var aMin = 0;
+      aMin = (this.GetDataset().FActiveRecord - this.FBufferCount) + 1;
+      if (aMin < 0) aMin = 0;
+      aMax = this.GetDataset().FBufferCount - this.FBufferCount;
+      if (aMax < 0) aMax = 0;
+      if (aMax > this.GetDataset().FActiveRecord) aMax = this.GetDataset().FActiveRecord;
+      if (this.FFirstRecord < aMin) this.FFirstRecord = aMin;
+      if (this.FFirstRecord > aMax) this.FFirstRecord = aMax;
+      if ((this.FFirstRecord !== 0) && ((this.GetDataset().FActiveRecord - this.FFirstRecord) < (this.FBufferCount - 1))) this.FFirstRecord -= 1;
+    };
+    this.CheckActiveAndEditing = function () {
+      var B = false;
+      B = (this.FDataSource != null) && !(this.FDataSource.FState in rtl.createSet($mod.TDataSetState.dsInactive,$mod.TDataSetState.dsOpening));
+      if (B !== this.FActive) {
+        this.FActive = B;
+        this.ActiveChanged();
+      };
+      B = ((this.FDataSource != null) && (this.FDataSource.FState in $mod.dsEditModes)) && !this.FReadOnly;
+      if (B !== this.FEditing) {
+        this.FEditing = B;
+        this.EditingChanged();
+      };
+    };
+    this.GetDataset = function () {
+      var Result = null;
+      if (this.FDataSource != null) {
+        Result = this.FDataSource.FDataSet}
+       else Result = null;
+      return Result;
+    };
+    this.SetActive = function (AActive) {
+      if (this.FActive !== AActive) {
+        this.FActive = AActive;
+        this.ActiveChanged();
+      };
+    };
+    this.SetDataSource = function (Value) {
+      if (this.FDataSource === Value) return;
+      if (!this.FDataSourceFixed) {
+        if (this.FDataSource != null) {
+          this.FDataSource.UnregisterDataLink(this);
+          this.FDataSource = null;
+          this.CheckActiveAndEditing();
+        };
+        this.FDataSource = Value;
+        if (this.FDataSource != null) {
+          this.FDataSource.RegisterDataLink(this);
+          this.CheckActiveAndEditing();
+        };
+      };
+    };
+    this.SetReadOnly = function (Value) {
+      if (this.FReadOnly !== Value) {
+        this.FReadOnly = Value;
+        this.CheckActiveAndEditing();
+      };
+    };
+    this.ActiveChanged = function () {
+      this.FFirstRecord = 0;
+    };
+    this.CheckBrowseMode = function () {
+    };
+    this.DataEvent = function (Event, Info) {
+      var $tmp1 = Event;
+      if (($tmp1 === $mod.TDataEvent.deFieldChange) || ($tmp1 === $mod.TDataEvent.deRecordChange)) {
+        if (!this.FUpdatingRecord) this.RecordChanged(rtl.getObject(Info))}
+       else if ($tmp1 === $mod.TDataEvent.deDataSetChange) {
+        this.SetActive(this.FDataSource.FDataSet.GetActive());
+        this.CalcRange();
+        this.CalcFirstRecord(Math.floor(Info));
+        this.DataSetChanged();
+      } else if ($tmp1 === $mod.TDataEvent.deDataSetScroll) {
+        this.DataSetScrolled(this.CalcFirstRecord(Math.floor(Info)))}
+       else if ($tmp1 === $mod.TDataEvent.deLayoutChange) {
+        this.CalcFirstRecord(Math.floor(Info));
+        this.LayoutChanged();
+      } else if ($tmp1 === $mod.TDataEvent.deUpdateRecord) {
+        this.UpdateRecord()}
+       else if ($tmp1 === $mod.TDataEvent.deUpdateState) {
+        this.CheckActiveAndEditing()}
+       else if ($tmp1 === $mod.TDataEvent.deCheckBrowseMode) {
+        this.CheckBrowseMode()}
+       else if ($tmp1 === $mod.TDataEvent.deFocusControl) this.FocusControl(Info);
+    };
+    this.DataSetChanged = function () {
+      this.RecordChanged(null);
+    };
+    this.DataSetScrolled = function (Distance) {
+      this.DataSetChanged();
+    };
+    this.EditingChanged = function () {
+    };
+    this.FocusControl = function (Field) {
+    };
+    this.GetActiveRecord = function () {
+      var Result = 0;
+      Result = this.GetDataset().FActiveRecord - this.FFirstRecord;
+      return Result;
+    };
+    this.GetBOF = function () {
+      var Result = false;
+      Result = this.GetDataset().FBOF;
+      return Result;
+    };
+    this.GetBufferCount = function () {
+      var Result = 0;
+      Result = this.FBufferCount;
+      return Result;
+    };
+    this.GetEOF = function () {
+      var Result = false;
+      Result = this.GetDataset().FEOF;
+      return Result;
+    };
+    this.GetRecordCount = function () {
+      var Result = 0;
+      Result = this.GetDataset().FRecordCount;
+      if (Result > this.GetBufferCount()) Result = this.GetBufferCount();
+      return Result;
+    };
+    this.LayoutChanged = function () {
+      this.DataSetChanged();
+    };
+    this.MoveBy = function (Distance) {
+      var Result = 0;
+      Result = this.GetDataset().MoveBy(Distance);
+      return Result;
+    };
+    this.RecordChanged = function (Field) {
+    };
+    this.SetActiveRecord = function (Value) {
+      this.GetDataset().FActiveRecord = Value + this.FFirstRecord;
+    };
+    this.SetBufferCount = function (Value) {
+      if (this.FBufferCount !== Value) {
+        this.FBufferCount = Value;
+        if (this.FActive) {
+          this.GetDataset().RecalcBufListSize();
+          this.CalcRange();
+        };
+      };
+    };
+    this.UpdateData = function () {
+    };
+    this.Create$1 = function () {
+      pas.System.TObject.Create.call(this);
+      this.FBufferCount = 1;
+      this.FFirstRecord = 0;
+      this.FDataSource = null;
+      this.FDataSourceFixed = false;
+    };
+    this.Destroy = function () {
+      this.FActive = false;
+      this.FEditing = false;
+      this.FDataSourceFixed = false;
+      this.SetDataSource(null);
+      pas.System.TObject.Destroy.call(this);
+    };
+    this.Edit = function () {
+      var Result = false;
+      if (!this.FReadOnly) this.FDataSource.Edit();
+      Result = this.FEditing;
+      return Result;
+    };
+    this.UpdateRecord = function () {
+      this.FUpdatingRecord = true;
+      try {
+        this.UpdateData();
+      } finally {
+        this.FUpdatingRecord = false;
+      };
+    };
+  });
+  rtl.createClass($mod,"TDetailDataLink",$mod.TDataLink,function () {
+    this.GetDetailDataSet = function () {
+      var Result = null;
+      Result = null;
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TMasterDataLink",$mod.TDetailDataLink,function () {
+    this.$init = function () {
+      $mod.TDetailDataLink.$init.call(this);
+      this.FDetailDataSet = null;
+      this.FFieldNames = "";
+      this.FFields = null;
+      this.FOnMasterChange = null;
+      this.FOnMasterDisable = null;
+    };
+    this.$final = function () {
+      this.FDetailDataSet = undefined;
+      this.FFields = undefined;
+      this.FOnMasterChange = undefined;
+      this.FOnMasterDisable = undefined;
+      $mod.TDetailDataLink.$final.call(this);
+    };
+    this.SetFieldNames = function (Value) {
+      if (this.FFieldNames !== Value) {
+        this.FFieldNames = Value;
+        this.ActiveChanged();
+      };
+    };
+    this.ActiveChanged = function () {
+      this.FFields.Clear();
+      if (this.FActive) try {
+        this.GetDataset().GetFieldList(this.FFields,this.FFieldNames);
+      } catch ($e) {
+        this.FFields.Clear();
+        throw $e;
+      };
+      if (this.FDetailDataSet.GetActive() && !(pas.Classes.TComponentStateItem.csDestroying in this.FDetailDataSet.FComponentState)) if (this.FActive && (this.FFields.GetCount() > 0)) {
+        this.DoMasterChange()}
+       else this.DoMasterDisable();
+    };
+    this.CheckBrowseMode = function () {
+      if (this.FDetailDataSet.GetActive()) this.FDetailDataSet.CheckBrowseMode();
+    };
+    this.GetDetailDataSet = function () {
+      var Result = null;
+      Result = this.FDetailDataSet;
+      return Result;
+    };
+    this.LayoutChanged = function () {
+      this.ActiveChanged();
+    };
+    this.RecordChanged = function (Field) {
+      if ((((this.FDataSource.FState !== $mod.TDataSetState.dsSetKey) && this.FDetailDataSet.GetActive()) && (this.FFields.GetCount() > 0)) && ((Field === null) || (this.FFields.IndexOf(Field) >= 0))) this.DoMasterChange();
+    };
+    this.DoMasterDisable = function () {
+      if (this.FOnMasterDisable != null) this.FOnMasterDisable(this);
+    };
+    this.DoMasterChange = function () {
+      if (this.FOnMasterChange != null) this.FOnMasterChange(this);
+    };
+    this.Create$2 = function (ADataSet) {
+      $mod.TDataLink.Create$1.call(this);
+      this.FDetailDataSet = ADataSet;
+      this.FFields = pas.Classes.TList.$create("Create$1");
+    };
+    this.Destroy = function () {
+      rtl.free(this,"FFields");
+      $mod.TDataLink.Destroy.call(this);
+    };
+  });
+  rtl.createClass($mod,"TMasterParamsDataLink",$mod.TMasterDataLink,function () {
+    this.$init = function () {
+      $mod.TMasterDataLink.$init.call(this);
+      this.FParams = null;
+    };
+    this.$final = function () {
+      this.FParams = undefined;
+      $mod.TMasterDataLink.$final.call(this);
+    };
+    this.SetParams = function (AValue) {
+      this.FParams = AValue;
+      if (AValue !== null) this.RefreshParamNames();
+    };
+    this.DoMasterDisable = function () {
+      $mod.TMasterDataLink.DoMasterDisable.apply(this,arguments);
+    };
+    this.DoMasterChange = function () {
+      $mod.TMasterDataLink.DoMasterChange.apply(this,arguments);
+      if (((this.FParams != null) && (this.GetDetailDataSet() != null)) && this.GetDetailDataSet().GetActive()) {
+        this.GetDetailDataSet().CheckBrowseMode();
+        this.GetDetailDataSet().Close();
+        this.GetDetailDataSet().Open();
+      };
+    };
+    this.Create$2 = function (ADataSet) {
+      var P = null;
+      $mod.TMasterDataLink.Create$2.call(this,ADataSet);
+      if (ADataSet !== null) {
+        P = pas.TypInfo.GetObjectProp$1(ADataSet,"Params",$mod.TParams);
+        if (P !== null) this.SetParams(P);
+      };
+    };
+    this.RefreshParamNames = function () {
+      var FN = "";
+      var DS = null;
+      var F = null;
+      var I = 0;
+      var P = null;
+      FN = "";
+      DS = this.GetDataset();
+      if (this.FParams != null) {
+        F = null;
+        for (var $l1 = 0, $end2 = this.FParams.GetCount() - 1; $l1 <= $end2; $l1++) {
+          I = $l1;
+          P = this.FParams.GetItem$1(I);
+          if (!P.FBound) {
+            if (DS != null) F = DS.FindField(P.FName);
+            if ((!(DS != null) || !DS.GetActive()) || (F !== null)) {
+              if (FN !== "") FN = FN + ";";
+              FN = FN + P.FName;
+            };
+          };
+        };
+      };
+      this.SetFieldNames(FN);
+    };
+    this.CopyParamsFromMaster = function (CopyBound) {
+      if (this.FParams != null) this.FParams.CopyParamValuesFromDataset(this.GetDataset(),CopyBound);
+    };
+  });
+  $mod.$rtti.$MethodVar("TDataChangeEvent",{procsig: rtl.newTIProcSig([["Sender",pas.System.$rtti["TObject"]],["Field",$mod.$rtti["TField"]]]), methodkind: 0});
+  rtl.createClass($mod,"TDataSource",pas.Classes.TComponent,function () {
+    this.$init = function () {
+      pas.Classes.TComponent.$init.call(this);
+      this.FDataSet = null;
+      this.FDataLinks = null;
+      this.FEnabled = false;
+      this.FAutoEdit = false;
+      this.FState = 0;
+      this.FOnStateChange = null;
+      this.FOnDataChange = null;
+      this.FOnUpdateData = null;
+    };
+    this.$final = function () {
+      this.FDataSet = undefined;
+      this.FDataLinks = undefined;
+      this.FOnStateChange = undefined;
+      this.FOnDataChange = undefined;
+      this.FOnUpdateData = undefined;
+      pas.Classes.TComponent.$final.call(this);
+    };
+    this.DistributeEvent = function (Event, Info) {
+      var i = 0;
+      var $with1 = this.FDataLinks;
+      for (var $l2 = 0, $end3 = $with1.GetCount() - 1; $l2 <= $end3; $l2++) {
+        i = $l2;
+        var $with4 = rtl.getObject($with1.Get(i));
+        if (!$with4.FVisualControl) $with4.DataEvent(Event,Info);
+      };
+      for (var $l5 = 0, $end6 = $with1.GetCount() - 1; $l5 <= $end6; $l5++) {
+        i = $l5;
+        var $with7 = rtl.getObject($with1.Get(i));
+        if ($with7.FVisualControl) $with7.DataEvent(Event,Info);
+      };
+    };
+    this.RegisterDataLink = function (DataLink) {
+      this.FDataLinks.Add(DataLink);
+      if (this.FDataSet != null) this.FDataSet.RecalcBufListSize();
+    };
+    var OnDataChangeEvents = rtl.createSet($mod.TDataEvent.deRecordChange,$mod.TDataEvent.deDataSetChange,$mod.TDataEvent.deDataSetScroll,$mod.TDataEvent.deLayoutChange,$mod.TDataEvent.deUpdateState);
+    this.ProcessEvent = function (Event, Info) {
+      var NeedDataChange = false;
+      var FLastState = 0;
+      if (Event === $mod.TDataEvent.deUpdateState) {
+        NeedDataChange = this.FState === $mod.TDataSetState.dsInactive;
+        FLastState = this.FState;
+        if (this.FDataSet != null) {
+          this.FState = this.FDataSet.FState}
+         else this.FState = $mod.TDataSetState.dsInactive;
+        if (this.FState === FLastState) return;
+      } else NeedDataChange = true;
+      this.DistributeEvent(Event,Info);
+      if (!(pas.Classes.TComponentStateItem.csDestroying in this.FComponentState)) {
+        if (Event === $mod.TDataEvent.deUpdateState) this.DoStateChange();
+        if ((Event in OnDataChangeEvents) && NeedDataChange) this.DoDataChange(null);
+        if (Event === $mod.TDataEvent.deFieldChange) this.DoDataChange(Info);
+        if (Event === $mod.TDataEvent.deUpdateRecord) this.DoUpdateData();
+      };
+    };
+    this.SetDataSet = function (ADataSet) {
+      if (this.FDataSet !== null) {
+        this.FDataSet.UnRegisterDataSource(this);
+        this.FDataSet = null;
+        this.ProcessEvent($mod.TDataEvent.deUpdateState,0);
+      };
+      if (ADataSet !== null) {
+        ADataSet.RegisterDataSource(this);
+        this.FDataSet = ADataSet;
+        this.ProcessEvent($mod.TDataEvent.deUpdateState,0);
+      };
+    };
+    this.SetEnabled = function (Value) {
+      this.FEnabled = Value;
+    };
+    this.UnregisterDataLink = function (DataLink) {
+      this.FDataLinks.Remove(DataLink);
+      if (this.FDataSet !== null) this.FDataSet.RecalcBufListSize();
+    };
+    this.DoDataChange = function (Info) {
+      if (this.FOnDataChange != null) this.FOnDataChange(this,Info);
+    };
+    this.DoStateChange = function () {
+      if (this.FOnStateChange != null) this.FOnStateChange(this);
+    };
+    this.DoUpdateData = function () {
+      if (this.FOnUpdateData != null) this.FOnUpdateData(this);
+    };
+    this.Create$1 = function (AOwner) {
+      pas.Classes.TComponent.Create$1.call(this,AOwner);
+      this.FDataLinks = pas.Classes.TList.$create("Create$1");
+      this.FEnabled = true;
+      this.FAutoEdit = true;
+    };
+    this.Destroy = function () {
+      this.FOnStateChange = null;
+      this.SetDataSet(null);
+      var $with1 = this.FDataLinks;
+      while ($with1.GetCount() > 0) rtl.getObject($with1.Get($with1.GetCount() - 1)).SetDataSource(null);
+      rtl.free(this,"FDataLinks");
+      pas.Classes.TComponent.Destroy.call(this);
+    };
+    this.Edit = function () {
+      if ((this.FState === $mod.TDataSetState.dsBrowse) && this.FAutoEdit) this.FDataSet.Edit();
+    };
+    this.IsLinkedTo = function (ADataSet) {
+      var Result = false;
+      Result = false;
+      return Result;
+    };
+    var $r = this.$rtti;
+    $r.addProperty("AutoEdit",0,rtl.boolean,"FAutoEdit","FAutoEdit",{Default: true});
+    $r.addProperty("DataSet",2,$mod.$rtti["TDataSet"],"FDataSet","SetDataSet");
+    $r.addProperty("Enabled",2,rtl.boolean,"FEnabled","SetEnabled",{Default: true});
+    $r.addProperty("OnStateChange",0,pas.Classes.$rtti["TNotifyEvent"],"FOnStateChange","FOnStateChange");
+    $r.addProperty("OnDataChange",0,$mod.$rtti["TDataChangeEvent"],"FOnDataChange","FOnDataChange");
+    $r.addProperty("OnUpdateData",0,pas.Classes.$rtti["TNotifyEvent"],"FOnUpdateData","FOnUpdateData");
+  });
+  this.TDataRequestResult = {"0": "rrFail", rrFail: 0, "1": "rrEOF", rrEOF: 1, "2": "rrOK", rrOK: 2};
+  $mod.$rtti.$Enum("TDataRequestResult",{minvalue: 0, maxvalue: 2, ordtype: 1, enumtype: this.TDataRequestResult});
+  $mod.$rtti.$MethodVar("TDataRequestEvent",{procsig: rtl.newTIProcSig([["ARequest",$mod.$rtti["TDataRequest"]]]), methodkind: 0});
+  rtl.createClass($mod,"TDataRequest",pas.System.TObject,function () {
+    this.$init = function () {
+      pas.System.TObject.$init.call(this);
+      this.FBookmark = new $mod.TBookmark();
+      this.FCurrent = new $mod.TBookmark();
+      this.FDataset = null;
+      this.FErrorMsg = "";
+      this.FEvent = null;
+      this.FLoadOptions = {};
+      this.FRequestID = 0;
+      this.FSuccess = 0;
+      this.FData = undefined;
+      this.FAfterRequest = null;
+      this.FDataProxy = null;
+    };
+    this.$final = function () {
+      this.FBookmark = undefined;
+      this.FCurrent = undefined;
+      this.FDataset = undefined;
+      this.FEvent = undefined;
+      this.FLoadOptions = undefined;
+      this.FAfterRequest = undefined;
+      this.FDataProxy = undefined;
+      pas.System.TObject.$final.call(this);
+    };
+    this.DoAfterRequest = function () {
+      if (this.FAfterRequest != null) this.FAfterRequest(this);
+    };
+    this.Create$1 = function (aDataProxy, aOptions, aAfterRequest, aAfterLoad) {
+      this.FDataProxy = aDataProxy;
+      this.FLoadOptions = rtl.refSet(aOptions);
+      this.FEvent = aAfterLoad;
+      this.FAfterRequest = aAfterRequest;
+    };
+  });
+  $mod.$rtti.$ClassRef("TDataRequestClass",{instancetype: $mod.$rtti["TDataRequest"]});
+  rtl.createClass($mod,"TRecordUpdateDescriptor",pas.System.TObject,function () {
+    this.$init = function () {
+      pas.System.TObject.$init.call(this);
+      this.FBookmark = new $mod.TBookmark();
+      this.FData = undefined;
+      this.FDataset = null;
+      this.FProxy = null;
+      this.FResolveError = "";
+      this.FServerData = undefined;
+      this.FStatus = 0;
+      this.FOriginalStatus = 0;
+    };
+    this.$final = function () {
+      this.FBookmark = undefined;
+      this.FDataset = undefined;
+      this.FProxy = undefined;
+      pas.System.TObject.$final.call(this);
+    };
+    this.SetStatus = function (aValue) {
+      this.FStatus = aValue;
+    };
+    this.Create$1 = function (aProxy, aDataset, aBookmark, AData, AStatus) {
+      this.FDataset = aDataset;
+      this.FBookmark = new $mod.TBookmark(aBookmark);
+      this.FData = AData;
+      this.FStatus = AStatus;
+      this.FOriginalStatus = AStatus;
+      this.FProxy = aProxy;
+    };
+    this.Resolve = function (aData) {
+      this.FStatus = $mod.TUpdateStatus.usResolved;
+      this.FServerData = aData;
+    };
+    this.ResolveFailed = function (aError) {
+      this.SetStatus($mod.TUpdateStatus.usResolveFailed);
+      this.FResolveError = aError;
+    };
+  });
+  $mod.$rtti.$ClassRef("TRecordUpdateDescriptorClass",{instancetype: $mod.$rtti["TRecordUpdateDescriptor"]});
+  rtl.createClass($mod,"TRecordUpdateDescriptorList",pas.Classes.TFPList,function () {
+    this.GetUpdate = function (AIndex) {
+      var Result = null;
+      Result = rtl.getObject(this.Get(AIndex));
+      return Result;
+    };
+  });
+  this.TUpdateBatchStatus = {"0": "ubsPending", ubsPending: 0, "1": "ubsProcessing", ubsProcessing: 1, "2": "ubsProcessed", ubsProcessed: 2, "3": "ubsResolved", ubsResolved: 3};
+  $mod.$rtti.$Enum("TUpdateBatchStatus",{minvalue: 0, maxvalue: 3, ordtype: 1, enumtype: this.TUpdateBatchStatus});
+  $mod.$rtti.$MethodVar("TResolveBatchEvent",{procsig: rtl.newTIProcSig([["Sender",pas.System.$rtti["TObject"]],["ARequest",$mod.$rtti["TRecordUpdateBatch"]]]), methodkind: 0});
+  rtl.createClass($mod,"TRecordUpdateBatch",pas.System.TObject,function () {
+    this.$init = function () {
+      pas.System.TObject.$init.call(this);
+      this.FBatchID = 0;
+      this.FDataset = null;
+      this.FLastChangeIndex = 0;
+      this.FList = null;
+      this.FOnResolve = null;
+      this.FOwnsList = false;
+      this.FStatus = 0;
+    };
+    this.$final = function () {
+      this.FDataset = undefined;
+      this.FList = undefined;
+      this.FOnResolve = undefined;
+      pas.System.TObject.$final.call(this);
+    };
+    this.Create$1 = function (aBatchID, AList, AOwnsList) {
+      this.FBatchID = aBatchID;
+      this.FList = AList;
+      this.FOwnsList = AOwnsList;
+      this.FStatus = $mod.TUpdateBatchStatus.ubsPending;
+    };
+    this.Destroy = function () {
+      if (this.FOwnsList) this.FreeList();
+      pas.System.TObject.Destroy.call(this);
+    };
+    this.FreeList = function () {
+      pas.SysUtils.FreeAndNil({p: this, get: function () {
+          return this.p.FList;
+        }, set: function (v) {
+          this.p.FList = v;
+        }});
+    };
+  });
+  $mod.$rtti.$ClassRef("TRecordUpdateBatchClass",{instancetype: $mod.$rtti["TRecordUpdateBatch"]});
+  rtl.createClass($mod,"TDataProxy",pas.Classes.TComponent,function () {
+    this.GetDataRequestClass = function () {
+      var Result = null;
+      Result = $mod.TDataRequest;
+      return Result;
+    };
+    this.GetUpdateDescriptorClass = function () {
+      var Result = null;
+      Result = $mod.TRecordUpdateDescriptor;
+      return Result;
+    };
+    this.GetUpdateBatchClass = function () {
+      var Result = null;
+      Result = $mod.TRecordUpdateBatch;
+      return Result;
+    };
+    this.ResolveBatch = function (aBatch) {
+      try {
+        if (aBatch.FOnResolve != null) aBatch.FOnResolve(this,aBatch);
+      } finally {
+        aBatch = rtl.freeLoc(aBatch);
+      };
+    };
+    this.GetDataRequest = function (aOptions, aAfterRequest, aAfterLoad) {
+      var Result = null;
+      Result = this.GetDataRequestClass().$create("Create$1",[this,rtl.refSet(aOptions),aAfterRequest,aAfterLoad]);
+      return Result;
+    };
+    this.GetUpdateDescriptor = function (aDataset, aBookmark, AData, AStatus) {
+      var Result = null;
+      Result = this.GetUpdateDescriptorClass().$create("Create$1",[this,aDataset,new $mod.TBookmark(aBookmark),AData,AStatus]);
+      return Result;
+    };
+    this.GetRecordUpdateBatch = function (aBatchID, AList, AOwnsList) {
+      var Result = null;
+      Result = this.GetUpdateBatchClass().$create("Create$1",[aBatchID,AList,AOwnsList]);
+      return Result;
+    };
+  });
+  this.Fieldtypenames = ["Unknown","String","Integer","NativeInt","Boolean","Float","Date","Time","DateTime","AutoInc","Blob","Memo","FixedChar","Variant"];
+  this.DefaultFieldClasses = [$mod.TField,$mod.TStringField,$mod.TIntegerField,$mod.TLargeintField,$mod.TBooleanField,$mod.TFloatField,$mod.TDateField,$mod.TTimeField,$mod.TDateTimeField,$mod.TAutoIncField,$mod.TBlobField,$mod.TMemoField,$mod.TStringField,$mod.TVariantField];
+  this.dsEditModes = rtl.createSet($mod.TDataSetState.dsEdit,$mod.TDataSetState.dsInsert,$mod.TDataSetState.dsSetKey);
+  this.dsWriteModes = rtl.createSet($mod.TDataSetState.dsEdit,$mod.TDataSetState.dsInsert,$mod.TDataSetState.dsSetKey,$mod.TDataSetState.dsCalcFields,$mod.TDataSetState.dsFilter,$mod.TDataSetState.dsNewValue,$mod.TDataSetState.dsInternalCalc,$mod.TDataSetState.dsRefreshFields);
+  this.ftBlobTypes = rtl.createSet($mod.TFieldType.ftBlob,$mod.TFieldType.ftMemo);
+  this.DatabaseError = function (Msg) {
+    throw $mod.EDatabaseError.$create("Create$1",[Msg]);
+  };
+  this.DatabaseError$1 = function (Msg, Comp) {
+    if ((Comp != null) && (Comp.FName !== "")) throw $mod.EDatabaseError.$create("CreateFmt",["%s : %s",[Comp.FName,Msg]]);
+  };
+  this.DatabaseErrorFmt = function (Fmt, Args) {
+    throw $mod.EDatabaseError.$create("CreateFmt",[Fmt,Args]);
+  };
+  this.DatabaseErrorFmt$1 = function (Fmt, Args, Comp) {
+    if (Comp != null) throw $mod.EDatabaseError.$create("CreateFmt",[pas.SysUtils.Format("%s : %s",[Comp.FName,Fmt]),Args]);
+  };
+  this.ExtractFieldName = function (Fields, Pos) {
+    var Result = "";
+    var i = 0;
+    var FieldsLength = 0;
+    i = Pos.get();
+    FieldsLength = Fields.length;
+    while ((i <= FieldsLength) && (Fields.charAt(i - 1) !== ";")) i += 1;
+    Result = pas.SysUtils.Trim(pas.System.Copy(Fields,Pos.get(),i - Pos.get()));
+    if ((i <= FieldsLength) && (Fields.charAt(i - 1) === ";")) i += 1;
+    Pos.set(i);
+    return Result;
+  };
+  $mod.$init = function () {
+  };
+},["DBConst","TypInfo"],function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $impl.DefaultBufferCount = 10;
+  $impl.SBoolean = "Boolean";
+  $impl.SDateTime = "TDateTime";
+  $impl.SFloat = "Float";
+  $impl.SInteger = "Integer";
+  $impl.SLargeInt = "NativeInt";
+  $impl.SJSValue = "JSValue";
+  $impl.SString = "String";
+  $impl.SBytes = "Bytes";
+  $impl.SkipQuotesString = function (S, p, QuoteChar, EscapeSlash, EscapeRepeat) {
+    var notRepeatEscaped = false;
+    p.set(p.get() + 1);
+    do {
+      notRepeatEscaped = true;
+      while (!pas.SysUtils.CharInSet(S.charAt(p.get() - 1),["\x00",QuoteChar])) {
+        if ((EscapeSlash && (S.charAt(p.get() - 1) === "\\")) && (p.get() < S.length)) {
+          p.set(p.get() + 2)}
+         else p.set(p.get() + 1);
+      };
+      if (S.charAt(p.get() - 1) === QuoteChar) {
+        p.set(p.get() + 1);
+        if ((S.charAt(p.get() - 1) === QuoteChar) && EscapeRepeat) {
+          notRepeatEscaped = false;
+          p.set(p.get() + 1);
+        };
+      };
+    } while (!notRepeatEscaped);
+  };
+  $impl.SkipComments = function (S, p, EscapeSlash, EscapeRepeat) {
+    var Result = false;
+    Result = false;
+    var $tmp1 = S.charAt(p.get() - 1);
+    if ((($tmp1 === "'") || ($tmp1 === '"')) || ($tmp1 === "`")) {
+      Result = true;
+      $impl.SkipQuotesString(S,p,S.charAt(p.get() - 1),EscapeSlash,EscapeRepeat);
+    } else if ($tmp1 === "-") {
+      p.set(p.get() + 1);
+      if (S.charAt(p.get() - 1) === "-") {
+        Result = true;
+        do {
+          p.set(p.get() + 1);
+        } while (!pas.SysUtils.CharInSet(S.charAt(p.get() - 1),["\n","\r","\x00"]));
+        while (pas.SysUtils.CharInSet(S.charAt(p.get() - 1),["\n","\r"])) p.set(p.get() + 1);
+      };
+    } else if ($tmp1 === "\/") {
+      p.set(p.get() + 1);
+      if (S.charAt(p.get() - 1) === "*") {
+        Result = true;
+        p.set(p.get() + 1);
+        while (p.get() <= S.length) {
+          if (S.charAt(p.get() - 1) === "*") {
+            p.set(p.get() + 1);
+            if (S.charAt(p.get() - 1) === "\/") break;
+          } else p.set(p.get() + 1);
+        };
+        if ((p.get() <= S.length) && (S.charAt(p.get() - 1) === "\/")) p.set(p.get() + 1);
+      };
+    };
+    return Result;
+  };
+});
+rtl.module("RestConnection",["System","Classes","SysUtils","Web","DB"],function () {
+  "use strict";
+  var $mod = this;
+  $mod.$rtti.$MethodVar("TRestGetURLEvent",{procsig: rtl.newTIProcSig([["Sender",pas.Classes.$rtti["TComponent"]],["aRequest",pas.DB.$rtti["TDataRequest"]],["aURL",rtl.string,1]]), methodkind: 0});
+  $mod.$rtti.$MethodVar("TRestUpdateURLEvent",{procsig: rtl.newTIProcSig([["Sender",pas.Classes.$rtti["TComponent"]],["aRequest",pas.DB.$rtti["TRecordUpdateDescriptor"]],["aURL",rtl.string,1]]), methodkind: 0});
+  rtl.createClass($mod,"TRESTConnection",pas.Classes.TComponent,function () {
+    this.$init = function () {
+      pas.Classes.TComponent.$init.call(this);
+      this.FBaseURL = "";
+      this.FDataProxy = null;
+      this.FOnGetURL = null;
+      this.FOnUpdateURL = null;
+      this.FPageParam = "";
+    };
+    this.$final = function () {
+      this.FDataProxy = undefined;
+      this.FOnGetURL = undefined;
+      this.FOnUpdateURL = undefined;
+      pas.Classes.TComponent.$final.call(this);
+    };
+    this.GetDataProxy = function () {
+      var Result = null;
+      if (this.FDataProxy === null) this.FDataProxy = this.DoGetDataProxy();
+      Result = this.FDataProxy;
+      return Result;
+    };
+    this.GetUpdateBaseURL = function () {
+      var Result = "";
+      Result = this.FBaseURL;
+      return Result;
+    };
+    this.GetReadBaseURL = function () {
+      var Result = "";
+      Result = this.FBaseURL;
+      return Result;
+    };
+    this.GetPageURL = function (aRequest) {
+      var Result = "";
+      var URL = "";
+      URL = this.GetReadBaseURL();
+      if (this.FPageParam !== "") {
+        if (pas.System.Pos("?",URL) !== 0) {
+          URL = URL + "&"}
+         else URL = URL + "?";
+        URL = ((URL + this.FPageParam) + "=") + pas.SysUtils.IntToStr(aRequest.FRequestID - 1);
+      };
+      if (this.FOnGetURL != null) this.FOnGetURL(this,aRequest,{get: function () {
+          return URL;
+        }, set: function (v) {
+          URL = v;
+        }});
+      Result = URL;
+      return Result;
+    };
+    this.GetRecordUpdateURL = function (aRequest) {
+      var Result = "";
+      var I = 0;
+      var Base = "";
+      var KeyField = "";
+      KeyField = "";
+      Result = "";
+      Base = this.GetUpdateBaseURL();
+      if (aRequest.FStatus in rtl.createSet(pas.DB.TUpdateStatus.usModified,pas.DB.TUpdateStatus.usDeleted)) {
+        I = aRequest.FDataset.FFieldList.GetCount() - 1;
+        while ((KeyField === "") && (I >= 0)) {
+          if (pas.DB.TProviderFlag.pfInKey in aRequest.FDataset.FFieldList.GetField(I).FProviderFlags) KeyField = aRequest.FDataset.FFieldList.GetField(I).FFieldName;
+          I -= 1;
+        };
+        if (KeyField === "") pas.DB.DatabaseError$1("No key field",aRequest.FDataset);
+      };
+      if (((KeyField !== "") && (Base !== "")) && (Base.charAt(Base.length - 1) !== "\/")) Base = Base + "\/";
+      var $tmp1 = aRequest.FStatus;
+      if (($tmp1 === pas.DB.TUpdateStatus.usModified) || ($tmp1 === pas.DB.TUpdateStatus.usDeleted)) {
+        Result = Base + JSON.stringify(rtl.getObject(aRequest.FData)[KeyField])}
+       else if ($tmp1 === pas.DB.TUpdateStatus.usInserted) Result = Base;
+      if (this.FOnUpdateURL != null) this.FOnUpdateURL(this,aRequest,{get: function () {
+          return Result;
+        }, set: function (v) {
+          Result = v;
+        }});
+      return Result;
+    };
+    this.DoGetDataProxy = function () {
+      var Result = null;
+      Result = $mod.TRESTDataProxy.$create("Create$1",[this]);
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TRESTDataProxy",pas.DB.TDataProxy,function () {
+    this.$init = function () {
+      pas.DB.TDataProxy.$init.call(this);
+      this.FConnection = null;
+    };
+    this.$final = function () {
+      this.FConnection = undefined;
+      pas.DB.TDataProxy.$final.call(this);
+    };
+    this.CheckBatchComplete = function (aBatch) {
+      var BatchOK = false;
+      var I = 0;
+      BatchOK = true;
+      I = aBatch.FList.FCount - 1;
+      while (BatchOK && (I >= 0)) {
+        BatchOK = aBatch.FList.GetUpdate(I).FStatus in rtl.createSet(pas.DB.TUpdateStatus.usResolved,pas.DB.TUpdateStatus.usResolveFailed);
+        I -= 1;
+      };
+      if (BatchOK && (aBatch.FOnResolve != null)) aBatch.FOnResolve(this,aBatch);
+    };
+    this.GetUpdateDescriptorClass = function () {
+      var Result = null;
+      Result = $mod.TRESTUpdateRequest;
+      return Result;
+    };
+    this.ProcessUpdateBatch = function (aBatch) {
+      var Result = false;
+      var R = null;
+      var i = 0;
+      var Method = "";
+      var URl = "";
+      Result = false;
+      for (var $l1 = 0, $end2 = aBatch.FList.FCount - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        R = rtl.as(aBatch.FList.GetUpdate(i),$mod.TRESTUpdateRequest);
+        R.FBatch = aBatch;
+        R.FXHR = new XMLHttpRequest();
+        R.FXHR.addEventListener("load",rtl.createCallback(R,"onLoad"));
+        URl = this.FConnection.GetRecordUpdateURL(R);
+        var $tmp3 = R.FStatus;
+        if ($tmp3 === pas.DB.TUpdateStatus.usInserted) {
+          Method = "POST"}
+         else if ($tmp3 === pas.DB.TUpdateStatus.usModified) {
+          Method = "PUT"}
+         else if ($tmp3 === pas.DB.TUpdateStatus.usDeleted) Method = "DELETE";
+        R.FXHR.open(Method,URl);
+        R.FXHR.setRequestHeader("content-type","application\/json");
+        if (R.FStatus in rtl.createSet(pas.DB.TUpdateStatus.usInserted,pas.DB.TUpdateStatus.usModified)) {
+          R.FXHR.send(JSON.stringify(R.FData))}
+         else R.FXHR.send();
+      };
+      Result = true;
+      return Result;
+    };
+    this.DoGetData = function (aRequest) {
+      var Result = false;
+      var R = null;
+      var URL = "";
+      Result = false;
+      R = rtl.as(aRequest,$mod.TRESTDataRequest);
+      R.FXHR = new XMLHttpRequest();
+      R.FXHR.addEventListener("load",rtl.createCallback(R,"onLoad"));
+      URL = this.FConnection.GetPageURL(aRequest);
+      if (URL === "") {
+        if (pas.DB.TLoadOption.loAtEOF in R.FLoadOptions) {
+          R.FSuccess = pas.DB.TDataRequestResult.rrEOF}
+         else {
+          R.FSuccess = pas.DB.TDataRequestResult.rrFail;
+          R.FErrorMsg = "No URL to get data";
+          R.DoAfterRequest();
+        };
+      } else {
+        R.FXHR.open("GET",URL,true);
+        R.FXHR.send();
+        Result = true;
+      };
+      return Result;
+    };
+    this.GetDataRequest = function (aOptions, aAfterRequest, aAfterLoad) {
+      var Result = null;
+      Result = $mod.TRESTDataRequest.$create("Create$1",[this,rtl.refSet(aOptions),aAfterRequest,aAfterLoad]);
+      return Result;
+    };
+    this.Create$1 = function (AOwner) {
+      pas.Classes.TComponent.Create$1.apply(this,arguments);
+      if ($mod.TRESTConnection.isPrototypeOf(AOwner)) this.FConnection = AOwner;
+    };
+  });
+  rtl.createClass($mod,"TRESTDataRequest",pas.DB.TDataRequest,function () {
+    this.$init = function () {
+      pas.DB.TDataRequest.$init.call(this);
+      this.FXHR = null;
+    };
+    this.$final = function () {
+      this.FXHR = undefined;
+      pas.DB.TDataRequest.$final.call(this);
+    };
+    this.onLoad = function (Event) {
+      var Result = false;
+      if (this.FXHR.status === 200) {
+        this.FData = this.TransformResult();
+        this.FSuccess = pas.DB.TDataRequestResult.rrOK;
+      } else {
+        this.FData = null;
+        if ((pas.DB.TLoadOption.loAtEOF in this.FLoadOptions) && (this.FXHR.status === 404)) {
+          this.FSuccess = pas.DB.TDataRequestResult.rrEOF}
+         else {
+          this.FSuccess = pas.DB.TDataRequestResult.rrFail;
+          this.FErrorMsg = this.FXHR.statusText;
+        };
+      };
+      this.DoAfterRequest();
+      Result = true;
+      return Result;
+    };
+    this.TransformResult = function () {
+      var Result = undefined;
+      Result = this.FXHR.responseText;
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TRESTUpdateRequest",pas.DB.TRecordUpdateDescriptor,function () {
+    this.$init = function () {
+      pas.DB.TRecordUpdateDescriptor.$init.call(this);
+      this.FXHR = null;
+      this.FBatch = null;
+    };
+    this.$final = function () {
+      this.FXHR = undefined;
+      this.FBatch = undefined;
+      pas.DB.TRecordUpdateDescriptor.$final.call(this);
+    };
+    this.onLoad = function (Event) {
+      var Result = false;
+      if (Math.floor(this.FXHR.status / 100) === 2) {
+        this.Resolve(this.FXHR.response);
+        Result = true;
+      } else this.ResolveFailed(this.FXHR.statusText);
+      rtl.as(this.FProxy,$mod.TRESTDataProxy).CheckBatchComplete(this.FBatch);
+      return Result;
+    };
+  });
+},["JS"]);
+rtl.module("JSONDataset",["System","Types","JS","DB","Classes","SysUtils"],function () {
+  "use strict";
+  var $mod = this;
+  rtl.createClass($mod,"TJSONFieldMapper",pas.System.TObject,function () {
+    this.GetJSONDataForField$1 = function (F, Row) {
+      var Result = undefined;
+      Result = this.GetJSONDataForField(F.FFieldName,F.GetIndex(),Row);
+      return Result;
+    };
+    this.SetJSONDataForField$1 = function (F, Row, Data) {
+      this.SetJSONDataForField(F.FFieldName,F.GetIndex(),Row,Data);
+    };
+  });
+  rtl.createClass($mod,"TJSONDateField",pas.DB.TDateField,function () {
+    this.$init = function () {
+      pas.DB.TDateField.$init.call(this);
+      this.FDateFormat = "";
+    };
+    var $r = this.$rtti;
+    $r.addProperty("DateFormat",0,rtl.string,"FDateFormat","FDateFormat");
+  });
+  rtl.createClass($mod,"TJSONTimeField",pas.DB.TTimeField,function () {
+    this.$init = function () {
+      pas.DB.TTimeField.$init.call(this);
+      this.FTimeFormat = "";
+    };
+    var $r = this.$rtti;
+    $r.addProperty("TimeFormat",0,rtl.string,"FTimeFormat","FTimeFormat");
+  });
+  rtl.createClass($mod,"TJSONDateTimeField",pas.DB.TDateTimeField,function () {
+    this.$init = function () {
+      pas.DB.TDateTimeField.$init.call(this);
+      this.FDateTimeFormat = "";
+    };
+    var $r = this.$rtti;
+    $r.addProperty("DateTimeFormat",0,rtl.string,"FDateTimeFormat","FDateTimeFormat");
+  });
+  rtl.createClass($mod,"TJSONIndex",pas.System.TObject,function () {
+    this.$init = function () {
+      pas.System.TObject.$init.call(this);
+      this.FList = null;
+      this.FRows = null;
+      this.FDataset = null;
+    };
+    this.$final = function () {
+      this.FList = undefined;
+      this.FRows = undefined;
+      this.FDataset = undefined;
+      pas.System.TObject.$final.call(this);
+    };
+    this.GetRecordIndex = function (aListIndex) {
+      var Result = 0;
+      if (pas.JS.isUndefined(this.FList[aListIndex])) {
+        Result = -1}
+       else Result = Math.floor(this.FList[aListIndex]);
+      return Result;
+    };
+    this.GetCount = function () {
+      var Result = 0;
+      Result = this.FList.length;
+      return Result;
+    };
+    this.Create$1 = function (aDataset, aRows) {
+      this.FRows = aRows;
+      this.FList = new Array(this.FRows.length);
+      this.FDataset = aDataset;
+      this.CreateIndex();
+    };
+    this.Delete = function (aListIndex) {
+      var Result = 0;
+      var a = null;
+      a = this.FList.splice(aListIndex,1);
+      if (a.length > 0) {
+        Result = Math.floor(a[0])}
+       else Result = -1;
+      return Result;
+    };
+    this.Insert = function (aCurrentIndex, aRecordIndex) {
+      var Result = 0;
+      Result = this.Append(aRecordIndex);
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TDefaultJSONIndex",$mod.TJSONIndex,function () {
+    this.CreateIndex = function () {
+      var I = 0;
+      for (var $l1 = 0, $end2 = this.FRows.length - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        this.FList[I] = I;
+      };
+    };
+    this.AppendToIndex = function () {
+      var I = 0;
+      var L = 0;
+      L = this.FList.length;
+      this.FList.length = this.FRows.length;
+      for (var $l1 = L, $end2 = this.FRows.length - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        this.FList[I] = I;
+      };
+    };
+    this.Append = function (aRecordIndex) {
+      var Result = 0;
+      Result = this.FList.push(aRecordIndex) - 1;
+      return Result;
+    };
+    this.Insert = function (aCurrentIndex, aRecordIndex) {
+      var Result = 0;
+      this.FList.splice(aCurrentIndex,0,aRecordIndex);
+      Result = aCurrentIndex;
+      return Result;
+    };
+    this.FindRecord = function (aRecordIndex) {
+      var Result = 0;
+      Result = this.FList.indexOf(aRecordIndex);
+      return Result;
+    };
+    this.Update = function (aCurrentIndex, aRecordIndex) {
+      var Result = 0;
+      Result = 0;
+      if (this.GetRecordIndex(aCurrentIndex) !== aRecordIndex) pas.DB.DatabaseErrorFmt$1("Inconsistent record index in default index, expected %d, got %d.",[aCurrentIndex,this.GetRecordIndex(aCurrentIndex)],this.FDataset);
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TBaseJSONDataSet",pas.DB.TDataSet,function () {
+    this.$init = function () {
+      pas.DB.TDataSet.$init.call(this);
+      this.FMUS = false;
+      this.FOwnsData = false;
+      this.FDefaultIndex = null;
+      this.FCurrentIndex = null;
+      this.FCurrent = 0;
+      this.FMetaData = null;
+      this.FRows = null;
+      this.FDeletedRows = null;
+      this.FFieldMapper = null;
+      this.FEditIdx = 0;
+      this.FEditRow = undefined;
+      this.FUseDateTimeFormatFields = false;
+    };
+    this.$final = function () {
+      this.FDefaultIndex = undefined;
+      this.FCurrentIndex = undefined;
+      this.FMetaData = undefined;
+      this.FRows = undefined;
+      this.FDeletedRows = undefined;
+      this.FFieldMapper = undefined;
+      pas.DB.TDataSet.$final.call(this);
+    };
+    this.SetMetaData = function (AValue) {
+      this.CheckInactive();
+      this.FMetaData = AValue;
+    };
+    this.SetRows = function (AValue) {
+      if (AValue === this.FRows) return;
+      this.CheckInactive();
+      this.FRows = null;
+      this.AddToRows(AValue);
+    };
+    this.AllocRecordBuffer = function () {
+      var Result = new pas.DB.TDataRecord();
+      Result.data = new Object();
+      Result.bookmark = null;
+      Result.state = pas.DB.TRecordState.rsNew;
+      return Result;
+    };
+    this.FreeRecordBuffer = function (Buffer) {
+      Buffer.get().data = null;
+      Buffer.get().bookmark = null;
+      Buffer.get().state = pas.DB.TRecordState.rsNew;
+    };
+    this.InternalInitRecord = function (Buffer) {
+      Buffer.get().data = this.FFieldMapper.CreateRow();
+      Buffer.get().bookmark = null;
+      Buffer.get().state = pas.DB.TRecordState.rsNew;
+    };
+    this.GetRecord = function (Buffer, GetMode, DoCheck) {
+      var Result = 0;
+      var BkmIdx = 0;
+      Result = pas.DB.TGetResult.grOK;
+      var $tmp1 = GetMode;
+      if ($tmp1 === pas.DB.TGetMode.gmNext) {
+        if (this.FCurrent < (this.FCurrentIndex.GetCount() - 1)) {
+          this.FCurrent += 1}
+         else Result = pas.DB.TGetResult.grEOF}
+       else if ($tmp1 === pas.DB.TGetMode.gmPrior) {
+        if (this.FCurrent > 0) {
+          this.FCurrent -= 1}
+         else Result = pas.DB.TGetResult.grBOF}
+       else if ($tmp1 === pas.DB.TGetMode.gmCurrent) if (this.FCurrent >= this.FCurrentIndex.GetCount()) Result = pas.DB.TGetResult.grEOF;
+      if (Result === pas.DB.TGetResult.grOK) {
+        BkmIdx = this.FCurrentIndex.GetRecordIndex(this.FCurrent);
+        Buffer.get().data = this.FRows[BkmIdx];
+        Buffer.get().bookmarkFlag = pas.DB.TBookmarkFlag.bfCurrent;
+        Buffer.get().bookmark = BkmIdx;
+      };
+      return Result;
+    };
+    this.GetRecordSize = function () {
+      var Result = 0;
+      Result = 0;
+      return Result;
+    };
+    this.AddToRows = function (AValue) {
+      if (this.FRows === null) {
+        this.FRows = AValue}
+       else {
+        this.FRows = this.FRows.concat(AValue);
+        this.AppendToIndexes();
+      };
+    };
+    this.InternalClose = function () {
+      this.BindFields(false);
+      if (this.FDefaultFields) this.DestroyFields();
+      this.FreeData();
+    };
+    this.InternalDelete = function () {
+      var Idx = 0;
+      Idx = this.FCurrentIndex.Delete(this.FCurrent);
+      if (Idx !== -1) {
+        if (!(this.FDeletedRows != null)) {
+          this.FDeletedRows = new Array(this.FRows[Idx])}
+         else this.FDeletedRows.push(this.FRows[Idx]);
+        this.FRows[Idx] = undefined;
+      };
+    };
+    this.InternalFirst = function () {
+      this.FCurrent = -1;
+    };
+    this.InternalLast = function () {
+      this.FCurrent = this.FCurrentIndex.GetCount();
+    };
+    this.InternalOpen = function () {
+      pas.SysUtils.FreeAndNil({p: this, get: function () {
+          return this.p.FFieldMapper;
+        }, set: function (v) {
+          this.p.FFieldMapper = v;
+        }});
+      this.FFieldMapper = this.CreateFieldMapper();
+      if (this.FRows === null) {
+        this.FRows = new Array();
+        this.FOwnsData = true;
+      };
+      this.CreateIndexes();
+      this.InternalInitFieldDefs();
+      if (this.FDefaultFields) this.CreateFields();
+      this.BindFields(true);
+      this.InitDateTimeFields();
+      this.FCurrent = -1;
+    };
+    this.InternalPost = function () {
+      var Idx = 0;
+      var B = new pas.DB.TBookmark();
+      this.GetBookmarkData(new pas.DB.TDataRecord(this.ActiveBuffer()),{get: function () {
+          return B;
+        }, set: function (v) {
+          B = v;
+        }});
+      if (this.FState === pas.DB.TDataSetState.dsInsert) {
+        Idx = this.FRows.push(this.FEditRow) - 1;
+        if (this.GetBookmarkFlag(new pas.DB.TDataRecord(this.ActiveBuffer())) === pas.DB.TBookmarkFlag.bfEOF) {
+          this.FDefaultIndex.Append(Idx);
+          if (this.FCurrentIndex !== this.FDefaultIndex) this.FCurrentIndex.Append(Idx);
+        } else {
+          this.FCurrent = this.FDefaultIndex.Insert(this.FCurrent,Idx);
+          if (this.FCurrentIndex !== this.FDefaultIndex) this.FCurrent = this.FCurrentIndex.Insert(this.FCurrent,Idx);
+        };
+      } else {
+        if (this.FEditIdx === -1) pas.DB.DatabaseErrorFmt("Failed to retrieve record index for record %d",[this.FCurrent]);
+        Idx = this.FEditIdx;
+        this.FRows[Idx] = this.FEditRow;
+        this.FDefaultIndex.Update(this.FCurrent,Idx);
+        if (this.FCurrentIndex !== this.FDefaultIndex) this.FCurrentIndex.Update(this.FCurrent,Idx);
+      };
+      this.FEditIdx = -1;
+      this.FEditRow = null;
+    };
+    this.InternalInsert = function () {
+      var I = 0;
+      var D = null;
+      this.FEditRow = this.ActiveBuffer().data;
+      for (var $l1 = 0, $end2 = this.FFieldDefs.GetCount() - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        D = this.FFieldDefs.GetItem$1(I);
+        this.FFieldMapper.SetJSONDataForField(D.FName,D.GetIndex(),this.FEditRow,null);
+      };
+    };
+    this.InternalEdit = function () {
+      this.FEditIdx = this.FCurrentIndex.GetRecordIndex(this.FCurrent);
+      if (!pas.JS.isUndefined(this.FRows[this.FEditIdx])) {
+        this.FEditRow = JSON.parse(JSON.stringify(this.FRows[this.FEditIdx]))}
+       else this.FEditRow = new Object();
+    };
+    this.InternalCancel = function () {
+      this.FEditIdx = -1;
+      this.FEditRow = null;
+    };
+    this.InternalInitFieldDefs = function () {
+      if (this.FMetaData != null) this.MetaDataToFieldDefs();
+      if (this.FFieldDefs.GetCount() === 0) throw $mod.EJSONDataset.$create("Create$1",["No fields found"]);
+    };
+    this.InternalSetToRecord = function (Buffer) {
+      this.FCurrent = this.FCurrentIndex.FindRecord(Math.floor(Buffer.bookmark));
+    };
+    this.GetFieldClass = function (FieldType) {
+      var Result = null;
+      if (this.FUseDateTimeFormatFields && (FieldType in rtl.createSet(pas.DB.TFieldType.ftDate,pas.DB.TFieldType.ftDateTime,pas.DB.TFieldType.ftTime))) {
+        var $tmp1 = FieldType;
+        if ($tmp1 === pas.DB.TFieldType.ftDate) {
+          Result = $mod.TJSONDateField}
+         else if ($tmp1 === pas.DB.TFieldType.ftDateTime) {
+          Result = $mod.TJSONDateTimeField}
+         else if ($tmp1 === pas.DB.TFieldType.ftTime) Result = $mod.TJSONTimeField;
+      } else Result = pas.DB.TDataSet.GetFieldClass.call(this,FieldType);
+      return Result;
+    };
+    this.IsCursorOpen = function () {
+      var Result = false;
+      Result = this.FDefaultIndex != null;
+      return Result;
+    };
+    this.GetBookmarkData = function (Buffer, Data) {
+      Data.get().Data = Buffer.bookmark;
+    };
+    this.GetBookmarkFlag = function (Buffer) {
+      var Result = 0;
+      Result = Buffer.bookmarkFlag;
+      return Result;
+    };
+    this.InternalGotoBookmark = function (ABookmark) {
+      if (rtl.isNumber(ABookmark.Data)) this.FCurrent = this.FCurrentIndex.FindRecord(Math.floor(ABookmark.Data));
+    };
+    this.SetBookmarkFlag = function (Buffer, Value) {
+      Buffer.get().bookmarkFlag = Value;
+    };
+    this.SetBookmarkData = function (Buffer, Data) {
+      Buffer.get().bookmark = Data.Data;
+    };
+    this.GetRecordCount = function () {
+      var Result = 0;
+      Result = this.FCurrentIndex.GetCount();
+      return Result;
+    };
+    this.SetRecNo = function (Value) {
+      if ((Value < 1) || (Value > this.FCurrentIndex.GetCount())) throw $mod.EJSONDataset.$create("CreateFmt",["%s: SetRecNo: index %d out of range",[this.FName,Value]]);
+      this.FCurrent = Value - 1;
+      this.Resync({});
+      this.DoAfterScroll();
+    };
+    this.GetRecNo = function () {
+      var Result = 0;
+      var bkmIdx = 0;
+      bkmIdx = Math.floor(this.ActiveBuffer().bookmark);
+      Result = this.FCurrentIndex.FindRecord(bkmIdx) + 1;
+      return Result;
+    };
+    this.FreeData = function () {
+      if (this.FOwnsData) {
+        this.FRows = null;
+        this.FMetaData = null;
+      };
+      if (this.FCurrentIndex !== this.FDefaultIndex) {
+        pas.SysUtils.FreeAndNil({p: this, get: function () {
+            return this.p.FCurrentIndex;
+          }, set: function (v) {
+            this.p.FCurrentIndex = v;
+          }})}
+       else this.FCurrentIndex = null;
+      pas.SysUtils.FreeAndNil({p: this, get: function () {
+          return this.p.FDefaultIndex;
+        }, set: function (v) {
+          this.p.FDefaultIndex = v;
+        }});
+      pas.SysUtils.FreeAndNil({p: this, get: function () {
+          return this.p.FFieldMapper;
+        }, set: function (v) {
+          this.p.FFieldMapper = v;
+        }});
+      this.FCurrentIndex = null;
+      this.FDeletedRows = null;
+    };
+    this.AppendToIndexes = function () {
+      this.FDefaultIndex.AppendToIndex();
+    };
+    this.CreateIndexes = function () {
+      this.FDefaultIndex = $mod.TDefaultJSONIndex.$create("Create$1",[this,this.FRows]);
+      this.AppendToIndexes();
+      this.FCurrentIndex = this.FDefaultIndex;
+    };
+    this.InitDateTimeFields = function () {
+    };
+    this.ConvertDateTimeField = function (S, F) {
+      var Result = 0.0;
+      var Ptrn = "";
+      Result = 0;
+      var $tmp1 = F.FDataType;
+      if ($tmp1 === pas.DB.TFieldType.ftDate) {
+        Ptrn = F.FDateFormat}
+       else if ($tmp1 === pas.DB.TFieldType.ftTime) {
+        Ptrn = F.FTimeFormat}
+       else if ($tmp1 === pas.DB.TFieldType.ftDateTime) Ptrn = F.FDateTimeFormat;
+      if (Ptrn === "") {
+        var $tmp2 = F.FDataType;
+        if ($tmp2 === pas.DB.TFieldType.ftDate) {
+          Result = pas.SysUtils.StrToDate(S)}
+         else if ($tmp2 === pas.DB.TFieldType.ftTime) {
+          Result = pas.SysUtils.StrToTime(S)}
+         else if ($tmp2 === pas.DB.TFieldType.ftDateTime) Result = pas.SysUtils.StrToDateTime(S);
+      } else {
+        Result = pas.DateUtils.ScanDateTime(Ptrn,S,1);
+      };
+      return Result;
+    };
+    this.FormatDateTimeField = function (DT, F) {
+      var Result = "";
+      var Ptrn = "";
+      Result = "";
+      var $tmp1 = F.FDataType;
+      if ($tmp1 === pas.DB.TFieldType.ftDate) {
+        Ptrn = F.FDateFormat}
+       else if ($tmp1 === pas.DB.TFieldType.ftTime) {
+        Ptrn = F.FTimeFormat}
+       else if ($tmp1 === pas.DB.TFieldType.ftDateTime) Ptrn = F.FDateTimeFormat;
+      if (Ptrn === "") {
+        var $tmp2 = F.FDataType;
+        if ($tmp2 === pas.DB.TFieldType.ftDate) {
+          Result = pas.SysUtils.DateToStr(DT)}
+         else if ($tmp2 === pas.DB.TFieldType.ftTime) {
+          Result = pas.SysUtils.TimeToStr(DT)}
+         else if ($tmp2 === pas.DB.TFieldType.ftDateTime) Result = pas.SysUtils.DateTimeToStr(DT,false);
+      } else Result = pas.SysUtils.FormatDateTime(Ptrn,DT);
+      return Result;
+    };
+    this.Create$1 = function (AOwner) {
+      pas.DB.TDataSet.Create$1.apply(this,arguments);
+      this.FOwnsData = true;
+      this.FUseDateTimeFormatFields = false;
+      this.FEditIdx = -1;
+    };
+    this.Destroy = function () {
+      this.FEditIdx = -1;
+      this.FreeData();
+      pas.DB.TDataSet.Destroy.apply(this,arguments);
+    };
+    this.GetFieldData$1 = function (Field, Buffer) {
+      var Result = undefined;
+      var R = undefined;
+      if (this.FEditIdx == Buffer.bookmark) {
+        R = this.FEditRow}
+       else R = Buffer.data;
+      Result = this.FFieldMapper.GetJSONDataForField$1(Field,R);
+      return Result;
+    };
+    this.SetFieldData$1 = function (Field, Buffer, AValue) {
+      this.FFieldMapper.SetJSONDataForField$1(Field,this.FEditRow,AValue);
+      this.SetModified(true);
+    };
+    this.BookmarkValid = function (ABookmark) {
+      var Result = false;
+      Result = rtl.isNumber(ABookmark.Data);
+      return Result;
+    };
+    this.CompareBookmarks = function (Bookmark1, Bookmark2) {
+      var Result = 0;
+      if (rtl.isNumber(Bookmark1.Data) && rtl.isNumber(Bookmark2.Data)) {
+        Result = Math.floor(Bookmark2.Data) - Math.floor(Bookmark1.Data)}
+       else {
+        if (rtl.isNumber(Bookmark1.Data)) {
+          Result = -1}
+         else if (rtl.isNumber(Bookmark2.Data)) {
+          Result = 1}
+         else Result = 0;
+      };
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TJSONDataset",$mod.TBaseJSONDataSet,function () {
+    var $r = this.$rtti;
+    $r.addProperty("FieldDefs",2,pas.DB.$rtti["TFieldDefs"],"FFieldDefs","SetFieldDefs");
+    $r.addProperty("Active",3,rtl.boolean,"GetActive","SetActive",{Default: false});
+    $r.addProperty("BeforeOpen",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforeOpen","FBeforeOpen");
+    $r.addProperty("AfterOpen",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterOpen","FAfterOpen");
+    $r.addProperty("BeforeClose",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforeClose","FBeforeClose");
+    $r.addProperty("AfterClose",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterClose","FAfterClose");
+    $r.addProperty("BeforeInsert",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforeInsert","FBeforeInsert");
+    $r.addProperty("AfterInsert",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterInsert","FAfterInsert");
+    $r.addProperty("BeforeEdit",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforeEdit","FBeforeEdit");
+    $r.addProperty("AfterEdit",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterEdit","FAfterEdit");
+    $r.addProperty("BeforePost",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforePost","FBeforePost");
+    $r.addProperty("AfterPost",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterPost","FAfterPost");
+    $r.addProperty("BeforeCancel",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforeCancel","FBeforeCancel");
+    $r.addProperty("AfterCancel",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterCancel","FAfterCancel");
+    $r.addProperty("BeforeDelete",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforeDelete","FBeforeDelete");
+    $r.addProperty("AfterDelete",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterDelete","FAfterDelete");
+    $r.addProperty("BeforeScroll",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforeScroll","FBeforeScroll");
+    $r.addProperty("AfterScroll",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterScroll","FAfterScroll");
+    $r.addProperty("OnCalcFields",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FOnCalcFields","FOnCalcFields");
+    $r.addProperty("OnDeleteError",0,pas.DB.$rtti["TDataSetErrorEvent"],"FOnDeleteError","FOnDeleteError");
+    $r.addProperty("OnEditError",0,pas.DB.$rtti["TDataSetErrorEvent"],"FOnEditError","FOnEditError");
+    $r.addProperty("OnFilterRecord",2,pas.DB.$rtti["TFilterRecordEvent"],"FOnFilterRecord","SetOnFilterRecord");
+    $r.addProperty("OnNewRecord",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FOnNewRecord","FOnNewRecord");
+    $r.addProperty("OnPostError",0,pas.DB.$rtti["TDataSetErrorEvent"],"FOnPostError","FOnPostError");
+  });
+  rtl.createClass($mod,"TJSONObjectFieldMapper",$mod.TJSONFieldMapper,function () {
+    this.SetJSONDataForField = function (FieldName, FieldIndex, Row, Data) {
+      rtl.getObject(Row)[FieldName] = Data;
+    };
+    this.GetJSONDataForField = function (FieldName, FieldIndex, Row) {
+      var Result = undefined;
+      Result = rtl.getObject(Row)[FieldName];
+      return Result;
+    };
+    this.CreateRow = function () {
+      var Result = undefined;
+      Result = new Object();
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TJSONArrayFieldMapper",$mod.TJSONFieldMapper,function () {
+    this.SetJSONDataForField = function (FieldName, FieldIndex, Row, Data) {
+      Row[FieldIndex] = Data;
+    };
+    this.GetJSONDataForField = function (FieldName, FieldIndex, Row) {
+      var Result = undefined;
+      Result = Row[FieldIndex];
+      return Result;
+    };
+    this.CreateRow = function () {
+      var Result = undefined;
+      Result = new Array();
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"EJSONDataset",pas.DB.EDatabaseError,function () {
+  });
+},["DateUtils"]);
+rtl.module("AvammDB",["System","Classes","SysUtils","DB","RestConnection","JSONDataset"],function () {
+  "use strict";
+  var $mod = this;
+  rtl.createClass($mod,"TAvammDataset",pas.JSONDataset.TBaseJSONDataSet,function () {
+    this.$init = function () {
+      pas.JSONDataset.TBaseJSONDataSet.$init.call(this);
+      this.FConnection = null;
+      this.FDataSetName = "";
+    };
+    this.$final = function () {
+      this.FConnection = undefined;
+      pas.JSONDataset.TBaseJSONDataSet.$final.call(this);
+    };
+    this.DoGetDataProxy = function () {
+      var Result = null;
+      Result = this.FConnection.GetDataProxy();
+      return Result;
+    };
+    this.Create$4 = function (AOwner, aDataSet) {
+      pas.JSONDataset.TBaseJSONDataSet.Create$1.call(this,AOwner);
+      this.FDataSetName = aDataSet;
+    };
+  });
+});
 rtl.module("dhtmlx_toolbar",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
@@ -10884,7 +20887,35 @@ rtl.module("dhtmlx_popup",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
 });
-rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","webrouter"],function () {
+rtl.module("dhtmlx_dataprocessor",["System","JS","Web"],function () {
+  "use strict";
+  var $mod = this;
+});
+rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor","JS"],function () {
+  "use strict";
+  var $mod = this;
+  rtl.createClass($mod,"TDHTMLXDataSource",pas.DB.TDataSource,function () {
+    this.$init = function () {
+      pas.DB.TDataSource.$init.call(this);
+      this.FDataprocessor = null;
+      this.FDataSet$1 = null;
+    };
+    this.$final = function () {
+      this.FDataprocessor = undefined;
+      this.FDataSet$1 = undefined;
+      pas.DB.TDataSource.$final.call(this);
+    };
+    this.SetDataSet$1 = function (AValue) {
+      if (this.FDataSet$1 === AValue) return;
+      this.FDataSet$1 = AValue;
+    };
+    this.Create$1 = function (AOwner) {
+      pas.DB.TDataSource.Create$1.call(this,AOwner);
+      this.FDataprocessor = new dataProcessor(pas.JS.New([]));
+    };
+  });
+});
+rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","webrouter"],function () {
   "use strict";
   var $mod = this;
   rtl.createClass($mod,"TAvammForm",pas.System.TObject,function () {
@@ -10894,12 +20925,16 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form",
       pas.System.TObject.$init.call(this);
       this.FParent = null;
       this.FOldFilter = "";
+      this.FDataSource = null;
+      this.FDataSet = null;
       this.Page = null;
       this.Toolbar = null;
       this.Grid = null;
     };
     this.$final = function () {
       this.FParent = undefined;
+      this.FDataSource = undefined;
+      this.FDataSet = undefined;
       this.Page = undefined;
       this.Toolbar = undefined;
       this.Grid = undefined;
@@ -10931,10 +20966,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form",
         pas.webrouter.Router().Push(((aDataSet + "\/by-id\/") + ("" + Self.Grid.getSelectedRowId())) + "\/");
       };
       function DoResizeLayout() {
-        function DoResizeLayoutNow() {
-          Self.Page.setSizes();
-        };
-        window.setTimeout(DoResizeLayoutNow,50);
+        Self.Page.setSizes();
       };
       pas.System.Writeln(("Loading " + aDataSet) + " as List...");
       window.addEventListener("ContainerResized",DoResizeLayout);
@@ -10951,6 +20983,10 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","dhtmlx_form",
       Self.Grid.setEditable(false);
       Self.Grid.attachEvent("onFilterStart",FilterStart);
       Self.Grid.init();
+      Self.FDataSource = pas.dhtmlx_db.TDHTMLXDataSource.$create("Create$1",[null]);
+      Self.FDataSet = pas.AvammDB.TAvammDataset.$create("Create$4",[null,aDataSet]);
+      Self.FDataSource.SetDataSet$1(Self.FDataSet);
+      Self.FDataSource.FDataprocessor.init(Self.Grid);
       Self.Grid.attachEvent("onRowDblClicked",RowDblClick);
     };
     this.Show = function () {
@@ -11116,6 +21152,8 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     $mod.Layout.cells("a").setCollapsedText(rtl.getResStr(pas.program,"strMenu"));
     $mod.Layout.cells("a").collapse();
     $mod.Layout.cells("b").hideHeader();
+    $mod.Layout.setSeparatorSize(0,5);
+    $mod.Layout.setSeparatorSize(1,5);
     $mod.Treeview = rtl.getObject($mod.Layout.cells("a").attachTreeView());
     $mod.TreeviewSelectionChanged = $mod.Treeview.attachEvent("onClick",$mod.TreeviewItemSelected);
     window.addEventListener("AfterLogin",FillEnviromentAfterLogin);
