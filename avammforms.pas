@@ -117,6 +117,7 @@ begin
   window.addEventListener('ContainerResized',@DoResizeLayout);
   FParent := aParent;
   Page := TDHTMLXLayout.New(js.new(['parent',aParent,'pattern','1C']));
+  Page.cont.style.setProperty('border-width','0');
   Page.cells('a').hideHeader;
   Toolbar := TDHTMLXToolbar(Page.cells('a').attachToolbar(js.new(['parent',Page,
                                                        'iconset','awesome'])));

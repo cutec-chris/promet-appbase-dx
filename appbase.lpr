@@ -146,6 +146,7 @@ begin
   Layout.cells('b').hideHeader;
   Layout.setSeparatorSize(0,5);
   Layout.setSeparatorSize(1,5);
+  Layout.setOffsets(js.new(['left',3,'top',3,'right',3,'bottom',3]));
   Treeview := TDHTMLXTreeview(Layout.cells('a').attachTreeView());
   TreeviewSelectionChanged := Treeview.attachEvent('onClick',@TreeviewItemSelected);
   window.addEventListener('AfterLogin',@FillEnviromentAfterLogin);

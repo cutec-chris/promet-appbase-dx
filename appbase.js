@@ -20972,6 +20972,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       window.addEventListener("ContainerResized",DoResizeLayout);
       Self.FParent = aParent;
       Self.Page = new dhtmlXLayoutObject(pas.JS.New(["parent",aParent,"pattern","1C"]));
+      Self.Page.cont.style.setProperty("border-width","0");
       Self.Page.cells("a").hideHeader();
       Self.Toolbar = rtl.getObject(Self.Page.cells("a").attachToolbar(pas.JS.New(["parent",Self.Page,"iconset","awesome"])));
       Self.Toolbar.addButton("refresh",0,rtl.getResStr(pas.AvammForms,"strRefresh"),"fa fa-refresh","fa fa-refresh");
@@ -21154,6 +21155,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     $mod.Layout.cells("b").hideHeader();
     $mod.Layout.setSeparatorSize(0,5);
     $mod.Layout.setSeparatorSize(1,5);
+    $mod.Layout.setOffsets(pas.JS.New(["left",3,"top",3,"right",3,"bottom",3]));
     $mod.Treeview = rtl.getObject($mod.Layout.cells("a").attachTreeView());
     $mod.TreeviewSelectionChanged = $mod.Treeview.attachEvent("onClick",$mod.TreeviewItemSelected);
     window.addEventListener("AfterLogin",FillEnviromentAfterLogin);
