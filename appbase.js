@@ -20872,6 +20872,13 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","RestConnection","JSOND
     this.Create$4 = function (AOwner, aDataSet) {
       pas.JSONDataset.TBaseJSONDataSet.Create$1.call(this,AOwner);
       this.FDataSetName = aDataSet;
+      this.FConnection = pas.RestConnection.TRESTConnection.$create("Create$1",[null]);
+      this.FConnection.FBaseURL = ("\/" + this.FDataSetName) + "\/list.json";
+    };
+    this.CreateFieldMapper = function () {
+      var Result = null;
+      Result = pas.JSONDataset.TJSONObjectFieldMapper.$create("Create");
+      return Result;
     };
   });
 });
@@ -20911,11 +20918,11 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
     };
     this.Create$1 = function (AOwner) {
       pas.DB.TDataSource.Create$1.call(this,AOwner);
-      this.FDataprocessor = new dataProcessor(pas.JS.New([]));
+      this.FDataprocessor = new dataProcessor("");
     };
   });
 });
-rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","webrouter"],function () {
+rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","webrouter","DB"],function () {
   "use strict";
   var $mod = this;
   rtl.createClass($mod,"TAvammForm",pas.System.TObject,function () {
@@ -20968,6 +20975,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       function DoResizeLayout() {
         Self.Page.setSizes();
       };
+      function DataLoaded(DataSet, Data) {
+      };
       pas.System.Writeln(("Loading " + aDataSet) + " as List...");
       window.addEventListener("ContainerResized",DoResizeLayout);
       Self.FParent = aParent;
@@ -20989,6 +20998,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.FDataSource.SetDataSet$1(Self.FDataSet);
       Self.FDataSource.FDataprocessor.init(Self.Grid);
       Self.Grid.attachEvent("onRowDblClicked",RowDblClick);
+      Self.FDataSet.Load({},DataLoaded);
     };
     this.Show = function () {
       var Self = this;
@@ -21050,7 +21060,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
       currentValue.style.setProperty("display","none");
     };
     pas.System.Writeln("Startpage should be shown ...");
-    $mod.FContainer.childNodes.forEach(HideElement);
+    rtl.getObject(pas.Avamm.GetAvammContainer()).childNodes.forEach(HideElement);
   };
   this.RouterBeforeRequest = function (Sender, ARouteURL) {
     $mod.Layout.progressOn();
@@ -21155,6 +21165,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     $mod.Layout.cells("b").hideHeader();
     $mod.Layout.setSeparatorSize(0,5);
     $mod.Layout.setSeparatorSize(1,5);
+    $mod.Layout.cont.style.setProperty("border-width","0");
     $mod.Layout.setOffsets(pas.JS.New(["left",3,"top",3,"right",3,"bottom",3]));
     $mod.Treeview = rtl.getObject($mod.Layout.cells("a").attachTreeView());
     $mod.TreeviewSelectionChanged = $mod.Treeview.attachEvent("onClick",$mod.TreeviewItemSelected);

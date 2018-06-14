@@ -20,6 +20,7 @@ type
   Public
     constructor Create(AOwner: TComponent;aDataSet : string);
     Property Connection: TRestConnection Read FConnection Write FConnection;
+    Function CreateFieldMapper : TJSONFieldMapper; override;
   end;
 
 
@@ -36,6 +37,13 @@ constructor TAvammDataset.Create(AOwner: TComponent; aDataSet: string);
 begin
   inherited Create(AOwner);
   FDataSetName := aDataSet;
+  FConnection := TRESTConnection.Create(nil);
+  FConnection.BaseURL:='/'+FDataSetName+'/list.json';
+end;
+
+function TAvammDataset.CreateFieldMapper: TJSONFieldMapper;
+begin
+  Result:=TJSONObjectFieldMapper.Create;
 end;
 
 end.

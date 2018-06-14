@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils,js,web, AvammDB, dhtmlx_form, dhtmlx_toolbar,dhtmlx_grid,
   dhtmlx_layout,dhtmlx_popup, dhtmlx_db,
-  webrouter;
+  webrouter, db;
 
 type
   TAvammForm = class
@@ -112,6 +112,10 @@ constructor TAvammListForm.Create(aParent : TJSElement;aDataSet: string);
   begin
     Page.setSizes;
   end;
+  procedure DataLoaded(DataSet: TDataSet; Data: JSValue);
+  begin
+
+  end;
 begin
   writeln('Loading '+aDataSet+' as List...');
   window.addEventListener('ContainerResized',@DoResizeLayout);
@@ -133,9 +137,9 @@ begin
   FDataSource := TDHTMLXDataSource.Create(nil);
   FDataSet := TAvammDataset.Create(nil,aDataSet);
   FDataSource.DataSet := FDataSet;
-  //DataSource = newPrometDataStore(aName);
   FDataSource.DataProcessor.init(Grid);
   Grid.attachEvent('onRowDblClicked',@RowDblClick);
+  FDataSet.Load([],@DataLoaded);
 end;
 procedure TAvammListForm.Show;
   procedure HideElement(currentValue: TJSNode;
@@ -152,6 +156,7 @@ procedure TAvammListForm.SwitchProgressOff;
 begin
   Page.progressOff();
 end;
+
 procedure TAvammListForm.RefreshList;
 begin
   try

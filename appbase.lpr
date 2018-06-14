@@ -23,7 +23,7 @@ procedure LoadStartpage(URl : String; aRoute : TRoute; Params: TStrings);
   end;
 begin
   writeln('Startpage should be shown ...');
-  FContainer.childNodes.forEach(@HideElement);
+  TJSHTMLElement(Avamm.GetAvammContainer()).childNodes.forEach(@HideElement);
 end;
 procedure RouterBeforeRequest(Sender: TObject; var ARouteURL: String);
 begin
@@ -146,6 +146,7 @@ begin
   Layout.cells('b').hideHeader;
   Layout.setSeparatorSize(0,5);
   Layout.setSeparatorSize(1,5);
+  Layout.cont.style.setProperty('border-width','0');
   Layout.setOffsets(js.new(['left',3,'top',3,'right',3,'bottom',3]));
   Treeview := TDHTMLXTreeview(Layout.cells('a').attachTreeView());
   TreeviewSelectionChanged := Treeview.attachEvent('onClick',@TreeviewItemSelected);
