@@ -20802,11 +20802,15 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       pas.DB.TDataLink.RecordChanged.call(this,Field);
     };
     this.ActiveChanged = function () {
+      var Self = this;
+      function AddRows() {
+        Self.FDatastore.add(pas.JS.New([]));
+        Self.FDatastore.add(pas.JS.New([]));
+        Self.FDatastore.add(pas.JS.New([]));
+      };
       pas.System.Writeln("ActiveChanged");
-      pas.DB.TDataLink.ActiveChanged.call(this);
-      this.FDatastore.add(pas.JS.New([]));
-      this.FDatastore.add(pas.JS.New([]));
-      this.FDatastore.add(pas.JS.New([]));
+      pas.DB.TDataLink.ActiveChanged.call(Self);
+      Self.FDataprocessor.ignore(AddRows);
     };
     this.Create$2 = function () {
       pas.DB.TDataLink.Create$1.call(this);
@@ -20894,7 +20898,6 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.FDataSet = pas.AvammDB.TAvammDataset.$create("Create$4",[null,aDataSet]);
       Self.FDataSource.SetDataSet(Self.FDataSet);
       Self.FDataLink.SetDataSource(Self.FDataSource);
-      Self.FDataLink.FDataprocessor.init(Self.Grid);
       Self.Grid.attachEvent("onRowDblClicked",RowDblClick);
       Self.Grid.sync(Self.FDataLink.FDatastore);
       Self.FDataSet.Load({},DataLoaded);

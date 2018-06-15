@@ -140,7 +140,7 @@ begin
   FDataSet := TAvammDataset.Create(nil,aDataSet);
   FDataSource.DataSet := FDataSet;
   FDataLink.DataSource := FDataSource;
-  FDataLink.DataProcessor.init(Grid);
+  //FDataLink.DataProcessor.init(Grid);
   Grid.attachEvent('onRowDblClicked',@RowDblClick);
   Grid.sync(FDataLink.Datastore);
   FDataSet.Load([],@DataLoaded);
