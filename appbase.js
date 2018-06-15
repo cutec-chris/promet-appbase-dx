@@ -20663,6 +20663,31 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","JSONDataset","Avamm","
       Result = pas.JSONDataset.TJSONObjectFieldMapper.$create("Create");
       return Result;
     };
+    var $r = this.$rtti;
+    $r.addProperty("FieldDefs",2,pas.DB.$rtti["TFieldDefs"],"FFieldDefs","SetFieldDefs");
+    $r.addProperty("Active",3,rtl.boolean,"GetActive","SetActive",{Default: false});
+    $r.addProperty("BeforeOpen",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforeOpen","FBeforeOpen");
+    $r.addProperty("AfterOpen",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterOpen","FAfterOpen");
+    $r.addProperty("BeforeClose",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforeClose","FBeforeClose");
+    $r.addProperty("AfterClose",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterClose","FAfterClose");
+    $r.addProperty("BeforeInsert",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforeInsert","FBeforeInsert");
+    $r.addProperty("AfterInsert",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterInsert","FAfterInsert");
+    $r.addProperty("BeforeEdit",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforeEdit","FBeforeEdit");
+    $r.addProperty("AfterEdit",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterEdit","FAfterEdit");
+    $r.addProperty("BeforePost",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforePost","FBeforePost");
+    $r.addProperty("AfterPost",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterPost","FAfterPost");
+    $r.addProperty("BeforeCancel",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforeCancel","FBeforeCancel");
+    $r.addProperty("AfterCancel",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterCancel","FAfterCancel");
+    $r.addProperty("BeforeDelete",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforeDelete","FBeforeDelete");
+    $r.addProperty("AfterDelete",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterDelete","FAfterDelete");
+    $r.addProperty("BeforeScroll",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FBeforeScroll","FBeforeScroll");
+    $r.addProperty("AfterScroll",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FAfterScroll","FAfterScroll");
+    $r.addProperty("OnCalcFields",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FOnCalcFields","FOnCalcFields");
+    $r.addProperty("OnDeleteError",0,pas.DB.$rtti["TDataSetErrorEvent"],"FOnDeleteError","FOnDeleteError");
+    $r.addProperty("OnEditError",0,pas.DB.$rtti["TDataSetErrorEvent"],"FOnEditError","FOnEditError");
+    $r.addProperty("OnFilterRecord",2,pas.DB.$rtti["TFilterRecordEvent"],"FOnFilterRecord","SetOnFilterRecord");
+    $r.addProperty("OnNewRecord",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FOnNewRecord","FOnNewRecord");
+    $r.addProperty("OnPostError",0,pas.DB.$rtti["TDataSetErrorEvent"],"FOnPostError","FOnPostError");
   });
   rtl.createClass($mod,"TAvammDataProxy",pas.DB.TDataProxy,function () {
     this.Create$1 = function (AOwner) {
@@ -20723,6 +20748,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","JSONDataset","Avamm","
       aarr = JSON.parse(this.FXHR.responseText);
       $with1.SetMetaData(rtl.getObject(rtl.getObject(aarr)[0]));
       $with1.MetaDataToFieldDefs();
+      $with1.SetRows(rtl.getObject(aarr));
       this.DoAfterRequest();
       Result = true;
       return Result;
@@ -20750,27 +20776,42 @@ rtl.module("dhtmlx_dataprocessor",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
 });
-rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor","JS"],function () {
+rtl.module("dhtmlx_datastore",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
-  rtl.createClass($mod,"TDHTMLXDataSource",pas.DB.TDataSource,function () {
+});
+rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor","JS","dhtmlx_datastore"],function () {
+  "use strict";
+  var $mod = this;
+  rtl.createClass($mod,"TDHTMLXDataLink",pas.DB.TDataLink,function () {
     this.$init = function () {
-      pas.DB.TDataSource.$init.call(this);
+      pas.DB.TDataLink.$init.call(this);
       this.FDataprocessor = null;
-      this.FDataSet$1 = null;
+      this.FDatastore = null;
     };
     this.$final = function () {
       this.FDataprocessor = undefined;
-      this.FDataSet$1 = undefined;
-      pas.DB.TDataSource.$final.call(this);
+      this.FDatastore = undefined;
+      pas.DB.TDataLink.$final.call(this);
     };
-    this.SetDataSet$1 = function (AValue) {
-      if (this.FDataSet$1 === AValue) return;
-      this.FDataSet$1 = AValue;
+    this.UpdateData = function () {
+      pas.System.Writeln("UpdateData");
     };
-    this.Create$1 = function (AOwner) {
-      pas.DB.TDataSource.Create$1.call(this,AOwner);
+    this.RecordChanged = function (Field) {
+      pas.System.Writeln("RecordChanged");
+      pas.DB.TDataLink.RecordChanged.call(this,Field);
+    };
+    this.ActiveChanged = function () {
+      pas.System.Writeln("ActiveChanged");
+      pas.DB.TDataLink.ActiveChanged.call(this);
+      this.FDatastore.add(pas.JS.New([]));
+      this.FDatastore.add(pas.JS.New([]));
+      this.FDatastore.add(pas.JS.New([]));
+    };
+    this.Create$2 = function () {
+      pas.DB.TDataLink.Create$1.call(this);
       this.FDataprocessor = new dataProcessor("");
+      this.FDatastore = new dhtmlXDataStore("");
     };
   });
 });
@@ -20785,6 +20826,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.FParent = null;
       this.FOldFilter = "";
       this.FDataSource = null;
+      this.FDataLink = null;
       this.FDataSet = null;
       this.Page = null;
       this.Toolbar = null;
@@ -20793,6 +20835,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.$final = function () {
       this.FParent = undefined;
       this.FDataSource = undefined;
+      this.FDataLink = undefined;
       this.FDataSet = undefined;
       this.Page = undefined;
       this.Toolbar = undefined;
@@ -20829,7 +20872,6 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
       function DataLoaded(DataSet, Data) {
         pas.System.Writeln("Data Loaded called...");
-        pas.System.Writeln(Data);
       };
       pas.System.Writeln(("Loading " + aDataSet) + " as List...");
       window.addEventListener("ContainerResized",DoResizeLayout);
@@ -20847,11 +20889,14 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.Grid.setEditable(false);
       Self.Grid.attachEvent("onFilterStart",FilterStart);
       Self.Grid.init();
-      Self.FDataSource = pas.dhtmlx_db.TDHTMLXDataSource.$create("Create$1",[null]);
+      Self.FDataSource = pas.DB.TDataSource.$create("Create$1",[null]);
+      Self.FDataLink = pas.dhtmlx_db.TDHTMLXDataLink.$create("Create$2");
       Self.FDataSet = pas.AvammDB.TAvammDataset.$create("Create$4",[null,aDataSet]);
-      Self.FDataSource.SetDataSet$1(Self.FDataSet);
-      Self.FDataSource.FDataprocessor.init(Self.Grid);
+      Self.FDataSource.SetDataSet(Self.FDataSet);
+      Self.FDataLink.SetDataSource(Self.FDataSource);
+      Self.FDataLink.FDataprocessor.init(Self.Grid);
       Self.Grid.attachEvent("onRowDblClicked",RowDblClick);
+      Self.Grid.sync(Self.FDataLink.FDatastore);
       Self.FDataSet.Load({},DataLoaded);
     };
     this.Show = function () {

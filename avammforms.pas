@@ -20,7 +20,8 @@ type
   private
     FParent : TJSElement;
     FOldFilter: String;
-    FDataSource : TDHTMLXDataSource;
+    FDataSource : TDataSource;
+    FDataLink : TDHTMLXDataLink;
     FDataSet : TAvammDataset;
     procedure SwitchProgressOff;
   public
@@ -115,7 +116,6 @@ constructor TAvammListForm.Create(aParent : TJSElement;aDataSet: string);
   procedure DataLoaded(DataSet: TDataSet; Data: JSValue);
   begin
     writeln('Data Loaded called...');
-    writeln(Data);
   end;
 begin
   writeln('Loading '+aDataSet+' as List...');
@@ -135,11 +135,14 @@ begin
   Grid.setEditable(false);
   Grid.attachEvent('onFilterStart',@FilterStart);
   Grid.init();
-  FDataSource := TDHTMLXDataSource.Create(nil);
+  FDataSource := TDataSource.Create(nil);
+  FDataLink := TDHTMLXDataLink.Create;
   FDataSet := TAvammDataset.Create(nil,aDataSet);
   FDataSource.DataSet := FDataSet;
-  FDataSource.DataProcessor.init(Grid);
+  FDataLink.DataSource := FDataSource;
+  FDataLink.DataProcessor.init(Grid);
   Grid.attachEvent('onRowDblClicked',@RowDblClick);
+  Grid.sync(FDataLink.Datastore);
   FDataSet.Load([],@DataLoaded);
 end;
 procedure TAvammListForm.Show;
