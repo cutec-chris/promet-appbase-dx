@@ -20804,13 +20804,63 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
     this.ActiveChanged = function () {
       var Self = this;
       function AddRows() {
-        Self.FDatastore.add(pas.JS.New([]));
-        Self.FDatastore.add(pas.JS.New([]));
-        Self.FDatastore.add(pas.JS.New([]));
+        var i = 0;
+        var a = 0;
+        var aObj = null;
+        Self.GetDataset().DisableControls();
+        for (var $l1 = 0, $end2 = Self.GetRecordCount() - 1; $l1 <= $end2; $l1++) {
+          i = $l1;
+          aObj = new Object();
+          Self.SetActiveRecord(i);
+          for (var $l3 = 0, $end4 = Self.GetDataset().GetfieldCount() - 1; $l3 <= $end4; $l3++) {
+            a = $l3;
+            aObj[Self.GetDataset().FFieldList.GetField(a).FFieldName] = Self.GetDataset().FFieldList.GetField(a).GetAsString();
+          };
+          Self.FDatastore.add(aObj);
+        };
+        Self.GetDataset().EnableControls();
       };
       pas.System.Writeln("ActiveChanged");
       pas.DB.TDataLink.ActiveChanged.call(Self);
       Self.FDataprocessor.ignore(AddRows);
+    };
+    this.GetRecordCount = function () {
+      var Result = 0;
+      Result = this.GetDataset().GetRecordCount();
+      return Result;
+    };
+    this.DataEvent = function (Event, Info) {
+      var $tmp1 = Event;
+      if ($tmp1 === pas.DB.TDataEvent.deFieldChange) {
+        pas.System.Writeln("DataEvent ","deFieldChange")}
+       else if ($tmp1 === pas.DB.TDataEvent.deRecordChange) {
+        pas.System.Writeln("DataEvent ","deRecordChange")}
+       else if ($tmp1 === pas.DB.TDataEvent.deDataSetChange) {
+        pas.System.Writeln("DataEvent ","deDataSetChange")}
+       else if ($tmp1 === pas.DB.TDataEvent.deDataSetScroll) {
+        pas.System.Writeln("DataEvent ","deDataSetScroll")}
+       else if ($tmp1 === pas.DB.TDataEvent.deLayoutChange) {
+        pas.System.Writeln("DataEvent ","deLayoutChange")}
+       else if ($tmp1 === pas.DB.TDataEvent.deUpdateRecord) {
+        pas.System.Writeln("DataEvent ","deUpdateRecord")}
+       else if ($tmp1 === pas.DB.TDataEvent.deUpdateState) {
+        pas.System.Writeln("DataEvent ","deUpdateState")}
+       else if ($tmp1 === pas.DB.TDataEvent.deCheckBrowseMode) {
+        pas.System.Writeln("DataEvent ","deCheckBrowseMode")}
+       else if ($tmp1 === pas.DB.TDataEvent.dePropertyChange) {
+        pas.System.Writeln("DataEvent ","dePropertyChange")}
+       else if ($tmp1 === pas.DB.TDataEvent.deFieldListChange) {
+        pas.System.Writeln("DataEvent ","deFieldListChange")}
+       else if ($tmp1 === pas.DB.TDataEvent.deFocusControl) {
+        pas.System.Writeln("DataEvent ","deFocusControl")}
+       else if ($tmp1 === pas.DB.TDataEvent.deParentScroll) {
+        pas.System.Writeln("DataEvent ","deParentScroll")}
+       else if ($tmp1 === pas.DB.TDataEvent.deConnectChange) {
+        pas.System.Writeln("DataEvent ","deConnectChange")}
+       else if ($tmp1 === pas.DB.TDataEvent.deReconcileError) {
+        pas.System.Writeln("DataEvent ","deReconcileError")}
+       else if ($tmp1 === pas.DB.TDataEvent.deDisabledStateChange) pas.System.Writeln("DataEvent ","deDisabledStateChange");
+      pas.DB.TDataLink.DataEvent.apply(this,arguments);
     };
     this.Create$2 = function () {
       pas.DB.TDataLink.Create$1.call(this);
