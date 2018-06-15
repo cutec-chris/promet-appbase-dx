@@ -20084,237 +20084,6 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     return Result;
   };
 });
-rtl.module("RestConnection",["System","Classes","SysUtils","Web","DB"],function () {
-  "use strict";
-  var $mod = this;
-  $mod.$rtti.$MethodVar("TRestGetURLEvent",{procsig: rtl.newTIProcSig([["Sender",pas.Classes.$rtti["TComponent"]],["aRequest",pas.DB.$rtti["TDataRequest"]],["aURL",rtl.string,1]]), methodkind: 0});
-  $mod.$rtti.$MethodVar("TRestUpdateURLEvent",{procsig: rtl.newTIProcSig([["Sender",pas.Classes.$rtti["TComponent"]],["aRequest",pas.DB.$rtti["TRecordUpdateDescriptor"]],["aURL",rtl.string,1]]), methodkind: 0});
-  rtl.createClass($mod,"TRESTConnection",pas.Classes.TComponent,function () {
-    this.$init = function () {
-      pas.Classes.TComponent.$init.call(this);
-      this.FBaseURL = "";
-      this.FDataProxy = null;
-      this.FOnGetURL = null;
-      this.FOnUpdateURL = null;
-      this.FPageParam = "";
-    };
-    this.$final = function () {
-      this.FDataProxy = undefined;
-      this.FOnGetURL = undefined;
-      this.FOnUpdateURL = undefined;
-      pas.Classes.TComponent.$final.call(this);
-    };
-    this.GetDataProxy = function () {
-      var Result = null;
-      if (this.FDataProxy === null) this.FDataProxy = this.DoGetDataProxy();
-      Result = this.FDataProxy;
-      return Result;
-    };
-    this.GetUpdateBaseURL = function () {
-      var Result = "";
-      Result = this.FBaseURL;
-      return Result;
-    };
-    this.GetReadBaseURL = function () {
-      var Result = "";
-      Result = this.FBaseURL;
-      return Result;
-    };
-    this.GetPageURL = function (aRequest) {
-      var Result = "";
-      var URL = "";
-      URL = this.GetReadBaseURL();
-      if (this.FPageParam !== "") {
-        if (pas.System.Pos("?",URL) !== 0) {
-          URL = URL + "&"}
-         else URL = URL + "?";
-        URL = ((URL + this.FPageParam) + "=") + pas.SysUtils.IntToStr(aRequest.FRequestID - 1);
-      };
-      if (this.FOnGetURL != null) this.FOnGetURL(this,aRequest,{get: function () {
-          return URL;
-        }, set: function (v) {
-          URL = v;
-        }});
-      Result = URL;
-      return Result;
-    };
-    this.GetRecordUpdateURL = function (aRequest) {
-      var Result = "";
-      var I = 0;
-      var Base = "";
-      var KeyField = "";
-      KeyField = "";
-      Result = "";
-      Base = this.GetUpdateBaseURL();
-      if (aRequest.FStatus in rtl.createSet(pas.DB.TUpdateStatus.usModified,pas.DB.TUpdateStatus.usDeleted)) {
-        I = aRequest.FDataset.FFieldList.GetCount() - 1;
-        while ((KeyField === "") && (I >= 0)) {
-          if (pas.DB.TProviderFlag.pfInKey in aRequest.FDataset.FFieldList.GetField(I).FProviderFlags) KeyField = aRequest.FDataset.FFieldList.GetField(I).FFieldName;
-          I -= 1;
-        };
-        if (KeyField === "") pas.DB.DatabaseError$1("No key field",aRequest.FDataset);
-      };
-      if (((KeyField !== "") && (Base !== "")) && (Base.charAt(Base.length - 1) !== "\/")) Base = Base + "\/";
-      var $tmp1 = aRequest.FStatus;
-      if (($tmp1 === pas.DB.TUpdateStatus.usModified) || ($tmp1 === pas.DB.TUpdateStatus.usDeleted)) {
-        Result = Base + JSON.stringify(rtl.getObject(aRequest.FData)[KeyField])}
-       else if ($tmp1 === pas.DB.TUpdateStatus.usInserted) Result = Base;
-      if (this.FOnUpdateURL != null) this.FOnUpdateURL(this,aRequest,{get: function () {
-          return Result;
-        }, set: function (v) {
-          Result = v;
-        }});
-      return Result;
-    };
-    this.DoGetDataProxy = function () {
-      var Result = null;
-      Result = $mod.TRESTDataProxy.$create("Create$1",[this]);
-      return Result;
-    };
-  });
-  rtl.createClass($mod,"TRESTDataProxy",pas.DB.TDataProxy,function () {
-    this.$init = function () {
-      pas.DB.TDataProxy.$init.call(this);
-      this.FConnection = null;
-    };
-    this.$final = function () {
-      this.FConnection = undefined;
-      pas.DB.TDataProxy.$final.call(this);
-    };
-    this.CheckBatchComplete = function (aBatch) {
-      var BatchOK = false;
-      var I = 0;
-      BatchOK = true;
-      I = aBatch.FList.FCount - 1;
-      while (BatchOK && (I >= 0)) {
-        BatchOK = aBatch.FList.GetUpdate(I).FStatus in rtl.createSet(pas.DB.TUpdateStatus.usResolved,pas.DB.TUpdateStatus.usResolveFailed);
-        I -= 1;
-      };
-      if (BatchOK && (aBatch.FOnResolve != null)) aBatch.FOnResolve(this,aBatch);
-    };
-    this.GetUpdateDescriptorClass = function () {
-      var Result = null;
-      Result = $mod.TRESTUpdateRequest;
-      return Result;
-    };
-    this.ProcessUpdateBatch = function (aBatch) {
-      var Result = false;
-      var R = null;
-      var i = 0;
-      var Method = "";
-      var URl = "";
-      Result = false;
-      for (var $l1 = 0, $end2 = aBatch.FList.FCount - 1; $l1 <= $end2; $l1++) {
-        i = $l1;
-        R = rtl.as(aBatch.FList.GetUpdate(i),$mod.TRESTUpdateRequest);
-        R.FBatch = aBatch;
-        R.FXHR = new XMLHttpRequest();
-        R.FXHR.addEventListener("load",rtl.createCallback(R,"onLoad"));
-        URl = this.FConnection.GetRecordUpdateURL(R);
-        var $tmp3 = R.FStatus;
-        if ($tmp3 === pas.DB.TUpdateStatus.usInserted) {
-          Method = "POST"}
-         else if ($tmp3 === pas.DB.TUpdateStatus.usModified) {
-          Method = "PUT"}
-         else if ($tmp3 === pas.DB.TUpdateStatus.usDeleted) Method = "DELETE";
-        R.FXHR.open(Method,URl);
-        R.FXHR.setRequestHeader("content-type","application\/json");
-        if (R.FStatus in rtl.createSet(pas.DB.TUpdateStatus.usInserted,pas.DB.TUpdateStatus.usModified)) {
-          R.FXHR.send(JSON.stringify(R.FData))}
-         else R.FXHR.send();
-      };
-      Result = true;
-      return Result;
-    };
-    this.DoGetData = function (aRequest) {
-      var Result = false;
-      var R = null;
-      var URL = "";
-      Result = false;
-      R = rtl.as(aRequest,$mod.TRESTDataRequest);
-      R.FXHR = new XMLHttpRequest();
-      R.FXHR.addEventListener("load",rtl.createCallback(R,"onLoad"));
-      URL = this.FConnection.GetPageURL(aRequest);
-      if (URL === "") {
-        if (pas.DB.TLoadOption.loAtEOF in R.FLoadOptions) {
-          R.FSuccess = pas.DB.TDataRequestResult.rrEOF}
-         else {
-          R.FSuccess = pas.DB.TDataRequestResult.rrFail;
-          R.FErrorMsg = "No URL to get data";
-          R.DoAfterRequest();
-        };
-      } else {
-        R.FXHR.open("GET",URL,true);
-        R.FXHR.send();
-        Result = true;
-      };
-      return Result;
-    };
-    this.GetDataRequest = function (aOptions, aAfterRequest, aAfterLoad) {
-      var Result = null;
-      Result = $mod.TRESTDataRequest.$create("Create$1",[this,rtl.refSet(aOptions),aAfterRequest,aAfterLoad]);
-      return Result;
-    };
-    this.Create$1 = function (AOwner) {
-      pas.Classes.TComponent.Create$1.apply(this,arguments);
-      if ($mod.TRESTConnection.isPrototypeOf(AOwner)) this.FConnection = AOwner;
-    };
-  });
-  rtl.createClass($mod,"TRESTDataRequest",pas.DB.TDataRequest,function () {
-    this.$init = function () {
-      pas.DB.TDataRequest.$init.call(this);
-      this.FXHR = null;
-    };
-    this.$final = function () {
-      this.FXHR = undefined;
-      pas.DB.TDataRequest.$final.call(this);
-    };
-    this.onLoad = function (Event) {
-      var Result = false;
-      if (this.FXHR.status === 200) {
-        this.FData = this.TransformResult();
-        this.FSuccess = pas.DB.TDataRequestResult.rrOK;
-      } else {
-        this.FData = null;
-        if ((pas.DB.TLoadOption.loAtEOF in this.FLoadOptions) && (this.FXHR.status === 404)) {
-          this.FSuccess = pas.DB.TDataRequestResult.rrEOF}
-         else {
-          this.FSuccess = pas.DB.TDataRequestResult.rrFail;
-          this.FErrorMsg = this.FXHR.statusText;
-        };
-      };
-      this.DoAfterRequest();
-      Result = true;
-      return Result;
-    };
-    this.TransformResult = function () {
-      var Result = undefined;
-      Result = this.FXHR.responseText;
-      return Result;
-    };
-  });
-  rtl.createClass($mod,"TRESTUpdateRequest",pas.DB.TRecordUpdateDescriptor,function () {
-    this.$init = function () {
-      pas.DB.TRecordUpdateDescriptor.$init.call(this);
-      this.FXHR = null;
-      this.FBatch = null;
-    };
-    this.$final = function () {
-      this.FXHR = undefined;
-      this.FBatch = undefined;
-      pas.DB.TRecordUpdateDescriptor.$final.call(this);
-    };
-    this.onLoad = function (Event) {
-      var Result = false;
-      if (Math.floor(this.FXHR.status / 100) === 2) {
-        this.Resolve(this.FXHR.response);
-        Result = true;
-      } else this.ResolveFailed(this.FXHR.statusText);
-      rtl.as(this.FProxy,$mod.TRESTDataProxy).CheckBatchComplete(this.FBatch);
-      return Result;
-    };
-  });
-},["JS"]);
 rtl.module("JSONDataset",["System","Types","JS","DB","Classes","SysUtils"],function () {
   "use strict";
   var $mod = this;
@@ -20851,33 +20620,116 @@ rtl.module("JSONDataset",["System","Types","JS","DB","Classes","SysUtils"],funct
   rtl.createClass($mod,"EJSONDataset",pas.DB.EDatabaseError,function () {
   });
 },["DateUtils"]);
-rtl.module("AvammDB",["System","Classes","SysUtils","DB","RestConnection","JSONDataset"],function () {
+rtl.module("AvammDB",["System","Classes","SysUtils","DB","JSONDataset","Avamm","JS","Web","Types"],function () {
   "use strict";
   var $mod = this;
   rtl.createClass($mod,"TAvammDataset",pas.JSONDataset.TBaseJSONDataSet,function () {
     this.$init = function () {
       pas.JSONDataset.TBaseJSONDataSet.$init.call(this);
-      this.FConnection = null;
       this.FDataSetName = "";
+      this.FDataProxy$1 = null;
     };
     this.$final = function () {
-      this.FConnection = undefined;
+      this.FDataProxy$1 = undefined;
       pas.JSONDataset.TBaseJSONDataSet.$final.call(this);
+    };
+    this.GetUrl = function () {
+      var Result = "";
+      Result = ("\/" + this.FDataSetName) + "\/list.json";
+      return Result;
     };
     this.DoGetDataProxy = function () {
       var Result = null;
-      Result = this.FConnection.GetDataProxy();
+      Result = this.FDataProxy$1;
       return Result;
+    };
+    this.MetaDataToFieldDefs = function () {
+      var aFields = [];
+      var i = 0;
+      this.FFieldDefs.Clear();
+      aFields = Object.getOwnPropertyNames(this.FMetaData);
+      for (var $l1 = 0, $end2 = rtl.length(aFields) - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        this.FFieldDefs.Add$4(aFields[i],pas.DB.TFieldType.ftString,255);
+      };
     };
     this.Create$4 = function (AOwner, aDataSet) {
       pas.JSONDataset.TBaseJSONDataSet.Create$1.call(this,AOwner);
       this.FDataSetName = aDataSet;
-      this.FConnection = pas.RestConnection.TRESTConnection.$create("Create$1",[null]);
-      this.FConnection.FBaseURL = ("\/" + this.FDataSetName) + "\/list.json";
+      this.FDataProxy$1 = $mod.TAvammDataProxy.$create("Create$1",[this]);
     };
     this.CreateFieldMapper = function () {
       var Result = null;
       Result = pas.JSONDataset.TJSONObjectFieldMapper.$create("Create");
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TAvammDataProxy",pas.DB.TDataProxy,function () {
+    this.Create$1 = function (AOwner) {
+      pas.Classes.TComponent.Create$1.call(this,AOwner);
+    };
+    this.DoGetData = function (aRequest) {
+      var Result = false;
+      var URL = "";
+      var R = null;
+      Result = false;
+      R = aRequest;
+      R.FXHR = new XMLHttpRequest();
+      R.FXHR.addEventListener("load",rtl.createCallback(R,"onLoad"));
+      URL = this.FOwner.GetUrl();
+      if (URL === "") {
+        R.FSuccess = pas.DB.TDataRequestResult.rrFail;
+        R.FErrorMsg = "No URL to get data";
+        R.DoAfterRequest();
+      } else {
+        R.FXHR.open("GET",URL,true);
+        R.FXHR.send();
+        Result = true;
+      };
+      return Result;
+    };
+    this.GetDataRequest = function (aOptions, aAfterRequest, aAfterLoad) {
+      var Result = null;
+      Result = $mod.TAvammDataRequest.$create("Create$1",[this,rtl.refSet(aOptions),aAfterRequest,aAfterLoad]);
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TAvammDataRequest",pas.DB.TDataRequest,function () {
+    this.$init = function () {
+      pas.DB.TDataRequest.$init.call(this);
+      this.FXHR = null;
+    };
+    this.$final = function () {
+      this.FXHR = undefined;
+      pas.DB.TDataRequest.$final.call(this);
+    };
+    this.onLoad = function (Event) {
+      var Result = false;
+      var aarr = undefined;
+      if (this.FXHR.status === 200) {
+        this.FData = this.TransformResult();
+        this.FSuccess = pas.DB.TDataRequestResult.rrOK;
+      } else {
+        this.FData = null;
+        if ((pas.DB.TLoadOption.loAtEOF in this.FLoadOptions) && (this.FXHR.status === 404)) {
+          this.FSuccess = pas.DB.TDataRequestResult.rrEOF}
+         else {
+          this.FSuccess = pas.DB.TDataRequestResult.rrFail;
+          this.FErrorMsg = this.FXHR.statusText;
+        };
+      };
+      var $with1 = this.FDataProxy.FOwner;
+      $with1.FFieldDefs.Clear();
+      aarr = JSON.parse(this.FXHR.responseText);
+      $with1.SetMetaData(rtl.getObject(rtl.getObject(aarr)[0]));
+      $with1.MetaDataToFieldDefs();
+      this.DoAfterRequest();
+      Result = true;
+      return Result;
+    };
+    this.TransformResult = function () {
+      var Result = undefined;
+      Result = this.FXHR.responseText;
       return Result;
     };
   });
@@ -20976,6 +20828,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Page.setSizes();
       };
       function DataLoaded(DataSet, Data) {
+        pas.System.Writeln("Data Loaded called...");
+        pas.System.Writeln(Data);
       };
       pas.System.Writeln(("Loading " + aDataSet) + " as List...");
       window.addEventListener("ContainerResized",DoResizeLayout);

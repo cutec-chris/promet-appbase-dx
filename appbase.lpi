@@ -50,7 +50,7 @@
           <Other>
             <CustomOptions Value="-dDEBUG"/>
             <ExecuteBefore>
-              <Command Value="pas2js -vt -Tbrowser -Jirtl.js -Jc -dDEBUG -Jminclude -O- -Fudhtmlx-for-pas2js $Name($(ProjFile))"/>
+              <Command Value="pas2js -vt -Tbrowser -Jirtl.js -dDEBUG -Jc -Jminclude -O- -Fudhtmlx-for-pas2js $Name($(ProjFile))"/>
               <ScanForFPCMsgs Value="True"/>
             </ExecuteBefore>
           </Other>

@@ -114,7 +114,8 @@ constructor TAvammListForm.Create(aParent : TJSElement;aDataSet: string);
   end;
   procedure DataLoaded(DataSet: TDataSet; Data: JSValue);
   begin
-
+    writeln('Data Loaded called...');
+    writeln(Data);
   end;
 begin
   writeln('Loading '+aDataSet+' as List...');
