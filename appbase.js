@@ -20909,6 +20909,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       pas.ExtJSDataset.TExtJSJSONObjectDataSet.$init.call(this);
       this.FDataSetName = "";
       this.FDataProxy$1 = null;
+      this.FSFilter = "";
     };
     this.$final = function () {
       this.FDataProxy$1 = undefined;
@@ -20917,7 +20918,15 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
     this.GetUrl = function () {
       var Result = "";
       Result = ("\/" + this.FDataSetName) + "\/list.json?mode=extjs";
+      if (this.FSFilter !== "") Result = ((Result + "&filter='") + encodeURIComponent(this.FSFilter)) + "'";
+      Result = Result + "&dhxr=none";
       return Result;
+    };
+    this.SetFilter = function (AValue) {
+      if (this.FSFilter === AValue) return;
+      this.FSFilter = AValue;
+      this.SetRows(null);
+      this.ClearBuffers();
     };
     this.DoGetDataProxy = function () {
       var Result = null;
@@ -20981,7 +20990,9 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
           this.FSuccess = pas.DB.TDataRequestResult.rrEOF}
          else {
           this.FSuccess = pas.DB.TDataRequestResult.rrFail;
-          this.FErrorMsg = this.FXHR.statusText;
+          if (this.FXHR.responseText !== "") {
+            this.FErrorMsg = this.FXHR.responseText}
+           else this.FErrorMsg = this.FXHR.statusText;
         };
       };
       this.DoAfterRequest();
@@ -21110,7 +21121,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
     };
   });
 });
-rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","webrouter","DB"],function () {
+rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","dhtmlx_base","webrouter","DB"],function () {
   "use strict";
   var $mod = this;
   rtl.createClass($mod,"TAvammForm",pas.System.TObject,function () {
@@ -21137,7 +21148,11 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.Grid = undefined;
       pas.System.TObject.$final.call(this);
     };
-    this.SwitchProgressOff = function () {
+    this.FDataSetLoadFail = function (DataSet, ID, ErrorMsg) {
+      this.Page.progressOff();
+      dhtmlx.message(pas.JS.New(["type","error","text",(rtl.getResStr(pas.AvammForms,"strLoadingFailed") + " ") + ErrorMsg]));
+    };
+    this.SwitchProgressOff = function (DataSet, Data) {
       this.Page.progressOff();
     };
     this.Create$1 = function (aParent, aDataSet) {
@@ -21151,11 +21166,16 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.FOldFilter = "";
         for (var $l1 = 0, $end2 = indexes.length; $l1 <= $end2; $l1++) {
           i = $l1;
-          if (values[i] != "") Self.FOldFilter = (((((Self.FOldFilter + ' AND lower("') + ("" + Self.Grid.getColumnId(Math.floor(indexes[i])))) + '")') + " like lower(\\%") + ("" + values[i])) + "%\\)";
+          if (values[i]) Self.FOldFilter = (((((Self.FOldFilter + ' AND lower("') + ("" + Self.Grid.getColumnId(Math.floor(indexes[i])))) + '")') + " like lower('%") + ("" + values[i])) + "%')";
         };
-        Self.FOldFilter = Self.FOldFilter.subString(5,Self.FOldFilter.length);
+        Self.FOldFilter = pas.System.Copy(Self.FOldFilter,6,Self.FOldFilter.length);
+        pas.System.Writeln("Filter:" + Self.FOldFilter);
         Self.Page.progressOn();
-        try {} catch ($e) {
+        try {
+          Self.FDataSet.SetFilter(Self.FOldFilter);
+          Self.FDataSet.FOnLoadFail = rtl.createCallback(Self,"FDataSetLoadFail");
+          Self.FDataSet.Load({},rtl.createCallback(Self,"SwitchProgressOff"));
+        } catch ($e) {
           Self.Page.progressOff();
         };
       };
@@ -21164,9 +21184,6 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
       function DoResizeLayout() {
         Self.Page.setSizes();
-      };
-      function DataLoaded(DataSet, Data) {
-        pas.System.Writeln("Data Loaded called...");
       };
       pas.System.Writeln(("Loading " + aDataSet) + " as List...");
       window.addEventListener("ContainerResized",DoResizeLayout);
@@ -21192,7 +21209,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.FDataLink.SetDataSource(Self.FDataSource);
       Self.Grid.attachEvent("onRowDblClicked",RowDblClick);
       Self.Grid.sync(Self.FDataLink.FDatastore);
-      Self.FDataSet.Load({},DataLoaded);
+      Self.FDataSet.Load({},rtl.createCallback(Self,"SwitchProgressOff"));
     };
     this.Show = function () {
       var Self = this;
@@ -21206,6 +21223,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.RefreshList = function () {
       try {
         this.Page.progressOn();
+        this.FDataSet.Load({},rtl.createCallback(this,"SwitchProgressOff"));
       } catch ($e) {
         if (pas.SysUtils.Exception.isPrototypeOf($e)) {
           var e = $e;
@@ -21238,7 +21256,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
     };
   });
-  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}};
+  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}};
 });
 rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms"],function () {
   "use strict";

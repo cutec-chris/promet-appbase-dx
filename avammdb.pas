@@ -15,12 +15,15 @@ type
   private
     FDataSetName : string;
     FDataProxy: TDataProxy;
+    FSFilter: string;
     function GetUrl: string;
+    procedure SetFilter(AValue: string);
   Protected
     Function DoGetDataProxy: TDataProxy; override;
   Public
     constructor Create(AOwner: TComponent;aDataSet : string);
     property Url : string read GetUrl;
+    property ServerFilter : string read FSFilter write SetFilter;
   published
   end;
 
@@ -68,7 +71,9 @@ begin
     else
       begin
       Success:=rrFail;
-      ErrorMsg:=FXHR.StatusText;
+      if FXHR.responseText <> '' then
+        ErrorMsg:=FXHR.responseText
+      else ErrorMsg:=FXHR.StatusText;
       end;
     end;
   DoAfterRequest;
@@ -123,6 +128,17 @@ end;
 function TAvammDataset.GetUrl: string;
 begin
   Result := '/'+FDataSetName+'/list.json?mode=extjs';
+  if FSFilter <> '' then
+    Result := Result+'&filter='''+encodeURIComponent(FSFilter)+'''';
+  Result := Result+'&dhxr=none';
+end;
+
+procedure TAvammDataset.SetFilter(AValue: string);
+begin
+  if FSFilter=AValue then Exit;
+  FSFilter:=AValue;
+  Rows := nil;
+  ClearBuffers;
 end;
 
 function TAvammDataset.DoGetDataProxy: TDataProxy;

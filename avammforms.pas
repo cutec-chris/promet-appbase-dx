@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils,js,web, AvammDB, dhtmlx_form, dhtmlx_toolbar,dhtmlx_grid,
-  dhtmlx_layout,dhtmlx_popup, dhtmlx_db,
+  dhtmlx_layout,dhtmlx_popup, dhtmlx_db,dhtmlx_base,
   webrouter, db;
 
 type
@@ -23,7 +23,9 @@ type
     FDataSource : TDataSource;
     FDataLink : TDHTMLXDataLink;
     FDataSet : TAvammDataset;
-    procedure SwitchProgressOff;
+    procedure FDataSetLoadFail(DataSet: TDataSet; ID: Integer;
+      const ErrorMsg: String);
+    procedure SwitchProgressOff(DataSet: TDataSet; Data: JSValue);
   public
     Page : TDHTMLXLayout;
     Toolbar : TDHTMLXToolbar;
@@ -45,6 +47,7 @@ type
 
 resourcestring
   strRefresh                   = 'Aktualisieren';
+  strLoadingFailed             = 'Fehler beim laden von Daten vom Server';
 
 implementation
 
@@ -94,13 +97,16 @@ constructor TAvammListForm.Create(aParent : TJSElement;aDataSet: string);
     FOldFilter := '';
     for i := 0 to indexes.length do
       begin
-        if (values[i]<>'') then
-          FOldFilter := FOldFilter+' AND lower("'+string(Grid.getColumnId(Integer(indexes[i])))+'")'+' like lower(\%'+string(values[i])+'%\)';
+        if (values[i]) then
+          FOldFilter := FOldFilter+' AND lower("'+string(Grid.getColumnId(Integer(indexes[i])))+'")'+' like lower(''%'+string(values[i])+'%'')';
       end;
-    FOldFilter := TJSString(FOldFilter).subString(5,TJSString(FOldFilter).length);
+    FOldFilter := copy(FOldFilter,6,length(FOldFilter));
+    writeln('Filter:'+FOldFilter);
     Page.progressOn();
     try
-      //DataSource.FillGrid(aList.Grid,OldFilter,0,@SwitchProgressOff);
+      FDataSet.ServerFilter:=FOldFilter;
+      FDataSet.OnLoadFail:=@FDataSetLoadFail;
+      FDataSet.Load([],@SwitchProgressOff);
     except
       Page.progressOff();
     end;
@@ -112,10 +118,6 @@ constructor TAvammListForm.Create(aParent : TJSElement;aDataSet: string);
   procedure DoResizeLayout;
   begin
     Page.setSizes;
-  end;
-  procedure DataLoaded(DataSet: TDataSet; Data: JSValue);
-  begin
-    writeln('Data Loaded called...');
   end;
 begin
   writeln('Loading '+aDataSet+' as List...');
@@ -144,7 +146,7 @@ begin
   //FDataLink.DataProcessor.init(Grid);
   Grid.attachEvent('onRowDblClicked',@RowDblClick);
   Grid.sync(FDataLink.Datastore);
-  FDataSet.Load([],@DataLoaded);
+  FDataSet.Load([],@SwitchProgressOff);
 end;
 procedure TAvammListForm.Show;
   procedure HideElement(currentValue: TJSNode;
@@ -157,17 +159,24 @@ begin
   Page.cont.style.setProperty('display','block');
   Page.setSizes;
 end;
-procedure TAvammListForm.SwitchProgressOff;
+procedure TAvammListForm.SwitchProgressOff(DataSet: TDataSet; Data: JSValue);
 begin
   Page.progressOff();
+end;
+
+procedure TAvammListForm.FDataSetLoadFail(DataSet: TDataSet; ID: Integer;
+  const ErrorMsg: String);
+begin
+  Page.progressOff;
+  dhtmlx.message(js.new(['type','error',
+                           'text',strLoadingFailed+' '+ErrorMsg]));
 end;
 
 procedure TAvammListForm.RefreshList;
 begin
   try
     Page.progressOn();
-    //writeln('Refresh '+FName);
-    //FillGrid(Grid,OldFilter,0,@SwitchProgressOff);
+    FDataSet.Load([],@SwitchProgressOff);
   except
     on e : Exception do
       begin
