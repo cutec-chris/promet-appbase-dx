@@ -20620,48 +20620,245 @@ rtl.module("JSONDataset",["System","Types","JS","DB","Classes","SysUtils"],funct
   rtl.createClass($mod,"EJSONDataset",pas.DB.EDatabaseError,function () {
   });
 },["DateUtils"]);
-rtl.module("AvammDB",["System","Classes","SysUtils","DB","JSONDataset","Avamm","JS","Web","Types"],function () {
+rtl.module("ExtJSDataset",["System","Classes","SysUtils","DB","JS","JSONDataset"],function () {
   "use strict";
   var $mod = this;
-  rtl.createClass($mod,"TAvammDataset",pas.JSONDataset.TBaseJSONDataSet,function () {
+  rtl.createClass($mod,"TExtJSJSONDataSet",pas.JSONDataset.TBaseJSONDataSet,function () {
     this.$init = function () {
       pas.JSONDataset.TBaseJSONDataSet.$init.call(this);
-      this.FDataSetName = "";
-      this.FDataProxy$1 = null;
+      this.FFields = null;
+      this.FIDField = "";
+      this.FRoot = "";
     };
     this.$final = function () {
-      this.FDataProxy$1 = undefined;
+      this.FFields = undefined;
       pas.JSONDataset.TBaseJSONDataSet.$final.call(this);
     };
-    this.GetUrl = function () {
-      var Result = "";
-      Result = ("\/" + this.FDataSetName) + "\/list.json";
+    this.InternalOpen = function () {
+      var I = 0;
+      pas.JSONDataset.TBaseJSONDataSet.InternalOpen.call(this);
+      pas.System.Writeln("Checking ID field ",this.FIDField," as key field");
+      for (var $l1 = 0, $end2 = this.FFieldList.GetCount() - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        if (pas.SysUtils.SameText(this.FFieldList.GetField(I).FFieldName,this.FIDField)) {
+          this.FFieldList.GetField(I).FProviderFlags = rtl.unionSet(this.FFieldList.GetField(I).FProviderFlags,rtl.createSet(pas.DB.TProviderFlag.pfInKey));
+          pas.System.Writeln("Setting ID field ",this.FIDField," as key field");
+        };
+      };
+    };
+    this.DoResolveRecordUpdate = function (anUpdate) {
+      var Result = false;
+      var D = undefined;
+      var O = null;
+      var A = null;
+      var I = 0;
+      var RecordIndex = 0;
+      var FN = "";
+      Result = true;
+      if (anUpdate.FOriginalStatus === pas.DB.TUpdateStatus.usDeleted) return Result;
+      D = anUpdate.FServerData;
+      if (pas.JS.isNull(D)) return Result;
+      if (!rtl.isNumber(anUpdate.FBookmark.Data)) return false;
+      RecordIndex = Math.floor(anUpdate.FBookmark.Data);
+      if (rtl.isString(D)) {
+        O = rtl.getObject(JSON.parse("" + D))}
+       else if (rtl.isObject(D)) {
+        O = rtl.getObject(D)}
+       else return false;
+      if (!rtl.isArray(O[this.FRoot])) return false;
+      A = rtl.getObject(O[this.FRoot]);
+      if (A.length === 1) {
+        O = rtl.getObject(A[0]);
+        for (var $l1 = 0, $end2 = this.FFieldList.GetCount() - 1; $l1 <= $end2; $l1++) {
+          I = $l1;
+          if (O.hasOwnProperty(this.FFieldList.GetField(I).FFieldName)) this.FFieldMapper.SetJSONDataForField$1(this.FFieldList.GetField(I),this.FRows[RecordIndex],O[FN]);
+        };
+      };
       return Result;
     };
-    this.DoGetDataProxy = function () {
+    this.DataPacketReceived = function (ARequest) {
+      var Result = false;
+      var O = null;
+      var A = null;
+      Result = false;
+      if (pas.JS.isNull(ARequest.FData)) return Result;
+      if (rtl.isString(ARequest.FData)) {
+        O = rtl.getObject(JSON.parse("" + ARequest.FData))}
+       else if (rtl.isObject(ARequest.FData)) {
+        O = rtl.getObject(ARequest.FData)}
+       else pas.DB.DatabaseError("Cannot handle data packet");
+      if (this.FRoot === "") this.FRoot = "rows";
+      if (this.FIDField === "") this.FIDField = "id";
+      if (O.hasOwnProperty("metaData") && rtl.isObject(O["metaData"])) {
+        if (!this.GetActive()) this.SetMetaData(rtl.getObject(O["metaData"]));
+        if (this.FMetaData.hasOwnProperty("root") && rtl.isString(this.FMetaData["root"])) this.FRoot = "" + this.FMetaData["root"];
+        if (this.FMetaData.hasOwnProperty("idField") && rtl.isString(this.FMetaData["idField"])) this.FIDField = "" + this.FMetaData["idField"];
+      };
+      if (O.hasOwnProperty(this.FRoot) && rtl.isArray(O[this.FRoot])) {
+        A = rtl.getObject(O[this.FRoot]);
+        Result = A.length > 0;
+        this.AddToRows(A);
+      };
+      return Result;
+    };
+    this.GenerateMetaData = function () {
       var Result = null;
-      Result = this.FDataProxy$1;
+      var F = null;
+      var O = null;
+      var I = 0;
+      var M = 0;
+      var T = "";
+      Result = new Object();
+      F = new Array();
+      Result["fields"] = F;
+      for (var $l1 = 0, $end2 = this.FFieldDefs.GetCount() - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        O = pas.JS.New(["name",this.FFieldDefs.GetItem$1(I).FName]);
+        F.push(O);
+        M = 0;
+        var $tmp3 = this.FFieldDefs.GetItem$1(I).FDataType;
+        if (($tmp3 === pas.DB.TFieldType.ftFixedChar) || ($tmp3 === pas.DB.TFieldType.ftString)) {
+          T = "string";
+          M = this.FFieldDefs.GetItem$1(I).FSize;
+        } else if ($tmp3 === pas.DB.TFieldType.ftBoolean) {
+          T = "boolean"}
+         else if ((($tmp3 === pas.DB.TFieldType.ftDate) || ($tmp3 === pas.DB.TFieldType.ftTime)) || ($tmp3 === pas.DB.TFieldType.ftDateTime)) {
+          T = "date"}
+         else if ($tmp3 === pas.DB.TFieldType.ftFloat) {
+          T = "float"}
+         else if ((($tmp3 === pas.DB.TFieldType.ftInteger) || ($tmp3 === pas.DB.TFieldType.ftAutoInc)) || ($tmp3 === pas.DB.TFieldType.ftLargeInt)) {
+          T = "int"}
+         else {
+          throw pas.JSONDataset.EJSONDataset.$create("CreateFmt",["Unsupported field type : %s",[this.FFieldDefs.GetItem$1(I).FDataType]]);
+        };
+        O["type"] = T;
+        if (M !== 0) O["maxlen"] = M;
+      };
+      Result["root"] = "rows";
+      return Result;
+    };
+    this.ConvertDateFormat = function (S) {
+      var Result = "";
+      Result = pas.SysUtils.StringReplace(S,"y","yy",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+      Result = pas.SysUtils.StringReplace(Result,"Y","yyyy",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+      Result = pas.SysUtils.StringReplace(Result,"g","h",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+      Result = pas.SysUtils.StringReplace(Result,"G","hh",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+      Result = pas.SysUtils.StringReplace(Result,"F","mmmm",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+      Result = pas.SysUtils.StringReplace(Result,"M","mmm",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+      Result = pas.SysUtils.StringReplace(Result,"n","m",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+      Result = pas.SysUtils.StringReplace(Result,"D","ddd",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+      Result = pas.SysUtils.StringReplace(Result,"j","d",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+      Result = pas.SysUtils.StringReplace(Result,"l","dddd",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+      Result = pas.SysUtils.StringReplace(Result,"i","nn",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+      Result = pas.SysUtils.StringReplace(Result,"u","zzz",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+      Result = pas.SysUtils.StringReplace(Result,"a","am\/pm",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll,pas.SysUtils.TStringReplaceFlag.rfIgnoreCase));
+      Result = pas.SysUtils.LowerCase(Result);
       return Result;
     };
     this.MetaDataToFieldDefs = function () {
-      var aFields = [];
-      var i = 0;
+      var A = null;
+      var F = null;
+      var I = 0;
+      var FS = 0;
+      var N = "";
+      var ft = 0;
+      var D = undefined;
       this.FFieldDefs.Clear();
-      aFields = Object.getOwnPropertyNames(this.FMetaData);
-      for (var $l1 = 0, $end2 = rtl.length(aFields) - 1; $l1 <= $end2; $l1++) {
-        i = $l1;
-        this.FFieldDefs.Add$4(aFields[i],pas.DB.TFieldType.ftString,255);
+      D = this.FMetaData["fields"];
+      if (!rtl.isArray(D)) throw pas.JSONDataset.EJSONDataset.$create("Create$1",["Invalid metadata object"]);
+      A = rtl.getObject(D);
+      for (var $l1 = 0, $end2 = A.length - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        if (!rtl.isObject(A[I])) throw pas.JSONDataset.EJSONDataset.$create("CreateFmt",["Field definition %d in metadata is not an object",[I]]);
+        F = rtl.getObject(A[I]);
+        D = F["name"];
+        if (!rtl.isString(D)) throw pas.JSONDataset.EJSONDataset.$create("CreateFmt",["Field definition %d in has no or invalid name property",[I]]);
+        N = "" + D;
+        D = F["type"];
+        if (pas.JS.isNull(D) || pas.JS.isUndefined(D)) {
+          ft = pas.DB.TFieldType.ftString}
+         else if (!rtl.isString(D)) {
+          throw pas.JSONDataset.EJSONDataset.$create("CreateFmt",["Field definition %d in has invalid type property",[I]]);
+        } else {
+          ft = this.StringToFieldType("" + D);
+        };
+        if (ft === pas.DB.TFieldType.ftString) {
+          FS = this.GetStringFieldLength(F,N,I)}
+         else FS = 0;
+        this.FFieldDefs.Add$4(N,ft,FS);
+      };
+      this.FFields = A;
+    };
+    this.InitDateTimeFields = function () {
+      var F = null;
+      var FF = null;
+      var I = 0;
+      var Fmt = "";
+      var D = undefined;
+      if (this.FFields === null) return;
+      for (var $l1 = 0, $end2 = this.FFields.length - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        F = rtl.getObject(this.FFields[I]);
+        D = F["type"];
+        if (rtl.isString(D) && (("" + D) === "date")) {
+          D = F["dateFormat"];
+          if (rtl.isString(D)) {
+            Fmt = this.ConvertDateFormat("" + D);
+            FF = this.FindField("" + F["name"]);
+            if (((FF !== null) && (FF.FDataType in rtl.createSet(pas.DB.TFieldType.ftDate,pas.DB.TFieldType.ftTime,pas.DB.TFieldType.ftDateTime))) && (FF.FFieldKind === pas.DB.TFieldKind.fkData)) {
+              if (pas.JSONDataset.TJSONDateField.isPrototypeOf(FF)) {
+                FF.FDateFormat = Fmt}
+               else if (pas.JSONDataset.TJSONTimeField.isPrototypeOf(FF)) {
+                FF.FTimeFormat = Fmt}
+               else if (pas.JSONDataset.TJSONDateTimeField.isPrototypeOf(FF)) FF.FDateTimeFormat = Fmt;
+            };
+          };
+        };
       };
     };
-    this.Create$4 = function (AOwner, aDataSet) {
-      pas.JSONDataset.TBaseJSONDataSet.Create$1.call(this,AOwner);
-      this.FDataSetName = aDataSet;
-      this.FDataProxy$1 = $mod.TAvammDataProxy.$create("Create$1",[this]);
-    };
-    this.CreateFieldMapper = function () {
-      var Result = null;
-      Result = pas.JSONDataset.TJSONObjectFieldMapper.$create("Create");
+    this.StringToFieldType = function (S) {
+      var Result = 0;
+      if (S === "int") {
+        Result = pas.DB.TFieldType.ftLargeInt}
+       else if (S === "float") {
+        Result = pas.DB.TFieldType.ftFloat}
+       else if (S === "boolean") {
+        Result = pas.DB.TFieldType.ftBoolean}
+       else if (S === "date") {
+        Result = pas.DB.TFieldType.ftDateTime}
+       else if (((S === "string") || (S === "auto")) || (S === "")) {
+        Result = pas.DB.TFieldType.ftString}
+       else if (this.FMUS) {
+        Result = pas.DB.TFieldType.ftString}
+       else throw pas.JSONDataset.EJSONDataset.$create("CreateFmt",["Unknown JSON data type : %s",[S]]);
       return Result;
+    };
+    this.GetStringFieldLength = function (F, AName, AIndex) {
+      var Result = 0;
+      var I = 0;
+      var L = 0;
+      var D = undefined;
+      Result = 0;
+      D = F["maxlen"];
+      if (!isNaN(pas.JS.toNumber(D))) {
+        Result = pas.System.Trunc(pas.JS.toNumber(D));
+        if (Result <= 0) throw pas.JSONDataset.EJSONDataset.$create("CreateFmt",["Invalid maximum length specifier for field %s",[AName]]);
+      } else {
+        for (var $l1 = 0, $end2 = this.FRows.length - 1; $l1 <= $end2; $l1++) {
+          I = $l1;
+          D = this.FFieldMapper.GetJSONDataForField(AName,AIndex,this.FRows[I]);
+          if (rtl.isString(D)) {
+            L = ("" + D).length;
+            if (L > Result) Result = L;
+          };
+        };
+      };
+      if (Result === 0) Result = 20;
+      return Result;
+    };
+    this.Create$1 = function (AOwner) {
+      pas.JSONDataset.TBaseJSONDataSet.Create$1.call(this,AOwner);
+      this.FUseDateTimeFormatFields = true;
     };
     var $r = this.$rtti;
     $r.addProperty("FieldDefs",2,pas.DB.$rtti["TFieldDefs"],"FFieldDefs","SetFieldDefs");
@@ -20688,6 +20885,50 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","JSONDataset","Avamm","
     $r.addProperty("OnFilterRecord",2,pas.DB.$rtti["TFilterRecordEvent"],"FOnFilterRecord","SetOnFilterRecord");
     $r.addProperty("OnNewRecord",0,pas.DB.$rtti["TDataSetNotifyEvent"],"FOnNewRecord","FOnNewRecord");
     $r.addProperty("OnPostError",0,pas.DB.$rtti["TDataSetErrorEvent"],"FOnPostError","FOnPostError");
+  });
+  rtl.createClass($mod,"TExtJSJSONObjectDataSet",$mod.TExtJSJSONDataSet,function () {
+    this.CreateFieldMapper = function () {
+      var Result = null;
+      Result = pas.JSONDataset.TJSONObjectFieldMapper.$create("Create");
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TExtJSJSONArrayDataSet",$mod.TExtJSJSONDataSet,function () {
+    this.CreateFieldMapper = function () {
+      var Result = null;
+      Result = pas.JSONDataset.TJSONArrayFieldMapper.$create("Create");
+      return Result;
+    };
+  });
+});
+rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm","JS","Web","Types"],function () {
+  "use strict";
+  var $mod = this;
+  rtl.createClass($mod,"TAvammDataset",pas.ExtJSDataset.TExtJSJSONObjectDataSet,function () {
+    this.$init = function () {
+      pas.ExtJSDataset.TExtJSJSONObjectDataSet.$init.call(this);
+      this.FDataSetName = "";
+      this.FDataProxy$1 = null;
+    };
+    this.$final = function () {
+      this.FDataProxy$1 = undefined;
+      pas.ExtJSDataset.TExtJSJSONObjectDataSet.$final.call(this);
+    };
+    this.GetUrl = function () {
+      var Result = "";
+      Result = ("\/" + this.FDataSetName) + "\/list.json?mode=extjs";
+      return Result;
+    };
+    this.DoGetDataProxy = function () {
+      var Result = null;
+      Result = this.FDataProxy$1;
+      return Result;
+    };
+    this.Create$5 = function (AOwner, aDataSet) {
+      pas.ExtJSDataset.TExtJSJSONDataSet.Create$1.call(this,AOwner);
+      this.FDataSetName = aDataSet;
+      this.FDataProxy$1 = $mod.TAvammDataProxy.$create("Create$1",[this]);
+    };
   });
   rtl.createClass($mod,"TAvammDataProxy",pas.DB.TDataProxy,function () {
     this.Create$1 = function (AOwner) {
@@ -20743,12 +20984,6 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","JSONDataset","Avamm","
           this.FErrorMsg = this.FXHR.statusText;
         };
       };
-      var $with1 = this.FDataProxy.FOwner;
-      $with1.FFieldDefs.Clear();
-      aarr = JSON.parse(this.FXHR.responseText);
-      $with1.SetMetaData(rtl.getObject(rtl.getObject(aarr)[0]));
-      $with1.MetaDataToFieldDefs();
-      $with1.SetRows(rtl.getObject(aarr));
       this.DoAfterRequest();
       Result = true;
       return Result;
@@ -20788,6 +21023,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       pas.DB.TDataLink.$init.call(this);
       this.FDataprocessor = null;
       this.FDatastore = null;
+      this.FIdField = "";
     };
     this.$final = function () {
       this.FDataprocessor = undefined;
@@ -20807,17 +21043,22 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
         var i = 0;
         var a = 0;
         var aObj = null;
+        var aRec = new pas.DB.TBookmark();
         Self.GetDataset().DisableControls();
-        for (var $l1 = 0, $end2 = Self.GetRecordCount() - 1; $l1 <= $end2; $l1++) {
-          i = $l1;
+        aRec = new pas.DB.TBookmark(Self.GetDataset().GetBookmark());
+        Self.GetDataset().First();
+        while (!Self.GetDataset().FEOF) {
           aObj = new Object();
-          Self.SetActiveRecord(i);
-          for (var $l3 = 0, $end4 = Self.GetDataset().GetfieldCount() - 1; $l3 <= $end4; $l3++) {
-            a = $l3;
-            aObj[Self.GetDataset().FFieldList.GetField(a).FFieldName] = Self.GetDataset().FFieldList.GetField(a).GetAsString();
+          for (var $l1 = 0, $end2 = Self.GetDataset().GetfieldCount() - 1; $l1 <= $end2; $l1++) {
+            a = $l1;
+            if (Self.GetDataset().FFieldList.GetField(a).FFieldName === Self.FIdField) {
+              aObj["id"] = Self.GetDataset().FFieldList.GetField(a).GetAsJSValue()}
+             else aObj[Self.GetDataset().FFieldList.GetField(a).FFieldName] = Self.GetDataset().FFieldList.GetField(a).GetAsJSValue();
           };
           Self.FDatastore.add(aObj);
+          Self.GetDataset().Next();
         };
+        Self.GetDataset().GotoBookmark(aRec);
         Self.GetDataset().EnableControls();
       };
       pas.System.Writeln("ActiveChanged");
@@ -20945,7 +21186,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.Grid.init();
       Self.FDataSource = pas.DB.TDataSource.$create("Create$1",[null]);
       Self.FDataLink = pas.dhtmlx_db.TDHTMLXDataLink.$create("Create$2");
-      Self.FDataSet = pas.AvammDB.TAvammDataset.$create("Create$4",[null,aDataSet]);
+      Self.FDataLink.FIdField = "sql_id";
+      Self.FDataSet = pas.AvammDB.TAvammDataset.$create("Create$5",[null,aDataSet]);
       Self.FDataSource.SetDataSet(Self.FDataSet);
       Self.FDataLink.SetDataSource(Self.FDataSource);
       Self.Grid.attachEvent("onRowDblClicked",RowDblClick);
@@ -21146,6 +21388,9 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     };
     Result = $mod.FContainer;
     $mod.Layout.attachEvent("onResizeFinish",DoResizePanels);
+    $mod.Layout.attachEvent("onCollapse",DoResizePanels);
+    $mod.Layout.attachEvent("onExpand",DoResizePanels);
+    $mod.Layout.attachEvent("onPanelResizeFinish",DoResizePanels);
     return Result;
   };
   $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}};

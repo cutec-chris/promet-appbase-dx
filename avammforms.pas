@@ -137,6 +137,7 @@ begin
   Grid.init();
   FDataSource := TDataSource.Create(nil);
   FDataLink := TDHTMLXDataLink.Create;
+  FDataLink.IdField:='sql_id';
   FDataSet := TAvammDataset.Create(nil,aDataSet);
   FDataSource.DataSet := FDataSet;
   FDataLink.DataSource := FDataSource;

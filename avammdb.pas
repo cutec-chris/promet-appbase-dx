@@ -5,52 +5,23 @@ unit AvammDB;
 interface
 
 uses
-  Classes, SysUtils, db, JSONDataset, Avamm, js, web, Types;
+  Classes, SysUtils, db, ExtJSDataset, Avamm, js, web, Types;
 
 type
 
   { TAvammDataset }
 
-  TAvammDataset = Class(TBaseJSONDataset)
+  TAvammDataset = Class(TExtJSJSONObjectDataSet)
   private
     FDataSetName : string;
     FDataProxy: TDataProxy;
     function GetUrl: string;
   Protected
     Function DoGetDataProxy: TDataProxy; override;
-    procedure MetaDataToFieldDefs; override;
   Public
     constructor Create(AOwner: TComponent;aDataSet : string);
     property Url : string read GetUrl;
-    Function CreateFieldMapper : TJSONFieldMapper; override;
-    property MetaData;
-    property Rows;
   published
-    Property FieldDefs;
-    // redeclared data set properties
-    property Active;
-    property BeforeOpen;
-    property AfterOpen;
-    property BeforeClose;
-    property AfterClose;
-    property BeforeInsert;
-    property AfterInsert;
-    property BeforeEdit;
-    property AfterEdit;
-    property BeforePost;
-    property AfterPost;
-    property BeforeCancel;
-    property AfterCancel;
-    property BeforeDelete;
-    property AfterDelete;
-    property BeforeScroll;
-    property AfterScroll;
-    property OnCalcFields;
-    property OnDeleteError;
-    property OnEditError;
-    property OnFilterRecord;
-    property OnNewRecord;
-    property OnPostError;
   end;
 
   { TAvammDataProxy }
@@ -99,14 +70,6 @@ begin
       Success:=rrFail;
       ErrorMsg:=FXHR.StatusText;
       end;
-    end;
-  with TAvammDataset(DataProxy.Owner) do
-    begin
-      FieldDefs.Clear;
-      aarr := TJSJSON.parse(FXHR.responseText);
-      MetaData := TJSObject(TJSArray(aarr).Elements[0]);
-      MetaDataToFieldDefs;
-      Rows := TJSArray(aarr);
     end;
   DoAfterRequest;
   Result:=True;
@@ -159,7 +122,7 @@ end;
 
 function TAvammDataset.GetUrl: string;
 begin
-  Result := '/'+FDataSetName+'/list.json';
+  Result := '/'+FDataSetName+'/list.json?mode=extjs';
 end;
 
 function TAvammDataset.DoGetDataProxy: TDataProxy;
@@ -167,29 +130,11 @@ begin
   Result:=FDataProxy;
 end;
 
-procedure TAvammDataset.MetaDataToFieldDefs;
-var
-  aFields: TStringDynArray;
-  i: Integer;
-begin
-  FieldDefs.Clear;
-  aFields := TJSObject.getOwnPropertyNames(Metadata);
-  for i := 0 to length(aFields)-1 do
-    begin
-      FieldDefs.Add(aFields[i],ftString,255);
-    end;
-end;
-
 constructor TAvammDataset.Create(AOwner: TComponent; aDataSet: string);
 begin
   inherited Create(AOwner);
   FDataSetName := aDataSet;
   FDataProxy := TAvammDataProxy.Create(Self);
-end;
-
-function TAvammDataset.CreateFieldMapper: TJSONFieldMapper;
-begin
-  Result:=TJSONObjectFieldMapper.Create;
 end;
 
 end.

@@ -179,6 +179,9 @@ begin
     end;
   Result := FContainer;
   Layout.attachEvent('onResizeFinish',@DoResizePanels);
+  Layout.attachEvent('onCollapse',@DoResizePanels);
+  Layout.attachEvent('onExpand',@DoResizePanels);
+  Layout.attachEvent('onPanelResizeFinish',@DoResizePanels);
 end;
 begin
   GetAvammContainer := @DoGetAvammContainer;
