@@ -20918,7 +20918,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
     this.GetUrl = function () {
       var Result = "";
       Result = ("\/" + this.FDataSetName) + "\/list.json?mode=extjs";
-      if (this.FSFilter !== "") Result = ((Result + "&filter='") + encodeURIComponent(this.FSFilter)) + "'";
+      if (this.FSFilter !== "") Result = (Result + "&filter=") + encodeURIComponent(this.FSFilter);
       Result = Result + "&dhxr=none";
       return Result;
     };

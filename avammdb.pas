@@ -129,7 +129,7 @@ function TAvammDataset.GetUrl: string;
 begin
   Result := '/'+FDataSetName+'/list.json?mode=extjs';
   if FSFilter <> '' then
-    Result := Result+'&filter='''+encodeURIComponent(FSFilter)+'''';
+    Result := Result+'&filter='+encodeURIComponent(FSFilter);
   Result := Result+'&dhxr=none';
 end;
 
