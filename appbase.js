@@ -20927,6 +20927,8 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       this.FSFilter = AValue;
       this.SetRows(null);
       this.ClearBuffers();
+      this.ClearFields();
+      this.Close();
     };
     this.DoGetDataProxy = function () {
       var Result = null;
@@ -21041,6 +21043,29 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       this.FDatastore = undefined;
       pas.DB.TDataLink.$final.call(this);
     };
+    this.AddRows = function () {
+      var i = 0;
+      var a = 0;
+      var aObj = null;
+      var aRec = new pas.DB.TBookmark();
+      this.GetDataset().DisableControls();
+      this.FDatastore.clearAll();
+      aRec = new pas.DB.TBookmark(this.GetDataset().GetBookmark());
+      this.GetDataset().First();
+      while (!this.GetDataset().FEOF) {
+        aObj = new Object();
+        for (var $l1 = 0, $end2 = this.GetDataset().GetfieldCount() - 1; $l1 <= $end2; $l1++) {
+          a = $l1;
+          if (this.GetDataset().FFieldList.GetField(a).FFieldName === this.FIdField) {
+            aObj["id"] = this.GetDataset().FFieldList.GetField(a).GetAsJSValue()}
+           else aObj[this.GetDataset().FFieldList.GetField(a).FFieldName] = this.GetDataset().FFieldList.GetField(a).GetAsJSValue();
+        };
+        this.FDatastore.add(aObj);
+        this.GetDataset().Next();
+      };
+      this.GetDataset().GotoBookmark(aRec);
+      this.GetDataset().EnableControls();
+    };
     this.UpdateData = function () {
       pas.System.Writeln("UpdateData");
     };
@@ -21049,32 +21074,11 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       pas.DB.TDataLink.RecordChanged.call(this,Field);
     };
     this.ActiveChanged = function () {
-      var Self = this;
-      function AddRows() {
-        var i = 0;
-        var a = 0;
-        var aObj = null;
-        var aRec = new pas.DB.TBookmark();
-        Self.GetDataset().DisableControls();
-        aRec = new pas.DB.TBookmark(Self.GetDataset().GetBookmark());
-        Self.GetDataset().First();
-        while (!Self.GetDataset().FEOF) {
-          aObj = new Object();
-          for (var $l1 = 0, $end2 = Self.GetDataset().GetfieldCount() - 1; $l1 <= $end2; $l1++) {
-            a = $l1;
-            if (Self.GetDataset().FFieldList.GetField(a).FFieldName === Self.FIdField) {
-              aObj["id"] = Self.GetDataset().FFieldList.GetField(a).GetAsJSValue()}
-             else aObj[Self.GetDataset().FFieldList.GetField(a).FFieldName] = Self.GetDataset().FFieldList.GetField(a).GetAsJSValue();
-          };
-          Self.FDatastore.add(aObj);
-          Self.GetDataset().Next();
-        };
-        Self.GetDataset().GotoBookmark(aRec);
-        Self.GetDataset().EnableControls();
-      };
       pas.System.Writeln("ActiveChanged");
-      pas.DB.TDataLink.ActiveChanged.call(Self);
-      Self.FDataprocessor.ignore(AddRows);
+      pas.DB.TDataLink.ActiveChanged.call(this);
+      if (this.FActive) {
+        this.FDataprocessor.ignore(rtl.createCallback(this,"AddRows"))}
+       else this.FDatastore.clearAll();
     };
     this.GetRecordCount = function () {
       var Result = 0;
@@ -21088,16 +21092,16 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
        else if ($tmp1 === pas.DB.TDataEvent.deRecordChange) {
         pas.System.Writeln("DataEvent ","deRecordChange")}
        else if ($tmp1 === pas.DB.TDataEvent.deDataSetChange) {
-        pas.System.Writeln("DataEvent ","deDataSetChange")}
-       else if ($tmp1 === pas.DB.TDataEvent.deDataSetScroll) {
+        pas.System.Writeln("DataEvent ","deDataSetChange");
+      } else if ($tmp1 === pas.DB.TDataEvent.deDataSetScroll) {
         pas.System.Writeln("DataEvent ","deDataSetScroll")}
        else if ($tmp1 === pas.DB.TDataEvent.deLayoutChange) {
         pas.System.Writeln("DataEvent ","deLayoutChange")}
        else if ($tmp1 === pas.DB.TDataEvent.deUpdateRecord) {
         pas.System.Writeln("DataEvent ","deUpdateRecord")}
        else if ($tmp1 === pas.DB.TDataEvent.deUpdateState) {
-        pas.System.Writeln("DataEvent ","deUpdateState")}
-       else if ($tmp1 === pas.DB.TDataEvent.deCheckBrowseMode) {
+        pas.System.Writeln("DataEvent ","deUpdateState");
+      } else if ($tmp1 === pas.DB.TDataEvent.deCheckBrowseMode) {
         pas.System.Writeln("DataEvent ","deCheckBrowseMode")}
        else if ($tmp1 === pas.DB.TDataEvent.dePropertyChange) {
         pas.System.Writeln("DataEvent ","dePropertyChange")}

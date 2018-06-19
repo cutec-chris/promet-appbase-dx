@@ -139,6 +139,8 @@ begin
   FSFilter:=AValue;
   Rows := nil;
   ClearBuffers;
+  ClearFields;
+  Close;
 end;
 
 function TAvammDataset.DoGetDataProxy: TDataProxy;
