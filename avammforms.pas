@@ -6,14 +6,10 @@ interface
 
 uses
   Classes, SysUtils,js,web, AvammDB, dhtmlx_form, dhtmlx_toolbar,dhtmlx_grid,
-  dhtmlx_layout,dhtmlx_popup, dhtmlx_db,dhtmlx_base,
-  webrouter, db;
+  dhtmlx_layout,dhtmlx_popup, dhtmlx_db,dhtmlx_base,dhtmlx_windows,dhtmlx_tabbar,
+  webrouter, db,Avamm;
 
 type
-  TAvammForm = class
-  public
-  end;
-
   { TAvammListForm }
 
   TAvammListForm = class
@@ -35,6 +31,24 @@ type
     procedure RefreshList;
   end;
 
+  TAvammFormMode = (fmTab,fmWindow,fm);
+
+  { TAvammForm }
+
+  TAvammForm = class
+  private
+    FID : JSValue;
+    FWindow: JSValue;
+    FParent: JSValue;
+    Layout: TDHTMLXLayout;
+    Form: TDHTMLXForm;
+    Toolbar: TDHTMLXToolbar;
+    Tabs: TDHTMLXTabbar;
+    FData: TJSObject;
+  public
+    constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue);
+  end;
+
   { TAvammAutoComplete }
 
   TAvammAutoComplete = class
@@ -48,8 +62,149 @@ type
 resourcestring
   strRefresh                   = 'Aktualisieren';
   strLoadingFailed             = 'Fehler beim laden von Daten vom Server';
+  strSave                      = 'Speichern';
+  strAbort                     = 'Abbrechen';
+  strNumber                    = 'Nummer';
+  strNumberNote                = 'Die Nummer des Eintrages';
+  strNumberTooltip             = 'geben Sie hier die Id ein.';
+  strShorttext                 = 'Kurztext';
+  strShorttextNote             = 'Der Kurztext des Eintrages';
+  strShorttextTooltip          = 'geben Sie hier den Kurztext ein.';
+  strItemNotFound              = 'Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen';
 
 implementation
+
+{ TAvammForm }
+
+constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
+  Id: JSValue);
+  procedure ToolbarButtonClick(id : string);
+  begin
+    if (id='save') then
+      begin
+      end
+    else if (id='abort') then
+      begin
+      end;
+  end;
+  function ItemLoaded(aValue: JSValue): JSValue;
+  var
+    Fields: TJSObject;
+  begin
+    Layout.progressOff;
+    FData := TJSObject(TJSJSON.parse(TJSXMLHttpRequest(aValue).responseText));
+    Fields := TJSObject(FData.Properties['Fields']);
+    if Fields.Properties['name'] <> null then
+      Form.setItemValue('eShorttext',string(Fields.Properties['name']))
+    else if Fields.Properties['shorttext'] <> null then
+      Form.setItemValue('eShorttext',string(Fields.Properties['shorttext']))
+    else if Fields.Properties['subject'] <> null then
+      Form.setItemValue('eShorttext',string(Fields.Properties['subject']));
+    if Fields.Properties['id'] <> null then
+      begin
+        Form.setItemValue('eId',string(Fields.Properties['id']));
+        Form.showItem('eId');
+      end
+    else Form.hideItem('eId');
+
+  end;
+  function temLoadError(aValue: JSValue): JSValue;
+  begin
+    Layout.progressOff;
+    dhtmlx.message(js.new(['type','error',
+                           'text',strItemnotFound]));
+    if FWindow is TJSWindow then
+      TJSWindow(FWindow).close
+    else TDHTMLXWindowsCell(FWindow).close;
+  end;
+  function WindowCreated(Event: TEventListenerEvent): boolean;
+  var
+    a, b: TDHTMLXLayoutCell;
+  begin
+    writeln('new Window loaded');
+    Layout := TDHTMLXLayout.New(js.new(['parent',FParent,'pattern','2E']));
+    a := Layout.cells('a');
+    a.hideHeader;
+    a.fixSize(0,1);
+    b := Layout.cells('b');
+    b.hideHeader;
+    Layout.setSeparatorSize(0,2);
+    Layout.setOffsets(js.new(['left',0,'top',0,'right',0,'bottom',0]));
+    Toolbar := TDHTMLXToolbar(a.attachToolbar(js.new(['iconset','awesome'])));
+    Toolbar.addButton('save',0,strSave,'fa fa-save','fa fa-save');
+    Toolbar.addButton('abort',0,strAbort,'fa fa-cancel','fa fa-cancel');
+    Toolbar.attachEvent('onClick', @ToolbarButtonClick);
+    Toolbar.disableItem('save');
+    Toolbar.disableItem('abort');
+    Form := TDHTMLXForm(a.attachForm(js.new([])));
+    Form.addItem(null,new(['type','block',
+                                'width','auto',
+                                'name','aBlock']));
+    Form.addItem('aBlock',new(['type','input',
+                           'label', strNumber,
+                           'name','eId',
+                           'readonly',true,
+                           'hidden',true,
+                           'inputWidth',100,
+                           'note',strNumberNote,
+                           'tooltip',strNumberTooltip]));
+    Form.addItem('aBlock',new(['type','newcolumn']));
+    Form.addItem('aBlock',new(['type','input',
+                           'label', strShorttext,
+                           'name','eShorttext',
+                           'readonly',true,
+                           'hidden',true,
+                           'inputWidth',100,
+                           'note',strShorttextNote,
+                           'tooltip',strShorttextTooltip]));
+    a.setHeight(90);
+    Tabs := TDHTMLXTabbar(b.attachTabbar(js.new([
+      'mode','top',           // string, optional, top or bottom tabs mode
+      'align','left',         // string, optional, left or right tabs align
+      'close_button','true',  // boolean, opt., render Close button on tabs
+      'content_zone','true',  // boolean, opt., enable/disable content zone
+      'arrows_mode','auto'    // mode of showing tabs arrows (auto, always)
+      ])));
+    Tabs.setSizes;
+    Layout.progressOn;
+    Avamm.LoadData('/'+aDataSet+'/by-id/'+string(Id)+'/item.json')._then(@ItemLoaded)
+                                                          .catch(@temLoadError);
+  end;
+begin
+  //Create Window/Tab
+  FWindow := null;
+  FID := Id;
+  if (mode = fmTab)
+  or (mode = fmWindow)
+  then
+    begin
+      if  (not dhx.isChrome)
+      and (not dhx.isIE)
+      then
+        begin
+          case mode of
+          fmTab:FWindow := window.open(window.location.href,'_blank');
+          fmWindow:FWindow := window.open(window.location.href,'_top');
+          end;
+          if FWindow<>null then
+            begin
+              FParent := TJSWindow(FWindow).document.body;
+              TJSWindow(FWindow).onload:=@WindowCreated;
+            end;
+        end;
+    end;
+  if FWindow = null then
+    begin
+      FWindow := Windows.createWindow(Id,10,10,200,200);
+      with TDHTMLXWindowsCell(FWindow) do
+        begin
+          maximize;
+          setText('...');
+          FParent := FWindow;
+          WindowCreated(TEventListenerEvent(null));
+        end;
+    end;
+end;
 
 { TAvammAutoComplete }
 

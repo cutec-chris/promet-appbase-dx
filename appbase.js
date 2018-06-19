@@ -21060,7 +21060,10 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
             aObj["id"] = this.GetDataset().FFieldList.GetField(a).GetAsJSValue()}
            else aObj[this.GetDataset().FFieldList.GetField(a).FFieldName] = this.GetDataset().FFieldList.GetField(a).GetAsJSValue();
         };
-        this.FDatastore.add(aObj);
+        try {
+          this.FDatastore.add(aObj);
+        } catch ($e) {
+        };
         this.GetDataset().Next();
       };
       this.GetDataset().GotoBookmark(aRec);
@@ -21125,11 +21128,13 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
     };
   });
 });
-rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","dhtmlx_base","webrouter","DB"],function () {
+rtl.module("dhtmlx_tabbar",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
-  rtl.createClass($mod,"TAvammForm",pas.System.TObject,function () {
-  });
+});
+rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","dhtmlx_base","dhtmlx_windows","dhtmlx_tabbar","webrouter","DB","Avamm"],function () {
+  "use strict";
+  var $mod = this;
   rtl.createClass($mod,"TAvammListForm",pas.System.TObject,function () {
     this.$init = function () {
       pas.System.TObject.$init.call(this);
@@ -21237,6 +21242,115 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
     };
   });
+  this.TAvammFormMode = {"0": "fmTab", fmTab: 0, "1": "fmWindow", fmWindow: 1, "2": "fm", fm: 2};
+  $mod.$rtti.$Enum("TAvammFormMode",{minvalue: 0, maxvalue: 2, ordtype: 1, enumtype: this.TAvammFormMode});
+  rtl.createClass($mod,"TAvammForm",pas.System.TObject,function () {
+    this.$init = function () {
+      pas.System.TObject.$init.call(this);
+      this.FID = undefined;
+      this.FWindow = undefined;
+      this.FParent = undefined;
+      this.Layout = null;
+      this.Form = null;
+      this.Toolbar = null;
+      this.Tabs = null;
+      this.FData = null;
+    };
+    this.$final = function () {
+      this.Layout = undefined;
+      this.Form = undefined;
+      this.Toolbar = undefined;
+      this.Tabs = undefined;
+      this.FData = undefined;
+      pas.System.TObject.$final.call(this);
+    };
+    this.Create$1 = function (mode, aDataSet, Id) {
+      var Self = this;
+      function ToolbarButtonClick(id) {
+        if (id === "save") {}
+        else if (id === "abort") ;
+      };
+      function ItemLoaded(aValue) {
+        var Result = undefined;
+        var Fields = null;
+        Self.Layout.progressOff();
+        Self.FData = rtl.getObject(JSON.parse(rtl.getObject(aValue).responseText));
+        Fields = rtl.getObject(Self.FData["Fields"]);
+        if (Fields["name"] != null) {
+          Self.Form.setItemValue("eShorttext","" + Fields["name"])}
+         else if (Fields["shorttext"] != null) {
+          Self.Form.setItemValue("eShorttext","" + Fields["shorttext"])}
+         else if (Fields["subject"] != null) Self.Form.setItemValue("eShorttext","" + Fields["subject"]);
+        if (Fields["id"] != null) {
+          Self.Form.setItemValue("eId","" + Fields["id"]);
+          Self.Form.showItem("eId");
+        } else Self.Form.hideItem("eId");
+        return Result;
+      };
+      function temLoadError(aValue) {
+        var Result = undefined;
+        Self.Layout.progressOff();
+        dhtmlx.message(pas.JS.New(["type","error","text",rtl.getResStr(pas.AvammForms,"strItemNotFound")]));
+        if (rtl.isExt(Self.FWindow,Window,1)) {
+          rtl.getObject(Self.FWindow).close()}
+         else rtl.getObject(Self.FWindow).close();
+        return Result;
+      };
+      function WindowCreated(Event) {
+        var Result = false;
+        var a = null;
+        var b = null;
+        pas.System.Writeln("new Window loaded");
+        Self.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",Self.FParent,"pattern","2E"]));
+        a = Self.Layout.cells("a");
+        a.hideHeader();
+        a.fixSize(0,1);
+        b = Self.Layout.cells("b");
+        b.hideHeader();
+        Self.Layout.setSeparatorSize(0,2);
+        Self.Layout.setOffsets(pas.JS.New(["left",0,"top",0,"right",0,"bottom",0]));
+        Self.Toolbar = rtl.getObject(a.attachToolbar(pas.JS.New(["iconset","awesome"])));
+        Self.Toolbar.addButton("save",0,rtl.getResStr(pas.AvammForms,"strSave"),"fa fa-save","fa fa-save");
+        Self.Toolbar.addButton("abort",0,rtl.getResStr(pas.AvammForms,"strAbort"),"fa fa-cancel","fa fa-cancel");
+        Self.Toolbar.attachEvent("onClick",ToolbarButtonClick);
+        Self.Toolbar.disableItem("save");
+        Self.Toolbar.disableItem("abort");
+        Self.Form = rtl.getObject(a.attachForm(pas.JS.New([])));
+        Self.Form.addItem(null,pas.JS.New(["type","block","width","auto","name","aBlock"]));
+        Self.Form.addItem("aBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.AvammForms,"strNumber"),"name","eId","readonly",true,"hidden",true,"inputWidth",100,"note",rtl.getResStr(pas.AvammForms,"strNumberNote"),"tooltip",rtl.getResStr(pas.AvammForms,"strNumberTooltip")]));
+        Self.Form.addItem("aBlock",pas.JS.New(["type","newcolumn"]));
+        Self.Form.addItem("aBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.AvammForms,"strShorttext"),"name","eShorttext","readonly",true,"hidden",true,"inputWidth",100,"note",rtl.getResStr(pas.AvammForms,"strShorttextNote"),"tooltip",rtl.getResStr(pas.AvammForms,"strShorttextTooltip")]));
+        a.setHeight(90);
+        Self.Tabs = rtl.getObject(b.attachTabbar(pas.JS.New(["mode","top","align","left","close_button","true","content_zone","true","arrows_mode","auto"])));
+        Self.Tabs.setSizes();
+        Self.Layout.progressOn();
+        pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json",false,"text\/json",4000).then(ItemLoaded).catch(temLoadError);
+        return Result;
+      };
+      Self.FWindow = null;
+      Self.FID = Id;
+      if ((mode === $mod.TAvammFormMode.fmTab) || (mode === $mod.TAvammFormMode.fmWindow)) {
+        if (!window.dhx.isChrome && !window.dhx.isIE) {
+          var $tmp1 = mode;
+          if ($tmp1 === $mod.TAvammFormMode.fmTab) {
+            Self.FWindow = window.open(window.location.href,"_blank")}
+           else if ($tmp1 === $mod.TAvammFormMode.fmWindow) Self.FWindow = window.open(window.location.href,"_top");
+          if (Self.FWindow != null) {
+            Self.FParent = rtl.getObject(Self.FWindow).document.body;
+            rtl.getObject(Self.FWindow).onload = WindowCreated;
+          };
+        };
+      };
+      if (Self.FWindow == null) {
+        Self.FWindow = pas.dhtmlx_windows.Windows.createWindow(Id,10,10,200,200);
+        var $with2 = rtl.getObject(Self.FWindow);
+        $with2.maximize();
+        $with2.setText("...");
+        Self.FParent = Self.FWindow;
+        WindowCreated(rtl.getObject(null));
+      };
+    };
+  });
   rtl.createClass($mod,"TAvammAutoComplete",pas.System.TObject,function () {
     this.$init = function () {
       pas.System.TObject.$init.call(this);
@@ -21260,7 +21374,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
     };
   });
-  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}};
+  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}};
 });
 rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms"],function () {
   "use strict";
@@ -21295,7 +21409,10 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     if (pas.webrouter.Router().GetHistory().$class.getHash() !== aData.FURLPattern) pas.webrouter.Router().Push(aData.FURLPattern);
   };
   this.OnReady = function (Sender, aLocation, aRoute) {
-    $mod.Treeview.selectItem(aRoute.FID);
+    try {
+      $mod.Treeview.selectItem(aRoute.FID);
+    } catch ($e) {
+    };
   };
   this.DoHandleException = function (aName) {
     function ShowError(aValue) {

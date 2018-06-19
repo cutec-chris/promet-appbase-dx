@@ -50,7 +50,10 @@ begin
 end;
 procedure OnReady(Sender: THistory; aLocation: String; aRoute: TRoute);
 begin
-  Treeview.selectItem(aRoute.ID);
+  try
+    Treeview.selectItem(aRoute.ID);
+  except
+  end;
 end;
 procedure DoHandleException(aName: JSValue);
   function ShowError(aValue: JSValue): JSValue;
