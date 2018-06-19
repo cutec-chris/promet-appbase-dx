@@ -38,6 +38,7 @@ type
   TAvammForm = class
   private
     FID : JSValue;
+    FOnDataupdated: TNotifyEvent;
     FWindow: JSValue;
     FParent: JSValue;
     Layout: TDHTMLXLayout;
@@ -47,6 +48,7 @@ type
     FData: TJSObject;
   public
     constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue);
+    property OnDataUpdated : TNotifyEvent read FOnDataupdated write FOnDataUpdated;
   end;
 
   { TAvammAutoComplete }
@@ -91,7 +93,6 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
   var
     Fields: TJSObject;
   begin
-    Layout.progressOff;
     FData := TJSObject(TJSJSON.parse(TJSXMLHttpRequest(aValue).responseText));
     Fields := TJSObject(FData.Properties['Fields']);
     if Fields.Properties['name'] <> null then
@@ -106,9 +107,11 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
         Form.showItem('eId');
       end
     else Form.hideItem('eId');
-
+    Layout.progressOff;
+    if Assigned(OnDataUpdated) then
+      OnDataUpdated(Self);
   end;
-  function temLoadError(aValue: JSValue): JSValue;
+  function ItemLoadError(aValue: JSValue): JSValue;
   begin
     Layout.progressOff;
     dhtmlx.message(js.new(['type','error',
@@ -168,7 +171,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     Tabs.setSizes;
     Layout.progressOn;
     Avamm.LoadData('/'+aDataSet+'/by-id/'+string(Id)+'/item.json')._then(@ItemLoaded)
-                                                          .catch(@temLoadError);
+                                                          .catch(@ItemLoadError);
   end;
 begin
   //Create Window/Tab

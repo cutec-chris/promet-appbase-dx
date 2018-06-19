@@ -21248,6 +21248,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.$init = function () {
       pas.System.TObject.$init.call(this);
       this.FID = undefined;
+      this.FOnDataupdated = null;
       this.FWindow = undefined;
       this.FParent = undefined;
       this.Layout = null;
@@ -21257,6 +21258,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.FData = null;
     };
     this.$final = function () {
+      this.FOnDataupdated = undefined;
       this.Layout = undefined;
       this.Form = undefined;
       this.Toolbar = undefined;
@@ -21273,7 +21275,6 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       function ItemLoaded(aValue) {
         var Result = undefined;
         var Fields = null;
-        Self.Layout.progressOff();
         Self.FData = rtl.getObject(JSON.parse(rtl.getObject(aValue).responseText));
         Fields = rtl.getObject(Self.FData["Fields"]);
         if (Fields["name"] != null) {
@@ -21285,9 +21286,11 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
           Self.Form.setItemValue("eId","" + Fields["id"]);
           Self.Form.showItem("eId");
         } else Self.Form.hideItem("eId");
+        Self.Layout.progressOff();
+        if (Self.FOnDataupdated != null) Self.FOnDataupdated(Self);
         return Result;
       };
-      function temLoadError(aValue) {
+      function ItemLoadError(aValue) {
         var Result = undefined;
         Self.Layout.progressOff();
         dhtmlx.message(pas.JS.New(["type","error","text",rtl.getResStr(pas.AvammForms,"strItemNotFound")]));
@@ -21324,7 +21327,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Tabs = rtl.getObject(b.attachTabbar(pas.JS.New(["mode","top","align","left","close_button","true","content_zone","true","arrows_mode","auto"])));
         Self.Tabs.setSizes();
         Self.Layout.progressOn();
-        pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json",false,"text\/json",4000).then(ItemLoaded).catch(temLoadError);
+        pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json",false,"text\/json",4000).then(ItemLoaded).catch(ItemLoadError);
         return Result;
       };
       Self.FWindow = null;
