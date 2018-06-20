@@ -119,14 +119,15 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     else if Fields.Properties['subject'] <> null then
       Form.setItemValue('eShorttext',string(Fields.Properties['subject']))
     else if Fields.Properties['summary'] <> null then
-      Form.setItemValue('eShorttext',string(Fields.Properties['summary']))
-    else Form.hideItem('eShorttext');
+      Form.setItemValue('eShorttext',string(Fields.Properties['summary']));
     if Fields.Properties['id'] <> null then
       begin
         Form.setItemValue('eId',string(Fields.Properties['id']));
         Form.showItem('eId');
       end
     else Form.hideItem('eId');
+    if string(Form.getItemValue('eShorttext'))<>'' then
+      Form.showItem('eShorttext');
     SetTitle(string(Form.getItemValue('eShorttext')));
     Layout.progressOff;
     DoLoadData;
@@ -176,6 +177,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
                            'label', strShorttext,
                            'name','eShorttext',
                            'readonly',true,
+                           'hidden',true,
                            'inputWidth',400,
                            'note',strShorttextNote,
                            'tooltip',strShorttextTooltip]));
