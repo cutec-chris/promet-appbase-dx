@@ -38,7 +38,7 @@ type
   TAvammForm = class
   private
     FID : JSValue;
-    FOnDataupdated: TNotifyEvent;
+    FTablename: string;
     FWindow: JSValue;
     FParent: JSValue;
     Layout: TDHTMLXLayout;
@@ -46,9 +46,13 @@ type
     Toolbar: TDHTMLXToolbar;
     Tabs: TDHTMLXTabbar;
     FData: TJSObject;
+  protected
+    procedure DoLoadData;virtual;
+    procedure SetTitle(aTitle : string);
   public
     constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue);
-    property OnDataUpdated : TNotifyEvent read FOnDataupdated write FOnDataUpdated;
+    property Id : JSValue read FID;
+    property Tablename : string read FTablename;
   end;
 
   { TAvammAutoComplete }
@@ -77,6 +81,18 @@ resourcestring
 implementation
 
 { TAvammForm }
+
+procedure TAvammForm.DoLoadData;
+begin
+end;
+
+procedure TAvammForm.SetTitle(aTitle: string);
+begin
+  if FWindow is TJSWindow then
+    TJSWindow(FWindow).document.title:=aTitle
+  else
+    TDHTMLXWindowsCell(FWindow).setText(aTitle);
+end;
 
 constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
   Id: JSValue);
@@ -107,9 +123,9 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
         Form.showItem('eId');
       end
     else Form.hideItem('eId');
+    SetTitle(string(Form.getItemValue('eShorttext')));
     Layout.progressOff;
-    if Assigned(OnDataUpdated) then
-      OnDataUpdated(Self);
+    DoLoadData;
   end;
   function ItemLoadError(aValue: JSValue): JSValue;
   begin
@@ -177,6 +193,7 @@ begin
   //Create Window/Tab
   FWindow := null;
   FID := Id;
+  FTablename:=aDataSet;
   if (mode = fmTab)
   or (mode = fmWindow)
   then
