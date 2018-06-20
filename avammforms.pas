@@ -41,18 +41,19 @@ type
     FTablename: string;
     FWindow: JSValue;
     FParent: JSValue;
+    FData: TJSObject;
+  protected
     Layout: TDHTMLXLayout;
     Form: TDHTMLXForm;
     Toolbar: TDHTMLXToolbar;
     Tabs: TDHTMLXTabbar;
-    FData: TJSObject;
-  protected
     procedure DoLoadData;virtual;
     procedure SetTitle(aTitle : string);
   public
     constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue);
     property Id : JSValue read FID;
     property Tablename : string read FTablename;
+    property Data : TJSObject read FData;
   end;
 
   { TAvammAutoComplete }

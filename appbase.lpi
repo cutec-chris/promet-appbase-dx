@@ -124,7 +124,7 @@
     </SearchPaths>
     <Other>
       <ExecuteBefore>
-        <Command Value="pas2js -Tbrowser -Jirtl.js -Jc $Name($(ProjFile))"/>
+        <Command Value="pas2js -Tbrowser -Jirtl.js -Jc -Fudhtmlx-for-pas2js $Name($(ProjFile))"/>
         <ScanForFPCMsgs Value="True"/>
       </ExecuteBefore>
     </Other>
