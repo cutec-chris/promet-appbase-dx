@@ -21257,6 +21257,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       pas.System.TObject.$final.call(this);
     };
     this.DoLoadData = function () {
+      this.Layout.cells("a").setHeight(90);
     };
     this.SetTitle = function (aTitle) {
       if (rtl.isExt(this.FWindow,Window,1)) {
@@ -21308,10 +21309,9 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",Self.FParent,"pattern","2E"]));
         a = Self.Layout.cells("a");
         a.hideHeader();
-        a.fixSize(0,1);
         b = Self.Layout.cells("b");
         b.hideHeader();
-        Self.Layout.setSeparatorSize(0,2);
+        Self.Layout.setSeparatorSize(0,5);
         Self.Layout.setOffsets(pas.JS.New(["left",0,"top",0,"right",0,"bottom",0]));
         Self.Toolbar = rtl.getObject(a.attachToolbar(pas.JS.New(["iconset","awesome"])));
         Self.Toolbar.addButton("save",0,rtl.getResStr(pas.AvammForms,"strSave"),"fa fa-save","fa fa-save");
@@ -21324,7 +21324,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Form.addItem("aBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.AvammForms,"strNumber"),"name","eId","readonly",true,"hidden",true,"inputWidth",100,"note",rtl.getResStr(pas.AvammForms,"strNumberNote"),"tooltip",rtl.getResStr(pas.AvammForms,"strNumberTooltip")]));
         Self.Form.addItem("aBlock",pas.JS.New(["type","newcolumn"]));
         Self.Form.addItem("aBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.AvammForms,"strShorttext"),"name","eShorttext","readonly",true,"hidden",true,"inputWidth",400,"note",rtl.getResStr(pas.AvammForms,"strShorttextNote"),"tooltip",rtl.getResStr(pas.AvammForms,"strShorttextTooltip")]));
-        a.setHeight(90);
+        a.setHeight(0);
         Self.Tabs = rtl.getObject(b.attachTabbar(pas.JS.New(["mode","top","align","left","close_button","true","content_zone","true","arrows_mode","auto"])));
         Self.Tabs.setSizes();
         Self.Layout.progressOn();

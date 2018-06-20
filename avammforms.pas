@@ -85,6 +85,7 @@ implementation
 
 procedure TAvammForm.DoLoadData;
 begin
+  Layout.cells('a').setHeight(90);
 end;
 
 procedure TAvammForm.SetTitle(aTitle: string);
@@ -149,10 +150,9 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     Layout := TDHTMLXLayout.New(js.new(['parent',FParent,'pattern','2E']));
     a := Layout.cells('a');
     a.hideHeader;
-    a.fixSize(0,1);
     b := Layout.cells('b');
     b.hideHeader;
-    Layout.setSeparatorSize(0,2);
+    Layout.setSeparatorSize(0,5);
     Layout.setOffsets(js.new(['left',0,'top',0,'right',0,'bottom',0]));
     Toolbar := TDHTMLXToolbar(a.attachToolbar(js.new(['iconset','awesome'])));
     Toolbar.addButton('save',0,strSave,'fa fa-save','fa fa-save');
@@ -181,7 +181,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
                            'inputWidth',400,
                            'note',strShorttextNote,
                            'tooltip',strShorttextTooltip]));
-    a.setHeight(90);
+    a.setHeight(0);
     Tabs := TDHTMLXTabbar(b.attachTabbar(js.new([
       'mode','top',           // string, optional, top or bottom tabs mode
       'align','left',         // string, optional, left or right tabs align
