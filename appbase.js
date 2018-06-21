@@ -10429,6 +10429,29 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
+  this.AppendCSS = function (url, onLoad, onError) {
+    var file = url;
+    var link = document.createElement( "link" );
+    link.href = file;
+    link.type = "text/css";
+    link.rel = "stylesheet";
+    link.media = "screen,print";
+    link.onload = onLoad;
+    link.onerror = onError;
+    document.getElementsByTagName( "head" )[0].appendChild( link );
+  };
+  this.AppendJS = function (url, onLoad, onError) {
+    if (document.getElementById(url) == null) {
+      var file = url;
+      var link = document.createElement( "script" );
+      link.id = url;
+      link.src = file;
+      link.type = "text/javascript";
+      link.onload = onLoad;
+      link.onerror = onError;
+      document.getElementsByTagName( "head" )[0].appendChild( link );
+    };
+  };
   this.WidgetsetLoaded = null;
   $mod.$init = function () {
     $impl.LoadDHTMLX();
@@ -10438,29 +10461,6 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
   var $mod = this;
   var $impl = $mod.$impl;
   $impl.LoadDHTMLX = function () {
-    function AppendCSS(url, onLoad, onError) {
-      var file = url;
-      var link = document.createElement( "link" );
-      link.href = file;
-      link.type = "text/css";
-      link.rel = "stylesheet";
-      link.media = "screen,print";
-      link.onload = onLoad;
-      link.onerror = onError;
-      document.getElementsByTagName( "head" )[0].appendChild( link );
-    };
-    function AppendJS(url, onLoad, onError) {
-      if (document.getElementById(url) == null) {
-        var file = url;
-        var link = document.createElement( "script" );
-        link.id = url;
-        link.src = file;
-        link.type = "text/javascript";
-        link.onload = onLoad;
-        link.onerror = onError;
-        document.getElementsByTagName( "head" )[0].appendChild( link );
-      };
-    };
     function DoLoadDHTMLX(resolve, reject) {
       function ScriptLoaded() {
         window.dhx4.skin = 'material';
@@ -10468,24 +10468,24 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
         resolve(true);
       };
       function ScriptError() {
-        AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoaded,null);
+        $mod.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoaded,null);
       };
       pas.System.Writeln("Loading DHTMLX...");
-      AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoaded,ScriptError);
+      $mod.AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoaded,ScriptError);
     };
     function DoLoadCSS(resolve, reject) {
       function ScriptLoaded() {
-        AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
+        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
         resolve(true);
       };
       function ScriptLoaded2() {
-        AppendCSS("appbase\/dhtmlx\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
+        $mod.AppendCSS("appbase\/dhtmlx\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
         resolve(true);
       };
       function ScriptError() {
-        AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoaded,null);
+        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoaded,null);
       };
-      AppendCSS("appbase\/dhtmlx\/dhtmlx.css",ScriptLoaded2,ScriptError);
+      $mod.AppendCSS("appbase\/dhtmlx\/dhtmlx.css",ScriptLoaded2,ScriptError);
     };
     $mod.WidgetsetLoaded = Promise.all([new Promise(DoLoadDHTMLX),new Promise(DoLoadCSS)]);
   };
@@ -21452,7 +21452,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
         i = $l1;
         aRight = Object.getOwnPropertyNames(rtl.getObject(aRights[i]))[0];
         try {
-          if (Math.floor(rtl.getObject(aRights[i])[aRight]) > 1) pas.Avamm.AppendJS(((pas.SysUtils.LowerCase(aRight) + "\/") + pas.SysUtils.LowerCase(aRight)) + ".js",ModuleLoaded,null);
+          if (Math.floor(rtl.getObject(aRights[i])[aRight]) > 1) pas.dhtmlx_base.AppendJS(((pas.SysUtils.LowerCase(aRight) + "\/") + pas.SysUtils.LowerCase(aRight)) + ".js",ModuleLoaded,null);
         } catch ($e) {
         };
       };
@@ -21514,6 +21514,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     pas.webrouter.Router().FBeforeRequest = $mod.RouterBeforeRequest;
     pas.webrouter.Router().FAfterRequest = $mod.RouterAfterRequest;
     pas.webrouter.Router().GetHistory().FOnReady = $mod.OnReady;
+    pas.dhtmlx_base.AppendCSS("index.css",null,null);
     return Result;
   };
   this.DoGetAvammContainer = function () {

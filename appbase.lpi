@@ -105,7 +105,7 @@
         <PackageName Value="pas2js_rtl"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="2">
+    <Units Count="3">
       <Unit0>
         <Filename Value="appbase.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -114,6 +114,10 @@
         <Filename Value="../index.html"/>
         <IsPartOfProject Value="True"/>
       </Unit1>
+      <Unit2>
+        <Filename Value="../index.css"/>
+        <IsPartOfProject Value="True"/>
+      </Unit2>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

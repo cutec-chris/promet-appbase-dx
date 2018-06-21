@@ -160,6 +160,7 @@ begin
   Router.BeforeRequest:=@RouterBeforeRequest;
   Router.AfterRequest:=@RouterAfterRequest;
   Router.History.OnReady:=@Onready;
+  dhtmlx_base.AppendCSS('index.css',null,null);
 end;
 function DoGetAvammContainer: JSValue;
   procedure ResizePanelsLater;
