@@ -10479,7 +10479,7 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
         resolve(true);
       };
       function ScriptLoaded2() {
-        AppendCSS("appbase\/dhtmlx\/font-awesome.min.css",null,null);
+        AppendCSS("appbase\/dhtmlx\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
         resolve(true);
       };
       function ScriptError() {
