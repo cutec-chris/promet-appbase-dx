@@ -38,17 +38,22 @@ type
   TAvammForm = class
   private
     FID : JSValue;
-    FOnDataupdated: TNotifyEvent;
+    FTablename: string;
     FWindow: JSValue;
     FParent: JSValue;
+    FData: TJSObject;
+  protected
     Layout: TDHTMLXLayout;
     Form: TDHTMLXForm;
     Toolbar: TDHTMLXToolbar;
     Tabs: TDHTMLXTabbar;
-    FData: TJSObject;
+    procedure DoLoadData;virtual;
+    procedure SetTitle(aTitle : string);
   public
     constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue);
-    property OnDataUpdated : TNotifyEvent read FOnDataupdated write FOnDataUpdated;
+    property Id : JSValue read FID;
+    property Tablename : string read FTablename;
+    property Data : TJSObject read FData;
   end;
 
   { TAvammAutoComplete }
@@ -78,6 +83,19 @@ implementation
 
 { TAvammForm }
 
+procedure TAvammForm.DoLoadData;
+begin
+  Layout.cells('a').setHeight(90);
+end;
+
+procedure TAvammForm.SetTitle(aTitle: string);
+begin
+  if FWindow is TJSWindow then
+    TJSWindow(FWindow).document.title:=aTitle
+  else
+    TDHTMLXWindowsCell(FWindow).setText(aTitle);
+end;
+
 constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
   Id: JSValue);
   procedure ToolbarButtonClick(id : string);
@@ -88,6 +106,10 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     else if (id='abort') then
       begin
       end;
+  end;
+  function ItemLoaded2(aValue: JSValue): JSValue;
+  begin
+    DoLoadData;
   end;
   function ItemLoaded(aValue: JSValue): JSValue;
   var
@@ -100,16 +122,19 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     else if Fields.Properties['shorttext'] <> null then
       Form.setItemValue('eShorttext',string(Fields.Properties['shorttext']))
     else if Fields.Properties['subject'] <> null then
-      Form.setItemValue('eShorttext',string(Fields.Properties['subject']));
+      Form.setItemValue('eShorttext',string(Fields.Properties['subject']))
+    else if Fields.Properties['summary'] <> null then
+      Form.setItemValue('eShorttext',string(Fields.Properties['summary']));
     if Fields.Properties['id'] <> null then
       begin
         Form.setItemValue('eId',string(Fields.Properties['id']));
         Form.showItem('eId');
       end
     else Form.hideItem('eId');
+    if string(Form.getItemValue('eShorttext'))<>'' then
+      Form.showItem('eShorttext');
+    SetTitle(string(Form.getItemValue('eShorttext')));
     Layout.progressOff;
-    if Assigned(OnDataUpdated) then
-      OnDataUpdated(Self);
   end;
   function ItemLoadError(aValue: JSValue): JSValue;
   begin
@@ -128,10 +153,9 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     Layout := TDHTMLXLayout.New(js.new(['parent',FParent,'pattern','2E']));
     a := Layout.cells('a');
     a.hideHeader;
-    a.fixSize(0,1);
     b := Layout.cells('b');
     b.hideHeader;
-    Layout.setSeparatorSize(0,2);
+    Layout.setSeparatorSize(0,5);
     Layout.setOffsets(js.new(['left',0,'top',0,'right',0,'bottom',0]));
     Toolbar := TDHTMLXToolbar(a.attachToolbar(js.new(['iconset','awesome'])));
     Toolbar.addButton('save',0,strSave,'fa fa-save','fa fa-save');
@@ -157,10 +181,10 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
                            'name','eShorttext',
                            'readonly',true,
                            'hidden',true,
-                           'inputWidth',100,
+                           'inputWidth',400,
                            'note',strShorttextNote,
                            'tooltip',strShorttextTooltip]));
-    a.setHeight(90);
+    a.setHeight(0);
     Tabs := TDHTMLXTabbar(b.attachTabbar(js.new([
       'mode','top',           // string, optional, top or bottom tabs mode
       'align','left',         // string, optional, left or right tabs align
@@ -171,12 +195,14 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     Tabs.setSizes;
     Layout.progressOn;
     Avamm.LoadData('/'+aDataSet+'/by-id/'+string(Id)+'/item.json')._then(@ItemLoaded)
-                                                          .catch(@ItemLoadError);
+                                                                  .catch(@ItemLoadError)
+                                                                  ._then(@ItemLoaded2);
   end;
 begin
   //Create Window/Tab
   FWindow := null;
   FID := Id;
+  FTablename:=aDataSet;
   if (mode = fmTab)
   or (mode = fmWindow)
   then

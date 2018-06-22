@@ -10429,6 +10429,29 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
+  this.AppendCSS = function (url, onLoad, onError) {
+    var file = url;
+    var link = document.createElement( "link" );
+    link.href = file;
+    link.type = "text/css";
+    link.rel = "stylesheet";
+    link.media = "screen,print";
+    link.onload = onLoad;
+    link.onerror = onError;
+    document.getElementsByTagName( "head" )[0].appendChild( link );
+  };
+  this.AppendJS = function (url, onLoad, onError) {
+    if (document.getElementById(url) == null) {
+      var file = url;
+      var link = document.createElement( "script" );
+      link.id = url;
+      link.src = file;
+      link.type = "text/javascript";
+      link.onload = onLoad;
+      link.onerror = onError;
+      document.getElementsByTagName( "head" )[0].appendChild( link );
+    };
+  };
   this.WidgetsetLoaded = null;
   $mod.$init = function () {
     $impl.LoadDHTMLX();
@@ -10438,29 +10461,6 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
   var $mod = this;
   var $impl = $mod.$impl;
   $impl.LoadDHTMLX = function () {
-    function AppendCSS(url, onLoad, onError) {
-      var file = url;
-      var link = document.createElement( "link" );
-      link.href = file;
-      link.type = "text/css";
-      link.rel = "stylesheet";
-      link.media = "screen,print";
-      link.onload = onLoad;
-      link.onerror = onError;
-      document.getElementsByTagName( "head" )[0].appendChild( link );
-    };
-    function AppendJS(url, onLoad, onError) {
-      if (document.getElementById(url) == null) {
-        var file = url;
-        var link = document.createElement( "script" );
-        link.id = url;
-        link.src = file;
-        link.type = "text/javascript";
-        link.onload = onLoad;
-        link.onerror = onError;
-        document.getElementsByTagName( "head" )[0].appendChild( link );
-      };
-    };
     function DoLoadDHTMLX(resolve, reject) {
       function ScriptLoaded() {
         window.dhx4.skin = 'material';
@@ -10468,24 +10468,24 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
         resolve(true);
       };
       function ScriptError() {
-        AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoaded,null);
+        $mod.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoaded,null);
       };
       pas.System.Writeln("Loading DHTMLX...");
-      AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoaded,ScriptError);
+      $mod.AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoaded,ScriptError);
     };
     function DoLoadCSS(resolve, reject) {
       function ScriptLoaded() {
-        AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
+        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
         resolve(true);
       };
       function ScriptLoaded2() {
-        AppendCSS("appbase\/dhtmlx\/font-awesome.min.css",null,null);
+        $mod.AppendCSS("appbase\/dhtmlx\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
         resolve(true);
       };
       function ScriptError() {
-        AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoaded,null);
+        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoaded,null);
       };
-      AppendCSS("appbase\/dhtmlx\/dhtmlx.css",ScriptLoaded2,ScriptError);
+      $mod.AppendCSS("appbase\/dhtmlx\/dhtmlx.css",ScriptLoaded2,ScriptError);
     };
     $mod.WidgetsetLoaded = Promise.all([new Promise(DoLoadDHTMLX),new Promise(DoLoadCSS)]);
   };
@@ -10517,13 +10517,11 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       };
       function DoOnError(event) {
         var Result = false;
-        pas.System.Writeln("Request not succesful (error)");
         reject(req);
         window.clearTimeout(oTimeout);
         return Result;
       };
       function RequestSaveTimeout() {
-        pas.System.Writeln("Request Timeout");
         window.clearTimeout(oTimeout);
         req.abort();
         reject(req);
@@ -10540,14 +10538,12 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       try {
         req.send();
       } catch ($e) {
-        pas.System.Writeln("Request not succesful");
         reject(req);
       };
       oTimeout = window.setTimeout(RequestSaveTimeout,Timeout);
     };
     function ReturnResult(res) {
       var Result = undefined;
-      pas.System.Writeln("Returning... ",res);
       Result = res;
       return Result;
     };
@@ -10571,8 +10567,6 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       function CheckStatus(aValue) {
         var Result = undefined;
         function DoCheckStatus(resolve, reject) {
-          pas.System.Writeln("CheckStatus:");
-          console.log(aValue);
           var $tmp1 = rtl.getObject(aValue).status;
           if ($tmp1 === 403) {
             resolve(true)}
@@ -10588,7 +10582,6 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
           };
         };
         Result = new Promise(DoCheckStatus);
-        console.log(Result);
         return Result;
       };
       function GetLoginData(aValue) {
@@ -10598,8 +10591,6 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
           function DoIntGetLoginData(resolve, reject) {
             function LoginSuccessful(aValue) {
               var Result = undefined;
-              pas.System.Writeln("GetLoginData:");
-              console.log(aValue);
               if (aValue == true) {
                 resolve(true)}
                else reject(rtl.getResStr(pas.Avamm,"strLoginFailed"));
@@ -10728,6 +10719,9 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
   $mod.$init = function () {
     pas.System.Writeln("Appbase initializing...");
     window.onerror = $impl.WindowError;
+    window.addEventListener("unhandledrejection", function(err, promise) {
+      $impl.WindowError(err);
+    });
     pas.webrouter.Router().InitHistory(pas.webrouter.THistoryKind.hkHash,"");
     $impl.InitAvammApp();
   };
@@ -21248,29 +21242,41 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.$init = function () {
       pas.System.TObject.$init.call(this);
       this.FID = undefined;
-      this.FOnDataupdated = null;
+      this.FTablename = "";
       this.FWindow = undefined;
       this.FParent = undefined;
+      this.FData = null;
       this.Layout = null;
       this.Form = null;
       this.Toolbar = null;
       this.Tabs = null;
-      this.FData = null;
     };
     this.$final = function () {
-      this.FOnDataupdated = undefined;
+      this.FData = undefined;
       this.Layout = undefined;
       this.Form = undefined;
       this.Toolbar = undefined;
       this.Tabs = undefined;
-      this.FData = undefined;
       pas.System.TObject.$final.call(this);
+    };
+    this.DoLoadData = function () {
+      this.Layout.cells("a").setHeight(90);
+    };
+    this.SetTitle = function (aTitle) {
+      if (rtl.isExt(this.FWindow,Window,1)) {
+        rtl.getObject(this.FWindow).document.title = aTitle}
+       else rtl.getObject(this.FWindow).setText(aTitle);
     };
     this.Create$1 = function (mode, aDataSet, Id) {
       var Self = this;
       function ToolbarButtonClick(id) {
         if (id === "save") {}
         else if (id === "abort") ;
+      };
+      function ItemLoaded2(aValue) {
+        var Result = undefined;
+        Self.DoLoadData();
+        return Result;
       };
       function ItemLoaded(aValue) {
         var Result = undefined;
@@ -21281,13 +21287,16 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
           Self.Form.setItemValue("eShorttext","" + Fields["name"])}
          else if (Fields["shorttext"] != null) {
           Self.Form.setItemValue("eShorttext","" + Fields["shorttext"])}
-         else if (Fields["subject"] != null) Self.Form.setItemValue("eShorttext","" + Fields["subject"]);
+         else if (Fields["subject"] != null) {
+          Self.Form.setItemValue("eShorttext","" + Fields["subject"])}
+         else if (Fields["summary"] != null) Self.Form.setItemValue("eShorttext","" + Fields["summary"]);
         if (Fields["id"] != null) {
           Self.Form.setItemValue("eId","" + Fields["id"]);
           Self.Form.showItem("eId");
         } else Self.Form.hideItem("eId");
+        if (("" + Self.Form.getItemValue("eShorttext")) !== "") Self.Form.showItem("eShorttext");
+        Self.SetTitle("" + Self.Form.getItemValue("eShorttext"));
         Self.Layout.progressOff();
-        if (Self.FOnDataupdated != null) Self.FOnDataupdated(Self);
         return Result;
       };
       function ItemLoadError(aValue) {
@@ -21307,10 +21316,9 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",Self.FParent,"pattern","2E"]));
         a = Self.Layout.cells("a");
         a.hideHeader();
-        a.fixSize(0,1);
         b = Self.Layout.cells("b");
         b.hideHeader();
-        Self.Layout.setSeparatorSize(0,2);
+        Self.Layout.setSeparatorSize(0,5);
         Self.Layout.setOffsets(pas.JS.New(["left",0,"top",0,"right",0,"bottom",0]));
         Self.Toolbar = rtl.getObject(a.attachToolbar(pas.JS.New(["iconset","awesome"])));
         Self.Toolbar.addButton("save",0,rtl.getResStr(pas.AvammForms,"strSave"),"fa fa-save","fa fa-save");
@@ -21322,16 +21330,17 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Form.addItem(null,pas.JS.New(["type","block","width","auto","name","aBlock"]));
         Self.Form.addItem("aBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.AvammForms,"strNumber"),"name","eId","readonly",true,"hidden",true,"inputWidth",100,"note",rtl.getResStr(pas.AvammForms,"strNumberNote"),"tooltip",rtl.getResStr(pas.AvammForms,"strNumberTooltip")]));
         Self.Form.addItem("aBlock",pas.JS.New(["type","newcolumn"]));
-        Self.Form.addItem("aBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.AvammForms,"strShorttext"),"name","eShorttext","readonly",true,"hidden",true,"inputWidth",100,"note",rtl.getResStr(pas.AvammForms,"strShorttextNote"),"tooltip",rtl.getResStr(pas.AvammForms,"strShorttextTooltip")]));
-        a.setHeight(90);
+        Self.Form.addItem("aBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.AvammForms,"strShorttext"),"name","eShorttext","readonly",true,"hidden",true,"inputWidth",400,"note",rtl.getResStr(pas.AvammForms,"strShorttextNote"),"tooltip",rtl.getResStr(pas.AvammForms,"strShorttextTooltip")]));
+        a.setHeight(0);
         Self.Tabs = rtl.getObject(b.attachTabbar(pas.JS.New(["mode","top","align","left","close_button","true","content_zone","true","arrows_mode","auto"])));
         Self.Tabs.setSizes();
         Self.Layout.progressOn();
-        pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json",false,"text\/json",4000).then(ItemLoaded).catch(ItemLoadError);
+        pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json",false,"text\/json",4000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
         return Result;
       };
       Self.FWindow = null;
       Self.FID = Id;
+      Self.FTablename = aDataSet;
       if ((mode === $mod.TAvammFormMode.fmTab) || (mode === $mod.TAvammFormMode.fmWindow)) {
         if (!window.dhx.isChrome && !window.dhx.isIE) {
           var $tmp1 = mode;
@@ -21450,7 +21459,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
         i = $l1;
         aRight = Object.getOwnPropertyNames(rtl.getObject(aRights[i]))[0];
         try {
-          if (Math.floor(rtl.getObject(aRights[i])[aRight]) > 1) pas.Avamm.AppendJS(((pas.SysUtils.LowerCase(aRight) + "\/") + pas.SysUtils.LowerCase(aRight)) + ".js",ModuleLoaded,null);
+          if (Math.floor(rtl.getObject(aRights[i])[aRight]) > 1) pas.dhtmlx_base.AppendJS(((pas.SysUtils.LowerCase(aRight) + "\/") + pas.SysUtils.LowerCase(aRight)) + ".js",ModuleLoaded,null);
         } catch ($e) {
         };
       };
@@ -21512,6 +21521,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     pas.webrouter.Router().FBeforeRequest = $mod.RouterBeforeRequest;
     pas.webrouter.Router().FAfterRequest = $mod.RouterAfterRequest;
     pas.webrouter.Router().GetHistory().FOnReady = $mod.OnReady;
+    pas.dhtmlx_base.AppendCSS("index.css",null,null);
     return Result;
   };
   this.DoGetAvammContainer = function () {
@@ -21542,4 +21552,3 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") if (pas.webrouter.Router().FindHTTPRoute(pas.webrouter.Router().GetHistory().$class.getHash(),null) !== null) $mod.InitRouteFound = pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash()) === pas.webrouter.TTransitionResult.trOK;
   };
 });
-//# sourceMappingURL=appbase.js.map

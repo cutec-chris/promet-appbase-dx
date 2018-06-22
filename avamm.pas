@@ -374,6 +374,11 @@ end;
 initialization
   writeln('Appbase initializing...');
   window.onerror:=@WindowError;
+  asm
+  window.addEventListener("unhandledrejection", function(err, promise) {
+    $impl.WindowError(err);
+  });
+  end;
   Router.InitHistory(hkHash);
   InitAvammApp;
 end.
