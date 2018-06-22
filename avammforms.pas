@@ -107,6 +107,10 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
       begin
       end;
   end;
+  function ItemLoaded2(aValue: JSValue): JSValue;
+  begin
+    DoLoadData;
+  end;
   function ItemLoaded(aValue: JSValue): JSValue;
   var
     Fields: TJSObject;
@@ -131,7 +135,6 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
       Form.showItem('eShorttext');
     SetTitle(string(Form.getItemValue('eShorttext')));
     Layout.progressOff;
-    DoLoadData;
   end;
   function ItemLoadError(aValue: JSValue): JSValue;
   begin
@@ -192,7 +195,8 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     Tabs.setSizes;
     Layout.progressOn;
     Avamm.LoadData('/'+aDataSet+'/by-id/'+string(Id)+'/item.json')._then(@ItemLoaded)
-                                                          .catch(@ItemLoadError);
+                                                                  .catch(@ItemLoadError)
+                                                                  ._then(@ItemLoaded2);
   end;
 begin
   //Create Window/Tab

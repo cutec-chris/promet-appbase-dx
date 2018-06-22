@@ -10719,6 +10719,9 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
   $mod.$init = function () {
     pas.System.Writeln("Appbase initializing...");
     window.onerror = $impl.WindowError;
+    window.addEventListener("unhandledrejection", function(err, promise) {
+      $impl.WindowError(err);
+    });
     pas.webrouter.Router().InitHistory(pas.webrouter.THistoryKind.hkHash,"");
     $impl.InitAvammApp();
   };
@@ -21270,6 +21273,11 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         if (id === "save") {}
         else if (id === "abort") ;
       };
+      function ItemLoaded2(aValue) {
+        var Result = undefined;
+        Self.DoLoadData();
+        return Result;
+      };
       function ItemLoaded(aValue) {
         var Result = undefined;
         var Fields = null;
@@ -21289,7 +21297,6 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         if (("" + Self.Form.getItemValue("eShorttext")) !== "") Self.Form.showItem("eShorttext");
         Self.SetTitle("" + Self.Form.getItemValue("eShorttext"));
         Self.Layout.progressOff();
-        Self.DoLoadData();
         return Result;
       };
       function ItemLoadError(aValue) {
@@ -21328,7 +21335,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Tabs = rtl.getObject(b.attachTabbar(pas.JS.New(["mode","top","align","left","close_button","true","content_zone","true","arrows_mode","auto"])));
         Self.Tabs.setSizes();
         Self.Layout.progressOn();
-        pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json",false,"text\/json",4000).then(ItemLoaded).catch(ItemLoadError);
+        pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json",false,"text\/json",4000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
         return Result;
       };
       Self.FWindow = null;
