@@ -19,6 +19,7 @@ procedure deleteCookie(cname : string);
 function getCookie(cname : string) : string;
 procedure AppendCSS(url : string;onLoad,onError : JSValue);
 procedure AppendJS(url : string;onLoad,onError : JSValue);
+function WindowError(aEvent : TJSErrorEvent) : boolean;
 type
   TPromiseFunction = function : TJSPromise;
   TRegisterToSidebarEvent = procedure(Name : string;Route : TRoute);

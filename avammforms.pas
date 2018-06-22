@@ -47,9 +47,11 @@ type
     Form: TDHTMLXForm;
     Toolbar: TDHTMLXToolbar;
     Tabs: TDHTMLXTabbar;
+    ReportsLoaded: TJSPromise;
     procedure DoLoadData;virtual;
     procedure SetTitle(aTitle : string);
   public
+    Reports: TJSArray;
     constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue);
     property Id : JSValue read FID;
     property Tablename : string read FTablename;
@@ -78,6 +80,7 @@ resourcestring
   strShorttextNote             = 'Der Kurztext des Eintrages';
   strShorttextTooltip          = 'geben Sie hier den Kurztext ein.';
   strItemNotFound              = 'Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen';
+  strPrint                     = 'Drucken';
 
 implementation
 
@@ -107,8 +110,18 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
       begin
       end;
   end;
+  function AddReports(aValue: TJSXMLHttpRequest): JSValue;
+  begin
+    Reports := TJSArray(TJSJSON.parse(aValue.responseText));
+    Toolbar.addButtonSelect('print',3,strPrint,TJSArray._of([]),'fa fa-print','fa fa-print');
+  end;
+  function ReportsCouldntbeLoaded(aValue: JSValue): JSValue;
+  begin
+  end;
   function ItemLoaded2(aValue: JSValue): JSValue;
   begin
+    ReportsLoaded := LoadData('/'+Tablename+'/by-id/'+string(Id)+'/reports/.json')._then(TJSPromiseresolver(@AddReports))
+                                                                 .catch(@ReportsCouldntbeLoaded);
     DoLoadData;
   end;
   function ItemLoaded(aValue: JSValue): JSValue;

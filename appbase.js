@@ -10701,6 +10701,11 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       document.getElementsByTagName( "head" )[0].appendChild( link );
     };
   };
+  this.WindowError = function (aEvent) {
+    var Result = false;
+    if ($mod.OnException !== null) $mod.OnException(aEvent);
+    return Result;
+  };
   $mod.$rtti.$ProcVar("TPromiseFunction",{procsig: rtl.newTIProcSig(null,pas.JS.$rtti["TJSPromise"])});
   $mod.$rtti.$ProcVar("TRegisterToSidebarEvent",{procsig: rtl.newTIProcSig([["Name",rtl.string],["Route",pas.webrouter.$rtti["TRoute"]]])});
   $mod.$rtti.$ProcVar("TJSValueFunction",{procsig: rtl.newTIProcSig(null,rtl.jsvalue)});
@@ -10718,7 +10723,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
   $mod.$resourcestrings = {strServerNotRea: {org: "Server nicht erreichbar"}, strNoLoginFormA: {org: "keine Login Form verfügbar"}, strLoginFailed: {org: "Login fehlgeschlagen"}, strServerMustbeConfigured: {org: "Server muss konfiguriert werden"}};
   $mod.$init = function () {
     pas.System.Writeln("Appbase initializing...");
-    window.onerror = $impl.WindowError;
+    window.onerror = $mod.WindowError;
     window.addEventListener("unhandledrejection", function(err, promise) {
       $impl.WindowError(err);
     });
@@ -10759,11 +10764,6 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       pas.Avamm.ContainerResizedEvent = createNewEvent('ContainerResized');
     } catch (err) {};
     $mod.CheckLogin();
-  };
-  $impl.WindowError = function (aEvent) {
-    var Result = false;
-    if ($mod.OnException !== null) $mod.OnException(aEvent);
-    return Result;
   };
 });
 rtl.module("dhtmlx_windows",["System","JS","Web","dhtmlx_base"],function () {
@@ -21250,6 +21250,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.Form = null;
       this.Toolbar = null;
       this.Tabs = null;
+      this.ReportsLoaded = null;
+      this.Reports = null;
     };
     this.$final = function () {
       this.FData = undefined;
@@ -21257,6 +21259,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.Form = undefined;
       this.Toolbar = undefined;
       this.Tabs = undefined;
+      this.ReportsLoaded = undefined;
+      this.Reports = undefined;
       pas.System.TObject.$final.call(this);
     };
     this.DoLoadData = function () {
@@ -21273,8 +21277,19 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         if (id === "save") {}
         else if (id === "abort") ;
       };
+      function AddReports(aValue) {
+        var Result = undefined;
+        Self.Reports = rtl.getObject(JSON.parse(aValue.responseText));
+        Self.Toolbar.addButtonSelect("print",3,rtl.getResStr(pas.AvammForms,"strPrint"),Array.of({}),"fa fa-print","fa fa-print");
+        return Result;
+      };
+      function ReportsCouldntbeLoaded(aValue) {
+        var Result = undefined;
+        return Result;
+      };
       function ItemLoaded2(aValue) {
         var Result = undefined;
+        Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/reports\/.json",false,"text\/json",4000).then(AddReports).catch(ReportsCouldntbeLoaded);
         Self.DoLoadData();
         return Result;
       };
@@ -21386,7 +21401,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
     };
   });
-  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}};
+  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}};
 });
 rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms"],function () {
   "use strict";
