@@ -31,7 +31,7 @@ type
     procedure RefreshList;
   end;
 
-  TAvammFormMode = (fmTab,fmWindow,fm);
+  TAvammFormMode = (fmTab,fmWindow,fmInlineWindow);
 
   { TAvammForm }
 
@@ -48,6 +48,7 @@ type
     Toolbar: TDHTMLXToolbar;
     Tabs: TDHTMLXTabbar;
     ReportsLoaded: TJSPromise;
+    WikiLoaded: TJSPromise;
     procedure DoLoadData;virtual;
     procedure SetTitle(aTitle : string);
   public
@@ -111,17 +112,72 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
       end;
   end;
   function AddReports(aValue: TJSXMLHttpRequest): JSValue;
+  var
+    i: Integer;
+    aName, aExt: String;
   begin
     Reports := TJSArray(TJSJSON.parse(aValue.responseText));
     Toolbar.addButtonSelect('print',3,strPrint,TJSArray._of([]),'fa fa-print','fa fa-print');
+    for i := 0 to Reports.length-1 do
+      begin
+        aName := string(TJSObject(Reports[i]).Properties['name']);
+        aExt := copy(aName,pos('.',aName)+1,length(aName));
+        aName := copy(aName,0,pos('.',aName)-1);
+        if aExt = 'pdf' then
+          begin
+            //addListoption
+          end;
+      end;
   end;
   function ReportsCouldntbeLoaded(aValue: JSValue): JSValue;
+  begin
+  end;
+  function WikiFormLoaded(aValue: TJSXMLHttpRequest): JSValue;
+  var
+    aName: String;
+    aFrame: TJSWindow;
+    cDiv: TJSElement;
+  begin
+    aName := aValue.responseURL;
+    while pos('/',aName)>0 do
+      aName := copy(aName,pos('/',aName)+1,length(aName));
+    aName := copy(aName,0,pos('.',aName)-1);
+    if aName = 'overview' then
+      Tabs.addTab(aName,aName,null,0,true,false)
+    else
+      Tabs.addTab(aName,aName,null,5,false,false);
+    cDiv := document.createElement('div');
+    Tabs.cells(aName).attachObject(cDiv);
+    cDiv.innerHTML:=aValue.responseText;
+    Tabs.cells(aName).setText(cDiv.querySelector('title').innerText);
+  end;
+  function AddWiki(aValue: TJSXMLHttpRequest): JSValue;
+  var
+    Wiki: TJSArray;
+    aName, aExt: String;
+    i: Integer;
+  begin
+    //Wiki Forms Loaded
+    Wiki := TJSArray(TJSJSON.parse(aValue.responseText));
+    for i := 0 to Wiki.length-1 do
+      begin
+        aName := string(TJSObject(Wiki[i]).Properties['name']);
+        aExt := copy(aName,pos('.',aName)+1,length(aName));
+        if aExt = 'html' then
+          begin
+            LoadData('/'+Tablename+'/by-id/'+string(Id)+'/'+aName)._then(TJSPromiseResolver(@WikiFormLoaded));
+          end;
+      end;
+  end;
+  function WikiCouldntbeLoaded(aValue: JSValue): JSValue;
   begin
   end;
   function ItemLoaded2(aValue: JSValue): JSValue;
   begin
     ReportsLoaded := LoadData('/'+Tablename+'/by-id/'+string(Id)+'/reports/.json')._then(TJSPromiseresolver(@AddReports))
                                                                  .catch(@ReportsCouldntbeLoaded);
+    WikiLoaded := LoadData('/'+Tablename+'/by-id/'+string(Id)+'/.json')._then(TJSPromiseresolver(@AddWiki))
+                                                                 .catch(@WikiCouldntbeLoaded);
     DoLoadData;
   end;
   function ItemLoaded(aValue: JSValue): JSValue;
@@ -237,7 +293,7 @@ begin
     end;
   if FWindow = null then
     begin
-      FWindow := Windows.createWindow(Id,10,10,200,200);
+      FWindow := Windows.createWindow(Id,10,10,810,610);
       with TDHTMLXWindowsCell(FWindow) do
         begin
           maximize;

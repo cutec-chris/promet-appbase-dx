@@ -246,9 +246,9 @@ function LoadData(url: string; IgnoreLogin: Boolean; Datatype: string;
       reject(req);
     end;
   begin
-  req:=TJSXMLHttpRequest.new;
+    req:=TJSXMLHttpRequest.new;
     req.open('get', GetBaseUrl()+url, true);
-    if Avamm.AvammLogin <> '' then
+    if (Avamm.AvammLogin <> '') and (not IgnoreLogin) then
       begin
         req.setRequestHeader('Authorization','Basic ' + Avamm.AvammLogin);
       end;

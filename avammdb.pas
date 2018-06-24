@@ -111,6 +111,10 @@ begin
   else
     begin
       R.FXHR.open('GET',URL,true);
+      if (Avamm.AvammLogin <> '') then
+        begin
+          R.FXHR.setRequestHeader('Authorization','Basic ' + Avamm.AvammLogin);
+        end;
       R.FXHR.send;
       Result:=True;
     end;

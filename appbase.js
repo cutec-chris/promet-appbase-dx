@@ -10517,18 +10517,20 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       };
       function DoOnError(event) {
         var Result = false;
+        pas.System.Writeln("Request not succesful (error)");
         reject(req);
         window.clearTimeout(oTimeout);
         return Result;
       };
       function RequestSaveTimeout() {
+        pas.System.Writeln("Request Timeout");
         window.clearTimeout(oTimeout);
         req.abort();
         reject(req);
       };
       req = new XMLHttpRequest();
       req.open("get",$impl.GetBaseUrl() + url,true);
-      if ($mod.AvammLogin !== "") {
+      if (($mod.AvammLogin !== "") && !IgnoreLogin) {
         req.setRequestHeader("Authorization","Basic " + $mod.AvammLogin);
       };
       req.overrideMimeType(Datatype);
@@ -10538,12 +10540,14 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       try {
         req.send();
       } catch ($e) {
+        pas.System.Writeln("Request not succesful");
         reject(req);
       };
       oTimeout = window.setTimeout(RequestSaveTimeout,Timeout);
     };
     function ReturnResult(res) {
       var Result = undefined;
+      pas.System.Writeln("Returning... ",res);
       Result = res;
       return Result;
     };
@@ -10567,6 +10571,8 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       function CheckStatus(aValue) {
         var Result = undefined;
         function DoCheckStatus(resolve, reject) {
+          pas.System.Writeln("CheckStatus:");
+          console.log(aValue);
           var $tmp1 = rtl.getObject(aValue).status;
           if ($tmp1 === 403) {
             resolve(true)}
@@ -10582,6 +10588,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
           };
         };
         Result = new Promise(DoCheckStatus);
+        console.log(Result);
         return Result;
       };
       function GetLoginData(aValue) {
@@ -10591,6 +10598,8 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
           function DoIntGetLoginData(resolve, reject) {
             function LoginSuccessful(aValue) {
               var Result = undefined;
+              pas.System.Writeln("GetLoginData:");
+              console.log(aValue);
               if (aValue == true) {
                 resolve(true)}
                else reject(rtl.getResStr(pas.Avamm,"strLoginFailed"));
@@ -20954,6 +20963,9 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
         R.DoAfterRequest();
       } else {
         R.FXHR.open("GET",URL,true);
+        if (pas.Avamm.AvammLogin !== "") {
+          R.FXHR.setRequestHeader("Authorization","Basic " + pas.Avamm.AvammLogin);
+        };
         R.FXHR.send();
         Result = true;
       };
@@ -21236,7 +21248,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
     };
   });
-  this.TAvammFormMode = {"0": "fmTab", fmTab: 0, "1": "fmWindow", fmWindow: 1, "2": "fm", fm: 2};
+  this.TAvammFormMode = {"0": "fmTab", fmTab: 0, "1": "fmWindow", fmWindow: 1, "2": "fmInlineWindow", fmInlineWindow: 2};
   $mod.$rtti.$Enum("TAvammFormMode",{minvalue: 0, maxvalue: 2, ordtype: 1, enumtype: this.TAvammFormMode});
   rtl.createClass($mod,"TAvammForm",pas.System.TObject,function () {
     this.$init = function () {
@@ -21251,6 +21263,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.Toolbar = null;
       this.Tabs = null;
       this.ReportsLoaded = null;
+      this.WikiLoaded = null;
       this.Reports = null;
     };
     this.$final = function () {
@@ -21260,6 +21273,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.Toolbar = undefined;
       this.Tabs = undefined;
       this.ReportsLoaded = undefined;
+      this.WikiLoaded = undefined;
       this.Reports = undefined;
       pas.System.TObject.$final.call(this);
     };
@@ -21279,17 +21293,66 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
       function AddReports(aValue) {
         var Result = undefined;
+        var i = 0;
+        var aName = "";
+        var aExt = "";
         Self.Reports = rtl.getObject(JSON.parse(aValue.responseText));
         Self.Toolbar.addButtonSelect("print",3,rtl.getResStr(pas.AvammForms,"strPrint"),Array.of({}),"fa fa-print","fa fa-print");
+        for (var $l1 = 0, $end2 = Self.Reports.length - 1; $l1 <= $end2; $l1++) {
+          i = $l1;
+          aName = "" + rtl.getObject(Self.Reports[i])["name"];
+          aExt = pas.System.Copy(aName,pas.System.Pos(".",aName) + 1,aName.length);
+          aName = pas.System.Copy(aName,0,pas.System.Pos(".",aName) - 1);
+          if (aExt === "pdf") ;
+        };
         return Result;
       };
       function ReportsCouldntbeLoaded(aValue) {
         var Result = undefined;
         return Result;
       };
+      function WikiFormLoaded(aValue) {
+        var Result = undefined;
+        var aName = "";
+        var aFrame = null;
+        var cDiv = null;
+        aName = aValue.responseURL;
+        while (pas.System.Pos("\/",aName) > 0) aName = pas.System.Copy(aName,pas.System.Pos("\/",aName) + 1,aName.length);
+        aName = pas.System.Copy(aName,0,pas.System.Pos(".",aName) - 1);
+        if (aName === "overview") {
+          Self.Tabs.addTab(aName,aName,null,0,true,false)}
+         else Self.Tabs.addTab(aName,aName,null,5,false,false);
+        cDiv = document.createElement("div");
+        Self.Tabs.cells(aName).attachObject(cDiv);
+        cDiv.innerHTML = aValue.responseText;
+        Self.Tabs.cells(aName).setText(cDiv.querySelector("title").innerText);
+        return Result;
+      };
+      function AddWiki(aValue) {
+        var Result = undefined;
+        var Wiki = null;
+        var aName = "";
+        var aExt = "";
+        var i = 0;
+        Wiki = rtl.getObject(JSON.parse(aValue.responseText));
+        for (var $l1 = 0, $end2 = Wiki.length - 1; $l1 <= $end2; $l1++) {
+          i = $l1;
+          aName = "" + rtl.getObject(Wiki[i])["name"];
+          aExt = pas.System.Copy(aName,pas.System.Pos(".",aName) + 1,aName.length);
+          if (aExt === "html") {
+            pas.Avamm.LoadData((((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/") + aName,false,"text\/json",4000).then(WikiFormLoaded);
+          };
+        };
+        return Result;
+      };
+      function WikiCouldntbeLoaded(aValue) {
+        var Result = undefined;
+        return Result;
+      };
       function ItemLoaded2(aValue) {
         var Result = undefined;
         Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/reports\/.json",false,"text\/json",4000).then(AddReports).catch(ReportsCouldntbeLoaded);
+        Self.WikiLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/.json",false,"text\/json",4000).then(AddWiki).catch(WikiCouldntbeLoaded);
         Self.DoLoadData();
         return Result;
       };
@@ -21369,7 +21432,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         };
       };
       if (Self.FWindow == null) {
-        Self.FWindow = pas.dhtmlx_windows.Windows.createWindow(Id,10,10,200,200);
+        Self.FWindow = pas.dhtmlx_windows.Windows.createWindow(Id,10,10,810,610);
         var $with2 = rtl.getObject(Self.FWindow);
         $with2.maximize();
         $with2.setText("...");
@@ -21567,3 +21630,4 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") if (pas.webrouter.Router().FindHTTPRoute(pas.webrouter.Router().GetHistory().$class.getHash(),null) !== null) $mod.InitRouteFound = pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash()) === pas.webrouter.TTransitionResult.trOK;
   };
 });
+//# sourceMappingURL=appbase.js.map
