@@ -52,6 +52,7 @@ type
     procedure DoLoadData;virtual;
     procedure SetTitle(aTitle : string);
   public
+    BaseId : JSValue;
     Reports: TJSArray;
     constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue);
     property Id : JSValue read FID;
@@ -82,6 +83,8 @@ resourcestring
   strShorttextTooltip          = 'geben Sie hier den Kurztext ein.';
   strItemNotFound              = 'Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen';
   strPrint                     = 'Drucken';
+
+procedure FixWikiContent(elem : TJSHTMLElement;aForm : JSValue);
 
 implementation
 
@@ -142,14 +145,19 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     while pos('/',aName)>0 do
       aName := copy(aName,pos('/',aName)+1,length(aName));
     aName := copy(aName,0,pos('.',aName)-1);
-    if aName = 'overview' then
-      Tabs.addTab(aName,aName,null,0,true,false)
-    else
-      Tabs.addTab(aName,aName,null,5,false,false);
-    cDiv := document.createElement('div');
-    Tabs.cells(aName).attachObject(cDiv);
-    cDiv.innerHTML:=aValue.responseText;
-    Tabs.cells(aName).setText(cDiv.querySelector('title').innerText);
+    if pos('<body></body>',aValue.responseText)=0 then //Add Tab only when not clear
+      begin
+        cDiv := document.createElement('div');
+        cDiv.innerHTML:=aValue.responseText;
+        FixWikiContent(TJSHTMLElement(cDiv),Self);
+        if aName = 'overview' then
+          Tabs.addTab(aName,aName,null,0,true,false)
+        else
+          Tabs.addTab(aName,aName,null,5,false,false);
+        Tabs.cells(aName).appendObject(cDiv);
+        if cDiv.querySelector('title') <> null then
+          Tabs.cells(aName).setText(cDiv.querySelector('title').innerText);
+      end;
   end;
   function AddWiki(aValue: TJSXMLHttpRequest): JSValue;
   var
@@ -165,7 +173,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
         aExt := copy(aName,pos('.',aName)+1,length(aName));
         if aExt = 'html' then
           begin
-            LoadData('/'+Tablename+'/by-id/'+string(Id)+'/'+aName)._then(TJSPromiseResolver(@WikiFormLoaded));
+            LoadData('/'+Tablename+'/by-id/'+string(Id)+'/'+aName,False,'text/html',6000)._then(TJSPromiseResolver(@WikiFormLoaded));
           end;
       end;
   end;
@@ -174,10 +182,10 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
   end;
   function ItemLoaded2(aValue: JSValue): JSValue;
   begin
-    ReportsLoaded := LoadData('/'+Tablename+'/by-id/'+string(Id)+'/reports/.json')._then(TJSPromiseresolver(@AddReports))
-                                                                 .catch(@ReportsCouldntbeLoaded);
     WikiLoaded := LoadData('/'+Tablename+'/by-id/'+string(Id)+'/.json')._then(TJSPromiseresolver(@AddWiki))
                                                                  .catch(@WikiCouldntbeLoaded);
+    ReportsLoaded := LoadData('/'+Tablename+'/by-id/'+string(Id)+'/reports/.json')._then(TJSPromiseresolver(@AddReports))
+                                                                 .catch(@ReportsCouldntbeLoaded);
     DoLoadData;
   end;
   function ItemLoaded(aValue: JSValue): JSValue;
@@ -200,6 +208,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
         Form.showItem('eId');
       end
     else Form.hideItem('eId');
+    BaseId := Form.getItemValue('eId');
     if string(Form.getItemValue('eShorttext'))<>'' then
       Form.showItem('eShorttext');
     SetTitle(string(Form.getItemValue('eShorttext')));
@@ -436,6 +445,62 @@ begin
         writeln('Refresh Exception:'+e.message);
         Page.progressOff();
       end;
+  end;
+end;
+
+procedure FixWikiContent(elem : TJSHTMLElement;aForm : JSValue);
+begin
+  asm
+    try {
+      if (elem.style.fontFamily!="Arial") {
+        elem.style.fontFamily = "Arial";
+        elem.style.fontSizeAdjust = 0.5;
+        var anchors = elem.getElementsByTagName("a");
+        for (var i = 0; i < anchors.length; i++) {
+          if ((anchors[i].href.indexOf('@')>0)&&(anchors[i].href.substring(0,4)=='http')) {
+            var oldLink = decodeURI(anchors[i].href.substring(anchors[i].href.lastIndexOf('/')+1));
+            var aTable = oldLink.substring(0,oldLink.indexOf('@')).toLowerCase();
+            oldLink = oldLink.substring(oldLink.indexOf('@')+1);
+            var aId;
+            if (oldLink.indexOf('{')>0) {
+              aId = oldLink.substring(0,oldLink.indexOf('{'))
+            } else {
+              aId = oldLink;
+            }
+            if (aId.indexOf('(')>0) {
+              var aParams = aId.substring(aId.indexOf('(')+1,aId.length);
+              aParams = aParams.substring(0,aId.indexOf(')')-1);
+              var aParam = aParams.split(',');
+              aId = aId.substring(0,aId.indexOf('('))
+              aParams = '';
+              for (var a = 0; a < aParam.length; a++) {
+                aParams += aParam[a];
+                if (a > 0)
+                  aParams += '&';
+              }
+              aParams = aParams.substring(0,aParams.length-1);
+            }
+            if (aForm) {
+              aParams = aParams.replace('@VARIABLES.ID@',aForm.BaseId);
+              aParams = aParams.replace('@VARIABLES.SQL_ID@',aForm.Id);
+            }
+            if (aParams != '')
+              anchors[i].href = "/index.html?"+aParams+"#" + aTable + '/by-id/'+aId
+            else
+              anchors[i].href = "/index.html#" + aTable + '/by-id/'+aId;
+            anchors[i].AvammTable = aTable;
+            anchors[i].AvammId = aId;
+            anchors[i].AvammParams = aParams;
+            anchors[i].onclick = function() {
+               pas.webrouter.router.push(anchors[i].href);
+               return false;
+            }
+          }
+        }
+      }
+  } catch(err) {
+    console.log(err);
+  }
   end;
 end;
 

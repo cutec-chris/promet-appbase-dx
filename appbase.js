@@ -10517,13 +10517,11 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       };
       function DoOnError(event) {
         var Result = false;
-        pas.System.Writeln("Request not succesful (error)");
         reject(req);
         window.clearTimeout(oTimeout);
         return Result;
       };
       function RequestSaveTimeout() {
-        pas.System.Writeln("Request Timeout");
         window.clearTimeout(oTimeout);
         req.abort();
         reject(req);
@@ -10540,14 +10538,12 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       try {
         req.send();
       } catch ($e) {
-        pas.System.Writeln("Request not succesful");
         reject(req);
       };
       oTimeout = window.setTimeout(RequestSaveTimeout,Timeout);
     };
     function ReturnResult(res) {
       var Result = undefined;
-      pas.System.Writeln("Returning... ",res);
       Result = res;
       return Result;
     };
@@ -10571,8 +10567,6 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       function CheckStatus(aValue) {
         var Result = undefined;
         function DoCheckStatus(resolve, reject) {
-          pas.System.Writeln("CheckStatus:");
-          console.log(aValue);
           var $tmp1 = rtl.getObject(aValue).status;
           if ($tmp1 === 403) {
             resolve(true)}
@@ -10588,7 +10582,6 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
           };
         };
         Result = new Promise(DoCheckStatus);
-        console.log(Result);
         return Result;
       };
       function GetLoginData(aValue) {
@@ -10598,8 +10591,6 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
           function DoIntGetLoginData(resolve, reject) {
             function LoginSuccessful(aValue) {
               var Result = undefined;
-              pas.System.Writeln("GetLoginData:");
-              console.log(aValue);
               if (aValue == true) {
                 resolve(true)}
                else reject(rtl.getResStr(pas.Avamm,"strLoginFailed"));
@@ -21264,6 +21255,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.Tabs = null;
       this.ReportsLoaded = null;
       this.WikiLoaded = null;
+      this.BaseId = undefined;
       this.Reports = null;
     };
     this.$final = function () {
@@ -21319,13 +21311,16 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         aName = aValue.responseURL;
         while (pas.System.Pos("\/",aName) > 0) aName = pas.System.Copy(aName,pas.System.Pos("\/",aName) + 1,aName.length);
         aName = pas.System.Copy(aName,0,pas.System.Pos(".",aName) - 1);
-        if (aName === "overview") {
-          Self.Tabs.addTab(aName,aName,null,0,true,false)}
-         else Self.Tabs.addTab(aName,aName,null,5,false,false);
-        cDiv = document.createElement("div");
-        Self.Tabs.cells(aName).attachObject(cDiv);
-        cDiv.innerHTML = aValue.responseText;
-        Self.Tabs.cells(aName).setText(cDiv.querySelector("title").innerText);
+        if (pas.System.Pos("<body><\/body>",aValue.responseText) === 0) {
+          cDiv = document.createElement("div");
+          cDiv.innerHTML = aValue.responseText;
+          $mod.FixWikiContent(cDiv,Self);
+          if (aName === "overview") {
+            Self.Tabs.addTab(aName,aName,null,0,true,false)}
+           else Self.Tabs.addTab(aName,aName,null,5,false,false);
+          Self.Tabs.cells(aName).appendObject(cDiv);
+          if (cDiv.querySelector("title") != null) Self.Tabs.cells(aName).setText(cDiv.querySelector("title").innerText);
+        };
         return Result;
       };
       function AddWiki(aValue) {
@@ -21340,7 +21335,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
           aName = "" + rtl.getObject(Wiki[i])["name"];
           aExt = pas.System.Copy(aName,pas.System.Pos(".",aName) + 1,aName.length);
           if (aExt === "html") {
-            pas.Avamm.LoadData((((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/") + aName,false,"text\/json",4000).then(WikiFormLoaded);
+            pas.Avamm.LoadData((((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/") + aName,false,"text\/html",6000).then(WikiFormLoaded);
           };
         };
         return Result;
@@ -21351,8 +21346,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
       function ItemLoaded2(aValue) {
         var Result = undefined;
-        Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/reports\/.json",false,"text\/json",4000).then(AddReports).catch(ReportsCouldntbeLoaded);
         Self.WikiLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/.json",false,"text\/json",4000).then(AddWiki).catch(WikiCouldntbeLoaded);
+        Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/reports\/.json",false,"text\/json",4000).then(AddReports).catch(ReportsCouldntbeLoaded);
         Self.DoLoadData();
         return Result;
       };
@@ -21372,6 +21367,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
           Self.Form.setItemValue("eId","" + Fields["id"]);
           Self.Form.showItem("eId");
         } else Self.Form.hideItem("eId");
+        Self.BaseId = Self.Form.getItemValue("eId");
         if (("" + Self.Form.getItemValue("eShorttext")) !== "") Self.Form.showItem("eShorttext");
         Self.SetTitle("" + Self.Form.getItemValue("eShorttext"));
         Self.Layout.progressOff();
@@ -21464,6 +21460,58 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
     };
   });
+  this.FixWikiContent = function (elem, aForm) {
+    try {
+        if (elem.style.fontFamily!="Arial") {
+          elem.style.fontFamily = "Arial";
+          elem.style.fontSizeAdjust = 0.5;
+          var anchors = elem.getElementsByTagName("a");
+          for (var i = 0; i < anchors.length; i++) {
+            if ((anchors[i].href.indexOf('@')>0)&&(anchors[i].href.substring(0,4)=='http')) {
+              var oldLink = decodeURI(anchors[i].href.substring(anchors[i].href.lastIndexOf('/')+1));
+              var aTable = oldLink.substring(0,oldLink.indexOf('@')).toLowerCase();
+              oldLink = oldLink.substring(oldLink.indexOf('@')+1);
+              var aId;
+              if (oldLink.indexOf('{')>0) {
+                aId = oldLink.substring(0,oldLink.indexOf('{'))
+              } else {
+                aId = oldLink;
+              }
+              if (aId.indexOf('(')>0) {
+                var aParams = aId.substring(aId.indexOf('(')+1,aId.length);
+                aParams = aParams.substring(0,aId.indexOf(')')-1);
+                var aParam = aParams.split(',');
+                aId = aId.substring(0,aId.indexOf('('))
+                aParams = '';
+                for (var a = 0; a < aParam.length; a++) {
+                  aParams += aParam[a];
+                  if (a > 0)
+                    aParams += '&';
+                }
+                aParams = aParams.substring(0,aParams.length-1);
+              }
+              if (aForm) {
+                aParams = aParams.replace('@VARIABLES.ID@',aForm.BaseId);
+                aParams = aParams.replace('@VARIABLES.SQL_ID@',aForm.Id);
+              }
+              if (aParams != '')
+                anchors[i].href = "/index.html?"+aParams+"#" + aTable + '/by-id/'+aId
+              else
+                anchors[i].href = "/index.html#" + aTable + '/by-id/'+aId;
+              anchors[i].AvammTable = aTable;
+              anchors[i].AvammId = aId;
+              anchors[i].AvammParams = aParams;
+              anchors[i].onclick = function() {
+                 pas.webrouter.router.push(anchors[i].href);
+                 return false;
+              }
+            }
+          }
+        }
+    } catch(err) {
+      console.log(err);
+    };
+  };
   $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}};
 });
 rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms"],function () {
@@ -21630,4 +21678,3 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") if (pas.webrouter.Router().FindHTTPRoute(pas.webrouter.Router().GetHistory().$class.getHash(),null) !== null) $mod.InitRouteFound = pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash()) === pas.webrouter.TTransitionResult.trOK;
   };
 });
-//# sourceMappingURL=appbase.js.map
