@@ -10706,6 +10706,54 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
     if ($mod.OnException !== null) $mod.OnException(aEvent);
     return Result;
   };
+  this.FixWikiContent = function (elem, aForm) {
+    try {
+        if (elem.style.fontFamily!="Arial") {
+          elem.style.fontFamily = "Arial";
+          elem.style.fontSizeAdjust = 0.5;
+          var anchors = elem.getElementsByTagName("a");
+          for (var i = 0; i < anchors.length; i++) {
+            if ((anchors[i].href.indexOf('@')>0)&&(anchors[i].href.substring(0,4)=='http')) {
+              var oldLink = decodeURI(anchors[i].href.substring(anchors[i].href.lastIndexOf('/')+1));
+              var aTable = oldLink.substring(0,oldLink.indexOf('@')).toLowerCase();
+              oldLink = oldLink.substring(oldLink.indexOf('@')+1);
+              var aId;
+              if (oldLink.indexOf('{')>0) {
+                aId = oldLink.substring(0,oldLink.indexOf('{'))
+              } else {
+                aId = oldLink;
+              }
+              if (aId.indexOf('(')>0) {
+                var aParams = aId.substring(aId.indexOf('(')+1,aId.length);
+                aParams = aParams.substring(0,aId.indexOf(')')-1);
+                var aParam = aParams.split(',');
+                aId = aId.substring(0,aId.indexOf('('))
+                aParams = '';
+                for (var a = 0; a < aParam.length; a++) {
+                  aParams += aParam[a];
+                  if (a > 0)
+                    aParams += '&';
+                }
+                aParams = aParams.substring(0,aParams.length-1);
+              }
+              if (aForm) {
+                aParams = aParams.replace('@VARIABLES.ID@',aForm.BaseId);
+                aParams = aParams.replace('@VARIABLES.SQL_ID@',aForm.Id);
+              }
+              if (aParams != '')
+                anchors[i].href = "#" + aTable + '/by-id/'+aId+'/'+aParams
+              else
+                anchors[i].href = "#" + aTable + '/by-id/'+aId;
+              anchors[i].AvammTable = aTable;
+              anchors[i].AvammId = aId;
+              anchors[i].AvammParams = aParams;
+            }
+          }
+        }
+    } catch(err) {
+      console.log(err);
+    };
+  };
   $mod.$rtti.$ProcVar("TPromiseFunction",{procsig: rtl.newTIProcSig(null,pas.JS.$rtti["TJSPromise"])});
   $mod.$rtti.$ProcVar("TRegisterToSidebarEvent",{procsig: rtl.newTIProcSig([["Name",rtl.string],["Route",pas.webrouter.$rtti["TRoute"]]])});
   $mod.$rtti.$ProcVar("TJSValueFunction",{procsig: rtl.newTIProcSig(null,rtl.jsvalue)});
@@ -21245,6 +21293,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.$init = function () {
       pas.System.TObject.$init.call(this);
       this.FID = undefined;
+      this.FParams = null;
       this.FTablename = "";
       this.FWindow = undefined;
       this.FParent = undefined;
@@ -21259,6 +21308,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.Reports = null;
     };
     this.$final = function () {
+      this.FParams = undefined;
       this.FData = undefined;
       this.Layout = undefined;
       this.Form = undefined;
@@ -21277,7 +21327,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         rtl.getObject(this.FWindow).document.title = aTitle}
        else rtl.getObject(this.FWindow).setText(aTitle);
     };
-    this.Create$1 = function (mode, aDataSet, Id) {
+    this.Create$1 = function (mode, aDataSet, Id, Params) {
       var Self = this;
       function ToolbarButtonClick(id) {
         if (id === "save") {}
@@ -21314,7 +21364,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         if (pas.System.Pos("<body><\/body>",aValue.responseText) === 0) {
           cDiv = document.createElement("div");
           cDiv.innerHTML = aValue.responseText;
-          $mod.FixWikiContent(cDiv,Self);
+          pas.Avamm.FixWikiContent(cDiv,Self);
           if (aName === "overview") {
             Self.Tabs.addTab(aName,aName,null,0,true,false)}
            else Self.Tabs.addTab(aName,aName,null,5,false,false);
@@ -21413,6 +21463,9 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         return Result;
       };
       Self.FWindow = null;
+      Self.FParams = pas.Classes.TStringList.$create("Create$1");
+      Self.FParams.SetDelimiter("&");
+      if (Params !== "") Self.FParams.SetDelimitedText(Params);
       Self.FID = Id;
       Self.FTablename = aDataSet;
       if ((mode === $mod.TAvammFormMode.fmTab) || (mode === $mod.TAvammFormMode.fmWindow)) {
@@ -21460,58 +21513,6 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
     };
   });
-  this.FixWikiContent = function (elem, aForm) {
-    try {
-        if (elem.style.fontFamily!="Arial") {
-          elem.style.fontFamily = "Arial";
-          elem.style.fontSizeAdjust = 0.5;
-          var anchors = elem.getElementsByTagName("a");
-          for (var i = 0; i < anchors.length; i++) {
-            if ((anchors[i].href.indexOf('@')>0)&&(anchors[i].href.substring(0,4)=='http')) {
-              var oldLink = decodeURI(anchors[i].href.substring(anchors[i].href.lastIndexOf('/')+1));
-              var aTable = oldLink.substring(0,oldLink.indexOf('@')).toLowerCase();
-              oldLink = oldLink.substring(oldLink.indexOf('@')+1);
-              var aId;
-              if (oldLink.indexOf('{')>0) {
-                aId = oldLink.substring(0,oldLink.indexOf('{'))
-              } else {
-                aId = oldLink;
-              }
-              if (aId.indexOf('(')>0) {
-                var aParams = aId.substring(aId.indexOf('(')+1,aId.length);
-                aParams = aParams.substring(0,aId.indexOf(')')-1);
-                var aParam = aParams.split(',');
-                aId = aId.substring(0,aId.indexOf('('))
-                aParams = '';
-                for (var a = 0; a < aParam.length; a++) {
-                  aParams += aParam[a];
-                  if (a > 0)
-                    aParams += '&';
-                }
-                aParams = aParams.substring(0,aParams.length-1);
-              }
-              if (aForm) {
-                aParams = aParams.replace('@VARIABLES.ID@',aForm.BaseId);
-                aParams = aParams.replace('@VARIABLES.SQL_ID@',aForm.Id);
-              }
-              if (aParams != '')
-                anchors[i].href = "/index.html?"+aParams+"#" + aTable + '/by-id/'+aId
-              else
-                anchors[i].href = "/index.html#" + aTable + '/by-id/'+aId;
-              anchors[i].AvammTable = aTable;
-              anchors[i].AvammId = aId;
-              anchors[i].AvammParams = aParams;
-              anchors[i].onclick = function() {
-                 pas.webrouter.router.push(anchors[i].href);
-                 return false;
-              }
-            }
-          }
-        }
-    } catch(err) {
-      console.log(err);
-    };
-  };
   $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}};
 });
 rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms"],function () {

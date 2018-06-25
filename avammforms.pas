@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils,js,web, AvammDB, dhtmlx_form, dhtmlx_toolbar,dhtmlx_grid,
   dhtmlx_layout,dhtmlx_popup, dhtmlx_db,dhtmlx_base,dhtmlx_windows,dhtmlx_tabbar,
-  webrouter, db,Avamm;
+  webrouter, db, Avamm;
 
 type
   { TAvammListForm }
@@ -38,6 +38,7 @@ type
   TAvammForm = class
   private
     FID : JSValue;
+    FParams: TStrings;
     FTablename: string;
     FWindow: JSValue;
     FParent: JSValue;
@@ -54,10 +55,11 @@ type
   public
     BaseId : JSValue;
     Reports: TJSArray;
-    constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue);
+    constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue;Params : string = '');
     property Id : JSValue read FID;
     property Tablename : string read FTablename;
     property Data : TJSObject read FData;
+    property Params : TStrings read FParams;
   end;
 
   { TAvammAutoComplete }
@@ -84,8 +86,6 @@ resourcestring
   strItemNotFound              = 'Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen';
   strPrint                     = 'Drucken';
 
-procedure FixWikiContent(elem : TJSHTMLElement;aForm : JSValue);
-
 implementation
 
 { TAvammForm }
@@ -104,7 +104,7 @@ begin
 end;
 
 constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
-  Id: JSValue);
+  Id: JSValue;Params : string = '');
   procedure ToolbarButtonClick(id : string);
   begin
     if (id='save') then
@@ -279,6 +279,10 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
 begin
   //Create Window/Tab
   FWindow := null;
+  FParams := TStringList.Create;
+  FParams.Delimiter:='&';
+  if Params<>'' then
+    FParams.DelimitedText:=Params;
   FID := Id;
   FTablename:=aDataSet;
   if (mode = fmTab)
@@ -445,62 +449,6 @@ begin
         writeln('Refresh Exception:'+e.message);
         Page.progressOff();
       end;
-  end;
-end;
-
-procedure FixWikiContent(elem : TJSHTMLElement;aForm : JSValue);
-begin
-  asm
-    try {
-      if (elem.style.fontFamily!="Arial") {
-        elem.style.fontFamily = "Arial";
-        elem.style.fontSizeAdjust = 0.5;
-        var anchors = elem.getElementsByTagName("a");
-        for (var i = 0; i < anchors.length; i++) {
-          if ((anchors[i].href.indexOf('@')>0)&&(anchors[i].href.substring(0,4)=='http')) {
-            var oldLink = decodeURI(anchors[i].href.substring(anchors[i].href.lastIndexOf('/')+1));
-            var aTable = oldLink.substring(0,oldLink.indexOf('@')).toLowerCase();
-            oldLink = oldLink.substring(oldLink.indexOf('@')+1);
-            var aId;
-            if (oldLink.indexOf('{')>0) {
-              aId = oldLink.substring(0,oldLink.indexOf('{'))
-            } else {
-              aId = oldLink;
-            }
-            if (aId.indexOf('(')>0) {
-              var aParams = aId.substring(aId.indexOf('(')+1,aId.length);
-              aParams = aParams.substring(0,aId.indexOf(')')-1);
-              var aParam = aParams.split(',');
-              aId = aId.substring(0,aId.indexOf('('))
-              aParams = '';
-              for (var a = 0; a < aParam.length; a++) {
-                aParams += aParam[a];
-                if (a > 0)
-                  aParams += '&';
-              }
-              aParams = aParams.substring(0,aParams.length-1);
-            }
-            if (aForm) {
-              aParams = aParams.replace('@VARIABLES.ID@',aForm.BaseId);
-              aParams = aParams.replace('@VARIABLES.SQL_ID@',aForm.Id);
-            }
-            if (aParams != '')
-              anchors[i].href = "/index.html?"+aParams+"#" + aTable + '/by-id/'+aId
-            else
-              anchors[i].href = "/index.html#" + aTable + '/by-id/'+aId;
-            anchors[i].AvammTable = aTable;
-            anchors[i].AvammId = aId;
-            anchors[i].AvammParams = aParams;
-            anchors[i].onclick = function() {
-               pas.webrouter.router.push(anchors[i].href);
-               return false;
-            }
-          }
-        }
-      }
-  } catch(err) {
-    console.log(err);
-  }
   end;
 end;
 
