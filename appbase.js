@@ -10773,7 +10773,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
     pas.System.Writeln("Appbase initializing...");
     window.onerror = $mod.WindowError;
     window.addEventListener("unhandledrejection", function(err, promise) {
-      $impl.WindowError(err);
+      pas.Avamm.WindowError(err);
     });
     pas.webrouter.Router().InitHistory(pas.webrouter.THistoryKind.hkHash,"");
     $impl.InitAvammApp();
@@ -21556,6 +21556,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
   this.DoHandleException = function (aName) {
     function ShowError(aValue) {
       var Result = undefined;
+      if (aName.reason.fMessage) aName = aName.reason.fMessage;
       dhtmlx.message(pas.JS.New(["type","error","text",aName]));
       return Result;
     };

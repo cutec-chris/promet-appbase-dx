@@ -430,7 +430,7 @@ initialization
   window.onerror:=@WindowError;
   asm
   window.addEventListener("unhandledrejection", function(err, promise) {
-    $impl.WindowError(err);
+    pas.Avamm.WindowError(err);
   });
   end;
   Router.InitHistory(hkHash);
