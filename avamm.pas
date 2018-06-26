@@ -198,7 +198,9 @@ end;
 function GetBaseUrl : string;
 begin
   if not ((AvammServer = '') and (TJSRegexp.New('/^h/').test(document.location.href))) then
-    AvammServer := 'http://localhost:8085';
+    AvammServer := 'http://localhost:8085'
+  else if (AvammServer = '') then
+    AvammServer := document.location.protocol+document.location.host;
   Result := AvammServer;
 end;
 procedure RegisterSidebarRoute(aName, Route: string;Event : TRouteEvent);
