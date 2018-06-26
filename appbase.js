@@ -10783,7 +10783,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
   $impl.GetBaseUrl = function () {
     var Result = "";
     var IsFileAddr = false;
-    IsFileAddr = (/^h/.test(document.location);
+    IsFileAddr = (/^h/.test(document.location));
     if (!(($mod.AvammServer === "") && IsFileAddr)) {
       $mod.AvammServer = "http:\/\/localhost:8085"}
      else if ($mod.AvammServer === "") $mod.AvammServer = document.location.protocol + document.location.host;

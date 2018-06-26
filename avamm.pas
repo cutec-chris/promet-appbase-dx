@@ -200,7 +200,7 @@ var
   IsFileAddr : Boolean = False;
 begin
   asm
-    IsFileAddr = (/^h/.test(document.location);
+    IsFileAddr = (/^h/.test(document.location));
   end;
   if not ((AvammServer = '') and (IsFileAddr)) then
     AvammServer := 'http://localhost:8085'
