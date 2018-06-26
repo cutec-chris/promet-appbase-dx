@@ -10787,7 +10787,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
     if ($mod.AvammServer === "") {
       if (!IsHttpAddr) {
         $mod.AvammServer = "http:\/\/localhost:8085"}
-       else if ($mod.AvammServer === "") $mod.AvammServer = document.location.protocol + document.location.host;
+       else if ($mod.AvammServer === "") $mod.AvammServer = document.location.protocol;
     };
     Result = $mod.AvammServer;
     return Result;

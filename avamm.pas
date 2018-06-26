@@ -207,7 +207,7 @@ begin
       if not IsHttpAddr then
         AvammServer := 'http://localhost:8085'
       else if (AvammServer = '') then
-        AvammServer := document.location.protocol+document.location.host;
+        AvammServer := document.location.protocol;
     end;
   Result := AvammServer;
 end;
