@@ -46,7 +46,8 @@ end;
 procedure OnReady(Sender: THistory; aLocation: String; aRoute: TRoute);
 begin
   try
-    Treeview.selectItem(aRoute.ID);
+    if pos('/by-id/',aLocation)=0 then
+      Treeview.selectItem(aRoute.ID);
   except
   end;
 end;

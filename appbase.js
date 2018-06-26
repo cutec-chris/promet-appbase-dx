@@ -21593,7 +21593,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
   };
   this.OnReady = function (Sender, aLocation, aRoute) {
     try {
-      $mod.Treeview.selectItem(aRoute.FID);
+      if (pas.System.Pos("\/by-id\/",aLocation) === 0) $mod.Treeview.selectItem(aRoute.FID);
     } catch ($e) {
     };
   };
