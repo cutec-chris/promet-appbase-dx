@@ -21298,6 +21298,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.FWindow = undefined;
       this.FParent = undefined;
       this.FData = null;
+      this.FRawData = null;
       this.Layout = null;
       this.Form = null;
       this.Toolbar = null;
@@ -21310,6 +21311,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.$final = function () {
       this.FParams = undefined;
       this.FData = undefined;
+      this.FRawData = undefined;
       this.Layout = undefined;
       this.Form = undefined;
       this.Toolbar = undefined;
@@ -21404,18 +21406,19 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       function ItemLoaded(aValue) {
         var Result = undefined;
         var Fields = null;
-        Self.FData = rtl.getObject(JSON.parse(rtl.getObject(aValue).responseText));
-        Self.FData = rtl.getObject(Self.FData[pas.SysUtils.UpperCase(Self.FTablename)]);
-        Fields = rtl.getObject(rtl.getObject(Self.FData["Data"])[0]);
-        if (Fields["name"] != null) {
-          Self.Form.setItemValue("eShorttext","" + Fields["name"])}
-         else if (Fields["shorttext"] != null) {
-          Self.Form.setItemValue("eShorttext","" + Fields["shorttext"])}
-         else if (Fields["subject"] != null) {
-          Self.Form.setItemValue("eShorttext","" + Fields["subject"])}
-         else if (Fields["summary"] != null) Self.Form.setItemValue("eShorttext","" + Fields["summary"]);
-        if (Fields["id"] != null) {
-          Self.Form.setItemValue("eId","" + Fields["id"]);
+        Self.FRawData = rtl.getObject(JSON.parse(rtl.getObject(aValue).responseText));
+        Self.FData = rtl.getObject(Self.FRawData[pas.SysUtils.UpperCase(Self.FTablename)]);
+        Self.FData = rtl.getObject(rtl.getObject(Self.FData["Data"])[0]);
+        Fields = Self.FData;
+        if (Fields["NAME"] != null) {
+          Self.Form.setItemValue("eShorttext","" + Fields["NAME"])}
+         else if (Fields["SHORTTEXT"] != null) {
+          Self.Form.setItemValue("eShorttext","" + Fields["SHORTTEXT"])}
+         else if (Fields["SUBJECT"] != null) {
+          Self.Form.setItemValue("eShorttext","" + Fields["SUBJECT"])}
+         else if (Fields["SUMMARY"] != null) Self.Form.setItemValue("eShorttext","" + Fields["SUMMARY"]);
+        if (Fields["ID"] != null) {
+          Self.Form.setItemValue("eId","" + Fields["ID"]);
           Self.Form.showItem("eId");
         } else Self.Form.hideItem("eId");
         Self.BaseId = Self.Form.getItemValue("eId");
@@ -21437,6 +21440,9 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         var Result = false;
         var a = null;
         var b = null;
+        if (rtl.isExt(Self.FWindow,Window,1)) {
+          Self.FWindow.pas.Avamm.AvammLogin = pas.Avamm.AvammLogin;
+        };
         pas.System.Writeln("new Window loaded");
         Self.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",Self.FParent,"pattern","2E"]));
         a = Self.Layout.cells("a");
@@ -21473,8 +21479,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         if (!window.dhx.isChrome && !window.dhx.isIE) {
           var $tmp1 = mode;
           if ($tmp1 === $mod.TAvammFormMode.fmTab) {
-            Self.FWindow = window.open(window.location.href,"_blank")}
-           else if ($tmp1 === $mod.TAvammFormMode.fmWindow) Self.FWindow = window.open(window.location.href,"_top");
+            Self.FWindow = window.open((((((window.location.protocol + window.location.pathname) + "#\/") + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/","_blank")}
+           else if ($tmp1 === $mod.TAvammFormMode.fmWindow) Self.FWindow = window.open((((((window.location.protocol + window.location.pathname) + "#\/") + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/","_top");
           if (Self.FWindow != null) {
             Self.FParent = rtl.getObject(Self.FWindow).document.body;
             rtl.getObject(Self.FWindow).onload = WindowCreated;

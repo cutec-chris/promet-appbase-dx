@@ -43,6 +43,7 @@ type
     FWindow: JSValue;
     FParent: JSValue;
     FData: TJSObject;
+    FRawData : TJSObject;
   protected
     Layout: TDHTMLXLayout;
     Form: TDHTMLXForm;
@@ -192,20 +193,21 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
   var
     Fields: TJSObject;
   begin
-    FData := TJSObject(TJSJSON.parse(TJSXMLHttpRequest(aValue).responseText));
-    FData := TJSObject(TJSObject(FData).Properties[Uppercase(Tablename)]);
-    Fields := TJSObject(TJSArray(Data.Properties['Data']).Elements[0]);
-    if Fields.Properties['name'] <> null then
-      Form.setItemValue('eShorttext',string(Fields.Properties['name']))
-    else if Fields.Properties['shorttext'] <> null then
-      Form.setItemValue('eShorttext',string(Fields.Properties['shorttext']))
-    else if Fields.Properties['subject'] <> null then
-      Form.setItemValue('eShorttext',string(Fields.Properties['subject']))
-    else if Fields.Properties['summary'] <> null then
-      Form.setItemValue('eShorttext',string(Fields.Properties['summary']));
-    if Fields.Properties['id'] <> null then
+    FRawData := TJSObject(TJSJSON.parse(TJSXMLHttpRequest(aValue).responseText));
+    FData := TJSObject(TJSObject(FRawData).Properties[Uppercase(Tablename)]);
+    FData := TJSObject(TJSArray(Data.Properties['Data']).Elements[0]);
+    Fields := FData;
+    if Fields.Properties['NAME'] <> null then
+      Form.setItemValue('eShorttext',string(Fields.Properties['NAME']))
+    else if Fields.Properties['SHORTTEXT'] <> null then
+      Form.setItemValue('eShorttext',string(Fields.Properties['SHORTTEXT']))
+    else if Fields.Properties['SUBJECT'] <> null then
+      Form.setItemValue('eShorttext',string(Fields.Properties['SUBJECT']))
+    else if Fields.Properties['SUMMARY'] <> null then
+      Form.setItemValue('eShorttext',string(Fields.Properties['SUMMARY']));
+    if Fields.Properties['ID'] <> null then
       begin
-        Form.setItemValue('eId',string(Fields.Properties['id']));
+        Form.setItemValue('eId',string(Fields.Properties['ID']));
         Form.showItem('eId');
       end
     else Form.hideItem('eId');
@@ -228,9 +230,12 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
   var
     a, b: TDHTMLXLayoutCell;
   begin
-    asm
-      FWindow.pas.Avamm.AvammLogin = pas.Avamm.AvammLogin;
-    end;
+    if FWindow is TJSWindow then
+      begin
+        asm
+          Self.FWindow.pas.Avamm.AvammLogin = pas.Avamm.AvammLogin;
+        end;
+      end;
     writeln('new Window loaded');
     Layout := TDHTMLXLayout.New(js.new(['parent',FParent,'pattern','2E']));
     a := Layout.cells('a');
