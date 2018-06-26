@@ -10773,7 +10773,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
     pas.System.Writeln("Appbase initializing...");
     window.onerror = $mod.WindowError;
     window.addEventListener("unhandledrejection", function(err, promise) {
-      $impl.WindowError(err);
+      pas.Avamm.WindowError(err);
     });
     pas.webrouter.Router().InitHistory(pas.webrouter.THistoryKind.hkHash,"");
     $impl.InitAvammApp();
@@ -21405,7 +21405,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         var Result = undefined;
         var Fields = null;
         Self.FData = rtl.getObject(JSON.parse(rtl.getObject(aValue).responseText));
-        Fields = rtl.getObject(Self.FData["Fields"]);
+        Self.FData = rtl.getObject(Self.FData[pas.SysUtils.UpperCase(Self.FTablename)]);
+        Fields = rtl.getObject(rtl.getObject(Self.FData["Data"])[0]);
         if (Fields["name"] != null) {
           Self.Form.setItemValue("eShorttext","" + Fields["name"])}
          else if (Fields["shorttext"] != null) {
@@ -21459,7 +21460,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Tabs = rtl.getObject(b.attachTabbar(pas.JS.New(["mode","top","align","left","close_button","true","content_zone","true","arrows_mode","auto"])));
         Self.Tabs.setSizes();
         Self.Layout.progressOn();
-        pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json",false,"text\/json",4000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
+        pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json?mode=extjs",false,"text\/json",4000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
         return Result;
       };
       Self.FWindow = null;
@@ -21556,6 +21557,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
   this.DoHandleException = function (aName) {
     function ShowError(aValue) {
       var Result = undefined;
+      if (aName.reason.fMessage) aName = aName.reason.fMessage;
       dhtmlx.message(pas.JS.New(["type","error","text",aName]));
       return Result;
     };

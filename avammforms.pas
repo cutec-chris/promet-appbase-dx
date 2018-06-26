@@ -193,7 +193,8 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     Fields: TJSObject;
   begin
     FData := TJSObject(TJSJSON.parse(TJSXMLHttpRequest(aValue).responseText));
-    Fields := TJSObject(FData.Properties['Fields']);
+    FData := TJSObject(TJSObject(FData).Properties[Uppercase(Tablename)]);
+    Fields := TJSObject(TJSArray(Data.Properties['Data']).Elements[0]);
     if Fields.Properties['name'] <> null then
       Form.setItemValue('eShorttext',string(Fields.Properties['name']))
     else if Fields.Properties['shorttext'] <> null then
@@ -275,7 +276,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
       ])));
     Tabs.setSizes;
     Layout.progressOn;
-    Avamm.LoadData('/'+aDataSet+'/by-id/'+string(Id)+'/item.json')._then(@ItemLoaded)
+    Avamm.LoadData('/'+aDataSet+'/by-id/'+string(Id)+'/item.json?mode=extjs')._then(@ItemLoaded)
                                                                   .catch(@ItemLoadError)
                                                                   ._then(@ItemLoaded2);
   end;
