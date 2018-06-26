@@ -197,12 +197,12 @@ begin
 end;
 function GetBaseUrl : string;
 var
-  IsFileAddr : Boolean = False;
+  IsHttpAddr : Boolean = False;
 begin
   asm
-    IsFileAddr = (/^h/.test(document.location));
+    IsHttpAddr = (/^h/.test(document.location));
   end;
-  if not ((AvammServer = '') and (IsFileAddr)) then
+  if not ((AvammServer = '') and (not IsHttpAddr)) then
     AvammServer := 'http://localhost:8085'
   else if (AvammServer = '') then
     AvammServer := document.location.protocol+document.location.host;
