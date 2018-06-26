@@ -227,6 +227,9 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
   var
     a, b: TDHTMLXLayoutCell;
   begin
+    asm
+      FWindow.pas.Avamm.AvammLogin = pas.Avamm.AvammLogin;
+    end;
     writeln('new Window loaded');
     Layout := TDHTMLXLayout.New(js.new(['parent',FParent,'pattern','2E']));
     a := Layout.cells('a');
@@ -294,8 +297,8 @@ begin
       then
         begin
           case mode of
-          fmTab:FWindow := window.open(window.location.href,'_blank');
-          fmWindow:FWindow := window.open(window.location.href,'_top');
+          fmTab:FWindow := window.open(window.location.protocol+window.location.pathname+'#/'+Tablename+'/by-id/'+string(Id)+'/','_blank');
+          fmWindow:FWindow := window.open(window.location.protocol+window.location.pathname+'#/'+Tablename+'/by-id/'+string(Id)+'/','_top');
           end;
           if FWindow<>null then
             begin
