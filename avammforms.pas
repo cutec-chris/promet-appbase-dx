@@ -26,7 +26,7 @@ type
     Page : TDHTMLXLayout;
     Toolbar : TDHTMLXToolbar;
     Grid : TDHTMLXGrid;
-    constructor Create(aParent : TJSElement;aDataSet : string);
+    constructor Create(aParent : TJSElement;aDataSet : string);virtual;
     procedure Show;
     procedure RefreshList;
   end;
