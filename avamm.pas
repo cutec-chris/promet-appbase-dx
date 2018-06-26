@@ -21,6 +21,7 @@ procedure AppendCSS(url : string;onLoad,onError : JSValue);
 procedure AppendJS(url : string;onLoad,onError : JSValue);
 procedure InitWindow(aWindow : TJSWindow);
 procedure FixWikiContent(elem : TJSHTMLElement;aForm : JSValue);
+function getRight(aName : string) : Integer;
 type
   TPromiseFunction = function : TJSPromise;
   TRegisterToSidebarEvent = procedure(Name : string;Route : TRoute);
@@ -49,6 +50,24 @@ implementation
 
 uses dhtmlx_base;
 
+function getRight(aName : string) : Integer;
+var
+  aRights: TJSArray;
+  aRight: String;
+  i: Integer;
+begin
+  Result := -2;
+  aRights := TJSArray(UserOptions.Properties['rights']);
+  for i := 0 to aRights.Length-1 do
+    begin
+      aRight := string(TJSObject.getOwnPropertyNames(TJSObject(aRights[i]))[0]);
+      if uppercase(aRight)=uppercase(aName) then
+        begin
+          Result := Integer(TJSObject(aRights[i]).Properties[aRight]);
+          exit;
+        end;
+    end;
+end;
 procedure AppendCSS(url : string;onLoad,onError : JSValue);
 begin
   asm

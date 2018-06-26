@@ -93,7 +93,7 @@ var
       begin
         aRight := string(TJSObject.getOwnPropertyNames(TJSObject(aRights[i]))[0]);
         try
-          if Integer(TJSObject(aRights[i]).Properties[aRight])>1 then
+          if Integer(TJSObject(aRights[i]).Properties[aRight])>=0 then
             AppendJS(lowercase(aRight)+'/'+lowercase(aRight)+'.js',@ModuleLoaded,null);
         except
         end;

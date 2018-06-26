@@ -10755,6 +10755,23 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       console.log(err);
     };
   };
+  this.getRight = function (aName) {
+    var Result = 0;
+    var aRights = null;
+    var aRight = "";
+    var i = 0;
+    Result = -2;
+    aRights = rtl.getObject($mod.UserOptions["rights"]);
+    for (var $l1 = 0, $end2 = aRights.length - 1; $l1 <= $end2; $l1++) {
+      i = $l1;
+      aRight = Object.getOwnPropertyNames(rtl.getObject(aRights[i]))[0];
+      if (pas.SysUtils.UpperCase(aRight) === pas.SysUtils.UpperCase(aName)) {
+        Result = Math.floor(rtl.getObject(aRights[i])[aRight]);
+        return Result;
+      };
+    };
+    return Result;
+  };
   $mod.$rtti.$ProcVar("TPromiseFunction",{procsig: rtl.newTIProcSig(null,pas.JS.$rtti["TJSPromise"])});
   $mod.$rtti.$ProcVar("TRegisterToSidebarEvent",{procsig: rtl.newTIProcSig([["Name",rtl.string],["Route",pas.webrouter.$rtti["TRoute"]]])});
   $mod.$rtti.$ProcVar("TJSValueFunction",{procsig: rtl.newTIProcSig(null,rtl.jsvalue)});
@@ -21637,7 +21654,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
         i = $l1;
         aRight = Object.getOwnPropertyNames(rtl.getObject(aRights[i]))[0];
         try {
-          if (Math.floor(rtl.getObject(aRights[i])[aRight]) > 1) pas.dhtmlx_base.AppendJS(((pas.SysUtils.LowerCase(aRight) + "\/") + pas.SysUtils.LowerCase(aRight)) + ".js",ModuleLoaded,null);
+          if (Math.floor(rtl.getObject(aRights[i])[aRight]) >= 0) pas.dhtmlx_base.AppendJS(((pas.SysUtils.LowerCase(aRight) + "\/") + pas.SysUtils.LowerCase(aRight)) + ".js",ModuleLoaded,null);
         } catch ($e) {
         };
       };
