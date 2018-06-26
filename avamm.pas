@@ -377,7 +377,7 @@ begin
   aWindow.onerror:=@WindowError;
   asm
   aWindow.addEventListener("unhandledrejection", function(err, promise) {
-    pas.Avamm.WindowError(err);
+    $impl.WindowError(err);
   });
   end;
 end;

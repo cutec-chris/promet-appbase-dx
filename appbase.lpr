@@ -1,6 +1,7 @@
 program appbase;
-  uses js, web, classes, sysutils, webrouter, dhtmlx_form,Avamm, promet_dhtmlx,
-    dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, dhtmlx_base,AvammForms;
+  uses js, web, classes, sysutils, webrouter, dhtmlx_form, Avamm, promet_dhtmlx,
+    dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, dhtmlx_base, AvammForms,
+    AvammWiki;
 
 var
   LoadEnviroment : Boolean = True;
@@ -16,14 +17,8 @@ resourcestring
   strReconnecting           = 'Verbindung zum Server fehlgeschlagen,'+#10#13+'Verbindung wird automatisch wiederhergestellt';
 
 procedure LoadStartpage(URl : String; aRoute : TRoute; Params: TStrings);
-  procedure HideElement(currentValue: TJSNode;
-    currentIndex: NativeInt; list: TJSNodeList);
-  begin
-    TJSHTMLElement(currentValue).style.setProperty('display','none');
-  end;
 begin
-  writeln('Startpage should be shown ...');
-  TJSHTMLElement(Avamm.GetAvammContainer()).childNodes.forEach(@HideElement);
+  ShowStartpage;
 end;
 procedure RouterBeforeRequest(Sender: TObject; var ARouteURL: String);
 begin

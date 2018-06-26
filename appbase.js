@@ -10704,7 +10704,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
   this.InitWindow = function (aWindow) {
     aWindow.onerror = $impl.WindowError;
     aWindow.addEventListener("unhandledrejection", function(err, promise) {
-      pas.Avamm.WindowError(err);
+      $impl.WindowError(err);
     });
   };
   this.FixWikiContent = function (elem, aForm) {
@@ -21356,6 +21356,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
       function ReportsCouldntbeLoaded(aValue) {
         var Result = undefined;
+        pas.System.Writeln("error loading report");
         return Result;
       };
       function WikiFormLoaded(aValue) {
@@ -21525,7 +21526,44 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
   });
   $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}};
 });
-rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms"],function () {
+rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","dhtmlx_layout","dhtmlx_base","Avamm"],function () {
+  "use strict";
+  var $mod = this;
+  this.Layout = null;
+  this.Content = null;
+  this.ShowStartpage = function () {
+    function HideElement(currentValue, currentIndex, list) {
+      currentValue.style.setProperty("display","none");
+    };
+    function DoShowStartpage(aValue) {
+      var Result = undefined;
+      var FParent = undefined;
+      if ($mod.Layout === null) {
+        FParent = pas.Avamm.GetAvammContainer();
+        $mod.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",FParent,"pattern","1C"]));
+        $mod.Layout.cells("a").hideHeader();
+        $mod.Content = document.createElement("div");
+        $mod.Layout.cells("a").appendObject($mod.Content);
+      };
+      rtl.getObject(pas.Avamm.GetAvammContainer()).childNodes.forEach(HideElement);
+      $mod.Layout.cont.style.setProperty("display","block");
+      return Result;
+    };
+    pas.dhtmlx_base.WidgetsetLoaded.then(DoShowStartpage);
+    $mod.Refresh();
+  };
+  this.Refresh = function () {
+    function FillWiki(aValue) {
+      var Result = undefined;
+      $mod.Content.innerHTML = aValue.responseText;
+      pas.Avamm.FixWikiContent($mod.Content,null);
+      return Result;
+    };
+    var DataLoaded = null;
+    pas.Avamm.LoadData("\/wiki\/" + ("" + pas.Avamm.UserOptions["startpage"]),false,"text\/json",4000).then(FillWiki);
+  };
+});
+rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","AvammWiki"],function () {
   "use strict";
   var $mod = this;
   this.LoadEnviroment = true;
@@ -21535,11 +21573,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
   this.TreeviewSelectionChanged = undefined;
   this.FContainer = null;
   this.LoadStartpage = function (URl, aRoute, Params) {
-    function HideElement(currentValue, currentIndex, list) {
-      currentValue.style.setProperty("display","none");
-    };
-    pas.System.Writeln("Startpage should be shown ...");
-    rtl.getObject(pas.Avamm.GetAvammContainer()).childNodes.forEach(HideElement);
+    pas.AvammWiki.ShowStartpage();
   };
   this.RouterBeforeRequest = function (Sender, ARouteURL) {
     $mod.Layout.progressOn();
