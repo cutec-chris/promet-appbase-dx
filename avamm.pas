@@ -196,8 +196,13 @@ begin
   Result := tJSPromise.new(@IntDoCheckLogin);
 end;
 function GetBaseUrl : string;
+var
+  IsFileAddr : Boolean = False;
 begin
-  if not ((AvammServer = '') and (TJSRegexp.New('/^h/').test(document.location.href))) then
+  asm
+    IsFileAddr = (/^h/.test(document.location);
+  end;
+  if not ((AvammServer = '') and (IsFileAddr)) then
     AvammServer := 'http://localhost:8085'
   else if (AvammServer = '') then
     AvammServer := document.location.protocol+document.location.host;
