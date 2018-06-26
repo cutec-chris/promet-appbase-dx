@@ -135,6 +135,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
   end;
   function ReportsCouldntbeLoaded(aValue: JSValue): JSValue;
   begin
+    writeln('error loading report');
   end;
   function WikiFormLoaded(aValue: TJSXMLHttpRequest): JSValue;
   var

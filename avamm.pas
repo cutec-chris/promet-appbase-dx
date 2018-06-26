@@ -19,7 +19,7 @@ procedure deleteCookie(cname : string);
 function getCookie(cname : string) : string;
 procedure AppendCSS(url : string;onLoad,onError : JSValue);
 procedure AppendJS(url : string;onLoad,onError : JSValue);
-function WindowError(aEvent : TJSErrorEvent) : boolean;
+procedure InitWindow(aWindow : TJSWindow);
 procedure FixWikiContent(elem : TJSHTMLElement;aForm : JSValue);
 type
   TPromiseFunction = function : TJSPromise;
@@ -372,7 +372,15 @@ begin
   if OnException<>nil then
     OnException(aEvent);
 end;
-
+procedure InitWindow(aWindow : TJSWindow);
+begin
+  aWindow.onerror:=@WindowError;
+  asm
+  aWindow.addEventListener("unhandledrejection", function(err, promise) {
+    pas.Avamm.WindowError(err);
+  });
+  end;
+end;
 procedure FixWikiContent(elem : TJSHTMLElement;aForm : JSValue);
 begin
   asm
@@ -427,12 +435,7 @@ end;
 
 initialization
   writeln('Appbase initializing...');
-  window.onerror:=@WindowError;
-  asm
-  window.addEventListener("unhandledrejection", function(err, promise) {
-    pas.Avamm.WindowError(err);
-  });
-  end;
+  InitWindow(window);
   Router.InitHistory(hkHash);
   InitAvammApp;
 end.

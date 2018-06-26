@@ -9,7 +9,9 @@ function loadPdf(pdfData) {
     loadingTask.promise.then(function(pdf) {
       renderPdf(pdf);
       return pdf;
-    });  
+    }).catch(function(err){
+      throw err;
+    });
 }
 
 function renderPdf(pdf) {

@@ -10701,10 +10701,11 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       document.getElementsByTagName( "head" )[0].appendChild( link );
     };
   };
-  this.WindowError = function (aEvent) {
-    var Result = false;
-    if ($mod.OnException !== null) $mod.OnException(aEvent);
-    return Result;
+  this.InitWindow = function (aWindow) {
+    aWindow.onerror = $impl.WindowError;
+    aWindow.addEventListener("unhandledrejection", function(err, promise) {
+      pas.Avamm.WindowError(err);
+    });
   };
   this.FixWikiContent = function (elem, aForm) {
     try {
@@ -10771,10 +10772,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
   $mod.$resourcestrings = {strServerNotRea: {org: "Server nicht erreichbar"}, strNoLoginFormA: {org: "keine Login Form verfügbar"}, strLoginFailed: {org: "Login fehlgeschlagen"}, strServerMustbeConfigured: {org: "Server muss konfiguriert werden"}};
   $mod.$init = function () {
     pas.System.Writeln("Appbase initializing...");
-    window.onerror = $mod.WindowError;
-    window.addEventListener("unhandledrejection", function(err, promise) {
-      pas.Avamm.WindowError(err);
-    });
+    $mod.InitWindow(window);
     pas.webrouter.Router().InitHistory(pas.webrouter.THistoryKind.hkHash,"");
     $impl.InitAvammApp();
   };
@@ -10812,6 +10810,11 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       pas.Avamm.ContainerResizedEvent = createNewEvent('ContainerResized');
     } catch (err) {};
     $mod.CheckLogin();
+  };
+  $impl.WindowError = function (aEvent) {
+    var Result = false;
+    if ($mod.OnException !== null) $mod.OnException(aEvent);
+    return Result;
   };
 });
 rtl.module("dhtmlx_windows",["System","JS","Web","dhtmlx_base"],function () {
@@ -21563,7 +21566,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
   this.DoHandleException = function (aName) {
     function ShowError(aValue) {
       var Result = undefined;
-      if (aName.reason.fMessage) aName = aName.reason.fMessage;
+      if ((aName.reason)&&(aName.reason.fMessage)) aName = aName.reason.fMessage;
       dhtmlx.message(pas.JS.New(["type","error","text",aName]));
       return Result;
     };
