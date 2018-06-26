@@ -202,10 +202,13 @@ begin
   asm
     IsHttpAddr = (/^h/.test(document.location));
   end;
-  if not ((AvammServer = '') and (not IsHttpAddr)) then
-    AvammServer := 'http://localhost:8085'
-  else if (AvammServer = '') then
-    AvammServer := document.location.protocol+document.location.host;
+  if AvammServer= '' then
+    begin
+      if not IsHttpAddr then
+        AvammServer := 'http://localhost:8085'
+      else if (AvammServer = '') then
+        AvammServer := document.location.protocol+document.location.host;
+    end;
   Result := AvammServer;
 end;
 procedure RegisterSidebarRoute(aName, Route: string;Event : TRouteEvent);
