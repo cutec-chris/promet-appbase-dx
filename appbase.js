@@ -21240,7 +21240,7 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
           };
           if (aParams !== "") {
             anchors.item(i).setAttribute("href",(((("#" + aTable) + "\/by-id\/") + aId) + "\/") + aParams)}
-           else anchors.item(i).setAttribute("href",(("#" + aTable) + "\/by-id\/") + aId);
+           else anchors.item(i).setAttribute("href",((("#" + aTable) + "\/by-id\/") + aId) + "\/");
           anchors.item(i).setAttribute("AvammTable",aTable);
           anchors.item(i).setAttribute("AvammId",aId);
           anchors.item(i).setAttribute("AvammParams",aParams);

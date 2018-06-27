@@ -110,7 +110,7 @@ begin
             if (aParams <> '') then
               TJSHTMLElement(anchors[i]).setAttribute('href','#' + aTable + '/by-id/'+aId+'/'+aParams)
             else
-              TJSHTMLElement(anchors[i]).setAttribute('href','#' + aTable + '/by-id/'+aId);
+              TJSHTMLElement(anchors[i]).setAttribute('href','#' + aTable + '/by-id/'+aId+'/');
             TJSHTMLElement(anchors[i]).setAttribute('AvammTable',aTable);
             TJSHTMLElement(anchors[i]).setAttribute('AvammId',aId);
             TJSHTMLElement(anchors[i]).setAttribute('AvammParams',aParams);
