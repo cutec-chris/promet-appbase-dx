@@ -21220,13 +21220,13 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
           if (pas.System.Pos("{",oldLink) > 0) {
             aId = pas.System.Copy(oldLink,0,pas.System.Pos("{",oldLink) - 1)}
            else aId = oldLink;
+          aId = pas.System.Copy(aId,pas.System.Pos("@",aId) + 1,aId.length);
           if (pas.System.Pos("(",aId) > 0) {
             aParams = pas.System.Copy(aId,pas.System.Pos("(",aId) + 1,aId.length);
             aParams = pas.System.Copy(aParams,0,pas.System.Pos(")",aParams) - 1);
             jtmp = new String(aParams);
             aParam = jtmp.split(",");
             aId = pas.System.Copy(aId,0,pas.System.Pos("(",aId) - 1);
-            aId = pas.System.Copy(aId,pas.System.Pos("@",aId) + 1,aId.length);
             aParams = "";
             for (var $l3 = 0, $end4 = rtl.length(aParam) - 1; $l3 <= $end4; $l3++) {
               a = $l3;

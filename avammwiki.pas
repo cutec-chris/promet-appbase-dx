@@ -89,6 +89,7 @@ begin
               aId := copy(oldLink,0,pos('{',oldLink)-1)
             else
               aId := oldLink;
+            aId := copy(aId,pos('@',aId)+1,length(aId));
             if pos('(',aId)>0 then
               begin
                 aParams:=copy(aId,pos('(',aId)+1,length(aId));
@@ -96,7 +97,6 @@ begin
                 jtmp := TJSString.New(aParams);
                 aParam := jtmp.split(',');
                 aId := copy(aId,0,pos('(',aId)-1);
-                aId := copy(aId,pos('@',aId)+1,length(aId));
                 aParams:='';
                 for a := 0 to length(aParam)-1 do
                   aParams:=aParams+aParam[a]+'&';
