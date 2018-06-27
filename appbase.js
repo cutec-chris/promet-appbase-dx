@@ -10620,7 +10620,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
             } else reject(aValue);
             return Result;
           };
-          $mod.LoadData("\/configuration\/userstatus",false,"text\/json",4000).then(CheckRightsData);
+          $mod.LoadData("\/configuration\/userstatus",false,"text\/json",6000).then(CheckRightsData);
         };
         function DoLogout(aValue) {
           var Result = undefined;
@@ -10638,7 +10638,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
         Result = (new Promise(CatchRights)).then(SetupUser).catch(DoLogout);
         return Result;
       };
-      Result = Promise.all([$mod.LoadData("\/configuration\/status",false,"text\/json",4000).then(CheckStatus).then(GetLoginData).then(GetRights)]);
+      Result = Promise.all([$mod.LoadData("\/configuration\/status",false,"text\/json",6000).then(CheckStatus).then(GetLoginData).then(GetRights)]);
     };
     Result = new Promise(IntDoCheckLogin);
     return Result;
@@ -10706,54 +10706,6 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
     aWindow.addEventListener("unhandledrejection", function(err, promise) {
       $impl.WindowError(err);
     });
-  };
-  this.FixWikiContent = function (elem, aForm) {
-    try {
-        if (elem.style.fontFamily!="Arial") {
-          elem.style.fontFamily = "Arial";
-          elem.style.fontSizeAdjust = 0.5;
-          var anchors = elem.getElementsByTagName("a");
-          for (var i = 0; i < anchors.length; i++) {
-            if ((anchors[i].href.indexOf('@')>0)&&(anchors[i].href.substring(0,4)=='http')) {
-              var oldLink = decodeURI(anchors[i].href.substring(anchors[i].href.lastIndexOf('/')+1));
-              var aTable = oldLink.substring(0,oldLink.indexOf('@')).toLowerCase();
-              oldLink = oldLink.substring(oldLink.indexOf('@')+1);
-              var aId;
-              if (oldLink.indexOf('{')>0) {
-                aId = oldLink.substring(0,oldLink.indexOf('{'))
-              } else {
-                aId = oldLink;
-              }
-              if (aId.indexOf('(')>0) {
-                var aParams = aId.substring(aId.indexOf('(')+1,aId.length);
-                aParams = aParams.substring(0,aId.indexOf(')')-1);
-                var aParam = aParams.split(',');
-                aId = aId.substring(0,aId.indexOf('('))
-                aParams = '';
-                for (var a = 0; a < aParam.length; a++) {
-                  aParams += aParam[a];
-                  if (a > 0)
-                    aParams += '&';
-                }
-                aParams = aParams.substring(0,aParams.length-1);
-              }
-              if (aForm) {
-                aParams = aParams.replace('@VARIABLES.ID@',aForm.BaseId);
-                aParams = aParams.replace('@VARIABLES.SQL_ID@',aForm.Id);
-              }
-              if (aParams != '')
-                anchors[i].href = "#" + aTable + '/by-id/'+aId+'/'+aParams
-              else
-                anchors[i].href = "#" + aTable + '/by-id/'+aId;
-              anchors[i].AvammTable = aTable;
-              anchors[i].AvammId = aId;
-              anchors[i].AvammParams = aParams;
-            }
-          }
-        }
-    } catch(err) {
-      console.log(err);
-    };
   };
   this.getRight = function (aName) {
     var Result = 0;
@@ -21203,6 +21155,101 @@ rtl.module("dhtmlx_tabbar",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
 });
+rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx_layout","dhtmlx_base","Avamm"],function () {
+  "use strict";
+  var $mod = this;
+  this.Layout = null;
+  this.Content = null;
+  this.ShowStartpage = function () {
+    function HideElement(currentValue, currentIndex, list) {
+      currentValue.style.setProperty("display","none");
+    };
+    function DoShowStartpage(aValue) {
+      var Result = undefined;
+      var FParent = undefined;
+      if ($mod.Layout === null) {
+        FParent = pas.Avamm.GetAvammContainer();
+        $mod.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",FParent,"pattern","1C"]));
+        $mod.Layout.cells("a").hideHeader();
+        $mod.Content = document.createElement("div");
+        $mod.Layout.cells("a").appendObject($mod.Content);
+      };
+      rtl.getObject(pas.Avamm.GetAvammContainer()).childNodes.forEach(HideElement);
+      $mod.Layout.cont.style.setProperty("display","block");
+      return Result;
+    };
+    pas.dhtmlx_base.WidgetsetLoaded.then(DoShowStartpage);
+    $mod.Refresh();
+  };
+  this.Refresh = function () {
+    function FillWiki(aValue) {
+      var Result = undefined;
+      $mod.Content.innerHTML = aValue.responseText;
+      $mod.FixWikiContent($mod.Content,null);
+      return Result;
+    };
+    var DataLoaded = null;
+    pas.Avamm.LoadData("\/wiki\/" + ("" + pas.Avamm.UserOptions["startpage"]),false,"text\/json",6000).then(FillWiki);
+  };
+  this.FixWikiContent = function (elem, aForm) {
+    var anchors = null;
+    var oldLink = "";
+    var aTable = "";
+    var aId = "";
+    var aParams = "";
+    var aHref = "";
+    var i = 0;
+    var a = 0;
+    var jtmp = null;
+    var aParam = [];
+    try {
+      if (elem.style.fontFamily!="Arial") {
+        elem.style.fontFamily = "Arial";
+        elem.style.fontSizeAdjust = 0.5;
+      };
+    } catch ($e) {
+    };
+    anchors = elem.getElementsByTagName("a");
+    for (var $l1 = 0, $end2 = anchors.length - 1; $l1 <= $end2; $l1++) {
+      i = $l1;
+      try {
+        aHref = anchors[i].href;
+        if ((pas.System.Pos("@",aHref) > 0) && (pas.System.Copy(aHref,0,4) === "http")) {
+          oldLink = decodeURI(anchors[i].href.substring(anchors[i].href.lastIndexOf('/')+1));
+          aTable = oldLink.substring(0,oldLink.indexOf('@')).toLowerCase();
+          if (pas.System.Pos("{",oldLink) > 0) {
+            aId = pas.System.Copy(oldLink,0,pas.System.Pos("{",oldLink) - 1)}
+           else aId = oldLink;
+          if (pas.System.Pos("(",aId) > 0) {
+            aParams = pas.System.Copy(aId,pas.System.Pos("(",aId) + 1,aId.length);
+            aParams = pas.System.Copy(aParams,0,pas.System.Pos(")",aParams) - 1);
+            jtmp = new String(aParams);
+            aParam = jtmp.split(",");
+            aId = pas.System.Copy(aId,0,pas.System.Pos("(",aId) - 1);
+            aId = pas.System.Copy(aId,pas.System.Pos("@",aId) + 1,aId.length);
+            aParams = "";
+            for (var $l3 = 0, $end4 = rtl.length(aParam) - 1; $l3 <= $end4; $l3++) {
+              a = $l3;
+              aParams = (aParams + aParam[a]) + "&";
+            };
+            aParams = pas.System.Copy(aParams,0,aParams.length - 1);
+          };
+          if (aForm != null) {
+            aParams = pas.SysUtils.StringReplace(aParams,"@VARIABLES.ID@","" + rtl.getObject(aForm)["BaseId"],rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+            aParams = pas.SysUtils.StringReplace(aParams,"@VARIABLES.SQL_ID@","" + rtl.getObject(aForm)["Id"],rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+          };
+          if (aParams !== "") {
+            anchors.item(i).setAttribute("href",(((("#" + aTable) + "\/by-id\/") + aId) + "\/") + aParams)}
+           else anchors.item(i).setAttribute("href",(("#" + aTable) + "\/by-id\/") + aId);
+          anchors.item(i).setAttribute("AvammTable",aTable);
+          anchors.item(i).setAttribute("AvammId",aId);
+          anchors.item(i).setAttribute("AvammParams",aParams);
+        };
+      } catch ($e) {
+      };
+    };
+  };
+});
 rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","dhtmlx_base","dhtmlx_windows","dhtmlx_tabbar","webrouter","DB","Avamm"],function () {
   "use strict";
   var $mod = this;
@@ -21393,7 +21440,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         if (pas.System.Pos("<body><\/body>",aValue.responseText) === 0) {
           cDiv = document.createElement("div");
           cDiv.innerHTML = aValue.responseText;
-          pas.Avamm.FixWikiContent(cDiv,Self);
+          pas.AvammWiki.FixWikiContent(cDiv,Self);
           if (aName === "overview") {
             Self.Tabs.addTab(aName,aName,null,0,true,false)}
            else Self.Tabs.addTab(aName,aName,null,5,false,false);
@@ -21414,7 +21461,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
           aName = "" + rtl.getObject(Wiki[i])["name"];
           aExt = pas.System.Copy(aName,pas.System.Pos(".",aName) + 1,aName.length);
           if (aExt === "html") {
-            pas.Avamm.LoadData((((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/") + aName,false,"text\/html",6000).then(WikiFormLoaded);
+            pas.Avamm.LoadData((((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/") + aName,false,"text\/html",7000).then(WikiFormLoaded);
           };
         };
         return Result;
@@ -21425,8 +21472,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
       function ItemLoaded2(aValue) {
         var Result = undefined;
-        Self.WikiLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/.json",false,"text\/json",4000).then(AddWiki).catch(WikiCouldntbeLoaded);
-        Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/reports\/.json",false,"text\/json",4000).then(AddReports).catch(ReportsCouldntbeLoaded);
+        Self.WikiLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/.json",false,"text\/json",6000).then(AddWiki).catch(WikiCouldntbeLoaded);
+        Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/reports\/.json",false,"text\/json",6000).then(AddReports).catch(ReportsCouldntbeLoaded);
         Self.DoLoadData();
         return Result;
       };
@@ -21493,7 +21540,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Tabs = rtl.getObject(b.attachTabbar(pas.JS.New(["mode","top","align","left","close_button","true","content_zone","true","arrows_mode","auto"])));
         Self.Tabs.setSizes();
         Self.Layout.progressOn();
-        pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json?mode=extjs",false,"text\/json",4000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
+        pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json?mode=extjs",false,"text\/json",6000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
         return Result;
       };
       Self.FWindow = null;
@@ -21548,44 +21595,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     };
   });
   $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}};
-});
-rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","dhtmlx_layout","dhtmlx_base","Avamm"],function () {
-  "use strict";
-  var $mod = this;
-  this.Layout = null;
-  this.Content = null;
-  this.ShowStartpage = function () {
-    function HideElement(currentValue, currentIndex, list) {
-      currentValue.style.setProperty("display","none");
-    };
-    function DoShowStartpage(aValue) {
-      var Result = undefined;
-      var FParent = undefined;
-      if ($mod.Layout === null) {
-        FParent = pas.Avamm.GetAvammContainer();
-        $mod.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",FParent,"pattern","1C"]));
-        $mod.Layout.cells("a").hideHeader();
-        $mod.Content = document.createElement("div");
-        $mod.Layout.cells("a").appendObject($mod.Content);
-      };
-      rtl.getObject(pas.Avamm.GetAvammContainer()).childNodes.forEach(HideElement);
-      $mod.Layout.cont.style.setProperty("display","block");
-      return Result;
-    };
-    pas.dhtmlx_base.WidgetsetLoaded.then(DoShowStartpage);
-    $mod.Refresh();
-  };
-  this.Refresh = function () {
-    function FillWiki(aValue) {
-      var Result = undefined;
-      $mod.Content.innerHTML = aValue.responseText;
-      pas.Avamm.FixWikiContent($mod.Content,null);
-      return Result;
-    };
-    var DataLoaded = null;
-    pas.Avamm.LoadData("\/wiki\/" + ("" + pas.Avamm.UserOptions["startpage"]),false,"text\/json",4000).then(FillWiki);
-  };
-});
+},["AvammWiki"]);
 rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","AvammWiki"],function () {
   "use strict";
   var $mod = this;

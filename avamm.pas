@@ -10,7 +10,7 @@ uses
 type TJSValueCallback = procedure(aName : JSValue);
 
 procedure RegisterSidebarRoute(aName,Route : string;Event : TRouteEvent);
-function LoadData(url : string;IgnoreLogin : Boolean = False;Datatype : string = 'text/json';Timeout : Integer = 4000) : TJSPromise;
+function LoadData(url : string;IgnoreLogin : Boolean = False;Datatype : string = 'text/json';Timeout : Integer = 6000) : TJSPromise;
 procedure WaitForAssigned(name : string; callback : TJSValueCallback);
 function CheckLogin : TJSPromise;
 function Wait(ms : NativeInt) : TJSPromise;
@@ -20,7 +20,6 @@ function getCookie(cname : string) : string;
 procedure AppendCSS(url : string;onLoad,onError : JSValue);
 procedure AppendJS(url : string;onLoad,onError : JSValue);
 procedure InitWindow(aWindow : TJSWindow);
-procedure FixWikiContent(elem : TJSHTMLElement;aForm : JSValue);
 function getRight(aName : string) : Integer;
 type
   TPromiseFunction = function : TJSPromise;
@@ -410,58 +409,6 @@ begin
   });
   end;
 end;
-procedure FixWikiContent(elem : TJSHTMLElement;aForm : JSValue);
-begin
-  asm
-    try {
-      if (elem.style.fontFamily!="Arial") {
-        elem.style.fontFamily = "Arial";
-        elem.style.fontSizeAdjust = 0.5;
-        var anchors = elem.getElementsByTagName("a");
-        for (var i = 0; i < anchors.length; i++) {
-          if ((anchors[i].href.indexOf('@')>0)&&(anchors[i].href.substring(0,4)=='http')) {
-            var oldLink = decodeURI(anchors[i].href.substring(anchors[i].href.lastIndexOf('/')+1));
-            var aTable = oldLink.substring(0,oldLink.indexOf('@')).toLowerCase();
-            oldLink = oldLink.substring(oldLink.indexOf('@')+1);
-            var aId;
-            if (oldLink.indexOf('{')>0) {
-              aId = oldLink.substring(0,oldLink.indexOf('{'))
-            } else {
-              aId = oldLink;
-            }
-            if (aId.indexOf('(')>0) {
-              var aParams = aId.substring(aId.indexOf('(')+1,aId.length);
-              aParams = aParams.substring(0,aId.indexOf(')')-1);
-              var aParam = aParams.split(',');
-              aId = aId.substring(0,aId.indexOf('('))
-              aParams = '';
-              for (var a = 0; a < aParam.length; a++) {
-                aParams += aParam[a];
-                if (a > 0)
-                  aParams += '&';
-              }
-              aParams = aParams.substring(0,aParams.length-1);
-            }
-            if (aForm) {
-              aParams = aParams.replace('@VARIABLES.ID@',aForm.BaseId);
-              aParams = aParams.replace('@VARIABLES.SQL_ID@',aForm.Id);
-            }
-            if (aParams != '')
-              anchors[i].href = "#" + aTable + '/by-id/'+aId+'/'+aParams
-            else
-              anchors[i].href = "#" + aTable + '/by-id/'+aId;
-            anchors[i].AvammTable = aTable;
-            anchors[i].AvammId = aId;
-            anchors[i].AvammParams = aParams;
-          }
-        }
-      }
-  } catch(err) {
-    console.log(err);
-  }
-  end;
-end;
-
 initialization
   writeln('Appbase initializing...');
   InitWindow(window);

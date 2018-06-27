@@ -5,7 +5,7 @@ unit AvammWiki;
 interface
 
 uses
-  Classes, SysUtils, js, web, dhtmlx_layout, dhtmlx_base, Avamm;
+  Classes, SysUtils, js, web, Types, dhtmlx_layout, dhtmlx_base, Avamm;
 
 var
   Layout : TDHTMLXLayout = nil;
@@ -13,6 +13,7 @@ var
 
 procedure ShowStartpage;
 procedure Refresh;
+procedure FixWikiContent(elem : TJSHTMLElement;aForm : JSValue);
 
 implementation
 
@@ -52,6 +53,71 @@ begin
   WidgetsetLoaded._then(@DoShowStartpage);
   Refresh;
 end;
-
+procedure FixWikiContent(elem : TJSHTMLElement;aForm : JSValue);
+var
+  anchors: TJSHTMLCollection;
+  oldLink, aTable, aId, aParams, aHref: string;
+  i, a: Integer;
+  jtmp: TJSString;
+  aParam: TStringDynArray;
+begin
+  try
+    asm
+      if (elem.style.fontFamily!="Arial") {
+        elem.style.fontFamily = "Arial";
+        elem.style.fontSizeAdjust = 0.5;
+      }
+    end;
+  except
+  end;
+  anchors := elem.getElementsByTagName('a');
+  for i := 0 to anchors.length-1 do
+    begin
+      try
+        asm
+          aHref = anchors[i].href;
+        end;
+        if (pos('@',aHref)>0)
+        and (copy(aHref,0,4)='http')
+        then
+          begin
+            asm
+              oldLink = decodeURI(anchors[i].href.substring(anchors[i].href.lastIndexOf('/')+1));
+              aTable = oldLink.substring(0,oldLink.indexOf('@')).toLowerCase();
+            end;
+            if pos('{',oldLink)>0 then
+              aId := copy(oldLink,0,pos('{',oldLink)-1)
+            else
+              aId := oldLink;
+            if pos('(',aId)>0 then
+              begin
+                aParams:=copy(aId,pos('(',aId)+1,length(aId));
+                aParams:=copy(aParams,0,pos(')',aParams)-1);
+                jtmp := TJSString.New(aParams);
+                aParam := jtmp.split(',');
+                aId := copy(aId,0,pos('(',aId)-1);
+                aId := copy(aId,pos('@',aId)+1,length(aId));
+                aParams:='';
+                for a := 0 to length(aParam)-1 do
+                  aParams:=aParams+aParam[a]+'&';
+                aParams:=copy(aParams,0,length(aParams)-1);
+              end;
+            if aForm<>null then
+              begin
+                aParams:=StringReplace(aParams,'@VARIABLES.ID@',string(TJSObject(aForm).Properties['BaseId']),[rfReplaceAll]);
+                aParams:=StringReplace(aParams,'@VARIABLES.SQL_ID@',string(TJSObject(aForm).Properties['Id']),[rfReplaceAll]);
+              end;
+            if (aParams <> '') then
+              TJSHTMLElement(anchors[i]).setAttribute('href','#' + aTable + '/by-id/'+aId+'/'+aParams)
+            else
+              TJSHTMLElement(anchors[i]).setAttribute('href','#' + aTable + '/by-id/'+aId);
+            TJSHTMLElement(anchors[i]).setAttribute('AvammTable',aTable);
+            TJSHTMLElement(anchors[i]).setAttribute('AvammId',aId);
+            TJSHTMLElement(anchors[i]).setAttribute('AvammParams',aParams);
+          end;
+      except
+      end;
+    end;
+end;
 end.
 

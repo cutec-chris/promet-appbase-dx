@@ -89,6 +89,8 @@ resourcestring
 
 implementation
 
+uses AvammWiki;
+
 { TAvammForm }
 
 procedure TAvammForm.DoLoadData;
@@ -175,7 +177,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
         aExt := copy(aName,pos('.',aName)+1,length(aName));
         if aExt = 'html' then
           begin
-            LoadData('/'+Tablename+'/by-id/'+string(Id)+'/'+aName,False,'text/html',6000)._then(TJSPromiseResolver(@WikiFormLoaded));
+            LoadData('/'+Tablename+'/by-id/'+string(Id)+'/'+aName,False,'text/html',7000)._then(TJSPromiseResolver(@WikiFormLoaded));
           end;
       end;
   end;
