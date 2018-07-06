@@ -45,24 +45,6 @@ function handlePages(page)
   container.style.width = canvas.width;
   container.style.position = 'relative';
 
-  var outputScale = getOutputScale();
-  if (outputScale.scaled) {
-      var cssScale = 'scale(' + (1 / outputScale.sx) + ', ' +
-          (1 / outputScale.sy) + ')';
-      CustomStyle.setProp('transform', canvas, cssScale);
-      CustomStyle.setProp('transformOrigin', canvas, '0% 0%');
-
-      if (textLayerDiv[0]) {
-          CustomStyle.setProp('transform', textLayerDiv, cssScale);
-          CustomStyle.setProp('transformOrigin', textLayerDiv, '0% 0%');
-      }
-  }
-  context._scaleX = outputScale.sx;
-  context._scaleY = outputScale.sy;
-  if (outputScale.scaled) {
-      context.scale(outputScale.sx, outputScale.sy);
-  }
-
   var canvasOffset = {
       top: canvas.getBoundingClientRect().top + document.body.scrollTop,
       left: canvas.getBoundingClientRect().left + document.body.scrollLeft
@@ -86,6 +68,24 @@ function handlePages(page)
       };
       page.render(renderContext);
   });
+
+  var outputScale = getOutputScale();
+  if (outputScale.scaled) {
+      var cssScale = 'scale(' + (1 / outputScale.sx) + ', ' +
+          (1 / outputScale.sy) + ')';
+      CustomStyle.setProp('transform', canvas, cssScale);
+      CustomStyle.setProp('transformOrigin', canvas, '0% 0%');
+
+      if (textLayerDiv[0]) {
+          CustomStyle.setProp('transform', textLayerDiv, cssScale);
+          CustomStyle.setProp('transformOrigin', textLayerDiv, '0% 0%');
+      }
+  }
+  context._scaleX = outputScale.sx;
+  context._scaleY = outputScale.sy;
+  if (outputScale.scaled) {
+      context.scale(outputScale.sx, outputScale.sy);
+  }
 
   //Add it to the web page
   container.appendChild( canvas );

@@ -88,6 +88,8 @@ var
     if Router.FindHTTPRoute('startpage',nil) <> nil then exit;
     writeln('FillEnviromentAfterLogin');
     RegisterSidebarRoute(strStartpage,'startpage',@LoadStartpage);
+    if THashHistory(Router.History).getHash='' then
+      Router.Push('startpage');
     aRights := TJSArray(UserOptions.Properties['rights']);
     for i := 0 to aRights.Length-1 do
       begin
@@ -191,6 +193,8 @@ begin
   if LoadEnviroment then
     WidgetsetLoaded._then(@FillEnviroment);
   if THashHistory(Router.History).getHash<>'' then
-    if Router.FindHTTPRoute(THashHistory(Router.History).getHash,nil) <> nil then
-      InitRouteFound := Router.Push(THashHistory(Router.History).getHash) = trOK;
+    begin
+      if Router.FindHTTPRoute(THashHistory(Router.History).getHash,nil) <> nil then
+        InitRouteFound := Router.Push(THashHistory(Router.History).getHash) = trOK;
+    end;
 end.

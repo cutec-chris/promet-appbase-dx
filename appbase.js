@@ -21659,6 +21659,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
       if (pas.webrouter.Router().FindHTTPRoute("startpage",null) !== null) return Result;
       pas.System.Writeln("FillEnviromentAfterLogin");
       pas.Avamm.RegisterSidebarRoute(rtl.getResStr(pas.program,"strStartpage"),"startpage",$mod.LoadStartpage);
+      if (pas.webrouter.Router().GetHistory().$class.getHash() === "") pas.webrouter.Router().Push("startpage");
       aRights = rtl.getObject(pas.Avamm.UserOptions["rights"]);
       for (var $l1 = 0, $end2 = aRights.length - 1; $l1 <= $end2; $l1++) {
         i = $l1;
@@ -21754,6 +21755,8 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
   $mod.$main = function () {
     pas.Avamm.GetAvammContainer = $mod.DoGetAvammContainer;
     if ($mod.LoadEnviroment) pas.dhtmlx_base.WidgetsetLoaded.then($mod.FillEnviroment);
-    if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") if (pas.webrouter.Router().FindHTTPRoute(pas.webrouter.Router().GetHistory().$class.getHash(),null) !== null) $mod.InitRouteFound = pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash()) === pas.webrouter.TTransitionResult.trOK;
+    if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") {
+      if (pas.webrouter.Router().FindHTTPRoute(pas.webrouter.Router().GetHistory().$class.getHash(),null) !== null) $mod.InitRouteFound = pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash()) === pas.webrouter.TTransitionResult.trOK;
+    };
   };
 });
