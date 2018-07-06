@@ -1,4 +1,4 @@
-var scale = 1; //Set this to whatever you want. This is basically the "zoom" factor for the PDF.
+var scale = 1.3; //Set this to whatever you want. This is basically the "zoom" factor for the PDF.
 var PDFJS = window['pdfjs-dist/build/pdf'];
 var currPage = 1;
 var thePdf;
