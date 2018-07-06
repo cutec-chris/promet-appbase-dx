@@ -1,9 +1,12 @@
-var scale = 1.5; //Set this to whatever you want. This is basically the "zoom" factor for the PDF.
+var scale = 1; //Set this to whatever you want. This is basically the "zoom" factor for the PDF.
 var PDFJS = window['pdfjs-dist/build/pdf'];
 var currPage = 1;
 var thePdf;
 
 function loadPdf(pdfData) {
+    currPage = 1;
+    if (thePdf) thePdf.destroy();
+    document.body.innerHTML = "";
     PDFJS.disableWorker = true; //Not using web workers. Not disabling results in an error. This line is
     var loadingTask = PDFJS.getDocument(pdfData);
     loadingTask.promise.then(function(pdf) {
@@ -15,8 +18,7 @@ function loadPdf(pdfData) {
 }
 
 function renderPdf(pdf) {
-  document.body.innerHTML = "";
-  pdf.getPage( 1 ).then( handlePages );
+  pdf.getPage( currPage ).then( handlePages );
   thePdf = pdf;
 }
 
