@@ -26,7 +26,7 @@ type
     Page : TDHTMLXLayout;
     Toolbar : TDHTMLXToolbar;
     Grid : TDHTMLXGrid;
-    constructor Create(aParent : TJSElement;aDataSet : string);virtual;
+    constructor Create(aParent : TJSElement;aDataSet : string;aPattern : string = '1C');virtual;
     procedure Show;
     procedure RefreshList;
   end;
@@ -359,7 +359,8 @@ end;
 
 { TAvammListForm }
 
-constructor TAvammListForm.Create(aParent : TJSElement;aDataSet: string);
+constructor TAvammListForm.Create(aParent: TJSElement; aDataSet: string;
+  aPattern: string);
   procedure ButtonClick(id : string);
   begin
     if (id='new') then
@@ -401,7 +402,7 @@ begin
   writeln('Loading '+aDataSet+' as List...');
   window.addEventListener('ContainerResized',@DoResizeLayout);
   FParent := aParent;
-  Page := TDHTMLXLayout.New(js.new(['parent',aParent,'pattern','1C']));
+  Page := TDHTMLXLayout.New(js.new(['parent',aParent,'pattern',aPattern]));
   Page.cont.style.setProperty('border-width','0');
   Page.cells('a').hideHeader;
   Toolbar := TDHTMLXToolbar(Page.cells('a').attachToolbar(js.new(['parent',Page,

@@ -21282,7 +21282,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.SwitchProgressOff = function (DataSet, Data) {
       this.Page.progressOff();
     };
-    this.Create$1 = function (aParent, aDataSet) {
+    this.Create$1 = function (aParent, aDataSet, aPattern) {
       var Self = this;
       function ButtonClick(id) {
         if (id === "new") {}
@@ -21315,7 +21315,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       pas.System.Writeln(("Loading " + aDataSet) + " as List...");
       window.addEventListener("ContainerResized",DoResizeLayout);
       Self.FParent = aParent;
-      Self.Page = new dhtmlXLayoutObject(pas.JS.New(["parent",aParent,"pattern","1C"]));
+      Self.Page = new dhtmlXLayoutObject(pas.JS.New(["parent",aParent,"pattern",aPattern]));
       Self.Page.cont.style.setProperty("border-width","0");
       Self.Page.cells("a").hideHeader();
       Self.Toolbar = rtl.getObject(Self.Page.cells("a").attachToolbar(pas.JS.New(["parent",Self.Page,"iconset","awesome"])));
