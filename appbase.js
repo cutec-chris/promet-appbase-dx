@@ -20946,8 +20946,10 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       if (this.FSFilter === AValue) return;
       this.FSFilter = AValue;
       this.SetRows(null);
-      this.ClearBuffers();
-      this.ClearFields();
+      if (this.FFieldDefs.GetCount() > 0) {
+        this.ClearBuffers();
+        this.ClearFields();
+      };
       this.Close();
     };
     this.DoGetDataProxy = function () {

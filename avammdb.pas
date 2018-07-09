@@ -142,8 +142,11 @@ begin
   if FSFilter=AValue then Exit;
   FSFilter:=AValue;
   Rows := nil;
-  ClearBuffers;
-  ClearFields;
+  if FieldDefs.Count>0 then
+    begin
+      ClearBuffers;
+      ClearFields;
+    end;
   Close;
 end;
 
