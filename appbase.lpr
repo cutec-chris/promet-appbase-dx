@@ -57,6 +57,7 @@ procedure DoHandleException(aName: JSValue);
     asm
       if ((aName.reason)&&(aName.reason.fMessage)) aName = aName.reason.fMessage;
       if ((aName.reason)&&(aName.reason.message)) aName = aName.reason.message;
+      if ((aName.fMessage)) aName = aName.fMessage;
     end;
     dhtmlx.message(js.new(['type','error',
                            'text',aName]));

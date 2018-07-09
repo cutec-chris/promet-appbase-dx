@@ -15,16 +15,19 @@ type
   private
     FDataSetName : string;
     FDataProxy: TDataProxy;
+    FFieldDefsLoaded: TNotifyEvent;
     FSFilter: string;
     function GetUrl: string;
     procedure SetFilter(AValue: string);
   Protected
     Function DoGetDataProxy: TDataProxy; override;
+    procedure InitDateTimeFields; override;
   Public
     constructor Create(AOwner: TComponent;aDataSet : string);
     property Url : string read GetUrl;
     property ServerFilter : string read FSFilter write SetFilter;
   published
+    property OnFieldDefsLoaded : TNotifyEvent read FFieldDefsLoaded write FFieldDefsLoaded;
   end;
 
   { TAvammDataProxy }
@@ -153,6 +156,13 @@ end;
 function TAvammDataset.DoGetDataProxy: TDataProxy;
 begin
   Result:=FDataProxy;
+end;
+
+procedure TAvammDataset.InitDateTimeFields;
+begin
+  inherited InitDateTimeFields;
+  if Assigned(FFieldDefsLoaded) then
+    FFieldDefsLoaded(Self);
 end;
 
 constructor TAvammDataset.Create(AOwner: TComponent; aDataSet: string);

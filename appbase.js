@@ -20929,10 +20929,12 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       pas.ExtJSDataset.TExtJSJSONObjectDataSet.$init.call(this);
       this.FDataSetName = "";
       this.FDataProxy$1 = null;
+      this.FFieldDefsLoaded = null;
       this.FSFilter = "";
     };
     this.$final = function () {
       this.FDataProxy$1 = undefined;
+      this.FFieldDefsLoaded = undefined;
       pas.ExtJSDataset.TExtJSJSONObjectDataSet.$final.call(this);
     };
     this.GetUrl = function () {
@@ -20957,11 +20959,17 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       Result = this.FDataProxy$1;
       return Result;
     };
+    this.InitDateTimeFields = function () {
+      pas.ExtJSDataset.TExtJSJSONDataSet.InitDateTimeFields.call(this);
+      if (this.FFieldDefsLoaded != null) this.FFieldDefsLoaded(this);
+    };
     this.Create$5 = function (AOwner, aDataSet) {
       pas.ExtJSDataset.TExtJSJSONDataSet.Create$1.call(this,AOwner);
       this.FDataSetName = aDataSet;
       this.FDataProxy$1 = $mod.TAvammDataProxy.$create("Create$1",[this]);
     };
+    var $r = this.$rtti;
+    $r.addProperty("OnFieldDefsLoaded",0,pas.Classes.$rtti["TNotifyEvent"],"FFieldDefsLoaded","FFieldDefsLoaded");
   });
   rtl.createClass($mod,"TAvammDataProxy",pas.DB.TDataProxy,function () {
     this.Create$1 = function (AOwner) {
@@ -21083,7 +21091,9 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
           a = $l1;
           if (this.GetDataset().FFieldList.GetField(a).FFieldName === this.FIdField) {
             aObj["id"] = this.GetDataset().FFieldList.GetField(a).GetAsJSValue()}
-           else aObj[this.GetDataset().FFieldList.GetField(a).FFieldName] = this.GetDataset().FFieldList.GetField(a).GetAsJSValue();
+           else if (pas.DB.TDateField.isPrototypeOf(this.GetDataset().FFieldList.GetField(a)) || pas.DB.TDateTimeField.isPrototypeOf(this.GetDataset().FFieldList.GetField(a))) {
+            aObj[this.GetDataset().FFieldList.GetField(a).FFieldName] = this.GetDataset().FFieldList.GetField(a).GetAsJSValue()}
+           else aObj[this.GetDataset().FFieldList.GetField(a).FFieldName] = this.GetDataset().FFieldList.GetField(a).GetDisplayText();
         };
         try {
           this.FDatastore.add(aObj);
@@ -21102,11 +21112,15 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       pas.DB.TDataLink.RecordChanged.call(this,Field);
     };
     this.ActiveChanged = function () {
+      var Self = this;
+      function DoAddRows(resolve, reject) {
+        Self.FDataprocessor.ignore(rtl.createCallback(Self,"AddRows"));
+      };
       pas.System.Writeln("ActiveChanged");
-      pas.DB.TDataLink.ActiveChanged.call(this);
-      if (this.FActive) {
-        this.FDataprocessor.ignore(rtl.createCallback(this,"AddRows"))}
-       else this.FDatastore.clearAll();
+      pas.DB.TDataLink.ActiveChanged.call(Self);
+      if (Self.FActive) {
+        new Promise(DoAddRows)}
+       else Self.FDatastore.clearAll();
     };
     this.GetRecordCount = function () {
       var Result = 0;
@@ -21640,6 +21654,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
       var Result = undefined;
       if ((aName.reason)&&(aName.reason.fMessage)) aName = aName.reason.fMessage;
       if ((aName.reason)&&(aName.reason.message)) aName = aName.reason.message;
+      if ((aName.fMessage)) aName = aName.fMessage;
       dhtmlx.message(pas.JS.New(["type","error","text",aName]));
       return Result;
     };
