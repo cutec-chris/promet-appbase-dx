@@ -21282,6 +21282,15 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.SwitchProgressOff = function (DataSet, Data) {
       this.Page.progressOff();
     };
+    this.DoShow = function () {
+      var Self = this;
+      function HideElement(currentValue, currentIndex, list) {
+        currentValue.style.setProperty("display","none");
+      };
+      Self.FParent.childNodes.forEach(HideElement);
+      Self.Page.cont.style.setProperty("display","block");
+      Self.Page.setSizes();
+    };
     this.Create$1 = function (aParent, aDataSet, aPattern) {
       var Self = this;
       function ButtonClick(id) {
@@ -21336,16 +21345,10 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.FDataLink.SetDataSource(Self.FDataSource);
       Self.Grid.attachEvent("onRowDblClicked",RowDblClick);
       Self.Grid.sync(Self.FDataLink.FDatastore);
-      Self.FDataSet.Load({},rtl.createCallback(Self,"SwitchProgressOff"));
     };
     this.Show = function () {
-      var Self = this;
-      function HideElement(currentValue, currentIndex, list) {
-        currentValue.style.setProperty("display","none");
-      };
-      Self.FParent.childNodes.forEach(HideElement);
-      Self.Page.cont.style.setProperty("display","block");
-      Self.Page.setSizes();
+      this.DoShow();
+      this.RefreshList();
     };
     this.RefreshList = function () {
       try {

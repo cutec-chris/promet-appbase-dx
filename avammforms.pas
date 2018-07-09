@@ -22,13 +22,16 @@ type
     procedure FDataSetLoadFail(DataSet: TDataSet; ID: Integer;
       const ErrorMsg: String);
     procedure SwitchProgressOff(DataSet: TDataSet; Data: JSValue);
+  protected
+    procedure DoShow;
   public
     Page : TDHTMLXLayout;
     Toolbar : TDHTMLXToolbar;
     Grid : TDHTMLXGrid;
     constructor Create(aParent : TJSElement;aDataSet : string;aPattern : string = '1C');virtual;
-    procedure Show;
-    procedure RefreshList;
+    procedure Show;virtual;
+    procedure RefreshList;virtual;
+    property DataSet : TAvammDataset read FDataSet;
   end;
 
   TAvammFormMode = (fmTab,fmWindow,fmInlineWindow);
@@ -425,9 +428,18 @@ begin
   //FDataLink.DataProcessor.init(Grid);
   Grid.attachEvent('onRowDblClicked',@RowDblClick);
   Grid.sync(FDataLink.Datastore);
-  FDataSet.Load([],@SwitchProgressOff);
 end;
 procedure TAvammListForm.Show;
+begin
+  DoShow;
+  RefreshList;
+end;
+procedure TAvammListForm.SwitchProgressOff(DataSet: TDataSet; Data: JSValue);
+begin
+  Page.progressOff();
+end;
+
+procedure TAvammListForm.DoShow;
   procedure HideElement(currentValue: TJSNode;
     currentIndex: NativeInt; list: TJSNodeList);
   begin
@@ -437,10 +449,6 @@ begin
   FParent.childNodes.forEach(@HideElement);
   Page.cont.style.setProperty('display','block');
   Page.setSizes;
-end;
-procedure TAvammListForm.SwitchProgressOff(DataSet: TDataSet; Data: JSValue);
-begin
-  Page.progressOff();
 end;
 
 procedure TAvammListForm.FDataSetLoadFail(DataSet: TDataSet; ID: Integer;
