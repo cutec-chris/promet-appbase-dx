@@ -56,6 +56,7 @@ procedure DoHandleException(aName: JSValue);
   begin
     asm
       if ((aName.reason)&&(aName.reason.fMessage)) aName = aName.reason.fMessage;
+      if ((aName.reason)&&(aName.reason.message)) aName = aName.reason.message;
     end;
     dhtmlx.message(js.new(['type','error',
                            'text',aName]));
@@ -121,12 +122,6 @@ var
   function TryReconnect(aValueE: JSValue): JSValue;
   const
     Timeout = 5000;
-    function ShowError(aValue: JSValue): JSValue;
-    begin
-      dhtmlx.message(js.new(['type','error',
-                             'text',strReconnecting,
-                             'expire', Timeout]));
-    end;
     function Reconnect(aValue: JSValue): JSValue;
       function DoCheckLogin(aValue: JSValue): JSValue;
       begin
@@ -136,8 +131,7 @@ var
       Wait(Timeout-50)._then(@DoCheckLogin);
     end;
   begin
-    WidgetsetLoaded._then(@ShowError)
-                   ._then(@Reconnect);
+    WidgetsetLoaded._then(@Reconnect);
   end;
 begin
   Avamm.OnException:=@DoHandleException;

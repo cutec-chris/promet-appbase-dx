@@ -21637,6 +21637,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     function ShowError(aValue) {
       var Result = undefined;
       if ((aName.reason)&&(aName.reason.fMessage)) aName = aName.reason.fMessage;
+      if ((aName.reason)&&(aName.reason.message)) aName = aName.reason.message;
       dhtmlx.message(pas.JS.New(["type","error","text",aName]));
       return Result;
     };
@@ -21691,11 +21692,6 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     };
     function TryReconnect(aValueE) {
       var Result = undefined;
-      function ShowError(aValue) {
-        var Result = undefined;
-        dhtmlx.message(pas.JS.New(["type","error","text",rtl.getResStr(pas.program,"strReconnecting"),"expire",5000]));
-        return Result;
-      };
       function Reconnect(aValue) {
         var Result = undefined;
         function DoCheckLogin(aValue) {
@@ -21706,7 +21702,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
         pas.Avamm.Wait(5000 - 50).then(DoCheckLogin);
         return Result;
       };
-      pas.dhtmlx_base.WidgetsetLoaded.then(ShowError).then(Reconnect);
+      pas.dhtmlx_base.WidgetsetLoaded.then(Reconnect);
       return Result;
     };
     pas.Avamm.OnException = $mod.DoHandleException;
