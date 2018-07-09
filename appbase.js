@@ -20948,10 +20948,6 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       if (this.FSFilter === AValue) return;
       this.FSFilter = AValue;
       this.SetRows(null);
-      if (this.FFieldDefs.GetCount() > 0) {
-        this.ClearBuffers();
-        this.ClearFields();
-      };
       this.Close();
     };
     this.DoGetDataProxy = function () {
@@ -21016,6 +21012,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
     this.onLoad = function (Event) {
       var Result = false;
       var aarr = undefined;
+      if (!(this != null)) return Result;
       if (this.FXHR.status === 200) {
         this.FData = this.TransformResult();
         this.FSuccess = pas.DB.TDataRequestResult.rrOK;
@@ -21030,7 +21027,10 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
            else this.FErrorMsg = this.FXHR.statusText;
         };
       };
-      this.DoAfterRequest();
+      try {
+        this.DoAfterRequest();
+      } catch ($e) {
+      };
       Result = true;
       return Result;
     };
@@ -21615,7 +21615,19 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
   });
   $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}};
 },["AvammWiki"]);
-rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","AvammWiki"],function () {
+rtl.module("dhtmlx_calendar",["System","JS","Web","SysUtils"],function () {
+  "use strict";
+  var $mod = this;
+  this.DateFormatToDHTMLX = function (aDate) {
+    var Result = "";
+    Result = aDate;
+    Result = pas.SysUtils.StringReplace(Result,"yyyy","%Y",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    Result = pas.SysUtils.StringReplace(Result,"mm","%m",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    Result = pas.SysUtils.StringReplace(Result,"dd","%d",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    return Result;
+  };
+});
+rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","AvammWiki","dhtmlx_calendar"],function () {
   "use strict";
   var $mod = this;
   this.LoadEnviroment = true;

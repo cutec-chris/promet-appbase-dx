@@ -61,6 +61,7 @@ function TAvammDataRequest.onLoad(Event: TEventListenerEvent): boolean;
 var
   aarr: JSValue;
 begin
+  if (not Assigned(Self)) then exit;
   if (FXHR.Status=200) then
     begin
     Data:=TransformResult;
@@ -79,7 +80,10 @@ begin
       else ErrorMsg:=FXHR.StatusText;
       end;
     end;
-  DoAfterRequest;
+  try //maybe the Dataset is already destroyed when we get this Data packet
+    DoAfterRequest;
+  except
+  end;
   Result:=True;
 end;
 
@@ -145,11 +149,6 @@ begin
   if FSFilter=AValue then Exit;
   FSFilter:=AValue;
   Rows := nil;
-  if FieldDefs.Count>0 then
-    begin
-      ClearBuffers;
-      ClearFields;
-    end;
   Close;
 end;
 
