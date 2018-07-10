@@ -1,7 +1,7 @@
 program appbase;
   uses js, web, classes, sysutils, webrouter, dhtmlx_form, Avamm, promet_dhtmlx,
     dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, dhtmlx_base, AvammForms,
-    AvammWiki, dhtmlx_calendar;
+    dhtmlx_calendar;
 
 var
   LoadEnviroment : Boolean = True;
@@ -10,16 +10,13 @@ var
   InitRouteFound: Boolean;
   TreeviewSelectionChanged : JSValue;
   FContainer : TJSHTMLElement;
+  FInitialized : Boolean;
 
 resourcestring
   strMenu                   = 'Menü';
   strStartpage              = 'Startseite';
   strReconnecting           = 'Verbindung zum Server fehlgeschlagen,'+#10#13+'Verbindung wird automatisch wiederhergestellt';
 
-procedure LoadStartpage(URl : String; aRoute : TRoute; Params: TStrings);
-begin
-  ShowStartpage;
-end;
 procedure RouterBeforeRequest(Sender: TObject; var ARouteURL: String);
 begin
   Layout.progressOn;
@@ -87,11 +84,8 @@ var
     aRights: TJSArray;
     aRight: String;
   begin
-    if Router.FindHTTPRoute('startpage',nil) <> nil then exit;
-    writeln('FillEnviromentAfterLogin');
-    RegisterSidebarRoute(strStartpage,'startpage',@LoadStartpage);
-    if THashHistory(Router.History).getHash='' then
-      Router.Push('startpage');
+    if FInitialized then exit;
+    FInitialized := True;
     aRights := TJSArray(UserOptions.Properties['rights']);
     for i := 0 to aRights.Length-1 do
       begin
@@ -184,6 +178,7 @@ begin
   Layout.attachEvent('onPanelResizeFinish',@DoResizePanels);
 end;
 begin
+  FInitialized := False;
   GetAvammContainer := @DoGetAvammContainer;
   if LoadEnviroment then
     WidgetsetLoaded._then(@FillEnviroment);

@@ -21627,7 +21627,7 @@ rtl.module("dhtmlx_calendar",["System","JS","Web","SysUtils"],function () {
     return Result;
   };
 });
-rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","AvammWiki","dhtmlx_calendar"],function () {
+rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_calendar"],function () {
   "use strict";
   var $mod = this;
   this.LoadEnviroment = true;
@@ -21636,9 +21636,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
   this.InitRouteFound = false;
   this.TreeviewSelectionChanged = undefined;
   this.FContainer = null;
-  this.LoadStartpage = function (URl, aRoute, Params) {
-    pas.AvammWiki.ShowStartpage();
-  };
+  this.FInitialized = false;
   this.RouterBeforeRequest = function (Sender, ARouteURL) {
     $mod.Layout.progressOn();
   };
@@ -21689,10 +21687,8 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
       };
       var aRights = null;
       var aRight = "";
-      if (pas.webrouter.Router().FindHTTPRoute("startpage",null) !== null) return Result;
-      pas.System.Writeln("FillEnviromentAfterLogin");
-      pas.Avamm.RegisterSidebarRoute(rtl.getResStr(pas.program,"strStartpage"),"startpage",$mod.LoadStartpage);
-      if (pas.webrouter.Router().GetHistory().$class.getHash() === "") pas.webrouter.Router().Push("startpage");
+      if ($mod.FInitialized) return Result;
+      $mod.FInitialized = true;
       aRights = rtl.getObject(pas.Avamm.UserOptions["rights"]);
       for (var $l1 = 0, $end2 = aRights.length - 1; $l1 <= $end2; $l1++) {
         i = $l1;
@@ -21781,6 +21777,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
   };
   $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}};
   $mod.$main = function () {
+    $mod.FInitialized = false;
     pas.Avamm.GetAvammContainer = $mod.DoGetAvammContainer;
     if ($mod.LoadEnviroment) pas.dhtmlx_base.WidgetsetLoaded.then($mod.FillEnviroment);
     if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") {
