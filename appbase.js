@@ -21683,6 +21683,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     var aCell = null;
     var tmp = "";
     var aId = "";
+    var MainDiv = null;
     function FillEnviromentAfterLogin(aValue) {
       var Result = undefined;
       function ModuleLoaded(aObj) {
@@ -21737,7 +21738,9 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     };
     pas.Avamm.OnException = $mod.DoHandleException;
     pas.Avamm.OnAddToSidebar = $mod.AddToSidebar;
-    $mod.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",window.document.body,"pattern","2U"]));
+    MainDiv = document.getElementById("AvammMainDiv");
+    if (!(MainDiv != null)) MainDiv = window.document.body;
+    $mod.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",MainDiv,"pattern","2U"]));
     $mod.Layout.cells("a").setWidth(200);
     $mod.Layout.cells("a").setText(rtl.getResStr(pas.program,"strMenu"));
     $mod.Layout.cells("a").setCollapsedText(rtl.getResStr(pas.program,"strMenu"));

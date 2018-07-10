@@ -68,6 +68,7 @@ var
   i: Integer;
   aCell: TDHTMLXLayoutCell;
   tmp, aId: String;
+  MainDiv: TJSElement;
   function FillEnviromentAfterLogin(aValue: JSValue): JSValue;
     procedure ModuleLoaded(aObj : JSValue);
     begin
@@ -131,7 +132,10 @@ var
 begin
   Avamm.OnException:=@DoHandleException;
   Avamm.OnAddToSidebar:=@AddToSidebar;
-  Layout := TDHTMLXLayout.New(js.new(['parent',window.document.body,'pattern','2U']));
+  MainDiv := document.getElementById('AvammMainDiv');
+  if not Assigned(MainDiv) then
+    MainDiv := window.document.body;
+  Layout := TDHTMLXLayout.New(js.new(['parent',MainDiv,'pattern','2U']));
   Layout.cells('a').setWidth(200);
   Layout.cells('a').setText(strMenu);
   Layout.cells('a').setCollapsedText(strMenu);
