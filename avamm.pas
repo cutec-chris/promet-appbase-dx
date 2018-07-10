@@ -109,7 +109,8 @@ function CheckLogin : TJSPromise;
         end;
         {$endif}
         case TJSXMLHttpRequest(aValue).Status of
-        403:resolve(true);
+        401:resolve(TJSXMLHttpRequest(aValue).Status);
+        403:resolve(TJSXMLHttpRequest(aValue).Status);
         200:
           begin
             reject(TJSError.new(strServerMustbeConfigured));
@@ -140,6 +141,8 @@ function CheckLogin : TJSPromise;
       {$endif}
     end;
     function GetLoginData(aValue: JSValue): JSValue;
+      var
+        tStatusResult: JSValue;
       function DoGetLoginData(aValue: JSValue): JSValue;
         procedure DoIntGetLoginData(resolve, reject: TJSPromiseResolver);
           function LoginSuccessful(aValue : JSValue) : JSValue;
@@ -156,18 +159,22 @@ function CheckLogin : TJSPromise;
               reject(strLoginFailed);
           end;
         begin
-          if OnLoginForm = nil then
-            reject(TJSError.new(strNoLoginFormA))
-          else
+          if tStatusResult = 401 then
             begin
-              OnLoginForm()._then(@LoginSuccessful);
-            end;
+              if OnLoginForm = nil then
+                reject(TJSError.new(strNoLoginFormA))
+              else
+                begin
+                  OnLoginForm()._then(@LoginSuccessful);
+                end;
+            end
+          else resolve(true);
         end;
       begin
         Result := TJSPromise.new(@DoIntGetLoginData);
       end;
     begin
-      writeln('GetLoginData:');
+      tStatusResult := aValue;
       result := WidgetsetLoaded._then(@DoGetLoginData);
     end;
     function GetRights(aValue: JSValue): JSValue;

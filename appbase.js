@@ -10568,8 +10568,10 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
         var Result = undefined;
         function DoCheckStatus(resolve, reject) {
           var $tmp1 = rtl.getObject(aValue).status;
-          if ($tmp1 === 403) {
-            resolve(true)}
+          if ($tmp1 === 401) {
+            resolve(rtl.getObject(aValue).status)}
+           else if ($tmp1 === 403) {
+            resolve(rtl.getObject(aValue).status)}
            else if ($tmp1 === 200) {
             reject(new Error(rtl.getResStr(pas.Avamm,"strServerMustbeConfigured")));
             window.location.href = "config\/install.html";
@@ -10586,6 +10588,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       };
       function GetLoginData(aValue) {
         var Result = undefined;
+        var tStatusResult = undefined;
         function DoGetLoginData(aValue) {
           var Result = undefined;
           function DoIntGetLoginData(resolve, reject) {
@@ -10596,16 +10599,18 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
                else reject(rtl.getResStr(pas.Avamm,"strLoginFailed"));
               return Result;
             };
-            if ($mod.OnLoginForm === null) {
-              reject(new Error(rtl.getResStr(pas.Avamm,"strNoLoginFormA")))}
-             else {
-              $mod.OnLoginForm().then(LoginSuccessful);
-            };
+            if (tStatusResult == 401) {
+              if ($mod.OnLoginForm === null) {
+                reject(new Error(rtl.getResStr(pas.Avamm,"strNoLoginFormA")))}
+               else {
+                $mod.OnLoginForm().then(LoginSuccessful);
+              };
+            } else resolve(true);
           };
           Result = new Promise(DoIntGetLoginData);
           return Result;
         };
-        pas.System.Writeln("GetLoginData:");
+        tStatusResult = aValue;
         Result = pas.dhtmlx_base.WidgetsetLoaded.then(DoGetLoginData);
         return Result;
       };
