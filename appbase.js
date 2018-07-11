@@ -21296,6 +21296,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.Create$1 = function (aParent) {
       this.FParent = aParent;
       this.FContainer = document.createElement("div");
+      this.FContainer.style.setProperty("height","100%");
+      this.FContainer.style.setProperty("width","100%");
       aParent.appendChild(this.FContainer);
     };
     this.Show = function () {

@@ -23,6 +23,7 @@ type
     constructor Create(aParent : TJSElement);virtual;
     procedure Show;virtual;
     property Container : TJSHTMLElement read FContainer;
+    property Parent : TJSElement read FParent;
   end;
 
   { TAvammListForm }
@@ -112,6 +113,8 @@ constructor TAvammContentForm.Create(aParent: TJSElement);
 begin
   FParent := aParent;
   FContainer := TJSHTMLElement(document.createElement('div'));
+  FContainer.style.setProperty('height','100%');
+  FContainer.style.setProperty('width','100%');
   aParent.appendChild(FContainer);
 end;
 
