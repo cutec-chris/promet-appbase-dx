@@ -21650,7 +21650,11 @@ rtl.module("dhtmlx_calendar",["System","JS","Web","SysUtils"],function () {
     return Result;
   };
 });
-rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_calendar"],function () {
+rtl.module("dhtmlx_carousel",["System","JS","Web"],function () {
+  "use strict";
+  var $mod = this;
+});
+rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_calendar","dhtmlx_carousel"],function () {
   "use strict";
   var $mod = this;
   this.LoadEnviroment = true;
