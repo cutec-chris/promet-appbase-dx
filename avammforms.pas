@@ -85,7 +85,7 @@ type
   public
     Grid : TDHTMLXGrid;
     Popup : TDHTMLXPopup;
-    constructor Create(aPopupParams,aTable,aRow,aHeader,aColIDs,Filter : string;aDblClick : JSValue);
+    constructor Create(aPopupParams : JSValue;aTable,aRow,aHeader,aColIDs,Filter : string;aDblClick : JSValue);
     procedure DoFilter(aFilter : string;DoSelect : Boolean);
   end;
 
@@ -374,8 +374,8 @@ end;
 
 { TAvammAutoComplete }
 
-constructor TAvammAutoComplete.Create(aPopupParams, aTable, aRow, aHeader,
-  aColIDs, Filter: string; aDblClick: JSValue);
+constructor TAvammAutoComplete.Create(aPopupParams: JSValue; aTable, aRow,
+  aHeader, aColIDs, Filter: string; aDblClick: JSValue);
 begin
 
 end;
