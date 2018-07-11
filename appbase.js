@@ -21274,10 +21274,37 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
 rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","dhtmlx_base","dhtmlx_windows","dhtmlx_tabbar","webrouter","DB","Avamm"],function () {
   "use strict";
   var $mod = this;
-  rtl.createClass($mod,"TAvammListForm",pas.System.TObject,function () {
+  rtl.createClass($mod,"TAvammContentForm",pas.System.TObject,function () {
     this.$init = function () {
       pas.System.TObject.$init.call(this);
       this.FParent = null;
+      this.FContainer = null;
+    };
+    this.$final = function () {
+      this.FParent = undefined;
+      this.FContainer = undefined;
+      pas.System.TObject.$final.call(this);
+    };
+    this.DoShow = function () {
+      var Self = this;
+      function HideElement(currentValue, currentIndex, list) {
+        currentValue.style.setProperty("display","none");
+      };
+      Self.FParent.childNodes.forEach(HideElement);
+      Self.FContainer.style.setProperty("display","block");
+    };
+    this.Create$1 = function (aParent) {
+      this.FParent = aParent;
+      this.FContainer = document.createElement("div");
+      aParent.appendChild(this.FContainer);
+    };
+    this.Show = function () {
+      this.DoShow();
+    };
+  });
+  rtl.createClass($mod,"TAvammListForm",$mod.TAvammContentForm,function () {
+    this.$init = function () {
+      $mod.TAvammContentForm.$init.call(this);
       this.FOldFilter = "";
       this.FDataSource = null;
       this.FDataLink = null;
@@ -21287,14 +21314,13 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.Grid = null;
     };
     this.$final = function () {
-      this.FParent = undefined;
       this.FDataSource = undefined;
       this.FDataLink = undefined;
       this.FDataSet = undefined;
       this.Page = undefined;
       this.Toolbar = undefined;
       this.Grid = undefined;
-      pas.System.TObject.$final.call(this);
+      $mod.TAvammContentForm.$final.call(this);
     };
     this.FDataSetLoadFail = function (DataSet, ID, ErrorMsg) {
       this.Page.progressOff();
@@ -21303,16 +21329,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.SwitchProgressOff = function (DataSet, Data) {
       this.Page.progressOff();
     };
-    this.DoShow = function () {
-      var Self = this;
-      function HideElement(currentValue, currentIndex, list) {
-        currentValue.style.setProperty("display","none");
-      };
-      Self.FParent.childNodes.forEach(HideElement);
-      Self.Page.cont.style.setProperty("display","block");
-      Self.Page.setSizes();
-    };
-    this.Create$1 = function (aParent, aDataSet, aPattern) {
+    this.Create$2 = function (aParent, aDataSet, aPattern) {
       var Self = this;
       function ButtonClick(id) {
         if (id === "new") {}
@@ -21342,10 +21359,10 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       function DoResizeLayout() {
         Self.Page.setSizes();
       };
+      $mod.TAvammContentForm.Create$1.call(Self,aParent);
       pas.System.Writeln(("Loading " + aDataSet) + " as List...");
       window.addEventListener("ContainerResized",DoResizeLayout);
-      Self.FParent = aParent;
-      Self.Page = new dhtmlXLayoutObject(pas.JS.New(["parent",aParent,"pattern",aPattern]));
+      Self.Page = new dhtmlXLayoutObject(pas.JS.New(["parent",Self.FContainer,"pattern",aPattern]));
       Self.Page.cont.style.setProperty("border-width","0");
       Self.Page.cells("a").hideHeader();
       Self.Toolbar = rtl.getObject(Self.Page.cells("a").attachToolbar(pas.JS.New(["parent",Self.Page,"iconset","awesome"])));
@@ -21367,10 +21384,6 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.Grid.attachEvent("onRowDblClicked",RowDblClick);
       Self.Grid.sync(Self.FDataLink.FDatastore);
     };
-    this.Show = function () {
-      this.DoShow();
-      this.RefreshList();
-    };
     this.RefreshList = function () {
       try {
         this.Page.progressOn();
@@ -21382,6 +21395,11 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
           this.Page.progressOff();
         } else throw $e
       };
+    };
+    this.Show = function () {
+      this.DoShow();
+      this.Page.setSizes();
+      this.RefreshList();
     };
   });
   this.TAvammFormMode = {"0": "fmTab", fmTab: 0, "1": "fmWindow", fmWindow: 1, "2": "fmInlineWindow", fmInlineWindow: 2};

@@ -10,11 +10,25 @@ uses
   webrouter, db, Avamm;
 
 type
-  { TAvammListForm }
 
-  TAvammListForm = class
+  { TAvammContentForm }
+
+  TAvammContentForm = class
   private
     FParent : TJSElement;
+    FContainer : TJSHTMLElement;
+  protected
+    procedure DoShow;
+  public
+    constructor Create(aParent : TJSElement);virtual;
+    procedure Show;virtual;
+    property Container : TJSHTMLElement read FContainer;
+  end;
+
+  { TAvammListForm }
+
+  TAvammListForm = class(TAvammContentForm)
+  private
     FOldFilter: String;
     FDataSource : TDataSource;
     FDataLink : TDHTMLXDataLink;
@@ -22,15 +36,13 @@ type
     procedure FDataSetLoadFail(DataSet: TDataSet; ID: Integer;
       const ErrorMsg: String);
     procedure SwitchProgressOff(DataSet: TDataSet; Data: JSValue);
-  protected
-    procedure DoShow;
   public
     Page : TDHTMLXLayout;
     Toolbar : TDHTMLXToolbar;
     Grid : TDHTMLXGrid;
     constructor Create(aParent : TJSElement;aDataSet : string;aPattern : string = '1C');virtual;
-    procedure Show;virtual;
     procedure RefreshList;virtual;
+    procedure Show; override;
     property DataSet : TAvammDataset read FDataSet;
   end;
 
@@ -93,6 +105,31 @@ resourcestring
 implementation
 
 uses AvammWiki;
+
+{ TAvammContentForm }
+
+constructor TAvammContentForm.Create(aParent: TJSElement);
+begin
+  FParent := aParent;
+  FContainer := TJSHTMLElement(document.createElement('div'));
+  aParent.appendChild(FContainer);
+end;
+
+procedure TAvammContentForm.Show;
+begin
+  DoShow;
+end;
+
+procedure TAvammContentForm.DoShow;
+  procedure HideElement(currentValue: TJSNode;
+    currentIndex: NativeInt; list: TJSNodeList);
+  begin
+    TJSHTMLElement(currentValue).style.setProperty('display','none');
+  end;
+begin
+  FParent.childNodes.forEach(@HideElement);
+  FContainer.style.setProperty('display','block');
+end;
 
 { TAvammForm }
 
@@ -402,10 +439,10 @@ constructor TAvammListForm.Create(aParent: TJSElement; aDataSet: string;
     Page.setSizes;
   end;
 begin
+  inherited Create(aParent);
   writeln('Loading '+aDataSet+' as List...');
   window.addEventListener('ContainerResized',@DoResizeLayout);
-  FParent := aParent;
-  Page := TDHTMLXLayout.New(js.new(['parent',aParent,'pattern',aPattern]));
+  Page := TDHTMLXLayout.New(js.new(['parent',FContainer,'pattern',aPattern]));
   Page.cont.style.setProperty('border-width','0');
   Page.cells('a').hideHeader;
   Toolbar := TDHTMLXToolbar(Page.cells('a').attachToolbar(js.new(['parent',Page,
@@ -432,23 +469,12 @@ end;
 procedure TAvammListForm.Show;
 begin
   DoShow;
+  Page.setSizes;
   RefreshList;
 end;
 procedure TAvammListForm.SwitchProgressOff(DataSet: TDataSet; Data: JSValue);
 begin
   Page.progressOff();
-end;
-
-procedure TAvammListForm.DoShow;
-  procedure HideElement(currentValue: TJSNode;
-    currentIndex: NativeInt; list: TJSNodeList);
-  begin
-    TJSHTMLElement(currentValue).style.setProperty('display','none');
-  end;
-begin
-  FParent.childNodes.forEach(@HideElement);
-  Page.cont.style.setProperty('display','block');
-  Page.setSizes;
 end;
 
 procedure TAvammListForm.FDataSetLoadFail(DataSet: TDataSet; ID: Integer;
