@@ -82,11 +82,18 @@ type
   { TAvammAutoComplete }
 
   TAvammAutoComplete = class
+  private
+    FDataSource : TDataSource;
+    FDataLink : TDHTMLXDataLink;
+    FDataSet : TAvammDataset;
+  protected
+    procedure GridDblClicked;virtual;
   public
     Grid : TDHTMLXGrid;
     Popup : TDHTMLXPopup;
     constructor Create(aPopupParams : JSValue;aTable,aRow,aHeader,aColIDs,Filter : string;aDblClick : JSValue);
     procedure DoFilter(aFilter : string;DoSelect : Boolean);
+    property DataSet : TAvammDataset read FDataSet;
   end;
 
 resourcestring
@@ -374,10 +381,42 @@ end;
 
 { TAvammAutoComplete }
 
-constructor TAvammAutoComplete.Create(aPopupParams: JSValue; aTable, aRow,
-  aHeader, aColIDs, Filter: string; aDblClick: JSValue);
+procedure TAvammAutoComplete.GridDblClicked;
 begin
 
+end;
+
+constructor TAvammAutoComplete.Create(aPopupParams: JSValue; aTable, aRow,
+  aHeader, aColIDs, Filter: string; aDblClick: JSValue);
+  var
+    ppId: Integer;
+
+  procedure PopupShowed;
+  begin
+    Grid.attachEvent('onRowDblClicked',@GridDblClicked);
+    Popup.detachEvent(ppId);
+  end;
+
+begin
+  Popup := TDHTMLXPopup.new(aPopupParams);
+  Grid := TDHTMLXGrid(Popup.attachGrid(js.new([])));
+  with Grid do
+    begin
+      setImagesPath('codebase/imgs/');
+      setSizes();
+      enableAlterCss('even','uneven');
+      setHeader(aHeader,',',TJSArray._of([]));
+      setColumnIds(aColIDs);
+      init;
+    end;
+  FDataSource := TDataSource.Create(nil);
+  FDataLink := TDHTMLXDataLink.Create;
+  FDataLink.IdField:='sql_id';
+  FDataSet := TAvammDataset.Create(nil,aTable);
+  FDataSource.DataSet := FDataSet;
+  FDataLink.DataSource := FDataSource;
+  Grid.sync(FDataLink.Datastore);
+  ppId := Popup.attachEvent('onShow',@PopupShowed);
 end;
 
 procedure TAvammAutoComplete.DoFilter(aFilter: string; DoSelect: Boolean);

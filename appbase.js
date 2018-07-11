@@ -21618,15 +21618,46 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
   rtl.createClass($mod,"TAvammAutoComplete",pas.System.TObject,function () {
     this.$init = function () {
       pas.System.TObject.$init.call(this);
+      this.FDataSource = null;
+      this.FDataLink = null;
+      this.FDataSet = null;
       this.Grid = null;
       this.Popup = null;
     };
     this.$final = function () {
+      this.FDataSource = undefined;
+      this.FDataLink = undefined;
+      this.FDataSet = undefined;
       this.Grid = undefined;
       this.Popup = undefined;
       pas.System.TObject.$final.call(this);
     };
+    this.GridDblClicked = function () {
+    };
     this.Create$1 = function (aPopupParams, aTable, aRow, aHeader, aColIDs, Filter, aDblClick) {
+      var Self = this;
+      var ppId = 0;
+      function PopupShowed() {
+        Self.Grid.attachEvent("onRowDblClicked",rtl.createCallback(Self,"GridDblClicked"));
+        Self.Popup.detachEvent(ppId);
+      };
+      Self.Popup = new dhtmlXPopup (aPopupParams);
+      Self.Grid = rtl.getObject(Self.Popup.attachGrid(pas.JS.New([])));
+      var $with1 = Self.Grid;
+      $with1.setImagesPath("codebase\/imgs\/");
+      $with1.setSizes();
+      $with1.enableAlterCss("even","uneven");
+      $with1.setHeader(aHeader,",",Array.of({}));
+      $with1.setColumnIds(aColIDs);
+      $with1.init();
+      Self.FDataSource = pas.DB.TDataSource.$create("Create$1",[null]);
+      Self.FDataLink = pas.dhtmlx_db.TDHTMLXDataLink.$create("Create$2");
+      Self.FDataLink.FIdField = "sql_id";
+      Self.FDataSet = pas.AvammDB.TAvammDataset.$create("Create$5",[null,aTable]);
+      Self.FDataSource.SetDataSet(Self.FDataSet);
+      Self.FDataLink.SetDataSource(Self.FDataSource);
+      Self.Grid.sync(Self.FDataLink.FDatastore);
+      ppId = Self.Popup.attachEvent("onShow",PopupShowed);
     };
     this.DoFilter = function (aFilter, DoSelect) {
       var Self = this;
