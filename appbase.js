@@ -21121,9 +21121,12 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       var i = 0;
       var aField = null;
       Result = false;
-      if (id != this.GetDataset().FieldByName(this.FIdField).GetAsJSValue()) if (!this.GetDataset().Locate(this.FIdField,id,{})) {
-        pas.System.Writeln("Failed to find ROW ! ",id);
-        return Result;
+      if (id != this.GetDataset().FieldByName(this.FIdField).GetAsJSValue()) {
+        if ((this.GetDataset().FState === pas.DB.TDataSetState.dsInsert) || (this.GetDataset().FState === pas.DB.TDataSetState.dsEdit)) this.GetDataset().Post();
+        if (!this.GetDataset().Locate(this.FIdField,id,{})) {
+          pas.System.Writeln("Failed to find ROW ! ",id);
+          return Result;
+        };
       };
       aProps = Object.getOwnPropertyNames(data);
       for (var $l1 = 0, $end2 = rtl.length(aProps) - 1; $l1 <= $end2; $l1++) {
@@ -21177,12 +21180,14 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
         pas.System.Writeln("DataEvent ","deUpdateState");
         if (this.GetDataset().FState === pas.DB.TDataSetState.dsInsert) {
           tmp = this.FDatastore.add(new Object());
+          this.FDataprocessor.setUpdated(tmp);
           this.GetDataset().FieldByName(this.FIdField).SetAsJSValue(tmp);
+          pas.System.Writeln("Row ",tmp," inserted");
           this.FDatastore.setCursor(this.GetDataset().FieldByName(this.FIdField).GetAsJSValue());
         };
       } else if ($tmp1 === pas.DB.TDataEvent.deCheckBrowseMode) {
-        pas.System.Writeln("DataEvent ","deCheckBrowseMode")}
-       else if ($tmp1 === pas.DB.TDataEvent.dePropertyChange) {
+        pas.System.Writeln("DataEvent ","deCheckBrowseMode");
+      } else if ($tmp1 === pas.DB.TDataEvent.dePropertyChange) {
         pas.System.Writeln("DataEvent ","dePropertyChange")}
        else if ($tmp1 === pas.DB.TDataEvent.deFieldListChange) {
         pas.System.Writeln("DataEvent ","deFieldListChange")}
