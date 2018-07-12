@@ -34,9 +34,12 @@ type
     FDataSource : TDataSource;
     FDataLink : TDHTMLXDataLink;
     FDataSet : TAvammDataset;
+    FTableName : string;
     procedure FDataSetLoadFail(DataSet: TDataSet; ID: Integer;
       const ErrorMsg: String);
     procedure SwitchProgressOff(DataSet: TDataSet; Data: JSValue);
+  protected
+    procedure DoRowDblClick;virtual;
   public
     Page : TDHTMLXLayout;
     Toolbar : TDHTMLXToolbar;
@@ -45,6 +48,7 @@ type
     procedure RefreshList;virtual;
     procedure Show; override;
     property DataSet : TAvammDataset read FDataSet;
+    property DataLink : TDHTMLXDataLink read FDataLink;
   end;
 
   TAvammFormMode = (fmTab,fmWindow,fmInlineWindow);
@@ -470,10 +474,6 @@ constructor TAvammListForm.Create(aParent: TJSElement; aDataSet: string;
       Page.progressOff();
     end;
   end;
-  procedure RowDblClick;
-  begin
-    router.Push(aDataSet+'/by-id/'+string(Grid.getSelectedRowId())+'/');
-  end;
   procedure DoResizeLayout;
   begin
     Page.setSizes;
@@ -489,6 +489,7 @@ begin
                                                        'iconset','awesome'])));
   Toolbar.addButton('refresh',0,strRefresh,'fa fa-refresh','fa fa-refresh');
   Toolbar.attachEvent('onClick', @ButtonClick);
+  FTableName:=aDataSet;
   Grid := TDHTMLXGrid(Page.cells('a').attachGrid(js.new([])));
   Grid.setImagesPath('codebase/imgs/');
   Grid.setSizes();
@@ -503,7 +504,7 @@ begin
   FDataSource.DataSet := FDataSet;
   FDataLink.DataSource := FDataSource;
   //FDataLink.DataProcessor.init(Grid);
-  Grid.attachEvent('onRowDblClicked',@RowDblClick);
+  Grid.attachEvent('onRowDblClicked',@DoRowDblClick);
   Grid.sync(FDataLink.Datastore);
 end;
 procedure TAvammListForm.Show;
@@ -515,6 +516,11 @@ end;
 procedure TAvammListForm.SwitchProgressOff(DataSet: TDataSet; Data: JSValue);
 begin
   Page.progressOff();
+end;
+
+procedure TAvammListForm.DoRowDblClick;
+begin
+  router.Push(FTableName+'/by-id/'+string(Grid.getSelectedRowId())+'/');
 end;
 
 procedure TAvammListForm.FDataSetLoadFail(DataSet: TDataSet; ID: Integer;

@@ -21066,7 +21066,7 @@ rtl.module("dhtmlx_datastore",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
 });
-rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor","JS","dhtmlx_datastore"],function () {
+rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor","JS","Types","dhtmlx_datastore"],function () {
   "use strict";
   var $mod = this;
   rtl.createClass($mod,"TDHTMLXDataLink",pas.DB.TDataLink,function () {
@@ -21109,6 +21109,31 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       this.GetDataset().GotoBookmark(aRec);
       this.GetDataset().EnableControls();
     };
+    this.DataStoreCursorChanged = function (id) {
+      this.GetDataset().Locate(this.FIdField,id,{});
+    };
+    this.DataStoreUpdated = function (id, obj, mode) {
+      pas.System.Writeln("DatastoreUpdated ",id);
+    };
+    this.DataProcessorDataUpdated = function (id, state, data) {
+      var Result = false;
+      var aProps = [];
+      var i = 0;
+      var aField = null;
+      Result = false;
+      if (id != this.GetDataset().FieldByName(this.FIdField).GetAsJSValue()) if (!this.GetDataset().Locate(this.FIdField,id,{})) {
+        pas.System.Writeln("Failed to find ROW ! ",id);
+        return Result;
+      };
+      aProps = Object.getOwnPropertyNames(data);
+      for (var $l1 = 0, $end2 = rtl.length(aProps) - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        aField = this.GetDataset().FFieldList.FindField(aProps[i]);
+        if (aField != null) if (data[aProps[i]] != aField.GetAsJSValue()) aField.SetAsJSValue(data[aProps[i]]);
+      };
+      this.FDataprocessor.setUpdated(id);
+      return Result;
+    };
     this.UpdateData = function () {
       pas.System.Writeln("UpdateData");
     };
@@ -21133,6 +21158,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       return Result;
     };
     this.DataEvent = function (Event, Info) {
+      var tmp = undefined;
       var $tmp1 = Event;
       if ($tmp1 === pas.DB.TDataEvent.deFieldChange) {
         pas.System.Writeln("DataEvent ","deFieldChange")}
@@ -21141,13 +21167,19 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
        else if ($tmp1 === pas.DB.TDataEvent.deDataSetChange) {
         pas.System.Writeln("DataEvent ","deDataSetChange");
       } else if ($tmp1 === pas.DB.TDataEvent.deDataSetScroll) {
-        pas.System.Writeln("DataEvent ","deDataSetScroll")}
-       else if ($tmp1 === pas.DB.TDataEvent.deLayoutChange) {
+        pas.System.Writeln("DataEvent ","deDataSetScroll");
+        this.FDatastore.setCursor(this.GetDataset().FieldByName(this.FIdField).GetAsJSValue());
+      } else if ($tmp1 === pas.DB.TDataEvent.deLayoutChange) {
         pas.System.Writeln("DataEvent ","deLayoutChange")}
        else if ($tmp1 === pas.DB.TDataEvent.deUpdateRecord) {
         pas.System.Writeln("DataEvent ","deUpdateRecord")}
        else if ($tmp1 === pas.DB.TDataEvent.deUpdateState) {
         pas.System.Writeln("DataEvent ","deUpdateState");
+        if (this.GetDataset().FState === pas.DB.TDataSetState.dsInsert) {
+          tmp = this.FDatastore.add(new Object());
+          this.GetDataset().FieldByName(this.FIdField).SetAsJSValue(tmp);
+          this.FDatastore.setCursor(this.GetDataset().FieldByName(this.FIdField).GetAsJSValue());
+        };
       } else if ($tmp1 === pas.DB.TDataEvent.deCheckBrowseMode) {
         pas.System.Writeln("DataEvent ","deCheckBrowseMode")}
        else if ($tmp1 === pas.DB.TDataEvent.dePropertyChange) {
@@ -21169,6 +21201,9 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       pas.DB.TDataLink.Create$1.call(this);
       this.FDataprocessor = new dataProcessor("");
       this.FDatastore = new dhtmlXDataStore("");
+      this.FDatastore.attachEvent("onAfterCursorChange",rtl.createCallback(this,"DataStoreCursorChanged"));
+      this.FDatastore.attachEvent("onStoreUpdated",rtl.createCallback(this,"DataStoreUpdated"));
+      this.FDataprocessor.attachEvent("onBeforeUpdate",rtl.createCallback(this,"DataProcessorDataUpdated"));
     };
   });
 });
@@ -21311,6 +21346,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.FDataSource = null;
       this.FDataLink = null;
       this.FDataSet = null;
+      this.FTableName = "";
       this.Page = null;
       this.Toolbar = null;
       this.Grid = null;
@@ -21330,6 +21366,9 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     };
     this.SwitchProgressOff = function (DataSet, Data) {
       this.Page.progressOff();
+    };
+    this.DoRowDblClick = function () {
+      pas.webrouter.Router().Push(((this.FTableName + "\/by-id\/") + ("" + this.Grid.getSelectedRowId())) + "\/");
     };
     this.Create$2 = function (aParent, aDataSet, aPattern) {
       var Self = this;
@@ -21355,9 +21394,6 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
           Self.Page.progressOff();
         };
       };
-      function RowDblClick() {
-        pas.webrouter.Router().Push(((aDataSet + "\/by-id\/") + ("" + Self.Grid.getSelectedRowId())) + "\/");
-      };
       function DoResizeLayout() {
         Self.Page.setSizes();
       };
@@ -21370,6 +21406,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.Toolbar = rtl.getObject(Self.Page.cells("a").attachToolbar(pas.JS.New(["parent",Self.Page,"iconset","awesome"])));
       Self.Toolbar.addButton("refresh",0,rtl.getResStr(pas.AvammForms,"strRefresh"),"fa fa-refresh","fa fa-refresh");
       Self.Toolbar.attachEvent("onClick",ButtonClick);
+      Self.FTableName = aDataSet;
       Self.Grid = rtl.getObject(Self.Page.cells("a").attachGrid(pas.JS.New([])));
       Self.Grid.setImagesPath("codebase\/imgs\/");
       Self.Grid.setSizes();
@@ -21383,7 +21420,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.FDataSet = pas.AvammDB.TAvammDataset.$create("Create$5",[null,aDataSet]);
       Self.FDataSource.SetDataSet(Self.FDataSet);
       Self.FDataLink.SetDataSource(Self.FDataSource);
-      Self.Grid.attachEvent("onRowDblClicked",RowDblClick);
+      Self.Grid.attachEvent("onRowDblClicked",rtl.createCallback(Self,"DoRowDblClick"));
       Self.Grid.sync(Self.FDataLink.FDatastore);
     };
     this.RefreshList = function () {
