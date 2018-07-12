@@ -21286,12 +21286,12 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       pas.System.TObject.$final.call(this);
     };
     this.DoShow = function () {
-      var Self = this;
-      function HideElement(currentValue, currentIndex, list) {
-        currentValue.style.setProperty("display","none");
+      var i = 0;
+      for (var $l1 = 0, $end2 = this.FParent.childNodes.length - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        this.FParent.childNodes.item(i).style.setProperty("display","none");
       };
-      Self.FParent.childNodes.forEach(HideElement);
-      Self.FContainer.style.setProperty("display","block");
+      this.FContainer.style.setProperty("display","block");
     };
     this.Create$1 = function (aParent) {
       this.FParent = aParent;
@@ -21458,7 +21458,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         var aName = "";
         var aExt = "";
         Self.Reports = rtl.getObject(JSON.parse(aValue.responseText));
-        Self.Toolbar.addButtonSelect("print",3,rtl.getResStr(pas.AvammForms,"strPrint"),Array.of({}),"fa fa-print","fa fa-print");
+        Self.Toolbar.addButtonSelect("print",3,rtl.getResStr(pas.AvammForms,"strPrint"),new Array(),"fa fa-print","fa fa-print");
         for (var $l1 = 0, $end2 = Self.Reports.length - 1; $l1 <= $end2; $l1++) {
           i = $l1;
           aName = "" + rtl.getObject(Self.Reports[i])["name"];
@@ -21646,7 +21646,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       var $with1 = Self.Grid;
       $with1.setSizes();
       $with1.enableAlterCss("even","uneven");
-      $with1.setHeader(aHeader,",",Array.of({}));
+      $with1.setHeader(aHeader);
       $with1.setColumnIds(aColIDs);
       $with1.init();
       Self.FDataSource = pas.DB.TDataSource.$create("Create$1",[null]);

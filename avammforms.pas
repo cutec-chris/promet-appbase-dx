@@ -131,13 +131,11 @@ begin
 end;
 
 procedure TAvammContentForm.DoShow;
-  procedure HideElement(currentValue: TJSNode;
-    currentIndex: NativeInt; list: TJSNodeList);
-  begin
-    TJSHTMLElement(currentValue).style.setProperty('display','none');
-  end;
+var
+  i: Integer;
 begin
-  FParent.childNodes.forEach(@HideElement);
+  for i := 0 to FParent.childNodes.length-1 do
+    TJSHTMLElement(FParent.childNodes.item(i)).style.setProperty('display','none');;
   FContainer.style.setProperty('display','block');
 end;
 
@@ -173,7 +171,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     aName, aExt: String;
   begin
     Reports := TJSArray(TJSJSON.parse(aValue.responseText));
-    Toolbar.addButtonSelect('print',3,strPrint,TJSArray._of([]),'fa fa-print','fa fa-print');
+    Toolbar.addButtonSelect('print',3,strPrint,TJSArray.new,'fa fa-print','fa fa-print');
     for i := 0 to Reports.length-1 do
       begin
         aName := string(TJSObject(Reports[i]).Properties['name']);
@@ -405,7 +403,7 @@ begin
       //setImagesPath('codebase/imgs/');
       setSizes();
       enableAlterCss('even','uneven');
-      setHeader(aHeader,',',TJSArray._of([]));
+      setHeader(aHeader);
       setColumnIds(aColIDs);
       init;
     end;
