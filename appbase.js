@@ -21642,9 +21642,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Popup.detachEvent(ppId);
       };
       Self.Popup = new dhtmlXPopup (aPopupParams);
-      Self.Grid = rtl.getObject(Self.Popup.attachGrid(pas.JS.New([])));
+      Self.Grid = rtl.getObject(Self.Popup.attachGrid(300,200));
       var $with1 = Self.Grid;
-      $with1.setImagesPath("codebase\/imgs\/");
       $with1.setSizes();
       $with1.enableAlterCss("even","uneven");
       $with1.setHeader(aHeader,",",Array.of({}));

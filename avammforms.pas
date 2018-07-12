@@ -399,10 +399,10 @@ constructor TAvammAutoComplete.Create(aPopupParams: JSValue; aTable, aRow,
 
 begin
   Popup := TDHTMLXPopup.new(aPopupParams);
-  Grid := TDHTMLXGrid(Popup.attachGrid(js.new([])));
+  Grid := TDHTMLXGrid(Popup.attachGrid(300,200));
   with Grid do
     begin
-      setImagesPath('codebase/imgs/');
+      //setImagesPath('codebase/imgs/');
       setSizes();
       enableAlterCss('even','uneven');
       setHeader(aHeader,',',TJSArray._of([]));
