@@ -21087,7 +21087,6 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       var aObj = null;
       var aRec = new pas.DB.TBookmark();
       this.GetDataset().DisableControls();
-      this.FDatastore.clearAll();
       aRec = new pas.DB.TBookmark(this.GetDataset().GetBookmark());
       this.GetDataset().First();
       while (!this.GetDataset().FEOF) {
@@ -21109,7 +21108,11 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       this.GetDataset().GotoBookmark(aRec);
       this.GetDataset().EnableControls();
     };
+    this.ResetDataProcessor = function () {
+      this.FDataprocessor.cleanUpdate();
+    };
     this.DataStoreCursorChanged = function (id) {
+      pas.System.Writeln("DataStoreCursorChange ",id);
       this.GetDataset().Locate(this.FIdField,id,{});
     };
     this.DataStoreUpdated = function (id, obj, mode) {
@@ -21121,10 +21124,11 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       var i = 0;
       var aField = null;
       Result = false;
+      if ((this.GetDataset().FieldByName(this.FIdField).GetAsJSValue() == null) && (this.GetDataset().FState === pas.DB.TDataSetState.dsInsert)) this.GetDataset().FieldByName(this.FIdField).SetAsJSValue(id);
       if (id != this.GetDataset().FieldByName(this.FIdField).GetAsJSValue()) {
         if ((this.GetDataset().FState === pas.DB.TDataSetState.dsInsert) || (this.GetDataset().FState === pas.DB.TDataSetState.dsEdit)) this.GetDataset().Post();
         if (!this.GetDataset().Locate(this.FIdField,id,{})) {
-          pas.System.Writeln("Failed to find ROW ! ",id);
+          pas.System.Writeln("Failed to find ROW ! ",id," ",this.GetDataset().FState);
           return Result;
         };
       };
@@ -21137,6 +21141,15 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       this.FDataprocessor.setUpdated(id);
       return Result;
     };
+    this.ClearData = function () {
+      var aId = undefined;
+      aId = this.FDatastore.first();
+      while (aId != this.FDatastore.last()) {
+        this.FDataprocessor.setUpdated(aId);
+        aId = this.FDatastore.next(aId);
+      };
+      this.FDatastore.clearAll();
+    };
     this.UpdateData = function () {
       pas.System.Writeln("UpdateData");
     };
@@ -21145,15 +21158,11 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       pas.DB.TDataLink.RecordChanged.call(this,Field);
     };
     this.ActiveChanged = function () {
-      var Self = this;
-      function DoAddRows(resolve, reject) {
-        Self.FDataprocessor.ignore(rtl.createCallback(Self,"AddRows"));
-      };
+      var aId = undefined;
       pas.System.Writeln("ActiveChanged");
-      pas.DB.TDataLink.ActiveChanged.call(Self);
-      if (Self.FActive) {
-        new Promise(DoAddRows)}
-       else Self.FDatastore.clearAll();
+      pas.DB.TDataLink.ActiveChanged.call(this);
+      this.ClearData();
+      if (this.FActive) this.FDataprocessor.ignore(rtl.createCallback(this,"AddRows"));
     };
     this.GetRecordCount = function () {
       var Result = 0;
@@ -21180,10 +21189,9 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
         pas.System.Writeln("DataEvent ","deUpdateState");
         if (this.GetDataset().FState === pas.DB.TDataSetState.dsInsert) {
           tmp = this.FDatastore.add(new Object());
-          this.FDataprocessor.setUpdated(tmp);
-          this.GetDataset().FieldByName(this.FIdField).SetAsJSValue(tmp);
           pas.System.Writeln("Row ",tmp," inserted");
-          this.FDatastore.setCursor(this.GetDataset().FieldByName(this.FIdField).GetAsJSValue());
+          this.GetDataset().FieldByName(this.FIdField).SetAsJSValue(tmp);
+          this.FDatastore.setCursor(tmp);
         };
       } else if ($tmp1 === pas.DB.TDataEvent.deCheckBrowseMode) {
         pas.System.Writeln("DataEvent ","deCheckBrowseMode");
@@ -21204,11 +21212,13 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
     };
     this.Create$2 = function () {
       pas.DB.TDataLink.Create$1.call(this);
-      this.FDataprocessor = new dataProcessor("");
       this.FDatastore = new dhtmlXDataStore("");
       this.FDatastore.attachEvent("onAfterCursorChange",rtl.createCallback(this,"DataStoreCursorChanged"));
       this.FDatastore.attachEvent("onStoreUpdated",rtl.createCallback(this,"DataStoreUpdated"));
+      this.FDataprocessor = new dataProcessor("");
       this.FDataprocessor.attachEvent("onBeforeUpdate",rtl.createCallback(this,"DataProcessorDataUpdated"));
+      this.FDataprocessor.enablePartialDataSend(false);
+      this.FDataprocessor.setUpdateMode("row",true);
     };
   });
 });
