@@ -26,6 +26,8 @@ type
     constructor Create(AOwner: TComponent;aDataSet : string);
     property Url : string read GetUrl;
     property ServerFilter : string read FSFilter write SetFilter;
+    function Locate(const KeyFields: string; const KeyValues: JSValue;
+  Options: TLocateOptions): boolean; override;
   published
     property OnFieldDefsLoaded : TNotifyEvent read FFieldDefsLoaded write FFieldDefsLoaded;
   end;
@@ -169,6 +171,30 @@ begin
   inherited Create(AOwner);
   FDataSetName := aDataSet;
   FDataProxy := TAvammDataProxy.Create(Self);
+end;
+
+function TAvammDataset.Locate(const KeyFields: string;
+  const KeyValues: JSValue; Options: TLocateOptions): boolean;
+begin
+  Result:=inherited Locate(KeyFields, KeyValues, Options);
+  //Locate is not implemented in TDataset for PAS2JS at Time
+  //silly implementation that supports no Options and only one Key/Value pair
+  DisableControls;
+  try
+    First;
+    while not EOF do
+      begin
+        if FieldDefs.IndexOf(KeyFields)=-1 then exit;
+        if FieldByName(KeyFields).AsJSValue = KeyValues then
+          begin
+            Result := True;
+            exit;
+          end;
+        Next;
+      end;
+  finally
+    EnableControls;
+  end;
 end;
 
 end.

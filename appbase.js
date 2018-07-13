@@ -20969,6 +20969,25 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       this.FDataSetName = aDataSet;
       this.FDataProxy$1 = $mod.TAvammDataProxy.$create("Create$1",[this]);
     };
+    this.Locate = function (KeyFields, KeyValues, Options) {
+      var Result = false;
+      Result = pas.DB.TDataSet.Locate.call(this,KeyFields,KeyValues,rtl.refSet(Options));
+      this.DisableControls();
+      try {
+        this.First();
+        while (!this.FEOF) {
+          if (this.FFieldDefs.IndexOf(KeyFields) === -1) return Result;
+          if (this.FieldByName(KeyFields).GetAsJSValue() == KeyValues) {
+            Result = true;
+            return Result;
+          };
+          this.Next();
+        };
+      } finally {
+        this.EnableControls();
+      };
+      return Result;
+    };
     var $r = this.$rtti;
     $r.addProperty("OnFieldDefsLoaded",0,pas.Classes.$rtti["TNotifyEvent"],"FFieldDefsLoaded","FFieldDefsLoaded");
   });
@@ -21123,23 +21142,32 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       var aProps = [];
       var i = 0;
       var aField = null;
-      Result = false;
-      if ((this.GetDataset().FieldByName(this.FIdField).GetAsJSValue() == null) && (this.GetDataset().FState === pas.DB.TDataSetState.dsInsert)) this.GetDataset().FieldByName(this.FIdField).SetAsJSValue(id);
-      if (id != this.GetDataset().FieldByName(this.FIdField).GetAsJSValue()) {
-        if ((this.GetDataset().FState === pas.DB.TDataSetState.dsInsert) || (this.GetDataset().FState === pas.DB.TDataSetState.dsEdit)) this.GetDataset().Post();
-        if (!this.GetDataset().Locate(this.FIdField,id,{})) {
-          pas.System.Writeln("Failed to find ROW ! ",id," ",this.GetDataset().FState);
-          return Result;
+      this.GetDataset().DisableControls();
+      try {
+        Result = false;
+        if ((this.GetDataset().FieldByName(this.FIdField).GetAsJSValue() == null) && (this.GetDataset().FState === pas.DB.TDataSetState.dsInsert)) this.GetDataset().FieldByName(this.FIdField).SetAsJSValue(id);
+        if (id != this.GetDataset().FieldByName(this.FIdField).GetAsJSValue()) {
+          if ((this.GetDataset().FState === pas.DB.TDataSetState.dsInsert) || (this.GetDataset().FState === pas.DB.TDataSetState.dsEdit)) this.GetDataset().Post();
+          if (!this.GetDataset().Locate(this.FIdField,id,{})) {
+            pas.System.Writeln("Failed to find ROW ! ",id," ",this.GetDataset().FState);
+            return Result;
+          };
         };
-      };
-      aProps = Object.getOwnPropertyNames(data);
-      for (var $l1 = 0, $end2 = rtl.length(aProps) - 1; $l1 <= $end2; $l1++) {
-        i = $l1;
-        aField = this.GetDataset().FFieldList.FindField(aProps[i]);
-        if (aField != null) if (data[aProps[i]] != aField.GetAsJSValue()) aField.SetAsJSValue(data[aProps[i]]);
+        aProps = Object.getOwnPropertyNames(data);
+        for (var $l1 = 0, $end2 = rtl.length(aProps) - 1; $l1 <= $end2; $l1++) {
+          i = $l1;
+          aField = this.GetDataset().FFieldList.FindField(aProps[i]);
+          if (aField != null) if (data[aProps[i]] != aField.GetAsJSValue()) aField.SetAsJSValue(data[aProps[i]]);
+        };
+      } finally {
+        this.GetDataset().EnableControls();
       };
       this.FDataprocessor.setUpdated(id);
       return Result;
+    };
+    this.Delete = function (id) {
+      this.FDataprocessor.setUpdated(id);
+      this.FDatastore.remove(id);
     };
     this.ClearData = function () {
       var aId = undefined;
@@ -21170,7 +21198,11 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       return Result;
     };
     this.DataEvent = function (Event, Info) {
+      var Self = this;
       var tmp = undefined;
+      function SetId() {
+        Self.GetDataset().FieldByName(Self.FIdField).SetAsJSValue(tmp);
+      };
       var $tmp1 = Event;
       if ($tmp1 === pas.DB.TDataEvent.deFieldChange) {
         pas.System.Writeln("DataEvent ","deFieldChange")}
@@ -21180,21 +21212,27 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
         pas.System.Writeln("DataEvent ","deDataSetChange");
       } else if ($tmp1 === pas.DB.TDataEvent.deDataSetScroll) {
         pas.System.Writeln("DataEvent ","deDataSetScroll");
-        this.FDatastore.setCursor(this.GetDataset().FieldByName(this.FIdField).GetAsJSValue());
+        Self.FDatastore.setCursor(Self.GetDataset().FieldByName(Self.FIdField).GetAsJSValue());
       } else if ($tmp1 === pas.DB.TDataEvent.deLayoutChange) {
         pas.System.Writeln("DataEvent ","deLayoutChange")}
        else if ($tmp1 === pas.DB.TDataEvent.deUpdateRecord) {
         pas.System.Writeln("DataEvent ","deUpdateRecord")}
        else if ($tmp1 === pas.DB.TDataEvent.deUpdateState) {
         pas.System.Writeln("DataEvent ","deUpdateState");
-        if (this.GetDataset().FState === pas.DB.TDataSetState.dsInsert) {
-          tmp = this.FDatastore.add(new Object());
-          pas.System.Writeln("Row ",tmp," inserted");
-          this.GetDataset().FieldByName(this.FIdField).SetAsJSValue(tmp);
-          this.FDatastore.setCursor(tmp);
+        if (Self.GetDataset().FState === pas.DB.TDataSetState.dsInsert) {
+          tmp = Self.FDatastore.add(new Object());
+          pas.System.Writeln("Row ",tmp," inserted ",Self.GetDataset().GetRecordCount());
+          Self.FDataprocessor.ignore(SetId);
+          Self.FDatastore.setCursor(tmp);
         };
       } else if ($tmp1 === pas.DB.TDataEvent.deCheckBrowseMode) {
         pas.System.Writeln("DataEvent ","deCheckBrowseMode");
+        Self.GetDataset().DisableControls();
+        if ((Self.GetDataset().FState === pas.DB.TDataSetState.dsInsert) || (Self.GetDataset().FState === pas.DB.TDataSetState.dsEdit)) {
+          pas.System.Writeln("Posting Dataset before Row Change ",Self.GetDataset().FieldByName(Self.FIdField).GetAsJSValue()," ",Self.GetDataset().FState);
+          Self.GetDataset().Post();
+        };
+        Self.GetDataset().EnableControls();
       } else if ($tmp1 === pas.DB.TDataEvent.dePropertyChange) {
         pas.System.Writeln("DataEvent ","dePropertyChange")}
        else if ($tmp1 === pas.DB.TDataEvent.deFieldListChange) {
@@ -21208,7 +21246,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
        else if ($tmp1 === pas.DB.TDataEvent.deReconcileError) {
         pas.System.Writeln("DataEvent ","deReconcileError")}
        else if ($tmp1 === pas.DB.TDataEvent.deDisabledStateChange) pas.System.Writeln("DataEvent ","deDisabledStateChange");
-      pas.DB.TDataLink.DataEvent.apply(this,arguments);
+      pas.DB.TDataLink.DataEvent.apply(Self,arguments);
     };
     this.Create$2 = function () {
       pas.DB.TDataLink.Create$1.call(this);
