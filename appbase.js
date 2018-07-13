@@ -10527,7 +10527,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
         reject(req);
       };
       req = new XMLHttpRequest();
-      req.open("get",$impl.GetBaseUrl() + url,true);
+      req.open("get",$mod.GetBaseUrl() + url,true);
       if (($mod.AvammLogin !== "") && !IgnoreLogin) {
         req.setRequestHeader("Authorization","Basic " + $mod.AvammLogin);
       };
@@ -10729,6 +10729,18 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
     };
     return Result;
   };
+  this.GetBaseUrl = function () {
+    var Result = "";
+    var IsHttpAddr = false;
+    IsHttpAddr = (/^h/.test(document.location));
+    if ($mod.AvammServer === "") {
+      if (!IsHttpAddr) {
+        $mod.AvammServer = "http:\/\/localhost:8085"}
+       else if ($mod.AvammServer === "") $mod.AvammServer = document.location.protocol;
+    };
+    Result = $mod.AvammServer;
+    return Result;
+  };
   $mod.$rtti.$ProcVar("TPromiseFunction",{procsig: rtl.newTIProcSig(null,pas.JS.$rtti["TJSPromise"])});
   $mod.$rtti.$ProcVar("TRegisterToSidebarEvent",{procsig: rtl.newTIProcSig([["Name",rtl.string],["Route",pas.webrouter.$rtti["TRoute"]]])});
   $mod.$rtti.$ProcVar("TJSValueFunction",{procsig: rtl.newTIProcSig(null,rtl.jsvalue)});
@@ -10754,18 +10766,6 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
-  $impl.GetBaseUrl = function () {
-    var Result = "";
-    var IsHttpAddr = false;
-    IsHttpAddr = (/^h/.test(document.location));
-    if ($mod.AvammServer === "") {
-      if (!IsHttpAddr) {
-        $mod.AvammServer = "http:\/\/localhost:8085"}
-       else if ($mod.AvammServer === "") $mod.AvammServer = document.location.protocol;
-    };
-    Result = $mod.AvammServer;
-    return Result;
-  };
   $impl.InitAvammApp = function () {
     var Avamm = pas.Avamm;
     function createNewEvent(eventName) {
@@ -20944,7 +20944,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
     };
     this.GetUrl = function () {
       var Result = "";
-      Result = ("\/" + this.FDataSetName) + "\/list.json?mode=extjs";
+      Result = ((pas.Avamm.GetBaseUrl() + "\/") + this.FDataSetName) + "\/list.json?mode=extjs";
       if (this.FSFilter !== "") Result = (Result + "&filter=") + encodeURIComponent(this.FSFilter);
       Result = Result + "&dhxr=none";
       return Result;

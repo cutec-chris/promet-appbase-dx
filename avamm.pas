@@ -21,6 +21,7 @@ procedure AppendCSS(url : string;onLoad,onError : JSValue);
 procedure AppendJS(url : string;onLoad,onError : JSValue);
 procedure InitWindow(aWindow : TJSWindow);
 function getRight(aName : string) : Integer;
+function GetBaseUrl : string;
 type
   TPromiseFunction = function : TJSPromise;
   TRegisterToSidebarEvent = procedure(Name : string;Route : TRoute);
