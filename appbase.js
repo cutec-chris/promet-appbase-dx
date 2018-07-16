@@ -21171,9 +21171,13 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
     };
     this.ClearData = function () {
       var aId = undefined;
+      var tmp = "";
       aId = this.FDatastore.first();
       while (aId != this.FDatastore.last()) {
-        this.FDataprocessor.setUpdated(aId);
+        try {
+          this.FDataprocessor.setUpdated(aId);
+        } catch ($e) {
+        };
         aId = this.FDatastore.next(aId);
       };
       this.FDatastore.clearAll();
@@ -21711,6 +21715,11 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.FDataSource = null;
       this.FDataLink = null;
       this.FDataSet = null;
+      this.aTimer = 0;
+      this.FFilter = "";
+      this.IsLoading = false;
+      this.FSelect = false;
+      this.FPopupParams = undefined;
       this.Grid = null;
       this.Popup = null;
     };
@@ -21722,17 +21731,24 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.Popup = undefined;
       pas.System.TObject.$final.call(this);
     };
+    this.FDataSourceStateChange = function (Sender) {
+      if (this.FDataSet.GetActive()) if (this.FDataSet.GetRecordCount() > 0) {
+        this.DoShowPopup();
+      };
+    };
     this.GridDblClicked = function () {
     };
-    this.Create$1 = function (aPopupParams, aTable, aRow, aHeader, aColIDs, Filter, aDblClick) {
+    this.Create$1 = function (aPopupParams, aTable, aRow, aHeader, aColIDs, aFilter, aDblClick) {
       var Self = this;
       var ppId = 0;
       function PopupShowed() {
         Self.Grid.attachEvent("onRowDblClicked",rtl.createCallback(Self,"GridDblClicked"));
         Self.Popup.detachEvent(ppId);
       };
+      Self.IsLoading = false;
       Self.Popup = new dhtmlXPopup (aPopupParams);
       Self.Grid = rtl.getObject(Self.Popup.attachGrid(300,200));
+      Self.FPopupParams = aPopupParams;
       var $with1 = Self.Grid;
       $with1.setSizes();
       $with1.enableAlterCss("even","uneven");
@@ -21744,17 +21760,39 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.FDataLink.FIdField = "sql_id";
       Self.FDataSet = pas.AvammDB.TAvammDataset.$create("Create$5",[null,aTable]);
       Self.FDataSource.SetDataSet(Self.FDataSet);
+      Self.FDataSource.FOnStateChange = rtl.createCallback(Self,"FDataSourceStateChange");
       Self.FDataLink.SetDataSource(Self.FDataSource);
+      Self.FFilter = aFilter;
       Self.Grid.sync(Self.FDataLink.FDatastore);
       ppId = Self.Popup.attachEvent("onShow",PopupShowed);
     };
     this.DoFilter = function (aFilter, DoSelect) {
       var Self = this;
-      function ShowPopup() {
-        if (Self.Grid.getRowsNum() > 0) {
-          if (!Self.Popup.isVisible()) Self.Popup.show("eProduct");
-          if (DoSelect) Self.Grid.selectRow(0);
+      function DataLoaded(DataSet, Data) {
+        Self.IsLoading = false;
+      };
+      function ResetInput() {
+        var nFilter = "";
+        if (Self.IsLoading) {
+          window.clearTimeout(Self.aTimer);
+          Self.aTimer = window.setTimeout(ResetInput,600);
+        } else {
+          nFilter = pas.SysUtils.StringReplace(Self.FFilter,"FILTERVALUE",aFilter,rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll,pas.SysUtils.TStringReplaceFlag.rfIgnoreCase));
+          if (nFilter !== Self.FDataSet.FSFilter) {
+            Self.FDataSet.SetFilter(nFilter);
+            Self.FDataSet.Load({},DataLoaded);
+            Self.IsLoading = true;
+          };
         };
+      };
+      window.clearTimeout(Self.aTimer);
+      Self.aTimer = window.setTimeout(ResetInput,600);
+      Self.FSelect = DoSelect;
+    };
+    this.DoShowPopup = function () {
+      if (!this.Popup.isVisible()) {
+        this.Popup.show(rtl.getObject(rtl.getObject(this.FPopupParams)["id"])[0]);
+        if (this.FSelect) this.Grid.selectRow(0);
       };
     };
   });

@@ -90,14 +90,22 @@ type
     FDataSource : TDataSource;
     FDataLink : TDHTMLXDataLink;
     FDataSet : TAvammDataset;
+    aTimer: NativeInt;
+    FFilter: string;
+    IsLoading : Boolean;
+    FSelect: Boolean;
+    FPopupParams : JSValue;
+    procedure FDataSourceStateChange(Sender: TObject);
   protected
     procedure GridDblClicked;virtual;
   public
     Grid : TDHTMLXGrid;
     Popup : TDHTMLXPopup;
-    constructor Create(aPopupParams : JSValue;aTable,aRow,aHeader,aColIDs,Filter : string;aDblClick : JSValue);
-    procedure DoFilter(aFilter : string;DoSelect : Boolean);
+    constructor Create(aPopupParams : JSValue;aTable,aRow,aHeader,aColIDs,aFilter : string;aDblClick : JSValue);
+    procedure DoFilter(aFilter : string;DoSelect : Boolean = false);
+    procedure DoShowPopup;virtual;
     property DataSet : TAvammDataset read FDataSet;
+    property Filter : string read FFilter write FFilter;
   end;
 
 resourcestring
@@ -383,13 +391,21 @@ end;
 
 { TAvammAutoComplete }
 
+procedure TAvammAutoComplete.FDataSourceStateChange(Sender: TObject);
+begin
+  if FDataSet.Active then
+    if (FDataSet.RecordCount>0) then
+      begin
+        DoShowPopup;
+      end;
+end;
+
 procedure TAvammAutoComplete.GridDblClicked;
 begin
-
 end;
 
 constructor TAvammAutoComplete.Create(aPopupParams: JSValue; aTable, aRow,
-  aHeader, aColIDs, Filter: string; aDblClick: JSValue);
+  aHeader, aColIDs, aFilter: string; aDblClick: JSValue);
   var
     ppId: Integer;
 
@@ -400,8 +416,10 @@ constructor TAvammAutoComplete.Create(aPopupParams: JSValue; aTable, aRow,
   end;
 
 begin
+  IsLoading:=False;
   Popup := TDHTMLXPopup.new(aPopupParams);
   Grid := TDHTMLXGrid(Popup.attachGrid(300,200));
+  FPopupParams:=aPopupParams;
   with Grid do
     begin
       //setImagesPath('codebase/imgs/');
@@ -416,29 +434,51 @@ begin
   FDataLink.IdField:='sql_id';
   FDataSet := TAvammDataset.Create(nil,aTable);
   FDataSource.DataSet := FDataSet;
+  FDataSource.OnStateChange:=@FDataSourceStateChange;
   FDataLink.DataSource := FDataSource;
+  FFilter:=aFilter;
   Grid.sync(FDataLink.Datastore);
   ppId := Popup.attachEvent('onShow',@PopupShowed);
 end;
 
 procedure TAvammAutoComplete.DoFilter(aFilter: string; DoSelect: Boolean);
-  procedure ShowPopup;
+  procedure DataLoaded(DataSet: TDataSet; Data: JSValue);
   begin
-    if (Grid.getRowsNum()>0) then
+    IsLoading:=False;
+  end;
+  procedure ResetInput;
+  var
+    nFilter: String;
+  begin
+    if IsLoading then
       begin
-  	if (not Popup.isVisible()) then Popup.show('eProduct');
-        if (DoSelect) then Grid.selectRow(0);
+        window.clearTimeout(aTimer);
+        aTimer := window.setTimeout(@ResetInput,600);
+      end
+    else
+      begin
+        nFilter := StringReplace(Filter,'FILTERVALUE',aFilter,[rfReplaceAll,rfIgnoreCase]);
+        if nFilter<>FDataSet.ServerFilter then
+          begin
+            FDataSet.ServerFilter:=nFilter;
+            FDataSet.Load([],@DataLoaded);
+            IsLoading := True;
+          end;
       end;
   end;
 begin
-  {
-  if not (DataSource.loading) then
+  window.clearTimeout(aTimer);
+  aTimer := window.setTimeout(@ResetInput,600);
+  FSelect := DoSelect;
+end;
+
+procedure TAvammAutoComplete.DoShowPopup;
+begin
+  if (not Popup.isVisible()) then
     begin
-      Grid.filterBy(1,aFilter);
-      if (Grid.getRowsNum()=0) then
-        DataSource.FillGrid(Grid,StringReplace(Filter,'FILTERVALUE',aFilter),0,@ShowPopup);
+      Popup.show(TJSArray(TJSObject(FPopupParams).Properties['id']).Elements[0]);
+      if (FSelect) then Grid.selectRow(0);
     end;
-  }
 end;
 
 { TAvammListForm }
