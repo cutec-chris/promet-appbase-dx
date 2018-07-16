@@ -63,13 +63,22 @@ begin
   writeln('Unhandled Exception:',aName);
   WidgetsetLoaded._then(@ShowError);
 end;
+
 function FillEnviroment(aValue : JSValue) : JSValue;
 var
   i: Integer;
   aCell: TDHTMLXLayoutCell;
   tmp, aId: String;
   MainDiv: TJSElement;
+  FindRouteLast: NativeInt;
   function FillEnviromentAfterLogin(aValue: JSValue): JSValue;
+    procedure FindInitRoute;
+    begin
+      if not InitRouteFound then
+        if THashHistory(Router.History).getHash<>'' then
+          if Router.FindHTTPRoute(THashHistory(Router.History).getHash,nil) <> nil then
+            InitRouteFound := Router.Push(THashHistory(Router.History).getHash) = trOK;
+    end;
     procedure ModuleLoaded(aObj : JSValue);
     begin
       asm
@@ -80,6 +89,9 @@ var
         if THashHistory(Router.History).getHash<>'' then
           if Router.FindHTTPRoute(THashHistory(Router.History).getHash,nil) <> nil then
             InitRouteFound := Router.Push(THashHistory(Router.History).getHash) = trOK;
+      window.clearTimeout(FindRouteLast);
+      if not InitRouteFound then
+        FindRouteLast := window.setTimeout(@FindInitRoute,100);
     end;
   var
     aRights: TJSArray;
@@ -97,6 +109,7 @@ var
         except
         end;
       end;
+    FindRouteLast := window.setTimeout(@FindInitRoute,100);
     if window.document.body.clientWidth > 700 then
       Layout.cells('a').expand;
   end;

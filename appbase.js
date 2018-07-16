@@ -21716,6 +21716,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.FDataLink = null;
       this.FDataSet = null;
       this.aTimer = 0;
+      this.FDblClick = null;
       this.FFilter = "";
       this.IsLoading = false;
       this.FSelect = false;
@@ -21727,6 +21728,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.FDataSource = undefined;
       this.FDataLink = undefined;
       this.FDataSet = undefined;
+      this.FDblClick = undefined;
       this.Grid = undefined;
       this.Popup = undefined;
       pas.System.TObject.$final.call(this);
@@ -21737,8 +21739,12 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
     };
     this.GridDblClicked = function () {
+      if (this.FDblClick != null) {
+        this.FDblClick(this);
+        this.Popup.hide();
+      };
     };
-    this.Create$1 = function (aPopupParams, aTable, aRow, aHeader, aColIDs, aFilter, aDblClick) {
+    this.Create$1 = function (aPopupParams, aTable, aRow, aHeader, aColIDs, aFilter) {
       var Self = this;
       var ppId = 0;
       function PopupShowed() {
@@ -21866,12 +21872,18 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     var tmp = "";
     var aId = "";
     var MainDiv = null;
+    var FindRouteLast = 0;
     function FillEnviromentAfterLogin(aValue) {
       var Result = undefined;
+      function FindInitRoute() {
+        if (!$mod.InitRouteFound) if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") if (pas.webrouter.Router().FindHTTPRoute(pas.webrouter.Router().GetHistory().$class.getHash(),null) !== null) $mod.InitRouteFound = pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash()) === pas.webrouter.TTransitionResult.trOK;
+      };
       function ModuleLoaded(aObj) {
         console.log(aObj);
         rtl.run(aObj.target.id.split("/")[0]);
         if (!$mod.InitRouteFound) if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") if (pas.webrouter.Router().FindHTTPRoute(pas.webrouter.Router().GetHistory().$class.getHash(),null) !== null) $mod.InitRouteFound = pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash()) === pas.webrouter.TTransitionResult.trOK;
+        window.clearTimeout(FindRouteLast);
+        if (!$mod.InitRouteFound) FindRouteLast = window.setTimeout(FindInitRoute,100);
       };
       var aRights = null;
       var aRight = "";
@@ -21886,6 +21898,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
         } catch ($e) {
         };
       };
+      FindRouteLast = window.setTimeout(FindInitRoute,100);
       if (window.document.body.clientWidth > 700) $mod.Layout.cells("a").expand();
       return Result;
     };

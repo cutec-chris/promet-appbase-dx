@@ -91,6 +91,7 @@ type
     FDataLink : TDHTMLXDataLink;
     FDataSet : TAvammDataset;
     aTimer: NativeInt;
+    FDblClick: TNotifyEvent;
     FFilter: string;
     IsLoading : Boolean;
     FSelect: Boolean;
@@ -101,11 +102,12 @@ type
   public
     Grid : TDHTMLXGrid;
     Popup : TDHTMLXPopup;
-    constructor Create(aPopupParams : JSValue;aTable,aRow,aHeader,aColIDs,aFilter : string;aDblClick : JSValue);
+    constructor Create(aPopupParams : JSValue;aTable,aRow,aHeader,aColIDs,aFilter : string);
     procedure DoFilter(aFilter : string;DoSelect : Boolean = false);
     procedure DoShowPopup;virtual;
     property DataSet : TAvammDataset read FDataSet;
     property Filter : string read FFilter write FFilter;
+    property OnDblClick : TNotifyEvent read FDblClick write FDblClick;
   end;
 
 resourcestring
@@ -402,10 +404,15 @@ end;
 
 procedure TAvammAutoComplete.GridDblClicked;
 begin
+  if Assigned(FDblClick) then
+    begin
+      FDblClick(Self);
+      Popup.hide;
+    end;
 end;
 
 constructor TAvammAutoComplete.Create(aPopupParams: JSValue; aTable, aRow,
-  aHeader, aColIDs, aFilter: string; aDblClick: JSValue);
+  aHeader, aColIDs, aFilter: string);
   var
     ppId: Integer;
 
