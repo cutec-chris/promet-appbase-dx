@@ -21041,8 +21041,32 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
     };
     this.ProcessUpdateBatch = function (aBatch) {
       var Result = false;
-      pas.System.Writeln("ProcessUpdateBatch",aBatch);
-      Result = false;
+      var aDesc = null;
+      var i = 0;
+      var Arr = null;
+      var FXHR = null;
+      var URL = "";
+      Arr = new Array();
+      FXHR = new XMLHttpRequest();
+      for (var $l1 = 0, $end2 = aBatch.FList.FCount - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        aDesc = rtl.getObject(aBatch.FList.Get(i));
+        aDesc.FBatch = aBatch;
+        aDesc.FXHR = FXHR;
+        Arr.push(aDesc.FData);
+        FXHR.addEventListener("load",rtl.createCallback(aDesc,"onLoad"));
+      };
+      URL = this.FOwner.GetUrl();
+      if (URL === "") {
+        Result = false;
+      } else {
+        FXHR.open("POST",URL,true);
+        if (pas.Avamm.AvammLogin !== "") {
+          FXHR.setRequestHeader("Authorization","Basic " + pas.Avamm.AvammLogin);
+        };
+        FXHR.send(JSON.stringify(Arr));
+        Result = true;
+      };
       return Result;
     };
   });
@@ -21059,7 +21083,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       var Result = false;
       var aarr = undefined;
       if (!(this != null)) return Result;
-      if (this.FXHR.status === 200) {
+      if (Math.floor(this.FXHR.status / 100) === 2) {
         this.FData = this.TransformResult();
         this.FSuccess = pas.DB.TDataRequestResult.rrOK;
       } else {
@@ -21102,7 +21126,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       if (Math.floor(this.FXHR.status / 100) === 2) {
         this.Resolve(this.FXHR.response);
         Result = true;
-      } else this.ResolveFailed(this.FXHR.statusText);
+      } else this.ResolveFailed(this.FXHR.responseText);
       rtl.as(this.FProxy,$mod.TAvammDataProxy).CheckBatchComplete(this.FBatch);
       return Result;
     };

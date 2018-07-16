@@ -36,14 +36,12 @@ type
 
   TAvammDataProxy = class(TDataProxy)
   private
-  protected
     Procedure CheckBatchComplete(aBatch : TRecordUpdateBatch); virtual;
+  protected
   public
     constructor Create(AOwner: TComponent); override;
     function DoGetData(aRequest: TDataRequest): Boolean; override;
-    function GetDataRequest(aOptions: TLoadOptions;
-  aAfterRequest: TDataRequestEvent; aAfterLoad: TDatasetLoadEvent
-  ): TDataRequest; override;
+    function GetDataRequest(aOptions: TLoadOptions;aAfterRequest: TDataRequestEvent; aAfterLoad: TDatasetLoadEvent): TDataRequest; override;
     function GetUpdateDescriptorClass: TRecordUpdateDescriptorClass; override;
     function ProcessUpdateBatch(aBatch: TRecordUpdateBatch): Boolean; override;
   end;
@@ -60,14 +58,13 @@ type
 
   { TAvammUpdateDescriptor }
 
-  TAvammUpdateDescriptor = Class(TRecordUpdateDescriptor)
+  TAvammUpdateDescriptor = class(TRecordUpdateDescriptor)
   Private
     FXHR : TJSXMLHttpRequest;
     FBatch : TRecordUpdateBatch;
   protected
     function onLoad(Event{%H-}: TEventListenerEvent): boolean; virtual;
   end;
-
 
 
 implementation
@@ -82,7 +79,7 @@ begin
       Result:=True;
     end
   else
-    ResolveFailed(FXHR.StatusText);
+    ResolveFailed(FXHR.responseText);
   (Proxy as TAvammDataProxy).CheckBatchComplete(FBatch);
 end;
 
@@ -93,10 +90,10 @@ var
   aarr: JSValue;
 begin
   if (not Assigned(Self)) then exit;
-  if (FXHR.Status=200) then
+  if (FXHR.Status div 100)=2 then
     begin
-    Data:=TransformResult;
-    Success:=rrOK;
+      Data:=TransformResult;
+      Success:=rrOK;
     end
   else
     begin
@@ -105,10 +102,10 @@ begin
       Success:=rrEOF
     else
       begin
-      Success:=rrFail;
-      if FXHR.responseText <> '' then
-        ErrorMsg:=FXHR.responseText
-      else ErrorMsg:=FXHR.StatusText;
+        Success:=rrFail;
+        if FXHR.responseText <> '' then
+          ErrorMsg:=FXHR.responseText
+        else ErrorMsg:=FXHR.StatusText;
       end;
     end;
   try //maybe the Dataset is already destroyed when we get this Data packet
@@ -132,10 +129,10 @@ Var
 begin
   BatchOK:=True;
   I:=aBatch.List.Count-1;
-  While BatchOK and (I>=0) do
+  while BatchOK and (I>=0) do
     begin
-    BatchOK:=aBatch.List[I].Status in [usResolved,usResolveFailed];
-    Dec(I);
+      BatchOK:=aBatch.List[I].Status in [usResolved,usResolveFailed];
+      Dec(I);
     end;
   If BatchOK and Assigned(aBatch.OnResolve) then
     aBatch.OnResolve(Self,aBatch);
@@ -188,9 +185,39 @@ end;
 
 function TAvammDataProxy.ProcessUpdateBatch(aBatch: TRecordUpdateBatch
   ): Boolean;
+var
+  aDesc: TAvammUpdateDescriptor;
+  i: Integer;
+  Arr: TJSArray;
+  FXHR: TJSXMLHttpRequest;
+  URL: String;
 begin
-  writeln('ProcessUpdateBatch',aBatch);
-  Result := False;
+  Arr := TJSArray.new;
+  FXHR:=TJSXMLHttpRequest.New;
+  for i:=0 to aBatch.List.Count-1 do
+    begin
+      aDesc := TAvammUpdateDescriptor(aBatch.List.Items[i]);
+      aDesc.FBatch := aBatch;
+      aDesc.FXHR := FXHR;
+      Arr.push(aDesc.Data);
+      FXHR.AddEventListener('load',@aDesc.onLoad);
+    end;
+  URL:=TAvammDataset(Owner).Url;
+  if (URL='') then
+    begin
+      Result:=False;
+    end
+  else
+    begin
+      FXHR.open('POST',URL,true);
+      if (Avamm.AvammLogin <> '') then
+        begin
+          FXHR.setRequestHeader('Authorization','Basic ' + Avamm.AvammLogin);
+        end;
+      FXHR.send(TJSJSON.stringify(Arr));
+      Result:=True;
+    end;
+
 end;
 
 { TAvammDataset }
