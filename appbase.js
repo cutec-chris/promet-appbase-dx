@@ -20992,6 +20992,17 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
     $r.addProperty("OnFieldDefsLoaded",0,pas.Classes.$rtti["TNotifyEvent"],"FFieldDefsLoaded","FFieldDefsLoaded");
   });
   rtl.createClass($mod,"TAvammDataProxy",pas.DB.TDataProxy,function () {
+    this.CheckBatchComplete = function (aBatch) {
+      var BatchOK = false;
+      var I = 0;
+      BatchOK = true;
+      I = aBatch.FList.FCount - 1;
+      while (BatchOK && (I >= 0)) {
+        BatchOK = aBatch.FList.GetUpdate(I).FStatus in rtl.createSet(pas.DB.TUpdateStatus.usResolved,pas.DB.TUpdateStatus.usResolveFailed);
+        I -= 1;
+      };
+      if (BatchOK && (aBatch.FOnResolve != null)) aBatch.FOnResolve(this,aBatch);
+    };
     this.Create$1 = function (AOwner) {
       pas.Classes.TComponent.Create$1.call(this,AOwner);
     };
@@ -21021,6 +21032,17 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
     this.GetDataRequest = function (aOptions, aAfterRequest, aAfterLoad) {
       var Result = null;
       Result = $mod.TAvammDataRequest.$create("Create$1",[this,rtl.refSet(aOptions),aAfterRequest,aAfterLoad]);
+      return Result;
+    };
+    this.GetUpdateDescriptorClass = function () {
+      var Result = null;
+      Result = $mod.TAvammUpdateDescriptor;
+      return Result;
+    };
+    this.ProcessUpdateBatch = function (aBatch) {
+      var Result = false;
+      pas.System.Writeln("ProcessUpdateBatch",aBatch);
+      Result = false;
       return Result;
     };
   });
@@ -21061,6 +21083,27 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
     this.TransformResult = function () {
       var Result = undefined;
       Result = this.FXHR.responseText;
+      return Result;
+    };
+  });
+  rtl.createClass($mod,"TAvammUpdateDescriptor",pas.DB.TRecordUpdateDescriptor,function () {
+    this.$init = function () {
+      pas.DB.TRecordUpdateDescriptor.$init.call(this);
+      this.FXHR = null;
+      this.FBatch = null;
+    };
+    this.$final = function () {
+      this.FXHR = undefined;
+      this.FBatch = undefined;
+      pas.DB.TRecordUpdateDescriptor.$final.call(this);
+    };
+    this.onLoad = function (Event) {
+      var Result = false;
+      if (Math.floor(this.FXHR.status / 100) === 2) {
+        this.Resolve(this.FXHR.response);
+        Result = true;
+      } else this.ResolveFailed(this.FXHR.statusText);
+      rtl.as(this.FProxy,$mod.TAvammDataProxy).CheckBatchComplete(this.FBatch);
       return Result;
     };
   });

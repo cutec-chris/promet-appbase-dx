@@ -36,12 +36,16 @@ type
 
   TAvammDataProxy = class(TDataProxy)
   private
+  protected
+    Procedure CheckBatchComplete(aBatch : TRecordUpdateBatch); virtual;
   public
     constructor Create(AOwner: TComponent); override;
     function DoGetData(aRequest: TDataRequest): Boolean; override;
     function GetDataRequest(aOptions: TLoadOptions;
   aAfterRequest: TDataRequestEvent; aAfterLoad: TDatasetLoadEvent
   ): TDataRequest; override;
+    function GetUpdateDescriptorClass: TRecordUpdateDescriptorClass; override;
+    function ProcessUpdateBatch(aBatch: TRecordUpdateBatch): Boolean; override;
   end;
 
   { TAvammDataRequest }
@@ -54,8 +58,33 @@ type
     function TransformResult: JSValue; virtual;
   end;
 
+  { TAvammUpdateDescriptor }
+
+  TAvammUpdateDescriptor = Class(TRecordUpdateDescriptor)
+  Private
+    FXHR : TJSXMLHttpRequest;
+    FBatch : TRecordUpdateBatch;
+  protected
+    function onLoad(Event{%H-}: TEventListenerEvent): boolean; virtual;
+  end;
+
+
 
 implementation
+
+{ TAvammUpdateDescriptor }
+
+function TAvammUpdateDescriptor.onLoad(Event: TEventListenerEvent): boolean;
+begin
+  if (FXHR.Status div 100)=2 then
+    begin
+      Resolve(FXHR.response);
+      Result:=True;
+    end
+  else
+    ResolveFailed(FXHR.StatusText);
+  (Proxy as TAvammDataProxy).CheckBatchComplete(FBatch);
+end;
 
 { TAvammDataRequest }
 
@@ -96,6 +125,22 @@ end;
 
 { TAvammDataProxy }
 
+procedure TAvammDataProxy.CheckBatchComplete(aBatch: TRecordUpdateBatch);
+Var
+  BatchOK : Boolean;
+  I : Integer;
+begin
+  BatchOK:=True;
+  I:=aBatch.List.Count-1;
+  While BatchOK and (I>=0) do
+    begin
+    BatchOK:=aBatch.List[I].Status in [usResolved,usResolveFailed];
+    Dec(I);
+    end;
+  If BatchOK and Assigned(aBatch.OnResolve) then
+    aBatch.OnResolve(Self,aBatch);
+end;
+
 constructor TAvammDataProxy.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -134,6 +179,18 @@ function TAvammDataProxy.GetDataRequest(aOptions: TLoadOptions;
   ): TDataRequest;
 begin
   Result:=TAvammDataRequest.Create(Self,aOptions, aAfterRequest,aAfterLoad);
+end;
+
+function TAvammDataProxy.GetUpdateDescriptorClass: TRecordUpdateDescriptorClass;
+begin
+  Result:=TAvammUpdateDescriptor;
+end;
+
+function TAvammDataProxy.ProcessUpdateBatch(aBatch: TRecordUpdateBatch
+  ): Boolean;
+begin
+  writeln('ProcessUpdateBatch',aBatch);
+  Result := False;
 end;
 
 { TAvammDataset }
