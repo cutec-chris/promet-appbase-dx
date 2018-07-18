@@ -16,6 +16,7 @@ resourcestring
   strMenu                   = 'Menü';
   strStartpage              = 'Startseite';
   strReconnecting           = 'Verbindung zum Server fehlgeschlagen,'+#10#13+'Verbindung wird automatisch wiederhergestellt';
+  strApplicationLoading     = 'Verbindung wird hergestellt...';
 
 procedure RouterBeforeRequest(Sender: TObject; var ARouteURL: String);
 begin
@@ -69,8 +70,16 @@ var
   i: Integer;
   aCell: TDHTMLXLayoutCell;
   tmp, aId: String;
-  MainDiv: TJSElement;
+  MainDiv, aDiv: TJSElement;
   FindRouteLast: NativeInt;
+  procedure SetStatusHintText(text : string);
+  begin
+    document.getElementById('lStatusHint').innerHTML:=text;
+  end;
+  function RemoveStatusTextText(aValue: JSValue): JSValue;
+  begin
+    TJSHTMLElement(aDiv).style.setProperty('display','none');
+  end;
   function FillEnviromentAfterLogin(aValue: JSValue): JSValue;
     procedure FindInitRoute;
     begin
@@ -137,10 +146,30 @@ var
         CheckLogin;
       end;
     begin
+      SetStatusHintText(strReconnecting);
       Wait(Timeout-50)._then(@DoCheckLogin);
     end;
   begin
     WidgetsetLoaded._then(@Reconnect);
+  end;
+  procedure AddLoadingHint;
+  var
+    aSide: TJSNode;
+    aSides: TJSHTMLCollection;
+  begin
+    try
+      aSides := document.getElementsByClassName('dhx_cell_cont_layout');
+      aSide := aSides.Items[1];
+      if Assigned(aSide) then
+        begin
+          aDiv := document.createElement('div');
+          aDiv.id:='pStatusHint';
+          aSide.appendChild(aDiv);
+          aDiv.innerHTML:='<font face="verdana"><p id="lStatusHint" align="center"></p></font>';
+        end;
+      SetStatusHintText(strApplicationLoading);
+    except
+    end;
   end;
 begin
   Avamm.OnException:=@DoHandleException;
@@ -160,13 +189,15 @@ begin
   Layout.setOffsets(js.new(['left',3,'top',3,'right',3,'bottom',3]));
   Treeview := TDHTMLXTreeview(Layout.cells('a').attachTreeView());
   TreeviewSelectionChanged := Treeview.attachEvent('onClick',@TreeviewItemSelected);
+  window.addEventListener('BeforeLogin',@RemoveStatusTextText);
   window.addEventListener('AfterLogin',@FillEnviromentAfterLogin);
   window.addEventListener('AfterLogout',@LoginFailed);
   window.addEventListener('ConnectionError',@TryReconnect);
-  CheckLogin;
+  CheckLogin._then(@RemoveStatusTextText);
   Router.BeforeRequest:=@RouterBeforeRequest;
   Router.AfterRequest:=@RouterAfterRequest;
   Router.History.OnReady:=@Onready;
+  AddLoadingHint;
   dhtmlx_base.AppendCSS('index.css',null,null);
 end;
 function DoGetAvammContainer: JSValue;

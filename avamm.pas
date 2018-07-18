@@ -29,6 +29,7 @@ type
 
 var
   AfterLoginEvent : TJSEvent;
+  BeforeLoginEvent : TJSEvent;
   AfterLogoutEvent : TJSEvent;
   ConnectionErrorEvent : TJSEvent;
   ContainerResizedEvent : TJSEvent;
@@ -160,6 +161,9 @@ function CheckLogin : TJSPromise;
               reject(strLoginFailed);
           end;
         begin
+          asm
+            window.dispatchEvent(pas.Avamm.BeforeLoginEvent);
+          end;
           if tStatusResult = 401 then
             begin
               if OnLoginForm = nil then
@@ -395,6 +399,7 @@ begin
       };
     }
     try {
+      pas.Avamm.BeforeLoginEvent = createNewEvent('BeforeLogin');
       pas.Avamm.AfterLoginEvent = createNewEvent('AfterLogin');
       pas.Avamm.AfterLogoutEvent = createNewEvent('AfterLogout');
       pas.Avamm.ConnectionErrorEvent = createNewEvent('ConnectionError');

@@ -10599,6 +10599,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
                else reject(rtl.getResStr(pas.Avamm,"strLoginFailed"));
               return Result;
             };
+            window.dispatchEvent(pas.Avamm.BeforeLoginEvent);
             if (tStatusResult == 401) {
               if ($mod.OnLoginForm === null) {
                 reject(new Error(rtl.getResStr(pas.Avamm,"strNoLoginFormA")))}
@@ -10745,6 +10746,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
   $mod.$rtti.$ProcVar("TRegisterToSidebarEvent",{procsig: rtl.newTIProcSig([["Name",rtl.string],["Route",pas.webrouter.$rtti["TRoute"]]])});
   $mod.$rtti.$ProcVar("TJSValueFunction",{procsig: rtl.newTIProcSig(null,rtl.jsvalue)});
   this.AfterLoginEvent = null;
+  this.BeforeLoginEvent = null;
   this.AfterLogoutEvent = null;
   this.ConnectionErrorEvent = null;
   this.ContainerResizedEvent = null;
@@ -10784,6 +10786,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       };
     }
     try {
+      pas.Avamm.BeforeLoginEvent = createNewEvent('BeforeLogin');
       pas.Avamm.AfterLoginEvent = createNewEvent('AfterLogin');
       pas.Avamm.AfterLogoutEvent = createNewEvent('AfterLogout');
       pas.Avamm.ConnectionErrorEvent = createNewEvent('ConnectionError');
@@ -21939,7 +21942,16 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     var tmp = "";
     var aId = "";
     var MainDiv = null;
+    var aDiv = null;
     var FindRouteLast = 0;
+    function SetStatusHintText(text) {
+      document.getElementById("lStatusHint").innerHTML = text;
+    };
+    function RemoveStatusTextText(aValue) {
+      var Result = undefined;
+      aDiv.style.setProperty("display","none");
+      return Result;
+    };
     function FillEnviromentAfterLogin(aValue) {
       var Result = undefined;
       function FindInitRoute() {
@@ -21992,11 +22004,28 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
           pas.Avamm.CheckLogin();
           return Result;
         };
+        SetStatusHintText(rtl.getResStr(pas.program,"strReconnecting"));
         pas.Avamm.Wait(5000 - 50).then(DoCheckLogin);
         return Result;
       };
       pas.dhtmlx_base.WidgetsetLoaded.then(Reconnect);
       return Result;
+    };
+    function AddLoadingHint() {
+      var aSide = null;
+      var aSides = null;
+      try {
+        aSides = document.getElementsByClassName("dhx_cell_cont_layout");
+        aSide = aSides.item(1);
+        if (aSide != null) {
+          aDiv = document.createElement("div");
+          aDiv.id = "pStatusHint";
+          aSide.appendChild(aDiv);
+          aDiv.innerHTML = '<font face="verdana"><p id="lStatusHint" align="center"><\/p><\/font>';
+        };
+        SetStatusHintText(rtl.getResStr(pas.program,"strApplicationLoading"));
+      } catch ($e) {
+      };
     };
     pas.Avamm.OnException = $mod.DoHandleException;
     pas.Avamm.OnAddToSidebar = $mod.AddToSidebar;
@@ -22014,13 +22043,15 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     $mod.Layout.setOffsets(pas.JS.New(["left",3,"top",3,"right",3,"bottom",3]));
     $mod.Treeview = rtl.getObject($mod.Layout.cells("a").attachTreeView());
     $mod.TreeviewSelectionChanged = $mod.Treeview.attachEvent("onClick",$mod.TreeviewItemSelected);
+    window.addEventListener("BeforeLogin",RemoveStatusTextText);
     window.addEventListener("AfterLogin",FillEnviromentAfterLogin);
     window.addEventListener("AfterLogout",LoginFailed);
     window.addEventListener("ConnectionError",TryReconnect);
-    pas.Avamm.CheckLogin();
+    pas.Avamm.CheckLogin().then(RemoveStatusTextText);
     pas.webrouter.Router().FBeforeRequest = $mod.RouterBeforeRequest;
     pas.webrouter.Router().FAfterRequest = $mod.RouterAfterRequest;
     pas.webrouter.Router().GetHistory().FOnReady = $mod.OnReady;
+    AddLoadingHint();
     pas.dhtmlx_base.AppendCSS("index.css",null,null);
     return Result;
   };
@@ -22045,7 +22076,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     $mod.Layout.attachEvent("onPanelResizeFinish",DoResizePanels);
     return Result;
   };
-  $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}};
+  $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}, strApplicationLoading: {org: "Verbindung wird hergestellt..."}};
   $mod.$main = function () {
     $mod.FInitialized = false;
     pas.Avamm.GetAvammContainer = $mod.DoGetAvammContainer;
