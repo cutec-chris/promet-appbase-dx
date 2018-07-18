@@ -66,6 +66,8 @@ type
     function onLoad(Event{%H-}: TEventListenerEvent): boolean; virtual;
   end;
 
+resourcestring
+  strFailedToSaveToDB           = 'Fehler beim speichern: %s';
 
 implementation
 
@@ -131,7 +133,9 @@ begin
   I:=aBatch.List.Count-1;
   while BatchOK and (I>=0) do
     begin
-      BatchOK:=aBatch.List[I].Status in [usResolved,usResolveFailed];
+      BatchOK:=aBatch.List[I].Status in [usResolved];
+      if aBatch.List[I].Status in [usResolveFailed] then
+        raise Exception.Create(Format(strFailedToSaveToDB,[aBatch.List[I].ResolveError]));
       Dec(I);
     end;
   If BatchOK and Assigned(aBatch.OnResolve) then

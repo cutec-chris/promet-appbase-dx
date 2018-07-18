@@ -21001,7 +21001,8 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       BatchOK = true;
       I = aBatch.FList.FCount - 1;
       while (BatchOK && (I >= 0)) {
-        BatchOK = aBatch.FList.GetUpdate(I).FStatus in rtl.createSet(pas.DB.TUpdateStatus.usResolved,pas.DB.TUpdateStatus.usResolveFailed);
+        BatchOK = aBatch.FList.GetUpdate(I).FStatus in rtl.createSet(pas.DB.TUpdateStatus.usResolved);
+        if (aBatch.FList.GetUpdate(I).FStatus in rtl.createSet(pas.DB.TUpdateStatus.usResolveFailed)) throw pas.SysUtils.Exception.$create("Create$1",[pas.SysUtils.Format(rtl.getResStr(pas.AvammDB,"strFailedToSaveToDB"),[aBatch.FList.GetUpdate(I).FResolveError])]);
         I -= 1;
       };
       if (BatchOK && (aBatch.FOnResolve != null)) aBatch.FOnResolve(this,aBatch);
@@ -21134,6 +21135,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       return Result;
     };
   });
+  $mod.$resourcestrings = {strFailedToSaveToDB: {org: "Fehler beim speichern: %s"}};
 });
 rtl.module("dhtmlx_toolbar",["System","JS","Web"],function () {
   "use strict";
@@ -21227,7 +21229,9 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
         for (var $l1 = 0, $end2 = rtl.length(aProps) - 1; $l1 <= $end2; $l1++) {
           i = $l1;
           aField = this.GetDataset().FFieldList.FindField(aProps[i]);
-          if (aField != null) if (data[aProps[i]] != aField.GetAsJSValue()) aField.SetAsJSValue(data[aProps[i]]);
+          if (aField != null) {
+            if ((data[aProps[i]] != aField.GetAsJSValue()) && !((data[aProps[i]] == "") && aField.GetIsNull())) aField.SetAsJSValue(data[aProps[i]]);
+          } else pas.System.Writeln(("Field " + aProps[i]) + " not found !");
         };
       } finally {
         this.GetDataset().EnableControls();
@@ -21331,6 +21335,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       this.FDataprocessor.attachEvent("onBeforeUpdate",rtl.createCallback(this,"DataProcessorDataUpdated"));
       this.FDataprocessor.enablePartialDataSend(false);
       this.FDataprocessor.setUpdateMode("row",true);
+      this.FDataprocessor.enableDataNames(true);
     };
   });
 });
@@ -21610,6 +21615,12 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         rtl.getObject(this.FWindow).document.title = aTitle}
        else rtl.getObject(this.FWindow).setText(aTitle);
     };
+    this.DoClose = function () {
+      var Result = false;
+      if (pas.System.Pos("" + this.FID,pas.webrouter.Router().GetCurrentLocation()) > 0) pas.webrouter.Router().Push("\/");
+      Result = true;
+      return Result;
+    };
     this.Create$1 = function (mode, aDataSet, Id, Params) {
       var Self = this;
       function ToolbarButtonClick(id) {
@@ -21772,6 +21783,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       if (Self.FWindow == null) {
         Self.FWindow = pas.dhtmlx_windows.Windows.createWindow(Id,10,10,810,610);
         var $with2 = rtl.getObject(Self.FWindow);
+        $with2.attachEvent("onClose",rtl.createCallback(Self,"DoClose"));
         $with2.maximize();
         $with2.setText("...");
         Self.FParent = Self.FWindow;
@@ -21931,7 +21943,6 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
       dhtmlx.message(pas.JS.New(["type","error","text",aName]));
       return Result;
     };
-    pas.System.Writeln("Unhandled Exception:",aName);
     pas.dhtmlx_base.WidgetsetLoaded.then(ShowError);
   };
   var Timeout = 5000;

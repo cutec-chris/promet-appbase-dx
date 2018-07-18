@@ -73,6 +73,7 @@ type
     WikiLoaded: TJSPromise;
     procedure DoLoadData;virtual;
     procedure SetTitle(aTitle : string);
+    function DoClose : Boolean;
   public
     BaseId : JSValue;
     Reports: TJSArray;
@@ -166,6 +167,13 @@ begin
     TJSWindow(FWindow).document.title:=aTitle
   else
     TDHTMLXWindowsCell(FWindow).setText(aTitle);
+end;
+
+function TAvammForm.DoClose: Boolean;
+begin
+  if pos(string(Id),Router.GetCurrentLocation)>0 then
+    Router.Push('/');
+  Result := True;
 end;
 
 constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
@@ -383,6 +391,7 @@ begin
       FWindow := Windows.createWindow(Id,10,10,810,610);
       with TDHTMLXWindowsCell(FWindow) do
         begin
+          attachEvent('onClose',@DoClose);
           maximize;
           setText('...');
           FParent := FWindow;

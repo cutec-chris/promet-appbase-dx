@@ -61,7 +61,6 @@ procedure DoHandleException(aName: JSValue);
                            'text',aName]));
   end;
 begin
-  writeln('Unhandled Exception:',aName);
   WidgetsetLoaded._then(@ShowError);
 end;
 
