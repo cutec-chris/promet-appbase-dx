@@ -21225,6 +21225,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
             return Result;
           };
         };
+        if (!(this.GetDataset().FState in rtl.createSet(pas.DB.TDataSetState.dsEdit,pas.DB.TDataSetState.dsInsert))) this.GetDataset().Edit();
         aProps = Object.getOwnPropertyNames(data);
         for (var $l1 = 0, $end2 = rtl.length(aProps) - 1; $l1 <= $end2; $l1++) {
           i = $l1;
@@ -21334,7 +21335,6 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       this.FDataprocessor = new dataProcessor("");
       this.FDataprocessor.attachEvent("onBeforeUpdate",rtl.createCallback(this,"DataProcessorDataUpdated"));
       this.FDataprocessor.enablePartialDataSend(false);
-      this.FDataprocessor.setUpdateMode("row",true);
       this.FDataprocessor.enableDataNames(true);
     };
   });
