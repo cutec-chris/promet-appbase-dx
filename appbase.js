@@ -21474,6 +21474,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
   rtl.createClass($mod,"TAvammListForm",$mod.TAvammContentForm,function () {
     this.$init = function () {
       $mod.TAvammContentForm.$init.call(this);
+      this.FFilterHeader = "";
       this.FOldFilter = "";
       this.FDataSource = null;
       this.FDataLink = null;
@@ -21496,6 +21497,14 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.Page.progressOff();
       dhtmlx.message(pas.JS.New(["type","error","text",(rtl.getResStr(pas.AvammForms,"strLoadingFailed") + " ") + ErrorMsg]));
     };
+    this.SetFilterHeader = function (AValue) {
+      if (this.FFilterHeader === AValue) return;
+      this.FFilterHeader = AValue;
+      if (AValue !== "") {
+        this.Toolbar.addButtonTwoState("filter",0,"","fa fa-filter","fa fa-filter");
+        this.Toolbar.setItemToolTip("filter",rtl.getResStr(pas.AvammForms,"strFilterTT"));
+      } else this.Toolbar.removeItem("filter");
+    };
     this.SwitchProgressOff = function (DataSet, Data) {
       this.Page.progressOff();
     };
@@ -21507,6 +21516,14 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       function ButtonClick(id) {
         if (id === "new") {}
         else if (id === "refresh") Self.RefreshList();
+      };
+      function StateChange(id, state) {
+        if (id === "filter") {
+          if (state) {
+            Self.Grid.attachHeader(Self.FFilterHeader);
+            Self.Grid.setSizes();
+          } else Self.Grid.detachHeader(1);
+        };
       };
       function FilterStart(indexes, values) {
         var i = 0;
@@ -21536,8 +21553,10 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.Page.cont.style.setProperty("border-width","0");
       Self.Page.cells("a").hideHeader();
       Self.Toolbar = rtl.getObject(Self.Page.cells("a").attachToolbar(pas.JS.New(["parent",Self.Page,"iconset","awesome"])));
-      Self.Toolbar.addButton("refresh",0,rtl.getResStr(pas.AvammForms,"strRefresh"),"fa fa-refresh","fa fa-refresh");
+      Self.Toolbar.addButton("refresh",0,"","fa fa-refresh","fa fa-refresh");
+      Self.Toolbar.setItemToolTip("refresh",rtl.getResStr(pas.AvammForms,"strRefresh"));
       Self.Toolbar.attachEvent("onClick",ButtonClick);
+      Self.Toolbar.attachEvent("onStateChange",StateChange);
       Self.FTableName = aDataSet;
       Self.Grid = rtl.getObject(Self.Page.cells("a").attachGrid(pas.JS.New([])));
       Self.Grid.setImagesPath("codebase\/imgs\/");
@@ -21884,7 +21903,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
     };
   });
-  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}};
+  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}, strFilterTT: {org: "Filter an\/auschalten"}};
 },["AvammWiki"]);
 rtl.module("dhtmlx_calendar",["System","JS","Web","SysUtils"],function () {
   "use strict";

@@ -30,6 +30,7 @@ type
 
   TAvammListForm = class(TAvammContentForm)
   private
+    FFilterHeader: string;
     FOldFilter: String;
     FDataSource : TDataSource;
     FDataLink : TDHTMLXDataLink;
@@ -37,6 +38,7 @@ type
     FTableName : string;
     procedure FDataSetLoadFail(DataSet: TDataSet; ID: Integer;
       const ErrorMsg: String);
+    procedure SetFilterHeader(AValue: string);
     procedure SwitchProgressOff(DataSet: TDataSet; Data: JSValue);
   protected
     procedure DoRowDblClick;virtual;
@@ -47,6 +49,7 @@ type
     constructor Create(aParent : TJSElement;aDataSet : string;aPattern : string = '1C');virtual;
     procedure RefreshList;virtual;
     procedure Show; override;
+    property FilterHeader : string read FFilterHeader write SetFilterHeader;
     property DataSet : TAvammDataset read FDataSet;
     property DataLink : TDHTMLXDataLink read FDataLink;
   end;
@@ -124,6 +127,7 @@ resourcestring
   strShorttextTooltip          = 'geben Sie hier den Kurztext ein.';
   strItemNotFound              = 'Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen';
   strPrint                     = 'Drucken';
+  strFilterTT                  = 'Filter an/auschalten';
 
 implementation
 
@@ -509,6 +513,20 @@ constructor TAvammListForm.Create(aParent: TJSElement; aDataSet: string;
     else if (id='refresh') then
       RefreshList;
   end;
+  procedure StateChange(id : string;state : Boolean);
+  begin
+    if (id='filter') then
+      begin
+        if state then
+          begin
+            Grid.attachHeader(FFilterHeader);
+            Grid.setSizes;
+          end
+        else
+          Grid.detachHeader(1);
+      end;
+  end;
+
   procedure FilterStart(indexes,values : TJSArray);
   var
     i: Integer;
@@ -543,8 +561,10 @@ begin
   Page.cells('a').hideHeader;
   Toolbar := TDHTMLXToolbar(Page.cells('a').attachToolbar(js.new(['parent',Page,
                                                        'iconset','awesome'])));
-  Toolbar.addButton('refresh',0,strRefresh,'fa fa-refresh','fa fa-refresh');
+  Toolbar.addButton('refresh',0,'','fa fa-refresh','fa fa-refresh');
+  Toolbar.setItemToolTip('refresh',strRefresh);
   Toolbar.attachEvent('onClick', @ButtonClick);
+  Toolbar.attachEvent('onStateChange', @StateChange);
   FTableName:=aDataSet;
   Grid := TDHTMLXGrid(Page.cells('a').attachGrid(js.new([])));
   Grid.setImagesPath('codebase/imgs/');
@@ -585,6 +605,19 @@ begin
   Page.progressOff;
   dhtmlx.message(js.new(['type','error',
                            'text',strLoadingFailed+' '+ErrorMsg]));
+end;
+
+procedure TAvammListForm.SetFilterHeader(AValue: string);
+begin
+  if FFilterHeader=AValue then Exit;
+  FFilterHeader:=AValue;
+  if AValue<>'' then
+    begin
+      Toolbar.addButtonTwoState('filter',0,'','fa fa-filter','fa fa-filter');
+      Toolbar.setItemToolTip('filter',strFilterTT);
+    end
+  else
+    Toolbar.removeItem('filter');
 end;
 
 procedure TAvammListForm.RefreshList;
