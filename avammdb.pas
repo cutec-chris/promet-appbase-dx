@@ -238,8 +238,10 @@ procedure TAvammDataset.SetFilter(AValue: string);
 begin
   if FSFilter=AValue then Exit;
   FSFilter:=AValue;
-  Rows := nil;
+  DisableControls;
   Close;
+  Rows := nil;
+  EnableControls;
 end;
 
 function TAvammDataset.DoGetDataProxy: TDataProxy;
