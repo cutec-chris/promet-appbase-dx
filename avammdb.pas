@@ -265,6 +265,7 @@ function TAvammDataset.Locate(const KeyFields: string;
   const KeyValues: JSValue; Options: TLocateOptions): boolean;
 begin
   Result:=inherited Locate(KeyFields, KeyValues, Options);
+  if State in [dsInsert,dsEdit] then exit;
   //Locate is not implemented in TDataset for PAS2JS at Time
   //silly implementation that supports no Options and only one Key/Value pair
   DisableControls;

@@ -20975,6 +20975,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
     this.Locate = function (KeyFields, KeyValues, Options) {
       var Result = false;
       Result = pas.DB.TDataSet.Locate.call(this,KeyFields,KeyValues,rtl.refSet(Options));
+      if (this.FState in rtl.createSet(pas.DB.TDataSetState.dsInsert,pas.DB.TDataSetState.dsEdit)) return Result;
       this.DisableControls();
       try {
         this.First();
