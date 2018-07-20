@@ -15,7 +15,7 @@ end;
 function LoadStartpage(aValue : JSValue) : JSValue;
 begin
   if Router.FindHTTPRoute('startpage',nil) <> nil then exit;
-  RegisterSidebarRoute(strStartpage,'startpage',@DoShowStartpage);
+  RegisterSidebarRoute(strStartpage,'startpage',@DoShowStartpage,'fa-columns');
   if THashHistory(Router.History).getHash='' then
     Router.Push('startpage');
 end;

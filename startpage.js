@@ -7,7 +7,7 @@
   this.LoadStartpage = function (aValue) {
     var Result = undefined;
     if (pas.webrouter.Router().FindHTTPRoute("startpage",null) !== null) return Result;
-    pas.Avamm.RegisterSidebarRoute(rtl.getResStr(pas.startpage,"strStartpage"),"startpage",$mod.DoShowStartpage);
+    pas.Avamm.RegisterSidebarRoute(rtl.getResStr(pas.startpage,"strStartpage"),"startpage",$mod.DoShowStartpage,"fa-columns");
     if (pas.webrouter.Router().GetHistory().$class.getHash() === "") pas.webrouter.Router().Push("startpage");
     return Result;
   };
