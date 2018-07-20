@@ -9,7 +9,7 @@ uses
 
 type TJSValueCallback = procedure(aName : JSValue);
 
-procedure RegisterSidebarRoute(aName,Route : string;Event : TRouteEvent);
+procedure RegisterSidebarRoute(aName,Route : string;Event : TRouteEvent;Icon : string = '');
 function LoadData(url : string;IgnoreLogin : Boolean = False;Datatype : string = 'text/json';Timeout : Integer = 6000) : TJSPromise;
 procedure WaitForAssigned(name : string; callback : TJSValueCallback);
 function CheckLogin : TJSPromise;
@@ -24,7 +24,7 @@ function getRight(aName : string) : Integer;
 function GetBaseUrl : string;
 type
   TPromiseFunction = function : TJSPromise;
-  TRegisterToSidebarEvent = procedure(Name : string;Route : TRoute);
+  TRegisterToSidebarEvent = procedure(Name : string;Route : TRoute;Icon : string = '');
   TJSValueFunction = function : JSValue;
 
 var
@@ -241,14 +241,15 @@ begin
     end;
   Result := AvammServer;
 end;
-procedure RegisterSidebarRoute(aName, Route: string;Event : TRouteEvent);
+procedure RegisterSidebarRoute(aName, Route: string; Event: TRouteEvent;
+  Icon: string);
 var
   aRoute: TRoute;
 begin
   aRoute := Router.RegisterRoute(Route,Event,false);
   if OnAddToSidebar <> nil then
     begin
-      OnAddToSidebar(aName,aRoute);
+      OnAddToSidebar(aName,aRoute,Icon);
     end;
 end;
 

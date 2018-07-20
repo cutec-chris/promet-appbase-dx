@@ -28,10 +28,13 @@ var
 begin
   Layout.progressOff;
 end;
-procedure AddToSidebar(Name: string; Route: TRoute);
+procedure AddToSidebar(Name: string; Route: TRoute;Icon : string);
 begin
   TreeView.addItem(Route.ID,Name);
   Treeview.setUserData(Route.ID,'route',Route);
+  Treeview.setItemIcons(Route.ID,js.new(['file',Icon,
+                                'folder-opened',Icon,
+                                'folder-closed',Icon]));
 end;
 procedure TreeviewItemSelected(aItem : JSValue);
 var
@@ -187,6 +190,7 @@ begin
   Layout.cont.style.setProperty('border-width','0');
   Layout.setOffsets(js.new(['left',3,'top',3,'right',3,'bottom',3]));
   Treeview := TDHTMLXTreeview(Layout.cells('a').attachTreeView());
+  Treeview.setIconset('font_awesome');
   TreeviewSelectionChanged := Treeview.attachEvent('onClick',@TreeviewItemSelected);
   window.addEventListener('BeforeLogin',@RemoveStatusTextText);
   window.addEventListener('AfterLogin',@FillEnviromentAfterLogin);

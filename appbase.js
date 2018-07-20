@@ -10495,11 +10495,11 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
   var $mod = this;
   var $impl = $mod.$impl;
   $mod.$rtti.$ProcVar("TJSValueCallback",{procsig: rtl.newTIProcSig([["aName",rtl.jsvalue]])});
-  this.RegisterSidebarRoute = function (aName, Route, Event) {
+  this.RegisterSidebarRoute = function (aName, Route, Event, Icon) {
     var aRoute = null;
     aRoute = pas.webrouter.Router().RegisterRoute(Route,Event,false);
     if ($mod.OnAddToSidebar !== null) {
-      $mod.OnAddToSidebar(aName,aRoute);
+      $mod.OnAddToSidebar(aName,aRoute,Icon);
     };
   };
   this.LoadData = function (url, IgnoreLogin, Datatype, Timeout) {
@@ -10743,7 +10743,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
     return Result;
   };
   $mod.$rtti.$ProcVar("TPromiseFunction",{procsig: rtl.newTIProcSig(null,pas.JS.$rtti["TJSPromise"])});
-  $mod.$rtti.$ProcVar("TRegisterToSidebarEvent",{procsig: rtl.newTIProcSig([["Name",rtl.string],["Route",pas.webrouter.$rtti["TRoute"]]])});
+  $mod.$rtti.$ProcVar("TRegisterToSidebarEvent",{procsig: rtl.newTIProcSig([["Name",rtl.string],["Route",pas.webrouter.$rtti["TRoute"]],["Icon",rtl.string]])});
   $mod.$rtti.$ProcVar("TJSValueFunction",{procsig: rtl.newTIProcSig(null,rtl.jsvalue)});
   this.AfterLoginEvent = null;
   this.BeforeLoginEvent = null;
@@ -21994,9 +21994,10 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     var aRoute = null;
     $mod.Layout.progressOff();
   };
-  this.AddToSidebar = function (Name, Route) {
+  this.AddToSidebar = function (Name, Route, Icon) {
     $mod.Treeview.addItem(Route.FID,Name);
     $mod.Treeview.setUserData(Route.FID,"route",Route);
+    $mod.Treeview.setItemIcons(Route.FID,pas.JS.New(["file",Icon,"folder-opened",Icon,"folder-closed",Icon]));
   };
   this.TreeviewItemSelected = function (aItem) {
     var aData = null;
@@ -22128,6 +22129,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
     $mod.Layout.cont.style.setProperty("border-width","0");
     $mod.Layout.setOffsets(pas.JS.New(["left",3,"top",3,"right",3,"bottom",3]));
     $mod.Treeview = rtl.getObject($mod.Layout.cells("a").attachTreeView());
+    $mod.Treeview.setIconset("font_awesome");
     $mod.TreeviewSelectionChanged = $mod.Treeview.attachEvent("onClick",$mod.TreeviewItemSelected);
     window.addEventListener("BeforeLogin",RemoveStatusTextText);
     window.addEventListener("AfterLogin",FillEnviromentAfterLogin);
