@@ -568,8 +568,10 @@ constructor TAvammListForm.Create(aParent: TJSElement; aDataSet: string;
     writeln('Filter:'+FOldFilter);
     Page.progressOn();
     try
+      {$ifdef DEBUG}console.log('Setting Server Filter');{$endif}
       FDataSet.ServerFilter:=FOldFilter;
       FDataSet.OnLoadFail:=@FDataSetLoadFail;
+      {$ifdef DEBUG}console.log('Loading Data');{$endif}
       FDataSet.Load([],@SwitchProgressOff);
     except
       Page.progressOff();

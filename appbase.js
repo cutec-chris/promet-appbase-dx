@@ -10517,11 +10517,13 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       };
       function DoOnError(event) {
         var Result = false;
+        pas.System.Writeln("Request not succesful (error)");
         reject(req);
         window.clearTimeout(oTimeout);
         return Result;
       };
       function RequestSaveTimeout() {
+        pas.System.Writeln("Request Timeout");
         window.clearTimeout(oTimeout);
         req.abort();
         reject(req);
@@ -10538,12 +10540,14 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       try {
         req.send();
       } catch ($e) {
+        pas.System.Writeln("Request not succesful");
         reject(req);
       };
       oTimeout = window.setTimeout(RequestSaveTimeout,Timeout);
     };
     function ReturnResult(res) {
       var Result = undefined;
+      pas.System.Writeln("Returning... ",res);
       Result = res;
       return Result;
     };
@@ -10567,6 +10571,8 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       function CheckStatus(aValue) {
         var Result = undefined;
         function DoCheckStatus(resolve, reject) {
+          pas.System.Writeln("CheckStatus:");
+          console.log(aValue);
           var $tmp1 = rtl.getObject(aValue).status;
           if ($tmp1 === 401) {
             resolve(rtl.getObject(aValue).status)}
@@ -10584,6 +10590,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
           };
         };
         Result = new Promise(DoCheckStatus);
+        console.log(Result);
         return Result;
       };
       function GetLoginData(aValue) {
@@ -10594,6 +10601,8 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
           function DoIntGetLoginData(resolve, reject) {
             function LoginSuccessful(aValue) {
               var Result = undefined;
+              pas.System.Writeln("GetLoginData:");
+              console.log(aValue);
               if (aValue == true) {
                 resolve(true)}
                else reject(rtl.getResStr(pas.Avamm,"strLoginFailed"));
@@ -21180,6 +21189,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       var a = 0;
       var aObj = null;
       var aRec = new pas.DB.TBookmark();
+      var aId = undefined;
       this.GetDataset().DisableControls();
       aRec = new pas.DB.TBookmark(this.GetDataset().GetBookmark());
       this.GetDataset().First();
@@ -21188,13 +21198,14 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
         for (var $l1 = 0, $end2 = this.GetDataset().GetfieldCount() - 1; $l1 <= $end2; $l1++) {
           a = $l1;
           if (this.GetDataset().FFieldList.GetField(a).FFieldName === this.FIdField) {
-            aObj["id"] = this.GetDataset().FFieldList.GetField(a).GetAsJSValue()}
-           else if (pas.DB.TDateField.isPrototypeOf(this.GetDataset().FFieldList.GetField(a)) || pas.DB.TDateTimeField.isPrototypeOf(this.GetDataset().FFieldList.GetField(a))) {
+            aObj["id"] = this.GetDataset().FFieldList.GetField(a).GetAsJSValue();
+            aId = this.GetDataset().FFieldList.GetField(a).GetAsJSValue();
+          } else if (pas.DB.TDateField.isPrototypeOf(this.GetDataset().FFieldList.GetField(a)) || pas.DB.TDateTimeField.isPrototypeOf(this.GetDataset().FFieldList.GetField(a))) {
             aObj[this.GetDataset().FFieldList.GetField(a).FFieldName] = this.GetDataset().FFieldList.GetField(a).GetAsJSValue()}
            else aObj[this.GetDataset().FFieldList.GetField(a).FFieldName] = this.GetDataset().FFieldList.GetField(a).GetDisplayText();
         };
         try {
-          this.FDatastore.add(aObj);
+          if (this.FDatastore.item(aId) == null) this.FDatastore.add(aObj);
         } catch ($e) {
         };
         this.GetDataset().Next();
@@ -21269,8 +21280,8 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
     };
     this.ActiveChanged = function () {
       var aId = undefined;
-      pas.System.Writeln("ActiveChanged");
       pas.DB.TDataLink.ActiveChanged.call(this);
+      pas.System.Writeln("ActiveChanged");
       this.ClearData();
       if (this.FActive) this.FDataprocessor.ignore(rtl.createCallback(this,"AddRows"));
     };
@@ -21544,8 +21555,10 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         pas.System.Writeln("Filter:" + Self.FOldFilter);
         Self.Page.progressOn();
         try {
+          window.console.log("Setting Server Filter");
           Self.FDataSet.SetFilter(Self.FOldFilter);
           Self.FDataSet.FOnLoadFail = rtl.createCallback(Self,"FDataSetLoadFail");
+          window.console.log("Loading Data");
           Self.FDataSet.Load({},rtl.createCallback(Self,"SwitchProgressOff"));
         } catch ($e) {
           Self.Page.progressOff();
