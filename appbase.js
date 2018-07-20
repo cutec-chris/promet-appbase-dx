@@ -21682,11 +21682,14 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
           cDiv = document.createElement("div");
           cDiv.innerHTML = aValue.responseText;
           pas.AvammWiki.FixWikiContent(cDiv,Self);
-          if (aName === "overview") {
-            Self.Tabs.addTab(aName,aName,null,0,true,false)}
-           else Self.Tabs.addTab(aName,aName,null,5,false,false);
-          Self.Tabs.cells(aName).appendObject(cDiv);
-          if (cDiv.querySelector("title") != null) Self.Tabs.cells(aName).setText(cDiv.querySelector("title").innerText);
+          try {
+            if (aName === "overview") {
+              Self.Tabs.addTab(aName,aName,null,0,true,false)}
+             else Self.Tabs.addTab(aName,aName,null,5,false,false);
+            Self.Tabs.cells(aName).appendObject(cDiv);
+            if (cDiv.querySelector("title") != null) Self.Tabs.cells(aName).setText(cDiv.querySelector("title").innerText);
+          } catch ($e) {
+          };
         };
         return Result;
       };
@@ -21715,7 +21718,10 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         var Result = undefined;
         Self.WikiLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/.json",false,"text\/json",6000).then(AddWiki).catch(WikiCouldntbeLoaded);
         Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/reports\/.json",false,"text\/json",6000).then(AddReports).catch(ReportsCouldntbeLoaded);
-        Self.DoLoadData();
+        try {
+          Self.DoLoadData();
+        } catch ($e) {
+        };
         return Result;
       };
       function ItemLoaded(aValue) {

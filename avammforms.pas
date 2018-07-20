@@ -228,13 +228,16 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
         cDiv := document.createElement('div');
         cDiv.innerHTML:=aValue.responseText;
         FixWikiContent(TJSHTMLElement(cDiv),Self);
-        if aName = 'overview' then
-          Tabs.addTab(aName,aName,null,0,true,false)
-        else
-          Tabs.addTab(aName,aName,null,5,false,false);
-        Tabs.cells(aName).appendObject(cDiv);
-        if cDiv.querySelector('title') <> null then
-          Tabs.cells(aName).setText(cDiv.querySelector('title').innerText);
+        try //dont raise when Tabs dont exists anymore
+          if aName = 'overview' then
+            Tabs.addTab(aName,aName,null,0,true,false)
+          else
+            Tabs.addTab(aName,aName,null,5,false,false);
+          Tabs.cells(aName).appendObject(cDiv);
+          if cDiv.querySelector('title') <> null then
+            Tabs.cells(aName).setText(cDiv.querySelector('title').innerText);
+        except
+        end;
       end;
   end;
   function AddWiki(aValue: TJSXMLHttpRequest): JSValue;
@@ -264,7 +267,10 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
                                                                  .catch(@WikiCouldntbeLoaded);
     ReportsLoaded := LoadData('/'+Tablename+'/by-id/'+string(Id)+'/reports/.json')._then(TJSPromiseresolver(@AddReports))
                                                                  .catch(@ReportsCouldntbeLoaded);
-    DoLoadData;
+    try //dont raise when Form is not existing anymore (closed or not found Item)
+      DoLoadData;
+    except
+    end;
   end;
   function ItemLoaded(aValue: JSValue): JSValue;
   var
