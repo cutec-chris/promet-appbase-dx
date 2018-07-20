@@ -490,7 +490,7 @@ var rtl = {
         var intfname = names[i];
         var fnname = map[intfname];
         if (!fnname) fnname = intfname;
-        //console.log('addIntf: intftype='+t.$name+' index='+i+' intfname="'+intfname+'" fnname="'+fnname+'" proc='+typeof(fn));
+        //console.log('addIntf: intftype='+t.$name+' index='+i+' intfname="'+intfname+'" fnname="'+fnname+'" old='+typeof(item[intfname]));
         item[intfname] = jmp(aclass[fnname]);
       }
       t = Object.getPrototypeOf(t);
@@ -507,7 +507,7 @@ var rtl = {
     if (!item) return null;
     // check delegation
     //console.log('getIntfG: obj='+obj.$classname+' guid='+guid+' query='+query+' item='+typeof(item));
-    if (typeof item === 'function') return item.call(obj); // COM: contains _AddRef
+    if (typeof item === 'function') return item.call(obj); // delegate. Note: COM contains _AddRef
     // check cache
     var intf = null;
     if (obj.$interfaces){
@@ -576,7 +576,7 @@ var rtl = {
     ref: function(id,intf){
       // called for temporary interface references needing delayed release
       var old = this[id];
-      //console.log('rtl.intfRefs.ref: id='+id+' old="'+(old?old.$name:'null')+'" intf="'+(intf?intf.$name:'null'));
+      //console.log('rtl.intfRefs.ref: id='+id+' old="'+(old?old.$name:'null')+'" intf="'+(intf?intf.$name:'null')+' $o='+(intf?intf.$o:'null'));
       if (old){
         // called again, e.g. in a loop
         delete this[id];
@@ -588,7 +588,10 @@ var rtl = {
     free: function(){
       //console.log('rtl.intfRefs.free...');
       for (var id in this){
-        if (this.hasOwnProperty(id)) this[id]._Release;
+        if (this.hasOwnProperty(id)){
+          //console.log('rtl.intfRefs.free: id='+id+' '+this[id].$name+' $o='+this[id].$o.$classname);
+          this[id]._Release();
+        }
       }
     }
   },
@@ -745,16 +748,16 @@ var rtl = {
     return true;
   },
 
-  arrayClone: function(type,src,srcpos,end,dst,dstpos){
+  arrayClone: function(type,src,srcpos,endpos,dst,dstpos){
     // type: 0 for references, "refset" for calling refSet(), a function for new type()
     // src must not be null
     // This function does not range check.
     if (rtl.isFunction(type)){
-      for (; srcpos<end; srcpos++) dst[dstpos++] = new type(src[srcpos]); // clone record
-    } else if((typeof(type)==="string") && (type === 'refSet')) {
-      for (; srcpos<end; srcpos++) dst[dstpos++] = rtl.refSet(src[srcpos]); // ref set
+      for (; srcpos<endpos; srcpos++) dst[dstpos++] = new type(src[srcpos]); // clone record
+    } else if(type === 'refSet') {
+      for (; srcpos<endpos; srcpos++) dst[dstpos++] = rtl.refSet(src[srcpos]); // ref set
     }  else {
-      for (; srcpos<end; srcpos++) dst[dstpos++] = src[srcpos]; // reference
+      for (; srcpos<endpos; srcpos++) dst[dstpos++] = src[srcpos]; // reference
     };
   },
 
@@ -762,14 +765,31 @@ var rtl = {
     // type: see rtl.arrayClone
     var a = [];
     var l = 0;
-    for (var i=1; i<arguments.length; i++) l+=arguments[i].length;
+    for (var i=1; i<arguments.length; i++){
+      var src = arguments[i];
+      if (src !== null) l+=src.length;
+    };
     a.length = l;
     l=0;
     for (var i=1; i<arguments.length; i++){
       var src = arguments[i];
-      if (src == null) continue;
+      if (src === null) continue;
       rtl.arrayClone(type,src,0,src.length,a,l);
       l+=src.length;
+    };
+    return a;
+  },
+
+  arrayConcatN: function(){
+    var a = null;
+    for (var i=1; i<arguments.length; i++){
+      var src = arguments[i];
+      if (src === null) continue;
+      if (a===null){
+        a=src; // Note: concat(a) does not clone
+      } else {
+        a=a.concat(src);
+      }
     };
     return a;
   },
@@ -777,7 +797,7 @@ var rtl = {
   arrayCopy: function(type, srcarray, index, count){
     // type: see rtl.arrayClone
     // if count is missing, use srcarray.length
-    if (srcarray == null) return [];
+    if (srcarray === null) return [];
     if (index < 0) index = 0;
     if (count === undefined) count=srcarray.length;
     var end = index+count;
@@ -1173,6 +1193,18 @@ rtl.module("System",[],function () {
   this.MaxCardinal = 0xffffffff;
   this.Maxint = 2147483647;
   this.IsMultiThread = false;
+  $mod.$rtti.$inherited("Real",rtl.double,{});
+  $mod.$rtti.$inherited("Extended",rtl.double,{});
+  $mod.$rtti.$inherited("TDateTime",rtl.double,{});
+  $mod.$rtti.$inherited("TTime",$mod.$rtti["TDateTime"],{});
+  $mod.$rtti.$inherited("TDate",$mod.$rtti["TDateTime"],{});
+  $mod.$rtti.$inherited("Int64",rtl.nativeint,{});
+  $mod.$rtti.$inherited("UInt64",rtl.nativeuint,{});
+  $mod.$rtti.$inherited("QWord",rtl.nativeuint,{});
+  $mod.$rtti.$inherited("Single",rtl.double,{});
+  $mod.$rtti.$inherited("Comp",rtl.nativeint,{});
+  $mod.$rtti.$inherited("UnicodeString",rtl.string,{});
+  $mod.$rtti.$inherited("WideString",rtl.string,{});
   this.TTextLineBreakStyle = {"0": "tlbsLF", tlbsLF: 0, "1": "tlbsCRLF", tlbsCRLF: 1, "2": "tlbsCR", tlbsCR: 2};
   $mod.$rtti.$Enum("TTextLineBreakStyle",{minvalue: 0, maxvalue: 2, ordtype: 1, enumtype: this.TTextLineBreakStyle});
   this.TGuid = function (s) {
@@ -1193,6 +1225,7 @@ rtl.module("System",[],function () {
   };
   $mod.$rtti.$StaticArray("TGuid.D4$a",{dims: [8], eltype: rtl.byte});
   $mod.$rtti.$Record("TGuid",{}).addFields("D1",rtl.longword,"D2",rtl.word,"D3",rtl.word,"D4",$mod.$rtti["TGuid.D4$a"]);
+  $mod.$rtti.$inherited("TGUIDString",rtl.string,{});
   $mod.$rtti.$Class("TObject");
   $mod.$rtti.$ClassRef("TClass",{instancetype: $mod.$rtti["TObject"]});
   rtl.createClass($mod,"TObject",null,function () {
@@ -1618,6 +1651,7 @@ rtl.module("Types",["System"],function () {
   $mod.$rtti.$Enum("TDirection",{minvalue: 0, maxvalue: 1, ordtype: 1, enumtype: this.TDirection});
   $mod.$rtti.$DynArray("TBooleanDynArray",{eltype: rtl.boolean});
   $mod.$rtti.$DynArray("TIntegerDynArray",{eltype: rtl.longint});
+  $mod.$rtti.$DynArray("TNativeIntDynArray",{eltype: rtl.nativeint});
   $mod.$rtti.$DynArray("TStringDynArray",{eltype: rtl.string});
   $mod.$rtti.$DynArray("TDoubleDynArray",{eltype: rtl.double});
   $mod.$rtti.$DynArray("TJSValueDynArray",{eltype: rtl.jsvalue});
@@ -1859,6 +1893,9 @@ rtl.module("JS",["System","Types"],function () {
       I += 2;
     };
     return Result;
+  };
+  this.JSDelete = function (Obj, PropName) {
+    return delete Obj[PropName];
   };
   this.hasValue = function (v) {
     if(v){ return true; } else { return false; };
@@ -2368,6 +2405,58 @@ rtl.module("Web",["System","Types","JS"],function () {
     this.MannerMode = "MannerMode";
     this.VoiceDial = "VoiceDial";
   });
+  this.TJSMutationRecord = function (s) {
+    if (s) {
+      this.type_ = s.type_;
+      this.target = s.target;
+      this.addedNodes = s.addedNodes;
+      this.removedNodes = s.removedNodes;
+      this.previousSibling = s.previousSibling;
+      this.nextSibling = s.nextSibling;
+      this.attributeName = s.attributeName;
+      this.attributeNamespace = s.attributeNamespace;
+      this.oldValue = s.oldValue;
+    } else {
+      this.type_ = "";
+      this.target = null;
+      this.addedNodes = null;
+      this.removedNodes = null;
+      this.previousSibling = null;
+      this.nextSibling = null;
+      this.attributeName = "";
+      this.attributeNamespace = "";
+      this.oldValue = "";
+    };
+    this.$equal = function (b) {
+      return (this.type_ === b.type_) && ((this.target === b.target) && ((this.addedNodes === b.addedNodes) && ((this.removedNodes === b.removedNodes) && ((this.previousSibling === b.previousSibling) && ((this.nextSibling === b.nextSibling) && ((this.attributeName === b.attributeName) && ((this.attributeNamespace === b.attributeNamespace) && (this.oldValue === b.oldValue))))))));
+    };
+  };
+  $mod.$rtti.$Record("TJSMutationRecord",{}).addFields("type_",rtl.string,"target",$mod.$rtti["TJSNode"],"addedNodes",$mod.$rtti["TJSNodeList"],"removedNodes",$mod.$rtti["TJSNodeList"],"previousSibling",$mod.$rtti["TJSNode"],"nextSibling",$mod.$rtti["TJSNode"],"attributeName",rtl.string,"attributeNamespace",rtl.string,"oldValue",rtl.string);
+  $mod.$rtti.$DynArray("TJSMutationRecordArray",{eltype: $mod.$rtti["TJSMutationRecord"]});
+  $mod.$rtti.$RefToProcVar("TJSMutationCallback",{procsig: rtl.newTIProcSig([["mutations",$mod.$rtti["TJSMutationRecordArray"]],["observer",$mod.$rtti["TJSMutationObserver"]]])});
+  this.TJSMutationObserverInit = function (s) {
+    if (s) {
+      this.attributes = s.attributes;
+      this.attributeOldValue = s.attributeOldValue;
+      this.characterData = s.characterData;
+      this.characterDataOldValue = s.characterDataOldValue;
+      this.childList = s.childList;
+      this.subTree = s.subTree;
+      this.attributeFilter = s.attributeFilter;
+    } else {
+      this.attributes = false;
+      this.attributeOldValue = false;
+      this.characterData = false;
+      this.characterDataOldValue = false;
+      this.childList = false;
+      this.subTree = false;
+      this.attributeFilter = null;
+    };
+    this.$equal = function (b) {
+      return (this.attributes === b.attributes) && ((this.attributeOldValue === b.attributeOldValue) && ((this.characterData === b.characterData) && ((this.characterDataOldValue === b.characterDataOldValue) && ((this.childList === b.childList) && ((this.subTree === b.subTree) && (this.attributeFilter === b.attributeFilter))))));
+    };
+  };
+  $mod.$rtti.$Record("TJSMutationObserverInit",{}).addFields("attributes",rtl.boolean,"attributeOldValue",rtl.boolean,"characterData",rtl.boolean,"characterDataOldValue",rtl.boolean,"childList",rtl.boolean,"subTree",rtl.boolean,"attributeFilter",pas.JS.$rtti["TJSArray"]);
 });
 rtl.module("RTLConsts",["System"],function () {
   "use strict";
@@ -6240,6 +6329,48 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
     };
   });
   $mod.$rtti.$ClassRef("TPersistentClass",{instancetype: $mod.$rtti["TPersistent"]});
+  rtl.createClass($mod,"TInterfacedPersistent",$mod.TPersistent,function () {
+    this.$init = function () {
+      $mod.TPersistent.$init.call(this);
+      this.FOwnerInterface = null;
+    };
+    this.$final = function () {
+      this.FOwnerInterface = undefined;
+      $mod.TPersistent.$final.call(this);
+    };
+    this._AddRef = function () {
+      var Result = 0;
+      Result = -1;
+      if (this.FOwnerInterface != null) Result = this.FOwnerInterface._AddRef();
+      return Result;
+    };
+    this._Release = function () {
+      var Result = 0;
+      Result = -1;
+      if (this.FOwnerInterface != null) Result = this.FOwnerInterface._Release();
+      return Result;
+    };
+    this.QueryInterface = function (IID, Obj) {
+      var Result = 0;
+      Result = -2147467262;
+      if (this.GetInterface(IID,Obj)) Result = 0;
+      return Result;
+    };
+    this.AfterConstruction = function () {
+      try {
+        pas.System.TObject.AfterConstruction.call(this);
+        if (this.GetOwner() !== null) this.GetOwner().GetInterface(rtl.getIntfGUIDR(pas.System.IUnknown),{p: this, get: function () {
+            return this.p.FOwnerInterface;
+          }, set: function (v) {
+            this.p.FOwnerInterface = v;
+          }});
+      } finally {
+        rtl._Release(this.FOwnerInterface);
+      };
+    };
+    this.$intfmaps = {};
+    rtl.addIntf(this,pas.System.IUnknown);
+  });
   $mod.$rtti.$Class("TStrings");
   rtl.createClass($mod,"TStringsEnumerator",pas.System.TObject,function () {
     this.$init = function () {
@@ -7692,6 +7823,16 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
     this.ValidateInsert = function (AComponent) {
       if (AComponent === null) ;
     };
+    this._AddRef = function () {
+      var Result = 0;
+      Result = -1;
+      return Result;
+    };
+    this._Release = function () {
+      var Result = 0;
+      Result = -1;
+      return Result;
+    };
     this.Create$1 = function (AOwner) {
       this.FComponentStyle = rtl.createSet($mod.TComponentStyleItem.csInheritable);
       if (AOwner != null) AOwner.InsertComponent(this);
@@ -7740,6 +7881,13 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
         Runner = $l1;
         rtl.getObject(this.FComponents.Get(Runner)).Destroying();
       };
+    };
+    this.QueryInterface = function (IID, Obj) {
+      var Result = 0;
+      if (this.GetInterface(IID,Obj)) {
+        Result = 0}
+       else Result = -2147467262;
+      return Result;
     };
     this.FindComponent = function (AName) {
       var Result = null;
@@ -7805,10 +7953,13 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
       Result = $mod.TComponentEnumerator.$create("Create$1",[this]);
       return Result;
     };
+    this.$intfmaps = {};
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("Name",6,rtl.string,"FName","SetName");
     $r.addProperty("Tag",0,rtl.nativeint,"FTag","FTag");
   });
+  $mod.$rtti.$ClassRef("TComponentClass",{instancetype: $mod.$rtti["TComponent"]});
   this.RegisterClass = function (AClass) {
     $impl.ClassList[AClass.$classname] = AClass;
   };
@@ -14153,22 +14304,18 @@ rtl.module("TypInfo",["System","SysUtils","Types","RTLConsts","JS"],function () 
     var Result = [];
     var C = null;
     var i = 0;
-    var Cnt = 0;
-    var j = 0;
-    Cnt = 0;
+    var PropName = "";
+    var Names = null;
+    Result = [];
+    Names = new Object();
     C = aTIClass;
-    while (C !== null) {
-      Cnt += rtl.length(C.names);
-      C = C.ancestor;
-    };
-    Result = rtl.arraySetLength(Result,null,Cnt);
-    C = aTIClass;
-    i = 0;
     while (C !== null) {
       for (var $l1 = 0, $end2 = rtl.length(C.names) - 1; $l1 <= $end2; $l1++) {
-        j = $l1;
-        Result[i] = C.members[C.names[j]];
-        i += 1;
+        i = $l1;
+        PropName = C.names[i];
+        if (Names.hasOwnProperty(PropName)) continue;
+        Result.push(C.members[PropName]);
+        Names[PropName] = true;
       };
       C = C.ancestor;
     };
@@ -14302,25 +14449,70 @@ rtl.module("TypInfo",["System","SysUtils","Types","RTLConsts","JS"],function () 
     var Result = [];
     var C = null;
     var i = 0;
-    var Cnt = 0;
-    var j = 0;
-    Cnt = 0;
+    var Names = null;
+    var PropName = "";
+    Result = [];
     C = aTIClass;
-    while (C !== null) {
-      Cnt += C.properties.length;
-      C = C.ancestor;
-    };
-    Result = rtl.arraySetLength(Result,null,Cnt);
-    C = aTIClass;
-    i = 0;
+    Names = new Object();
     while (C !== null) {
       for (var $l1 = 0, $end2 = C.properties.length - 1; $l1 <= $end2; $l1++) {
-        j = $l1;
-        Result[i] = C.members[C.properties[j]];
-        i += 1;
+        i = $l1;
+        PropName = C.properties[i];
+        if (Names.hasOwnProperty(PropName)) continue;
+        Result.push(C.members[PropName]);
+        Names[PropName] = true;
       };
       C = C.ancestor;
     };
+    return Result;
+  };
+  this.GetPropList = function (aTIClass, TypeKinds, Sorted) {
+    var Result = [];
+    function NameSort(a, b) {
+      var Result = 0;
+      if (rtl.getObject(a).name < rtl.getObject(b).name) {
+        Result = -1}
+       else if (rtl.getObject(a).name > rtl.getObject(b).name) {
+        Result = 1}
+       else Result = 0;
+      return Result;
+    };
+    var C = null;
+    var i = 0;
+    var Names = null;
+    var PropName = "";
+    var Prop = null;
+    Result = [];
+    C = aTIClass;
+    Names = new Object();
+    while (C !== null) {
+      for (var $l1 = 0, $end2 = C.properties.length - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        PropName = C.properties[i];
+        if (Names.hasOwnProperty(PropName)) continue;
+        Prop = C.members[PropName];
+        if (!(Prop.typeinfo.kind in TypeKinds)) continue;
+        Result.push(Prop);
+        Names[PropName] = true;
+      };
+      C = C.ancestor;
+    };
+    if (Sorted) Result.sort(NameSort);
+    return Result;
+  };
+  this.GetPropList$1 = function (aTIClass) {
+    var Result = [];
+    Result = $mod.GetPropInfos(aTIClass);
+    return Result;
+  };
+  this.GetPropList$2 = function (AClass) {
+    var Result = [];
+    Result = $mod.GetPropInfos(AClass.$rtti);
+    return Result;
+  };
+  this.GetPropList$3 = function (Instance) {
+    var Result = [];
+    Result = $mod.GetPropList$2(Instance.$class.ClassType());
     return Result;
   };
   this.GetPropInfo = function (TI, PropName) {
@@ -14501,21 +14693,151 @@ rtl.module("TypInfo",["System","SysUtils","Types","RTLConsts","JS"],function () 
   this.SetNativeIntProp$1 = function (Instance, PropInfo, Value) {
     $mod.SetJSValueProp$1(Instance,PropInfo,Value);
   };
-  this.GetStringProp = function (Instance, PropName) {
-    var Result = "";
-    Result = $mod.GetStringProp$1(Instance,$mod.FindPropInfo(Instance,PropName));
+  this.GetOrdProp = function (Instance, PropName) {
+    var Result = 0;
+    Result = $mod.GetOrdProp$1(Instance,$mod.FindPropInfo(Instance,PropName));
     return Result;
   };
-  this.GetStringProp$1 = function (Instance, PropInfo) {
+  this.GetOrdProp$1 = function (Instance, PropInfo) {
+    var Result = 0;
+    var o = null;
+    var Key = "";
+    var n = 0;
+    if (PropInfo.typeinfo.kind === $mod.TTypeKind.tkSet) {
+      o = rtl.getObject($mod.GetJSValueProp$1(Instance,PropInfo));
+      Result = 0;
+      for (Key in o) {
+        n = parseInt(Key,10);
+        if (n < 32) Result = Result + (1 << n);
+      };
+    } else Result = Math.floor($mod.GetJSValueProp$1(Instance,PropInfo));
+    return Result;
+  };
+  this.SetOrdProp = function (Instance, PropName, Value) {
+    $mod.SetOrdProp$1(Instance,$mod.FindPropInfo(Instance,PropName),Value);
+  };
+  this.SetOrdProp$1 = function (Instance, PropInfo, Value) {
+    var o = null;
+    var i = 0;
+    if (PropInfo.typeinfo.kind === $mod.TTypeKind.tkSet) {
+      o = new Object();
+      for (i = 0; i <= 31; i++) if (((1 << i) & Value) > 0) o["" + i] = true;
+      $mod.SetJSValueProp$1(Instance,PropInfo,o);
+    } else $mod.SetJSValueProp$1(Instance,PropInfo,Value);
+  };
+  this.GetEnumProp = function (Instance, PropName) {
+    var Result = "";
+    Result = $mod.GetEnumProp$1(Instance,$mod.FindPropInfo(Instance,PropName));
+    return Result;
+  };
+  this.GetEnumProp$1 = function (Instance, PropInfo) {
+    var Result = "";
+    var n = 0;
+    var TIEnum = null;
+    TIEnum = rtl.asExt(PropInfo.typeinfo,rtl.tTypeInfoEnum);
+    n = Math.floor($mod.GetJSValueProp$1(Instance,PropInfo));
+    if ((n >= TIEnum.minvalue) && (n <= TIEnum.maxvalue)) {
+      Result = TIEnum.enumtype[n]}
+     else Result = "" + n;
+    return Result;
+  };
+  this.SetEnumProp = function (Instance, PropName, Value) {
+    $mod.SetEnumProp$1(Instance,$mod.FindPropInfo(Instance,PropName),Value);
+  };
+  this.SetEnumProp$1 = function (Instance, PropInfo, Value) {
+    var TIEnum = null;
+    var n = 0;
+    TIEnum = rtl.asExt(PropInfo.typeinfo,rtl.tTypeInfoEnum);
+    n = TIEnum.enumtype[Value];
+    if (!pas.JS.isUndefined(n)) $mod.SetJSValueProp$1(Instance,PropInfo,n);
+  };
+  this.GetSetProp = function (Instance, PropName) {
+    var Result = "";
+    Result = $mod.GetSetProp$1(Instance,$mod.FindPropInfo(Instance,PropName));
+    return Result;
+  };
+  this.GetSetProp$1 = function (Instance, PropInfo) {
+    var Result = "";
+    var o = null;
+    var key = "";
+    var Value = "";
+    var n = 0;
+    var TIEnum = null;
+    var TISet = null;
+    Result = "";
+    TISet = rtl.asExt(PropInfo.typeinfo,rtl.tTypeInfoSet);
+    TIEnum = null;
+    if (rtl.isExt(TISet.comptype,rtl.tTypeInfoEnum)) TIEnum = TISet.comptype;
+    o = rtl.getObject($mod.GetJSValueProp$1(Instance,PropInfo));
+    for (key in o) {
+      n = parseInt(key,10);
+      if (((TIEnum !== null) && (n >= TIEnum.minvalue)) && (n <= TIEnum.maxvalue)) {
+        Value = TIEnum.enumtype[n]}
+       else Value = "" + n;
+      if (Result !== "") Result = Result + ",";
+      Result = Result + Value;
+    };
+    Result = ("[" + Result) + "]";
+    return Result;
+  };
+  this.GetSetPropArray = function (Instance, PropName) {
+    var Result = [];
+    Result = $mod.GetSetPropArray$1(Instance,$mod.FindPropInfo(Instance,PropName));
+    return Result;
+  };
+  this.GetSetPropArray$1 = function (Instance, PropInfo) {
+    var Result = [];
+    var o = null;
+    var Key = "";
+    Result = {};
+    o = rtl.getObject($mod.GetJSValueProp$1(Instance,PropInfo));
+    for (Key in o) Result.push(parseInt(Key,10));
+    return Result;
+  };
+  this.SetSetPropArray = function (Instance, PropName, Arr) {
+    $mod.SetSetPropArray$1(Instance,$mod.FindPropInfo(Instance,PropName),Arr);
+  };
+  this.SetSetPropArray$1 = function (Instance, PropInfo, Arr) {
+    var o = null;
+    var i = 0;
+    o = new Object();
+    for (var $in1 = Arr, $l2 = 0, $end3 = rtl.length($in1) - 1; $l2 <= $end3; $l2++) {
+      i = $in1[$l2];
+      o["" + i] = true;
+    };
+    $mod.SetJSValueProp$1(Instance,PropInfo,o);
+  };
+  this.GetStrProp = function (Instance, PropName) {
+    var Result = "";
+    Result = $mod.GetStrProp$1(Instance,$mod.FindPropInfo(Instance,PropName));
+    return Result;
+  };
+  this.GetStrProp$1 = function (Instance, PropInfo) {
     var Result = "";
     Result = "" + $mod.GetJSValueProp$1(Instance,PropInfo);
     return Result;
   };
+  this.SetStrProp = function (Instance, PropName, Value) {
+    $mod.SetStrProp$1(Instance,$mod.FindPropInfo(Instance,PropName),Value);
+  };
+  this.SetStrProp$1 = function (Instance, PropInfo, Value) {
+    $mod.SetJSValueProp$1(Instance,PropInfo,Value);
+  };
+  this.GetStringProp = function (Instance, PropName) {
+    var Result = "";
+    Result = $mod.GetStrProp(Instance,PropName);
+    return Result;
+  };
+  this.GetStringProp$1 = function (Instance, PropInfo) {
+    var Result = "";
+    Result = $mod.GetStrProp$1(Instance,PropInfo);
+    return Result;
+  };
   this.SetStringProp = function (Instance, PropName, Value) {
-    $mod.SetStringProp$1(Instance,$mod.FindPropInfo(Instance,PropName),Value);
+    $mod.SetStrProp(Instance,PropName,Value);
   };
   this.SetStringProp$1 = function (Instance, PropInfo, Value) {
-    $mod.SetJSValueProp$1(Instance,PropInfo,Value);
+    $mod.SetStrProp$1(Instance,PropInfo,Value);
   };
   this.GetBoolProp = function (Instance, PropName) {
     var Result = false;
@@ -14672,8 +14994,8 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     };
   });
   $mod.$rtti.$ClassRef("TFieldClass",{instancetype: $mod.$rtti["TField"]});
-  this.TFieldType = {"0": "ftUnknown", ftUnknown: 0, "1": "ftString", ftString: 1, "2": "ftInteger", ftInteger: 2, "3": "ftLargeInt", ftLargeInt: 3, "4": "ftBoolean", ftBoolean: 4, "5": "ftFloat", ftFloat: 5, "6": "ftDate", ftDate: 6, "7": "ftTime", ftTime: 7, "8": "ftDateTime", ftDateTime: 8, "9": "ftAutoInc", ftAutoInc: 9, "10": "ftBlob", ftBlob: 10, "11": "ftMemo", ftMemo: 11, "12": "ftFixedChar", ftFixedChar: 12, "13": "ftVariant", ftVariant: 13};
-  $mod.$rtti.$Enum("TFieldType",{minvalue: 0, maxvalue: 13, ordtype: 1, enumtype: this.TFieldType});
+  this.TFieldType = {"0": "ftUnknown", ftUnknown: 0, "1": "ftString", ftString: 1, "2": "ftInteger", ftInteger: 2, "3": "ftLargeInt", ftLargeInt: 3, "4": "ftBoolean", ftBoolean: 4, "5": "ftFloat", ftFloat: 5, "6": "ftDate", ftDate: 6, "7": "ftTime", ftTime: 7, "8": "ftDateTime", ftDateTime: 8, "9": "ftAutoInc", ftAutoInc: 9, "10": "ftBlob", ftBlob: 10, "11": "ftMemo", ftMemo: 11, "12": "ftFixedChar", ftFixedChar: 12, "13": "ftVariant", ftVariant: 13, "14": "ftDataset", ftDataset: 14};
+  $mod.$rtti.$Enum("TFieldType",{minvalue: 0, maxvalue: 14, ordtype: 1, enumtype: this.TFieldType});
   this.TFieldAttribute = {"0": "faHiddenCol", faHiddenCol: 0, "1": "faReadonly", faReadonly: 1, "2": "faRequired", faRequired: 2, "3": "faLink", faLink: 3, "4": "faUnNamed", faUnNamed: 4, "5": "faFixed", faFixed: 5};
   $mod.$rtti.$Enum("TFieldAttribute",{minvalue: 0, maxvalue: 5, ordtype: 1, enumtype: this.TFieldAttribute});
   $mod.$rtti.$Set("TFieldAttributes",{comptype: $mod.$rtti["TFieldAttribute"]});
@@ -17588,6 +17910,27 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
   };
   $mod.$rtti.$Record("TDataRecord",{}).addFields("data",rtl.jsvalue,"state",$mod.$rtti["TRecordState"],"bookmark",rtl.jsvalue,"bookmarkFlag",$mod.$rtti["TBookmarkFlag"]);
   $mod.$rtti.$DynArray("TBuffers",{eltype: $mod.$rtti["TDataRecord"]});
+  this.TResolveInfo = function (s) {
+    if (s) {
+      this.Data = s.Data;
+      this.Status = s.Status;
+      this.error = s.error;
+      this.BookMark = new $mod.TBookmark(s.BookMark);
+      this._private = s._private;
+    } else {
+      this.Data = undefined;
+      this.Status = 0;
+      this.error = "";
+      this.BookMark = new $mod.TBookmark();
+      this._private = undefined;
+    };
+    this.$equal = function (b) {
+      return (this.Data === b.Data) && ((this.Status === b.Status) && ((this.error === b.error) && (this.BookMark.$equal(b.BookMark) && (this._private === b._private))));
+    };
+  };
+  $mod.$rtti.$Record("TResolveInfo",{}).addFields("Data",rtl.jsvalue,"Status",$mod.$rtti["TUpdateStatus"],"error",rtl.string,"BookMark",$mod.$rtti["TBookmark"],"_private",rtl.jsvalue);
+  $mod.$rtti.$DynArray("TResolveInfoArray",{eltype: $mod.$rtti["TResolveInfo"]});
+  $mod.$rtti.$ProcVar("TOnRecordResolveEvent",{procsig: rtl.newTIProcSig([["Sender",$mod.$rtti["TDataSet"]],["info",$mod.$rtti["TResolveInfo"]]])});
   rtl.createClass($mod,"TDataSet",pas.Classes.TComponent,function () {
     this.$init = function () {
       pas.Classes.TComponent.$init.call(this);
@@ -17599,6 +17942,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       this.FCalcBuffer = new $mod.TDataRecord();
       this.FCalcFieldsSize = 0;
       this.FOnLoadFail = null;
+      this.FOnRecordResolved = null;
       this.FOpenAfterRead = false;
       this.FActiveRecord = 0;
       this.FAfterCancel = null;
@@ -17663,6 +18007,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       this.FBeforeLoad = undefined;
       this.FCalcBuffer = undefined;
       this.FOnLoadFail = undefined;
+      this.FOnRecordResolved = undefined;
       this.FAfterCancel = undefined;
       this.FAfterClose = undefined;
       this.FAfterDelete = undefined;
@@ -17908,8 +18253,10 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
         if (pas.SysUtils.Exception.isPrototypeOf($e)) {
           var E = $e;
           anUpdate.ResolveFailed((E.$classname + ": ") + E.fMessage);
+          Result = false;
         } else throw $e
       };
+      this.DoOnRecordResolved(anUpdate);
       return Result;
     };
     this.HandleRequestresponse = function (ARequest) {
@@ -17931,6 +18278,20 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
         };
       };
       ARequest.$destroy("Destroy");
+    };
+    this.DoOnRecordResolved = function (anUpdate) {
+      var Info = new $mod.TResolveInfo();
+      if (!(this.FOnRecordResolved != null)) return;
+      Info = new $mod.TResolveInfo(this.RecordUpdateDescriptorToResolveInfo(anUpdate));
+      this.FOnRecordResolved(this,new $mod.TResolveInfo(Info));
+    };
+    this.RecordUpdateDescriptorToResolveInfo = function (anUpdate) {
+      var Result = new $mod.TResolveInfo();
+      Result.BookMark = new $mod.TBookmark(anUpdate.FBookmark);
+      Result.Data = anUpdate.FData;
+      Result.Status = anUpdate.FStatus;
+      Result.error = anUpdate.FResolveError;
+      return Result;
     };
     this.DoResolveRecordUpdate = function (anUpdate) {
       var Result = false;
@@ -17969,11 +18330,11 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
           doRemove = false;
           if (RUD.FStatus === $mod.TUpdateStatus.usResolved) {
             doRemove = this.ResolveRecordUpdate(RUD)}
-           else doRemove = RUD.FStatus in rtl.createSet($mod.TUpdateStatus.usUnmodified,$mod.TUpdateStatus.usResolveFailed);
+           else doRemove = RUD.FStatus in rtl.createSet($mod.TUpdateStatus.usUnmodified);
           if (doRemove) {
             RUD = rtl.freeLoc(RUD);
             this.FChangeList.Delete(Idx);
-          };
+          } else RUD.Reset();
         };
       };
       if (this.FBatchList.FCount === 0) pas.SysUtils.FreeAndNil({p: this, get: function () {
@@ -19406,6 +19767,22 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       if (!(this.FState in $mod.dsEditModes)) $mod.DatabaseErrorFmt$1(rtl.getResStr(pas.DBConst,"SNotEditing"),[this.FName],this);
       this.DataEvent($mod.TDataEvent.deUpdateRecord,0);
     };
+    this.GetPendingUpdates = function () {
+      var Result = [];
+      var L = null;
+      var I = 0;
+      L = $mod.TRecordUpdateDescriptorList.$create("Create");
+      try {
+        Result = rtl.arraySetLength(Result,$mod.TResolveInfo,this.GetRecordUpdates(L));
+        for (var $l1 = 0, $end2 = L.FCount - 1; $l1 <= $end2; $l1++) {
+          I = $l1;
+          Result[I] = new $mod.TResolveInfo(this.RecordUpdateDescriptorToResolveInfo(L.GetUpdate(I)));
+        };
+      } finally {
+        L = rtl.freeLoc(L);
+      };
+      return Result;
+    };
     this.UpdateStatus = function () {
       var Result = 0;
       Result = $mod.TUpdateStatus.usUnmodified;
@@ -19922,6 +20299,11 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     this.SetStatus = function (aValue) {
       this.FStatus = aValue;
     };
+    this.Reset = function () {
+      this.FStatus = this.FOriginalStatus;
+      this.FResolveError = "";
+      this.FServerData = null;
+    };
     this.Create$1 = function (aProxy, aDataset, aBookmark, AData, AStatus) {
       this.FDataset = aDataset;
       this.FBookmark = new $mod.TBookmark(aBookmark);
@@ -20025,8 +20407,8 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       return Result;
     };
   });
-  this.Fieldtypenames = ["Unknown","String","Integer","NativeInt","Boolean","Float","Date","Time","DateTime","AutoInc","Blob","Memo","FixedChar","Variant"];
-  this.DefaultFieldClasses = [$mod.TField,$mod.TStringField,$mod.TIntegerField,$mod.TLargeintField,$mod.TBooleanField,$mod.TFloatField,$mod.TDateField,$mod.TTimeField,$mod.TDateTimeField,$mod.TAutoIncField,$mod.TBlobField,$mod.TMemoField,$mod.TStringField,$mod.TVariantField];
+  this.Fieldtypenames = ["Unknown","String","Integer","NativeInt","Boolean","Float","Date","Time","DateTime","AutoInc","Blob","Memo","FixedChar","Variant","Dataset"];
+  this.DefaultFieldClasses = [$mod.TField,$mod.TStringField,$mod.TIntegerField,$mod.TLargeintField,$mod.TBooleanField,$mod.TFloatField,$mod.TDateField,$mod.TTimeField,$mod.TDateTimeField,$mod.TAutoIncField,$mod.TBlobField,$mod.TMemoField,$mod.TStringField,$mod.TVariantField,null];
   this.dsEditModes = rtl.createSet($mod.TDataSetState.dsEdit,$mod.TDataSetState.dsInsert,$mod.TDataSetState.dsSetKey);
   this.dsWriteModes = rtl.createSet($mod.TDataSetState.dsEdit,$mod.TDataSetState.dsInsert,$mod.TDataSetState.dsSetKey,$mod.TDataSetState.dsCalcFields,$mod.TDataSetState.dsFilter,$mod.TDataSetState.dsNewValue,$mod.TDataSetState.dsInternalCalc,$mod.TDataSetState.dsRefreshFields);
   this.ftBlobTypes = rtl.createSet($mod.TFieldType.ftBlob,$mod.TFieldType.ftMemo);
@@ -20569,8 +20951,14 @@ rtl.module("JSONDataset",["System","Types","JS","DB","Classes","SysUtils"],funct
       var Result = undefined;
       var R = undefined;
       if (this.FEditIdx == Buffer.bookmark) {
-        R = this.FEditRow}
-       else R = Buffer.data;
+        if (this.FState === pas.DB.TDataSetState.dsOldValue) {
+          R = Buffer.data}
+         else R = this.FEditRow;
+      } else {
+        if (this.FState === pas.DB.TDataSetState.dsOldValue) {
+          return null}
+         else R = Buffer.data;
+      };
       Result = this.FFieldMapper.GetJSONDataForField$1(Field,R);
       return Result;
     };
@@ -21378,6 +21766,7 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
       };
       rtl.getObject(pas.Avamm.GetAvammContainer()).childNodes.forEach(HideElement);
       $mod.Layout.cont.style.setProperty("display","block");
+      $mod.Layout.cells("a").progressOn();
       return Result;
     };
     pas.dhtmlx_base.WidgetsetLoaded.then(DoShowStartpage);
@@ -21388,6 +21777,7 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
       var Result = undefined;
       $mod.Content.innerHTML = aValue.responseText;
       $mod.FixWikiContent($mod.Content,null);
+      $mod.Layout.cells("a").progressOff();
       return Result;
     };
     var DataLoaded = null;
@@ -21429,7 +21819,7 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
       i = $l3;
       try {
         aHref = anchors[i].href;
-        if ((pas.System.Pos("@",aHref) > 0) && (pas.System.Copy(aHref,0,4) === "http")) {
+        if ((pas.System.Pos("@",aHref) > 0) && ((pas.System.Copy(aHref,0,4) === "http") || (pas.System.Copy(aHref,0,4) === "file"))) {
           oldLink = decodeURI(anchors[i].href.substring(anchors[i].href.lastIndexOf('/')+1));
           aTable = oldLink.substring(0,oldLink.indexOf('@')).toLowerCase();
           if (pas.System.Pos("{",oldLink) > 0) {

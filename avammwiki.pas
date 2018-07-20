@@ -22,6 +22,7 @@ procedure Refresh;
   begin
     Content.innerHTML:=aValue.responseText;
     FixWikiContent(Content,null);
+    Layout.cells('a').progressOff;
   end;
 var
   DataLoaded: TJSPromise;
@@ -48,6 +49,7 @@ procedure ShowStartpage;
       end;
     TJSHTMLElement(Avamm.GetAvammContainer()).childNodes.forEach(@HideElement);
     Layout.cont.style.setProperty('display','block');
+    Layout.cells('a').progressOn;
   end;
 begin
   WidgetsetLoaded._then(@DoShowStartpage);
@@ -90,7 +92,7 @@ begin
           aHref = anchors[i].href;
         end;
         if (pos('@',aHref)>0)
-        and (copy(aHref,0,4)='http')
+        and ((copy(aHref,0,4)='http') or (copy(aHref,0,4)='file'))
         then
           begin
             asm
