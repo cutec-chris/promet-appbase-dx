@@ -70,11 +70,13 @@ type
   protected
     Layout: TDHTMLXLayout;
     Form: TDHTMLXForm;
+    gHistory: TDHTMLXGrid;
     Toolbar: TDHTMLXToolbar;
     Tabs: TDHTMLXTabbar;
     ReportsLoaded: TJSPromise;
     WikiLoaded: TJSPromise;
     procedure DoLoadData;virtual;
+    procedure DoLoadHistory;
     procedure SetTitle(aTitle : string);
     function DoClose : Boolean;
   public
@@ -128,6 +130,7 @@ resourcestring
   strItemNotFound              = 'Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen';
   strPrint                     = 'Drucken';
   strFilterTT                  = 'Filter an/auschalten';
+  strHistory                   = 'Verlauf';
 
 implementation
 
@@ -162,7 +165,27 @@ end;
 
 procedure TAvammForm.DoLoadData;
 begin
+  DoLoadHistory;
   Layout.cells('a').setHeight(90);
+end;
+
+procedure TAvammForm.DoLoadHistory;
+var
+  i: Integer;
+  History, nEntry: TJSArray;
+begin
+  History := TJSArray(TJSObject(Data.Properties['HISTORY']).Properties['Data']);
+  gHistory.clearAll;
+  for i := 0 to History.Length-1 do
+    begin
+      nEntry := TJSArray.new;
+      nEntry.push(TJSObject(History[i]).Properties['ACTIONICON']);
+      nEntry.push(stringreplace(string(TJSObject(History[i]).Properties['ACTION']),#13,'<br>',[rfReplaceAll]));
+      nEntry.push(TJSObject(History[i]).Properties['REFERENCE']);
+      nEntry.push(TJSObject(History[i]).Properties['CHANGEDBY']);
+      nEntry.push(TJSObject(History[i]).Properties['DATE']);
+      gHistory.addRow(TJSObject(History[i]).Properties['sql_id'],nEntry);
+    end;
 end;
 
 procedure TAvammForm.SetTitle(aTitle: string);
@@ -363,6 +386,15 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
       'arrows_mode','auto'    // mode of showing tabs arrows (auto, always)
       ])));
     Tabs.setSizes;
+    Tabs.addTab('history',strHistory,nil,1,true,false);
+    gHistory := TDHTMLXGrid(Tabs.cells('history').attachGrid(js.new([])));
+    gHistory.setHeader('Icon,Eintrag,Referenz,ersteller,Datum');
+    gHistory.setColumnIds('ACTIONICON,ACTION,REFERENCE,CHANGEDDBY,DATE');
+    gHistory.setInitWidths('30,*,100,80,120');
+    gHistory.enableMultiline(true);
+    gHistory.enableAutoWidth(true);
+    gHistory.enableKeyboardSupport(true);
+    gHistory.init();
     Layout.progressOn;
     Avamm.LoadData('/'+aDataSet+'/by-id/'+string(Id)+'/item.json?mode=extjs')._then(@ItemLoaded)
                                                                   .catch(@ItemLoadError)
@@ -519,30 +551,17 @@ constructor TAvammListForm.Create(aParent: TJSElement; aDataSet: string;
     else if (id='refresh') then
       RefreshList;
   end;
-  procedure StateChange(id : string;state : Boolean);
-  begin
-    if (id='filter') then
-      begin
-        if state then
-          begin
-            Grid.attachHeader(FFilterHeader);
-            Grid.setSizes;
-          end
-        else
-          Grid.detachHeader(1);
-      end;
-  end;
-
   procedure FilterStart(indexes,values : TJSArray);
   var
     i: Integer;
   begin
     FOldFilter := '';
-    for i := 0 to indexes.length do
-      begin
-        if (values[i]) then
-          FOldFilter := FOldFilter+' AND lower("'+string(Grid.getColumnId(Integer(indexes[i])))+'")'+' like lower(''%'+string(values[i])+'%'')';
-      end;
+    if Assigned(indexes) then
+      for i := 0 to indexes.length do
+        begin
+          if (values[i]) then
+            FOldFilter := FOldFilter+' AND lower("'+string(Grid.getColumnId(Integer(indexes[i])))+'")'+' like lower(''%'+string(values[i])+'%'')';
+        end;
     FOldFilter := copy(FOldFilter,6,length(FOldFilter));
     writeln('Filter:'+FOldFilter);
     Page.progressOn();
@@ -553,6 +572,22 @@ constructor TAvammListForm.Create(aParent: TJSElement; aDataSet: string;
     except
       Page.progressOff();
     end;
+  end;
+  procedure StateChange(id : string;state : Boolean);
+  begin
+    if (id='filter') then
+      begin
+        if state then
+          begin
+            Grid.attachHeader(FFilterHeader);
+            Grid.setSizes;
+          end
+        else
+          begin
+            Grid.detachHeader(1);
+            FilterStart(TJSArray(null),TJSArray(null));
+          end;
+      end;
   end;
   procedure DoResizeLayout;
   begin

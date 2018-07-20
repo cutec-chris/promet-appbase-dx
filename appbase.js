@@ -21520,18 +21520,10 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         if (id === "new") {}
         else if (id === "refresh") Self.RefreshList();
       };
-      function StateChange(id, state) {
-        if (id === "filter") {
-          if (state) {
-            Self.Grid.attachHeader(Self.FFilterHeader);
-            Self.Grid.setSizes();
-          } else Self.Grid.detachHeader(1);
-        };
-      };
       function FilterStart(indexes, values) {
         var i = 0;
         Self.FOldFilter = "";
-        for (var $l1 = 0, $end2 = indexes.length; $l1 <= $end2; $l1++) {
+        if (indexes != null) for (var $l1 = 0, $end2 = indexes.length; $l1 <= $end2; $l1++) {
           i = $l1;
           if (values[i]) Self.FOldFilter = (((((Self.FOldFilter + ' AND lower("') + ("" + Self.Grid.getColumnId(Math.floor(indexes[i])))) + '")') + " like lower('%") + ("" + values[i])) + "%')";
         };
@@ -21544,6 +21536,17 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
           Self.FDataSet.Load({},rtl.createCallback(Self,"SwitchProgressOff"));
         } catch ($e) {
           Self.Page.progressOff();
+        };
+      };
+      function StateChange(id, state) {
+        if (id === "filter") {
+          if (state) {
+            Self.Grid.attachHeader(Self.FFilterHeader);
+            Self.Grid.setSizes();
+          } else {
+            Self.Grid.detachHeader(1);
+            FilterStart(rtl.getObject(null),rtl.getObject(null));
+          };
         };
       };
       function DoResizeLayout() {
@@ -21609,6 +21612,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.FRawData = null;
       this.Layout = null;
       this.Form = null;
+      this.gHistory = null;
       this.Toolbar = null;
       this.Tabs = null;
       this.ReportsLoaded = null;
@@ -21622,6 +21626,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.FRawData = undefined;
       this.Layout = undefined;
       this.Form = undefined;
+      this.gHistory = undefined;
       this.Toolbar = undefined;
       this.Tabs = undefined;
       this.ReportsLoaded = undefined;
@@ -21630,7 +21635,25 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       pas.System.TObject.$final.call(this);
     };
     this.DoLoadData = function () {
+      this.DoLoadHistory();
       this.Layout.cells("a").setHeight(90);
+    };
+    this.DoLoadHistory = function () {
+      var i = 0;
+      var History = null;
+      var nEntry = null;
+      History = rtl.getObject(rtl.getObject(this.FData["HISTORY"])["Data"]);
+      this.gHistory.clearAll();
+      for (var $l1 = 0, $end2 = History.length - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        nEntry = new Array();
+        nEntry.push(rtl.getObject(History[i])["ACTIONICON"]);
+        nEntry.push(pas.SysUtils.StringReplace("" + rtl.getObject(History[i])["ACTION"],"\r","<br>",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll)));
+        nEntry.push(rtl.getObject(History[i])["REFERENCE"]);
+        nEntry.push(rtl.getObject(History[i])["CHANGEDBY"]);
+        nEntry.push(rtl.getObject(History[i])["DATE"]);
+        this.gHistory.addRow(rtl.getObject(History[i])["sql_id"],nEntry);
+      };
     };
     this.SetTitle = function (aTitle) {
       if (rtl.isExt(this.FWindow,Window,1)) {
@@ -21786,6 +21809,15 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         a.setHeight(0);
         Self.Tabs = rtl.getObject(b.attachTabbar(pas.JS.New(["mode","top","align","left","close_button","true","content_zone","true","arrows_mode","auto"])));
         Self.Tabs.setSizes();
+        Self.Tabs.addTab("history",rtl.getResStr(pas.AvammForms,"strHistory"),null,1,true,false);
+        Self.gHistory = rtl.getObject(Self.Tabs.cells("history").attachGrid(pas.JS.New([])));
+        Self.gHistory.setHeader("Icon,Eintrag,Referenz,ersteller,Datum");
+        Self.gHistory.setColumnIds("ACTIONICON,ACTION,REFERENCE,CHANGEDDBY,DATE");
+        Self.gHistory.setInitWidths("30,*,100,80,120");
+        Self.gHistory.enableMultiline(true);
+        Self.gHistory.enableAutoWidth(true);
+        Self.gHistory.enableKeyboardSupport(true);
+        Self.gHistory.init();
         Self.Layout.progressOn();
         pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json?mode=extjs",false,"text\/json",6000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
         return Result;
@@ -21912,7 +21944,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
     };
   });
-  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}, strFilterTT: {org: "Filter an\/auschalten"}};
+  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}, strFilterTT: {org: "Filter an\/auschalten"}, strHistory: {org: "Verlauf"}};
 },["AvammWiki"]);
 rtl.module("dhtmlx_calendar",["System","JS","Web","SysUtils"],function () {
   "use strict";
