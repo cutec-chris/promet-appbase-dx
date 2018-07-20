@@ -21384,6 +21384,7 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
   };
   this.FixWikiContent = function (elem, aForm) {
     var anchors = null;
+    var images = null;
     var oldLink = "";
     var aTable = "";
     var aId = "";
@@ -21400,9 +21401,21 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
       };
     } catch ($e) {
     };
-    anchors = elem.getElementsByTagName("a");
-    for (var $l1 = 0, $end2 = anchors.length - 1; $l1 <= $end2; $l1++) {
+    images = elem.getElementsByTagName("img");
+    for (var $l1 = 0, $end2 = images.length - 1; $l1 <= $end2; $l1++) {
       i = $l1;
+      try {
+        aHref = images.item(i).getAttribute("src");
+        aHref = pas.System.Copy(aHref,pas.System.Pos("(",aHref) + 1,aHref.length);
+        aHref = pas.System.Copy(aHref,0,pas.System.Pos(")",aHref) - 1);
+        aHref = ("\/icons\/" + aHref) + ".png";
+        images.item(i).setAttribute("src",aHref);
+      } catch ($e) {
+      };
+    };
+    anchors = elem.getElementsByTagName("a");
+    for (var $l3 = 0, $end4 = anchors.length - 1; $l3 <= $end4; $l3++) {
+      i = $l3;
       try {
         aHref = anchors[i].href;
         if ((pas.System.Pos("@",aHref) > 0) && (pas.System.Copy(aHref,0,4) === "http")) {
@@ -21419,8 +21432,8 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
             aParam = jtmp.split(",");
             aId = pas.System.Copy(aId,0,pas.System.Pos("(",aId) - 1);
             aParams = "";
-            for (var $l3 = 0, $end4 = rtl.length(aParam) - 1; $l3 <= $end4; $l3++) {
-              a = $l3;
+            for (var $l5 = 0, $end6 = rtl.length(aParam) - 1; $l5 <= $end6; $l5++) {
+              a = $l5;
               aParams = (aParams + aParam[a]) + "&";
             };
             aParams = pas.System.Copy(aParams,0,aParams.length - 1);
@@ -21647,7 +21660,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       for (var $l1 = 0, $end2 = History.length - 1; $l1 <= $end2; $l1++) {
         i = $l1;
         nEntry = new Array();
-        nEntry.push(rtl.getObject(History[i])["ACTIONICON"]);
+        nEntry.push(("\/icons\/" + ("" + rtl.getObject(History[i])["ACTIONICON"])) + ".png");
         nEntry.push(pas.SysUtils.StringReplace("" + rtl.getObject(History[i])["ACTION"],"\r","<br>",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll)));
         nEntry.push(rtl.getObject(History[i])["REFERENCE"]);
         nEntry.push(rtl.getObject(History[i])["CHANGEDBY"]);
@@ -21813,6 +21826,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.gHistory = rtl.getObject(Self.Tabs.cells("history").attachGrid(pas.JS.New([])));
         Self.gHistory.setHeader("Icon,Eintrag,Referenz,ersteller,Datum");
         Self.gHistory.setColumnIds("ACTIONICON,ACTION,REFERENCE,CHANGEDDBY,DATE");
+        Self.gHistory.setImagesPath("\/images\/");
+        Self.gHistory.setColTypes("img,txt,txt,txt,txt");
         Self.gHistory.setInitWidths("30,*,100,80,120");
         Self.gHistory.enableMultiline(true);
         Self.gHistory.enableAutoWidth(true);

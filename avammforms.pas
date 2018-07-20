@@ -179,7 +179,7 @@ begin
   for i := 0 to History.Length-1 do
     begin
       nEntry := TJSArray.new;
-      nEntry.push(TJSObject(History[i]).Properties['ACTIONICON']);
+      nEntry.push('/icons/'+string(TJSObject(History[i]).Properties['ACTIONICON'])+'.png');
       nEntry.push(stringreplace(string(TJSObject(History[i]).Properties['ACTION']),#13,'<br>',[rfReplaceAll]));
       nEntry.push(TJSObject(History[i]).Properties['REFERENCE']);
       nEntry.push(TJSObject(History[i]).Properties['CHANGEDBY']);
@@ -390,6 +390,8 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     gHistory := TDHTMLXGrid(Tabs.cells('history').attachGrid(js.new([])));
     gHistory.setHeader('Icon,Eintrag,Referenz,ersteller,Datum');
     gHistory.setColumnIds('ACTIONICON,ACTION,REFERENCE,CHANGEDDBY,DATE');
+    gHistory.setImagesPath('/images/');
+    gHistory.setColTypes('img,txt,txt,txt,txt');
     gHistory.setInitWidths('30,*,100,80,120');
     gHistory.enableMultiline(true);
     gHistory.enableAutoWidth(true);

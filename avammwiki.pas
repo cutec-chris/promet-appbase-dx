@@ -55,7 +55,7 @@ begin
 end;
 procedure FixWikiContent(elem : TJSHTMLElement;aForm : JSValue);
 var
-  anchors: TJSHTMLCollection;
+  anchors, images: TJSHTMLCollection;
   oldLink, aTable, aId, aParams, aHref: string;
   i, a: Integer;
   jtmp: TJSString;
@@ -70,6 +70,18 @@ begin
     end;
   except
   end;
+  images := elem.getElementsByTagName('img');
+  for i := 0 to images.length-1 do
+    begin
+      try
+        aHref := TJSHTMLElement(images[i]).getAttribute('src');
+        aHref:=copy(aHref,pos('(',aHref)+1,length(aHref));
+        aHref:=copy(aHref,0,pos(')',aHref)-1);
+        aHref:='/icons/'+aHref+'.png';
+        TJSHTMLElement(images[i]).setAttribute('src',aHref);
+      except
+      end;
+    end;
   anchors := elem.getElementsByTagName('a');
   for i := 0 to anchors.length-1 do
     begin
