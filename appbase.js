@@ -10868,7 +10868,9 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
     };
   };
   this.InitWindow = function (aWindow) {
-    aWindow.onerror = $impl.WindowError;
+    aWindow.addEventListener("error",function (err) {
+      return $impl.WindowError(err);
+    });
     aWindow.addEventListener("unhandledrejection", function(err, promise) {
       $impl.WindowError(err);
     });
@@ -22421,8 +22423,8 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtm
   this.DoHandleException = function (aName) {
     function ShowError(aValue) {
       var Result = undefined;
-      if ((aName.reason)&&(aName.reason.fMessage)) aName = aName.reason.fMessage;
-      if ((aName.reason)&&(aName.reason.message)) aName = aName.reason.message;
+      if (aName.error) aName = aName.error;
+      if (aName.reason) aName = aName.reason;
       if ((aName.fMessage)) aName = aName.fMessage;
       dhtmlx.message(pas.JS.New(["type","error","text",aName]));
       return Result;

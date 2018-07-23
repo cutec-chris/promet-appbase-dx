@@ -56,8 +56,8 @@ procedure DoHandleException(aName: JSValue);
   function ShowError(aValue: JSValue): JSValue;
   begin
     asm
-      if ((aName.reason)&&(aName.reason.fMessage)) aName = aName.reason.fMessage;
-      if ((aName.reason)&&(aName.reason.message)) aName = aName.reason.message;
+      if (aName.error) aName = aName.error;
+      if (aName.reason) aName = aName.reason;
       if ((aName.fMessage)) aName = aName.fMessage;
     end;
     dhtmlx.message(js.new(['type','error',

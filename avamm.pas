@@ -410,15 +410,17 @@ begin
   end;
   CheckLogin;
 end;
-function WindowError(aEvent : TJSErrorEvent) : boolean;
+function WindowError(aEvent : JSValue) : boolean;
 begin
   if OnException<>nil then
     OnException(aEvent);
 end;
 procedure InitWindow(aWindow : TJSWindow);
 begin
-  aWindow.onerror:=@WindowError;
   asm
+  aWindow.addEventListener("error",function (err) {
+    return $impl.WindowError(err);
+  });
   aWindow.addEventListener("unhandledrejection", function(err, promise) {
     $impl.WindowError(err);
   });
