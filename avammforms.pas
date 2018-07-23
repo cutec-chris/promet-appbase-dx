@@ -179,7 +179,7 @@ begin
   for i := 0 to History.Length-1 do
     begin
       nEntry := TJSArray.new;
-      nEntry.push('/icons/'+string(TJSObject(History[i]).Properties['ACTIONICON'])+'.png');
+      nEntry.push(GetBaseUrl+'/icons/'+string(TJSObject(History[i]).Properties['ACTIONICON'])+'.png');
       nEntry.push(stringreplace(string(TJSObject(History[i]).Properties['ACTION']),#13,'<br>',[rfReplaceAll]));
       nEntry.push(TJSObject(History[i]).Properties['REFERENCE']);
       nEntry.push(TJSObject(History[i]).Properties['CHANGEDBY']);

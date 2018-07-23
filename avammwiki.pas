@@ -79,7 +79,7 @@ begin
         aHref := TJSHTMLElement(images[i]).getAttribute('src');
         aHref:=copy(aHref,pos('(',aHref)+1,length(aHref));
         aHref:=copy(aHref,0,pos(')',aHref)-1);
-        aHref:='/icons/'+aHref+'.png';
+        aHref:=GetBaseUrl+'/icons/'+aHref+'.png';
         TJSHTMLElement(images[i]).setAttribute('src',aHref);
       except
       end;

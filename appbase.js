@@ -10684,7 +10684,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
       if (($mod.AvammLogin !== "") && !IgnoreLogin) {
         req.setRequestHeader("Authorization","Basic " + $mod.AvammLogin);
       };
-      req.overrideMimeType(Datatype);
+      if (Datatype !== "") req.overrideMimeType(Datatype);
       req.timeout = Timeout - 100;
       req.addEventListener("load",DoOnLoad);
       req.addEventListener("error",DoOnError);
@@ -10786,7 +10786,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
             } else reject(aValue);
             return Result;
           };
-          $mod.LoadData("\/configuration\/userstatus",false,"text\/json",6000).then(CheckRightsData);
+          $mod.LoadData("\/configuration\/userstatus",false,"",6000).then(CheckRightsData);
         };
         function DoLogout(aValue) {
           var Result = undefined;
@@ -10804,7 +10804,7 @@ rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],functi
         Result = (new Promise(CatchRights)).then(SetupUser).catch(DoLogout);
         return Result;
       };
-      Result = Promise.all([$mod.LoadData("\/configuration\/status",false,"text\/json",6000).then(CheckStatus).then(GetLoginData).then(GetRights)]);
+      Result = Promise.all([$mod.LoadData("\/configuration\/status",false,"",6000).then(CheckStatus).then(GetLoginData).then(GetRights)]);
     };
     Result = new Promise(IntDoCheckLogin);
     return Result;
@@ -21366,6 +21366,11 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       pas.ExtJSDataset.TExtJSJSONDataSet.InitDateTimeFields.call(this);
       if (this.FFieldDefsLoaded != null) this.FFieldDefsLoaded(this);
     };
+    this.DoResolveRecordUpdate = function (anUpdate) {
+      var Result = false;
+      Result = true;
+      return Result;
+    };
     this.Create$5 = function (AOwner, aDataSet) {
       pas.ExtJSDataset.TExtJSJSONDataSet.Create$1.call(this,AOwner);
       this.FDataSetName = aDataSet;
@@ -21781,7 +21786,7 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
       return Result;
     };
     var DataLoaded = null;
-    pas.Avamm.LoadData("\/wiki\/" + ("" + pas.Avamm.UserOptions["startpage"]),false,"text\/json",6000).then(FillWiki);
+    pas.Avamm.LoadData("\/wiki\/" + ("" + pas.Avamm.UserOptions["startpage"]),false,"",6000).then(FillWiki);
   };
   this.FixWikiContent = function (elem, aForm) {
     var anchors = null;
@@ -21809,7 +21814,7 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
         aHref = images.item(i).getAttribute("src");
         aHref = pas.System.Copy(aHref,pas.System.Pos("(",aHref) + 1,aHref.length);
         aHref = pas.System.Copy(aHref,0,pas.System.Pos(")",aHref) - 1);
-        aHref = ("\/icons\/" + aHref) + ".png";
+        aHref = ((pas.Avamm.GetBaseUrl() + "\/icons\/") + aHref) + ".png";
         images.item(i).setAttribute("src",aHref);
       } catch ($e) {
       };
@@ -22063,7 +22068,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       for (var $l1 = 0, $end2 = History.length - 1; $l1 <= $end2; $l1++) {
         i = $l1;
         nEntry = new Array();
-        nEntry.push(("\/icons\/" + ("" + rtl.getObject(History[i])["ACTIONICON"])) + ".png");
+        nEntry.push(((pas.Avamm.GetBaseUrl() + "\/icons\/") + ("" + rtl.getObject(History[i])["ACTIONICON"])) + ".png");
         nEntry.push(pas.SysUtils.StringReplace("" + rtl.getObject(History[i])["ACTION"],"\r","<br>",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll)));
         nEntry.push(rtl.getObject(History[i])["REFERENCE"]);
         nEntry.push(rtl.getObject(History[i])["CHANGEDBY"]);
@@ -22155,8 +22160,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
       function ItemLoaded2(aValue) {
         var Result = undefined;
-        Self.WikiLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/.json",false,"text\/json",6000).then(AddWiki).catch(WikiCouldntbeLoaded);
-        Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/reports\/.json",false,"text\/json",6000).then(AddReports).catch(ReportsCouldntbeLoaded);
+        Self.WikiLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/.json",false,"",6000).then(AddWiki).catch(WikiCouldntbeLoaded);
+        Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/reports\/.json",false,"",6000).then(AddReports).catch(ReportsCouldntbeLoaded);
         try {
           Self.DoLoadData();
         } catch ($e) {
@@ -22237,7 +22242,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.gHistory.enableKeyboardSupport(true);
         Self.gHistory.init();
         Self.Layout.progressOn();
-        pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json?mode=extjs",false,"text\/json",6000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
+        pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json?mode=extjs",false,"",6000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
         return Result;
       };
       Self.FWindow = null;
