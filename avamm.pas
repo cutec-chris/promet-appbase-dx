@@ -10,7 +10,7 @@ uses
 type TJSValueCallback = procedure(aName : JSValue);
 
 procedure RegisterSidebarRoute(aName,Route : string;Event : TRouteEvent;Icon : string = '');
-function LoadData(url : string;IgnoreLogin : Boolean = False;Datatype : string = 'text/json';Timeout : Integer = 6000) : TJSPromise;
+function LoadData(url : string;IgnoreLogin : Boolean = False;Datatype : string = '';Timeout : Integer = 6000) : TJSPromise;
 procedure WaitForAssigned(name : string; callback : TJSValueCallback);
 function CheckLogin : TJSPromise;
 function Wait(ms : NativeInt) : TJSPromise;
@@ -294,7 +294,8 @@ function LoadData(url: string; IgnoreLogin: Boolean; Datatype: string;
       begin
         req.setRequestHeader('Authorization','Basic ' + Avamm.AvammLogin);
       end;
-    req.overrideMimeType(Datatype);
+    if Datatype<>'' then
+      req.overrideMimeType(Datatype);
     req.timeout:=Timeout-100;
     req.addEventListener('load',@DoOnLoad);
     req.addEventListener('error',@DoOnError);
