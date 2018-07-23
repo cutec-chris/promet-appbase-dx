@@ -22,6 +22,7 @@ type
   Protected
     Function DoGetDataProxy: TDataProxy; override;
     procedure InitDateTimeFields; override;
+    function DoResolveRecordUpdate(anUpdate: TRecordUpdateDescriptor): Boolean; override;
   Public
     constructor Create(AOwner: TComponent;aDataSet : string);
     property Url : string read GetUrl;
@@ -254,6 +255,12 @@ begin
   inherited InitDateTimeFields;
   if Assigned(FFieldDefsLoaded) then
     FFieldDefsLoaded(Self);
+end;
+
+function TAvammDataset.DoResolveRecordUpdate(anUpdate: TRecordUpdateDescriptor
+  ): Boolean;
+begin
+  Result:=True;
 end;
 
 constructor TAvammDataset.Create(AOwner: TComponent; aDataSet: string);
