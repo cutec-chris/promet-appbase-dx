@@ -21623,6 +21623,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       var aProps = [];
       var i = 0;
       var aField = null;
+      var aPropType = "";
       this.GetDataset().DisableControls();
       try {
         Result = false;
@@ -21640,7 +21641,12 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
           i = $l1;
           aField = this.GetDataset().FFieldList.FindField(aProps[i]);
           if (aField != null) {
-            if ((data[aProps[i]] != aField.GetAsJSValue()) && !((data[aProps[i]] == "") && aField.GetIsNull())) aField.SetAsJSValue(data[aProps[i]]);
+            if ((data[aProps[i]] != aField.GetAsJSValue()) && !((data[aProps[i]] == "") && aField.GetIsNull())) {
+              aPropType = typeof(data[aProps[i]]);
+              if ((aField.FFieldDef.FDataType === pas.DB.TFieldType.ftString) || (aPropType === "string")) {
+                aField.SetEditText("" + data[aProps[i]])}
+               else aField.SetAsJSValue(data[aProps[i]]);
+            };
           } else pas.System.Writeln(("Field " + aProps[i]) + " not found !");
         };
       } finally {
