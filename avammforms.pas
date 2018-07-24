@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils,js,web, AvammDB, dhtmlx_form, dhtmlx_toolbar,dhtmlx_grid,
   dhtmlx_layout,dhtmlx_popup, dhtmlx_db,dhtmlx_base,dhtmlx_windows,dhtmlx_tabbar,
-  webrouter, db, Avamm;
+  AvammRouter,webrouter, db, Avamm;
 
 type
 
@@ -197,9 +197,17 @@ begin
 end;
 
 function TAvammForm.DoClose: Boolean;
+var
+  tmp: String;
 begin
-  if pos(string(Id),Router.GetCurrentLocation)>0 then
-    Router.Push('/');
+  try
+    if pos(string(Id),THashHistory(Router.History).getHash)>0 then
+      begin
+        tmp := copy(THashHistory(Router.History).getHash,0,pos('/',copy(THashHistory(Router.History).getHash,2,255))+1);
+        THashHistory(Router.History).replaceHash('');
+      end;
+  except
+  end;
   Result := True;
 end;
 

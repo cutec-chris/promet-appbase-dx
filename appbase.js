@@ -10572,6 +10572,33 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
   };
   $mod.$resourcestrings = {EDuplicateRoute: {org: "Duplicate route pattern: %s"}, EDuplicateDefaultRoute: {org: "Duplicate default route registered with pattern: %s"}};
 });
+rtl.module("AvammRouter",["System","Classes","SysUtils","webrouter"],function () {
+  "use strict";
+  var $mod = this;
+  rtl.createClass($mod,"TAvammRouter",pas.webrouter.TRouter,function () {
+    this.DoRouteRequest = function (ARoute, AURL, AParams) {
+      var Result = null;
+      try {
+        Result = ARoute;
+        if (Result != null) {
+          Result.HandleRequest(this,AURL,AParams)}
+         else if (AURL !== "\/") throw pas.SysUtils.Exception.$create("Create$1",[rtl.getResStr(pas.AvammRouter,"strRouteNotFound")]);
+      } catch ($e) {
+        throw pas.SysUtils.Exception.$create("Create$1",[rtl.getResStr(pas.AvammRouter,"strRouteNotFound")]);
+      };
+      return Result;
+    };
+  });
+  this.Router = function () {
+    var Result = null;
+    Result = $mod.TAvammRouter.Service();
+    return Result;
+  };
+  $mod.$resourcestrings = {strRouteNotFound: {org: "Das gewählt Objekt wurde nicht gwfunden, oder Sie besitzen nicht die nötigen rechte um es zu sehen !"}};
+  $mod.$init = function () {
+    $mod.Router().$class.SetServiceClass($mod.TAvammRouter);
+  };
+});
 rtl.module("dhtmlx_form",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
@@ -10641,7 +10668,7 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
     $mod.WidgetsetLoaded = Promise.all([new Promise(DoLoadDHTMLX),new Promise(DoLoadCSS)]);
   };
 });
-rtl.module("Avamm",["System","JS","Web","webrouter","Classes","SysUtils"],function () {
+rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","SysUtils"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
@@ -21868,7 +21895,7 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
     };
   };
 });
-rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","dhtmlx_base","dhtmlx_windows","dhtmlx_tabbar","webrouter","DB","Avamm"],function () {
+rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","dhtmlx_base","dhtmlx_windows","dhtmlx_tabbar","AvammRouter","webrouter","DB","Avamm"],function () {
   "use strict";
   var $mod = this;
   rtl.createClass($mod,"TAvammContentForm",pas.System.TObject,function () {
@@ -22091,7 +22118,14 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     };
     this.DoClose = function () {
       var Result = false;
-      if (pas.System.Pos("" + this.FID,pas.webrouter.Router().GetCurrentLocation()) > 0) pas.webrouter.Router().Push("\/");
+      var tmp = "";
+      try {
+        if (pas.System.Pos("" + this.FID,pas.webrouter.Router().GetHistory().$class.getHash()) > 0) {
+          tmp = pas.System.Copy(pas.webrouter.Router().GetHistory().$class.getHash(),0,pas.System.Pos("\/",pas.System.Copy(pas.webrouter.Router().GetHistory().$class.getHash(),2,255)) + 1);
+          pas.webrouter.Router().GetHistory().$class.replaceHash("");
+        };
+      } catch ($e) {
+      };
       Result = true;
       return Result;
     };
@@ -22393,7 +22427,7 @@ rtl.module("dhtmlx_carousel",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
 });
-rtl.module("program",["System","JS","Web","Classes","SysUtils","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_calendar","dhtmlx_carousel"],function () {
+rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_calendar","dhtmlx_carousel"],function () {
   "use strict";
   var $mod = this;
   this.LoadEnviroment = true;
