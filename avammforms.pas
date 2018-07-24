@@ -42,6 +42,7 @@ type
     procedure SwitchProgressOff(DataSet: TDataSet; Data: JSValue);
   protected
     procedure DoRowDblClick;virtual;
+    procedure ToolbarButtonClick(id : string);virtual;
   public
     Page : TDHTMLXLayout;
     Toolbar : TDHTMLXToolbar;
@@ -553,14 +554,6 @@ end;
 
 constructor TAvammListForm.Create(aParent: TJSElement; aDataSet: string;
   aPattern: string);
-  procedure ButtonClick(id : string);
-  begin
-    if (id='new') then
-      begin
-      end
-    else if (id='refresh') then
-      RefreshList;
-  end;
   procedure FilterStart(indexes,values : TJSArray);
   var
     i: Integer;
@@ -616,7 +609,7 @@ begin
                                                        'iconset','awesome'])));
   Toolbar.addButton('refresh',0,'','fa fa-refresh','fa fa-refresh');
   Toolbar.setItemToolTip('refresh',strRefresh);
-  Toolbar.attachEvent('onClick', @ButtonClick);
+  Toolbar.attachEvent('onClick', @ToolbarButtonClick);
   Toolbar.attachEvent('onStateChange', @StateChange);
   FTableName:=aDataSet;
   Grid := TDHTMLXGrid(Page.cells('a').attachGrid(js.new([])));
@@ -650,6 +643,15 @@ end;
 procedure TAvammListForm.DoRowDblClick;
 begin
   router.Push(FTableName+'/by-id/'+string(Grid.getSelectedRowId())+'/');
+end;
+
+procedure TAvammListForm.ToolbarButtonClick(id: string);
+begin
+  if (id='new') then
+    begin
+    end
+  else if (id='refresh') then
+    RefreshList;
 end;
 
 procedure TAvammListForm.FDataSetLoadFail(DataSet: TDataSet; ID: Integer;

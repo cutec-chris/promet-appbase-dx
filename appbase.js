@@ -21968,12 +21968,12 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.DoRowDblClick = function () {
       pas.webrouter.Router().Push(((this.FTableName + "\/by-id\/") + ("" + this.Grid.getSelectedRowId())) + "\/");
     };
+    this.ToolbarButtonClick = function (id) {
+      if (id === "new") {}
+      else if (id === "refresh") this.RefreshList();
+    };
     this.Create$2 = function (aParent, aDataSet, aPattern) {
       var Self = this;
-      function ButtonClick(id) {
-        if (id === "new") {}
-        else if (id === "refresh") Self.RefreshList();
-      };
       function FilterStart(indexes, values) {
         var i = 0;
         Self.FOldFilter = "";
@@ -22017,7 +22017,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.Toolbar = rtl.getObject(Self.Page.cells("a").attachToolbar(pas.JS.New(["parent",Self.Page,"iconset","awesome"])));
       Self.Toolbar.addButton("refresh",0,"","fa fa-refresh","fa fa-refresh");
       Self.Toolbar.setItemToolTip("refresh",rtl.getResStr(pas.AvammForms,"strRefresh"));
-      Self.Toolbar.attachEvent("onClick",ButtonClick);
+      Self.Toolbar.attachEvent("onClick",rtl.createCallback(Self,"ToolbarButtonClick"));
       Self.Toolbar.attachEvent("onStateChange",StateChange);
       Self.FTableName = aDataSet;
       Self.Grid = rtl.getObject(Self.Page.cells("a").attachGrid(pas.JS.New([])));
