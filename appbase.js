@@ -22117,10 +22117,21 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
        else rtl.getObject(this.FWindow).setText(aTitle);
     };
     this.DoClose = function () {
+      var Self = this;
       var Result = false;
       var tmp = "";
+      function IntDoSave(aValue) {
+        var Result = undefined;
+        Self.DoSave();
+        return Result;
+      };
+      function IntDoNothing(aValue) {
+        var Result = undefined;
+        return Result;
+      };
+      $mod.CheckSaved(Self.Toolbar).then(IntDoSave).catch(IntDoNothing);
       try {
-        if (pas.System.Pos("" + this.FID,pas.webrouter.Router().GetHistory().$class.getHash()) > 0) {
+        if (pas.System.Pos("" + Self.FID,pas.webrouter.Router().GetHistory().$class.getHash()) > 0) {
           tmp = pas.System.Copy(pas.webrouter.Router().GetHistory().$class.getHash(),0,pas.System.Pos("\/",pas.System.Copy(pas.webrouter.Router().GetHistory().$class.getHash(),2,255)) + 1);
           pas.webrouter.Router().GetHistory().$class.replaceHash("");
         };
@@ -22129,12 +22140,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Result = true;
       return Result;
     };
-    this.Create$1 = function (mode, aDataSet, Id, Params) {
+    this.Refresh = function () {
       var Self = this;
-      function ToolbarButtonClick(id) {
-        if (id === "save") {}
-        else if (id === "abort") ;
-      };
       function AddReports(aValue) {
         var Result = undefined;
         var i = 0;
@@ -22191,7 +22198,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
           aName = "" + rtl.getObject(Wiki[i])["name"];
           aExt = pas.System.Copy(aName,pas.System.Pos(".",aName) + 1,aName.length);
           if (aExt === "html") {
-            pas.Avamm.LoadData((((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/") + aName,false,"text\/html",7000).then(WikiFormLoaded);
+            pas.Avamm.LoadData((((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/") + aName,false,"text\/html",7000).then(WikiFormLoaded);
           };
         };
         return Result;
@@ -22202,8 +22209,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
       function ItemLoaded2(aValue) {
         var Result = undefined;
-        Self.WikiLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/.json",false,"",6000).then(AddWiki).catch(WikiCouldntbeLoaded);
-        Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/reports\/.json",false,"",6000).then(AddReports).catch(ReportsCouldntbeLoaded);
+        Self.WikiLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/.json",false,"",6000).then(AddWiki).catch(WikiCouldntbeLoaded);
+        Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/reports\/.json",false,"",6000).then(AddReports).catch(ReportsCouldntbeLoaded);
         try {
           Self.DoLoadData();
         } catch ($e) {
@@ -22242,6 +22249,19 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
           rtl.getObject(Self.FWindow).close()}
          else rtl.getObject(Self.FWindow).close();
         return Result;
+      };
+      pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/item.json?mode=extjs",false,"",6000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
+    };
+    this.DoSave = function () {
+    };
+    this.Create$1 = function (mode, aDataSet, Id, Params) {
+      var Self = this;
+      function ToolbarButtonClick(id) {
+        if (id === "save") {
+          Self.DoSave();
+        } else if (id === "abort") {
+          Self.Refresh();
+        };
       };
       function WindowCreated(Event) {
         var Result = false;
@@ -22284,7 +22304,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.gHistory.enableKeyboardSupport(true);
         Self.gHistory.init();
         Self.Layout.progressOn();
-        pas.Avamm.LoadData(((("\/" + aDataSet) + "\/by-id\/") + ("" + Id)) + "\/item.json?mode=extjs",false,"",6000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
+        Self.Refresh();
         return Result;
       };
       Self.FWindow = null;
@@ -22409,7 +22429,22 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
     };
   });
-  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}, strFilterTT: {org: "Filter an\/auschalten"}, strHistory: {org: "Verlauf"}};
+  this.CheckSaved = function (Toolbar) {
+    var Result = null;
+    function CheckPromise(resolve, reject) {
+      function DoCheckIt(par) {
+        if (par) {
+          resolve(true)}
+         else reject(false);
+      };
+      if (Toolbar.isEnabled("save")) {
+        dhtmlx.message(pas.JS.New(["type","confirm","text",rtl.getResStr(pas.AvammForms,"strReallyCancel"),"cancel",rtl.getResStr(pas.AvammForms,"strNo"),"ok",rtl.getResStr(pas.AvammForms,"strYes"),"callback",DoCheckIt]));
+      } else resolve(true);
+    };
+    Result = new Promise(CheckPromise);
+    return Result;
+  };
+  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}, strFilterTT: {org: "Filter an\/auschalten"}, strHistory: {org: "Verlauf"}, strReallyCancel: {org: "Änderungen verwerfen ?"}, strYes: {org: "Ja"}, strNo: {org: "Nein"}, strNew: {org: "Neu"}};
 },["AvammWiki"]);
 rtl.module("dhtmlx_calendar",["System","JS","Web","SysUtils"],function () {
   "use strict";

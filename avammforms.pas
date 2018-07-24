@@ -80,6 +80,8 @@ type
     procedure DoLoadHistory;
     procedure SetTitle(aTitle : string);
     function DoClose : Boolean;
+    procedure Refresh;virtual;
+    procedure DoSave;virtual;
   public
     BaseId : JSValue;
     Reports: TJSArray;
@@ -117,6 +119,8 @@ type
     property OnDblClick : TNotifyEvent read FDblClick write FDblClick;
   end;
 
+  function CheckSaved(Toolbar : TDHTMLXToolbar) : TJSPromise;
+
 resourcestring
   strRefresh                   = 'Aktualisieren';
   strLoadingFailed             = 'Fehler beim laden von Daten vom Server';
@@ -132,10 +136,39 @@ resourcestring
   strPrint                     = 'Drucken';
   strFilterTT                  = 'Filter an/auschalten';
   strHistory                   = 'Verlauf';
+  strReallyCancel              = 'Änderungen verwerfen ?';
+  strYes                       = 'Ja';
+  strNo                        = 'Nein';
+  strNew                       = 'Neu';
 
 implementation
 
 uses AvammWiki;
+
+function CheckSaved(Toolbar : TDHTMLXToolbar) : TJSPromise;
+  procedure CheckPromise(resolve, reject: TJSPromiseResolver);
+    procedure DoCheckIt(par : Boolean);
+    begin
+      if par then
+        resolve(true)
+      else reject(false);
+    end;
+  begin
+    if Toolbar.isEnabled('save') then
+      begin
+        dhtmlx.message(js.new(['type','confirm',
+                               'text',strReallyCancel,
+                               'cancel',strNo,
+                               'ok',strYes,
+                               'callback',@DoCheckIt]));
+      end
+    else
+      resolve(True);
+  end;
+
+begin
+  Result := TJSPromise.new(@CheckPromise);
+end;
 
 { TAvammContentForm }
 
@@ -200,7 +233,15 @@ end;
 function TAvammForm.DoClose: Boolean;
 var
   tmp: String;
+  function IntDoSave(aValue: JSValue): JSValue;
+  begin
+    DoSave;
+  end;
+  function IntDoNothing(aValue: JSValue): JSValue;
+  begin
+  end;
 begin
+  CheckSaved(Toolbar)._then(@IntDoSave).catch(@IntDoNothing);
   try
     if pos(string(Id),THashHistory(Router.History).getHash)>0 then
       begin
@@ -212,17 +253,7 @@ begin
   Result := True;
 end;
 
-constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
-  Id: JSValue;Params : string = '');
-  procedure ToolbarButtonClick(id : string);
-  begin
-    if (id='save') then
-      begin
-      end
-    else if (id='abort') then
-      begin
-      end;
-  end;
+procedure TAvammForm.Refresh;
   function AddReports(aValue: TJSXMLHttpRequest): JSValue;
   var
     i: Integer;
@@ -341,6 +372,29 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
       TJSWindow(FWindow).close
     else TDHTMLXWindowsCell(FWindow).close;
   end;
+begin
+  Avamm.LoadData('/'+FTablename+'/by-id/'+string(Id)+'/item.json?mode=extjs')._then(@ItemLoaded)
+                                                                .catch(@ItemLoadError)
+                                                                ._then(@ItemLoaded2);
+end;
+
+procedure TAvammForm.DoSave;
+begin
+end;
+
+constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
+  Id: JSValue;Params : string = '');
+  procedure ToolbarButtonClick(id : string);
+  begin
+    if (id='save') then
+      begin
+        DoSave;
+      end
+    else if (id='abort') then
+      begin
+        Refresh;
+      end;
+  end;
   function WindowCreated(Event: TEventListenerEvent): boolean;
   var
     a, b: TDHTMLXLayoutCell;
@@ -407,9 +461,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     gHistory.enableKeyboardSupport(true);
     gHistory.init();
     Layout.progressOn;
-    Avamm.LoadData('/'+aDataSet+'/by-id/'+string(Id)+'/item.json?mode=extjs')._then(@ItemLoaded)
-                                                                  .catch(@ItemLoadError)
-                                                                  ._then(@ItemLoaded2);
+    Refresh;
   end;
 begin
   //Create Window/Tab
