@@ -22465,6 +22465,7 @@ rtl.module("dhtmlx_carousel",["System","JS","Web"],function () {
 rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_calendar","dhtmlx_carousel"],function () {
   "use strict";
   var $mod = this;
+  this.MobileCellWidth = 700;
   this.LoadEnviroment = true;
   this.Treeview = null;
   this.Layout = null;
@@ -22488,6 +22489,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
     var aData = null;
     aData = rtl.getObject($mod.Treeview.getUserData(aItem,"route"));
     if (pas.webrouter.Router().GetHistory().$class.getHash() !== aData.FURLPattern) pas.webrouter.Router().Push(aData.FURLPattern);
+    if (window.document.body.clientWidth <= 700) $mod.Layout.cells("a").collapse();
   };
   this.OnReady = function (Sender, aLocation, aRoute) {
     try {

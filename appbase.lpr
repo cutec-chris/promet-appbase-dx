@@ -3,6 +3,9 @@ program appbase;
     dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, dhtmlx_base, AvammForms,
     dhtmlx_calendar,dhtmlx_carousel;
 
+const
+  MobileCellWidth = 700;
+
 var
   LoadEnviroment : Boolean = True;
   Treeview: TDHTMLXTreeview;
@@ -43,6 +46,8 @@ begin
   aData := TRoute(Treeview.getUserData(aItem,'route'));
   if THashHistory(Router.History).getHash<>aData.URLPattern then
     Router.Push(aData.URLPattern);
+  if window.document.body.clientWidth<=MobileCellWidth then
+    Layout.cells('a').collapse;
 end;
 procedure OnReady(Sender: THistory; aLocation: String; aRoute: TRoute);
 begin
@@ -121,7 +126,7 @@ var
         end;
       end;
     FindRouteLast := window.setTimeout(@FindInitRoute,100);
-    if window.document.body.clientWidth > 700 then
+    if window.document.body.clientWidth > MobileCellWidth then
       Layout.cells('a').expand;
   end;
   function LoginFailed(aValueE: JSValue): JSValue;
