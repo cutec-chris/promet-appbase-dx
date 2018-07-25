@@ -97,10 +97,6 @@ var
     end;
     procedure ModuleLoaded(aObj : JSValue);
     begin
-      asm
-        console.log(aObj);
-        rtl.run(aObj.target.id.split("/")[0]);
-      end;
       if not InitRouteFound then
         if THashHistory(Router.History).getHash<>'' then
           if Router.FindHTTPRoute(THashHistory(Router.History).getHash,nil) <> nil then
@@ -121,7 +117,7 @@ var
         aRight := string(TJSObject.getOwnPropertyNames(TJSObject(aRights[i]))[0]);
         try
           if Integer(TJSObject(aRights[i]).Properties[aRight])>=0 then
-            AppendJS(lowercase(aRight)+'/'+lowercase(aRight)+'.js',@ModuleLoaded,null);
+            LoadModule(lowercase(aRight),@ModuleLoaded);
         except
         end;
       end;

@@ -11,6 +11,7 @@ type TJSValueCallback = procedure(aName : JSValue);
 
 procedure RegisterSidebarRoute(aName,Route : string;Event : TRouteEvent;Icon : string = '');
 function LoadData(url : string;IgnoreLogin : Boolean = False;Datatype : string = '';Timeout : Integer = 6000) : TJSPromise;
+procedure LoadModule(aName : string;DoAfter : JSValue = nil);
 procedure WaitForAssigned(name : string; callback : TJSValueCallback);
 function CheckLogin : TJSPromise;
 function Wait(ms : NativeInt) : TJSPromise;
@@ -116,7 +117,11 @@ function CheckLogin : TJSPromise;
         200:
           begin
             reject(TJSError.new(strServerMustbeConfigured));
-            window.location.href:='config/install.html';
+            LoadModule('config');
+            try
+              TJSHTMLElement(document.getElementById('pStatusHint')).style.setProperty('display','none');
+            except
+            end;
           end;
         0:
           begin
@@ -334,6 +339,20 @@ function Wait(ms : NativeInt) : TJSPromise;
 begin
   Result := TJSPromise.New(@doTimeOut);
 end;
+
+procedure LoadModule(aName: string;DoAfter : JSValue);
+  procedure ModuleLoaded(aObj : JSValue);
+  begin
+    asm
+      console.log(aObj);
+      rtl.run(aObj.target.id.split("/")[0]);
+      if (DoAfter) DoAfter;
+    end;
+  end;
+begin
+  AppendJS(lowercase(aName)+'/'+lowercase(aName)+'.js',@ModuleLoaded,null);
+end;
+
 procedure WaitForAssigned(name : string; callback : TJSValueCallback);
 var
   interval : Integer = 10;

@@ -10725,6 +10725,14 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
     Result = requestPromise.then(ReturnResult).catch(ReturnResult);
     return Result;
   };
+  this.LoadModule = function (aName, DoAfter) {
+    function ModuleLoaded(aObj) {
+      console.log(aObj);
+      rtl.run(aObj.target.id.split("/")[0]);
+      if (DoAfter) DoAfter;
+    };
+    pas.dhtmlx_base.AppendJS(((pas.SysUtils.LowerCase(aName) + "\/") + pas.SysUtils.LowerCase(aName)) + ".js",ModuleLoaded,null);
+  };
   this.WaitForAssigned = function (name, callback) {
     var interval = 10;
     function Check() {
@@ -10749,7 +10757,11 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
             resolve(rtl.getObject(aValue).status)}
            else if ($tmp1 === 200) {
             reject(new Error(rtl.getResStr(pas.Avamm,"strServerMustbeConfigured")));
-            window.location.href = "config\/install.html";
+            $mod.LoadModule("config",null);
+            try {
+              document.getElementById("pStatusHint").style.setProperty("display","none");
+            } catch ($e) {
+            };
           } else if ($tmp1 === 0) {
             reject(new Error(rtl.getResStr(pas.Avamm,"strServerNotRea")));
             window.dispatchEvent(pas.Avamm.ConnectionErrorEvent);
@@ -22524,8 +22536,6 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
         if (!$mod.InitRouteFound) if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") if (pas.webrouter.Router().FindHTTPRoute(pas.webrouter.Router().GetHistory().$class.getHash(),null) !== null) $mod.InitRouteFound = pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash()) === pas.webrouter.TTransitionResult.trOK;
       };
       function ModuleLoaded(aObj) {
-        console.log(aObj);
-        rtl.run(aObj.target.id.split("/")[0]);
         if (!$mod.InitRouteFound) if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") if (pas.webrouter.Router().FindHTTPRoute(pas.webrouter.Router().GetHistory().$class.getHash(),null) !== null) $mod.InitRouteFound = pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash()) === pas.webrouter.TTransitionResult.trOK;
         window.clearTimeout(FindRouteLast);
         if (!$mod.InitRouteFound) FindRouteLast = window.setTimeout(FindInitRoute,100);
@@ -22539,7 +22549,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
         i = $l1;
         aRight = Object.getOwnPropertyNames(rtl.getObject(aRights[i]))[0];
         try {
-          if (Math.floor(rtl.getObject(aRights[i])[aRight]) >= 0) pas.dhtmlx_base.AppendJS(((pas.SysUtils.LowerCase(aRight) + "\/") + pas.SysUtils.LowerCase(aRight)) + ".js",ModuleLoaded,null);
+          if (Math.floor(rtl.getObject(aRights[i])[aRight]) >= 0) pas.Avamm.LoadModule(pas.SysUtils.LowerCase(aRight),ModuleLoaded);
         } catch ($e) {
         };
       };
