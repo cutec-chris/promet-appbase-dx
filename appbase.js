@@ -10647,30 +10647,15 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
       };
       function ScriptErrorJS() {
         $mod.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoadedJS,null);
+        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",null,null);
+        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
       };
       pas.System.Writeln("Loading DHTMLX...");
       $mod.AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoadedJS,ScriptErrorJS);
+      $mod.AppendCSS("appbase\/dhtmlx\/dhtmlx.css",null,null);
+      $mod.AppendCSS("appbase\/dhtmlx\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
     };
-    function DoLoadCSS(resolve, reject) {
-      var ErrTimeout = 0;
-      function ScriptLoadedCSS() {
-        window.clearTimeout(ErrTimeout);
-        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
-        resolve(true);
-      };
-      function ScriptLoadedCSS2() {
-        window.clearTimeout(ErrTimeout);
-        $mod.AppendCSS("appbase\/dhtmlx\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
-        resolve(true);
-      };
-      function ScriptErrorCSS() {
-        window.clearTimeout(ErrTimeout);
-        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoadedCSS,null);
-      };
-      ErrTimeout = window.setTimeout(ScriptErrorCSS,100);
-      $mod.AppendCSS("appbase\/dhtmlx\/dhtmlx.css",ScriptLoadedCSS2,ScriptErrorCSS);
-    };
-    $mod.WidgetsetLoaded = Promise.all([new Promise(DoLoadDHTMLX),new Promise(DoLoadCSS)]);
+    $mod.WidgetsetLoaded = new Promise(DoLoadDHTMLX);
   };
 });
 rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","SysUtils"],function () {
