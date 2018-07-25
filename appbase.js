@@ -10640,30 +10640,30 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
   var $impl = $mod.$impl;
   $impl.LoadDHTMLX = function () {
     function DoLoadDHTMLX(resolve, reject) {
-      function ScriptLoaded() {
+      function ScriptLoadedJS() {
         window.dhx4.skin = 'material';
         pas.System.Writeln("DHTMLX loaded...");
         resolve(true);
       };
-      function ScriptError() {
-        $mod.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoaded,null);
+      function ScriptErrorJS() {
+        $mod.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoadedJS,null);
       };
       pas.System.Writeln("Loading DHTMLX...");
-      $mod.AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoaded,ScriptError);
+      $mod.AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoadedJS,ScriptErrorJS);
     };
     function DoLoadCSS(resolve, reject) {
-      function ScriptLoaded() {
+      function ScriptLoadedCSS() {
         $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
         resolve(true);
       };
-      function ScriptLoaded2() {
+      function ScriptLoadedCSS2() {
         $mod.AppendCSS("appbase\/dhtmlx\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
         resolve(true);
       };
-      function ScriptError() {
-        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoaded,null);
+      function ScriptErrorCSS() {
+        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoadedCSS,null);
       };
-      $mod.AppendCSS("appbase\/dhtmlx\/dhtmlx.css",ScriptLoaded2,ScriptError);
+      $mod.AppendCSS("appbase\/dhtmlx\/dhtmlx.css",ScriptLoadedCSS2,ScriptErrorCSS);
     };
     $mod.WidgetsetLoaded = Promise.all([new Promise(DoLoadDHTMLX),new Promise(DoLoadCSS)]);
   };
