@@ -30,14 +30,10 @@ begin
   LoadData('/wiki/'+string(UserOptions.Properties['startpage']))._then(TJSPromiseResolver(@FillWiki));
 end;
 procedure ShowStartpage;
-  procedure HideElement(currentValue: TJSNode;
-    currentIndex: NativeInt; list: TJSNodeList);
-  begin
-    TJSHTMLElement(currentValue).style.setProperty('display','none');
-  end;
   function DoShowStartpage(aValue: JSValue): JSValue;
   var
     FParent: JSValue;
+    i: Integer;
   begin
     if Layout = nil then
       begin
@@ -47,7 +43,8 @@ procedure ShowStartpage;
         Content := TJSHTMLElement(document.createElement('div'));
         Layout.cells('a').appendObject(Content);
       end;
-    TJSHTMLElement(Avamm.GetAvammContainer()).childNodes.forEach(@HideElement);
+    for i := 0 to TJSHTMLElement(Avamm.GetAvammContainer()).childNodes.length-1 do
+      TJSHTMLElement(TJSHTMLElement(Avamm.GetAvammContainer()).childNodes.item(i)).style.setProperty('display','none');;
     Layout.cont.style.setProperty('display','block');
     Layout.cells('a').progressOn;
   end;

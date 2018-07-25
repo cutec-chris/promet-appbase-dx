@@ -21781,12 +21781,10 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
   this.Layout = null;
   this.Content = null;
   this.ShowStartpage = function () {
-    function HideElement(currentValue, currentIndex, list) {
-      currentValue.style.setProperty("display","none");
-    };
     function DoShowStartpage(aValue) {
       var Result = undefined;
       var FParent = undefined;
+      var i = 0;
       if ($mod.Layout === null) {
         FParent = pas.Avamm.GetAvammContainer();
         $mod.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",FParent,"pattern","1C"]));
@@ -21794,7 +21792,10 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
         $mod.Content = document.createElement("div");
         $mod.Layout.cells("a").appendObject($mod.Content);
       };
-      rtl.getObject(pas.Avamm.GetAvammContainer()).childNodes.forEach(HideElement);
+      for (var $l1 = 0, $end2 = rtl.getObject(pas.Avamm.GetAvammContainer()).childNodes.length - 1; $l1 <= $end2; $l1++) {
+        i = $l1;
+        rtl.getObject(pas.Avamm.GetAvammContainer()).childNodes.item(i).style.setProperty("display","none");
+      };
       $mod.Layout.cont.style.setProperty("display","block");
       $mod.Layout.cells("a").progressOn();
       return Result;
