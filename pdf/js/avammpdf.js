@@ -45,10 +45,13 @@ function handlePages(page)
   container.style.width = canvas.width;
   container.style.position = 'relative';
 
-  var canvasOffset = {
-      top: canvas.getBoundingClientRect().top + document.body.scrollTop,
-      left: canvas.getBoundingClientRect().left + document.body.scrollLeft
-  };
+  var canvasOffset = {};
+  canvasOffset.top = 0;
+  canvasOffset.left = 0;
+  try {
+    canvasOffset.top = canvas.getBoundingClientRect().top + document.body.scrollTop;
+    canvasOffset.left =canvas.getBoundingClientRect().left + document.body.scrollLeft;
+  } catch(e) {}
 
   var textLayerDiv =  document.createElement( "div" );
   textLayerDiv.className = "textLayer";
@@ -56,7 +59,7 @@ function handlePages(page)
   textLayerDiv.style.width = viewport.width;
   textLayerDiv.style.top = canvasOffset.top;
   textLayerDiv.style.left = canvasOffset.left;
-  container.append(textLayerDiv);
+  container.appendChild(textLayerDiv);
   page.getTextContent().then(function (textContent) {
       var tLayer = new TextLayerBuilder(textLayerDiv, 0); //The second zero is an index identifying
       //the page. It is set to page.number - 1.
