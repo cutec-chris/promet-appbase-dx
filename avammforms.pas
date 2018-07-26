@@ -695,7 +695,7 @@ end;
 
 function TAvammListForm.DoRowDblClick: Boolean;
 begin
-  Result := True;
+  Result := False;
   router.Push(FTableName+'/by-id/'+string(Grid.getSelectedRowId())+'/');
 end;
 

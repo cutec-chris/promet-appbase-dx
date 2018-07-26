@@ -22025,7 +22025,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     };
     this.DoRowDblClick = function () {
       var Result = false;
-      Result = true;
+      Result = false;
       pas.webrouter.Router().Push(((this.FTableName + "\/by-id\/") + ("" + this.Grid.getSelectedRowId())) + "\/");
       return Result;
     };
