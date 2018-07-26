@@ -21657,6 +21657,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       this.FDataprocessor = null;
       this.FDatastore = null;
       this.FIdField = "";
+      this.FInCheckForDeletions = false;
     };
     this.$final = function () {
       this.FDataprocessor = undefined;
@@ -21702,6 +21703,21 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
     this.DataStoreUpdated = function (id, obj, mode) {
       pas.System.Writeln("DatastoreUpdated ",id);
     };
+    this.DataStoreDeleteItem = function (id) {
+      var Result = false;
+      pas.System.Writeln("DataStoreDeleteItem ",id);
+      this.GetDataset().DisableControls();
+      if ((this.GetDataset().FState === pas.DB.TDataSetState.dsInsert) && (this.GetDataset().FieldByName(this.FIdField).GetAsJSValue() == id)) {
+        this.GetDataset().Cancel();
+        Result = true;
+      } else if (this.GetDataset().FState === pas.DB.TDataSetState.dsEdit) this.GetDataset().Post();
+      Result = this.GetDataset().Locate(this.FIdField,id,{});
+      if (Result) {
+        this.GetDataset().Delete()}
+       else pas.System.Writeln("Record to delete not found !",id);
+      this.GetDataset().EnableControls();
+      return Result;
+    };
     this.DataProcessorDataUpdated = function (id, state, data) {
       var Result = false;
       var aProps = [];
@@ -21740,8 +21756,32 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       return Result;
     };
     this.Delete = function (id) {
+      if (id == undefined) return;
+      pas.System.Writeln("deleting ",id);
       this.FDataprocessor.setUpdated(id);
       this.FDatastore.remove(id);
+    };
+    this.CheckforDeletions = function () {
+      var aId = undefined;
+      var aRec = new pas.DB.TBookmark();
+      if (this.FInCheckForDeletions) return;
+      this.FInCheckForDeletions = true;
+      this.GetDataset().DisableControls();
+      aRec = new pas.DB.TBookmark(this.GetDataset().GetBookmark());
+      aId = this.FDatastore.first();
+      do {
+        try {
+          if ((aId != undefined) && !this.GetDataset().Locate(this.FIdField,aId,{})) {
+            aId = this.FDatastore.next(aId);
+            this.Delete(aId);
+          } else aId = this.FDatastore.next(aId);
+        } catch ($e) {
+          aId = this.FDatastore.next(aId);
+        };
+      } while (!(aId == this.FDatastore.last()));
+      this.GetDataset().GotoBookmark(aRec);
+      this.GetDataset().EnableControls();
+      this.FInCheckForDeletions = false;
     };
     this.ClearData = function () {
       var aId = undefined;
@@ -21760,7 +21800,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       pas.System.Writeln("UpdateData");
     };
     this.RecordChanged = function (Field) {
-      pas.System.Writeln("RecordChanged");
+      pas.System.Writeln("RecordChanged",Field);
       pas.DB.TDataLink.RecordChanged.call(this,Field);
     };
     this.ActiveChanged = function () {
@@ -21788,6 +21828,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
         pas.System.Writeln("DataEvent ","deRecordChange")}
        else if ($tmp1 === pas.DB.TDataEvent.deDataSetChange) {
         pas.System.Writeln("DataEvent ","deDataSetChange");
+        if (Self.GetDataset().FState === pas.DB.TDataSetState.dsBrowse) Self.FDataprocessor.ignore(rtl.createCallback(Self,"CheckforDeletions"));
       } else if ($tmp1 === pas.DB.TDataEvent.deDataSetScroll) {
         pas.System.Writeln("DataEvent ","deDataSetScroll");
         Self.FDatastore.setCursor(Self.GetDataset().FieldByName(Self.FIdField).GetAsJSValue());
@@ -21828,9 +21869,11 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
     };
     this.Create$2 = function () {
       pas.DB.TDataLink.Create$1.call(this);
+      this.FInCheckForDeletions = false;
       this.FDatastore = new dhtmlXDataStore("");
       this.FDatastore.attachEvent("onAfterCursorChange",rtl.createCallback(this,"DataStoreCursorChanged"));
       this.FDatastore.attachEvent("onStoreUpdated",rtl.createCallback(this,"DataStoreUpdated"));
+      this.FDatastore.attachEvent("onBeforeDelete",rtl.createCallback(this,"DataStoreDeleteItem"));
       this.FDataprocessor = new dataProcessor("");
       this.FDataprocessor.attachEvent("onBeforeUpdate",rtl.createCallback(this,"DataProcessorDataUpdated"));
       this.FDataprocessor.enablePartialDataSend(false);
