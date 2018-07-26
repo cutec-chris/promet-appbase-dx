@@ -11,6 +11,7 @@ type TJSValueCallback = procedure(aName : JSValue);
 
 procedure RegisterSidebarRoute(aName,Route : string;Event : TRouteEvent;Icon : string = '');
 function LoadData(url : string;IgnoreLogin : Boolean = False;Datatype : string = '';Timeout : Integer = 6000) : TJSPromise;
+function StoreData(url : string;Content : string;IgnoreLogin : Boolean = False;Datatype : string = '';Timeout : Integer = 6000) : TJSPromise;
 procedure LoadModule(aName : string;DoAfter : JSValue = nil);
 procedure WaitForAssigned(name : string; callback : TJSValueCallback);
 function CheckLogin : TJSPromise;
@@ -260,7 +261,6 @@ end;
 
 function LoadData(url: string; IgnoreLogin: Boolean; Datatype: string;
   Timeout: Integer): TJSPromise;
-  // We do all the work within the constructor callback.
   procedure DoRequest(resolve,reject : TJSPromiseResolver) ;
   var
     req : TJSXMLHttpRequest;
@@ -338,6 +338,79 @@ function Wait(ms : NativeInt) : TJSPromise;
   end;
 begin
   Result := TJSPromise.New(@doTimeOut);
+end;
+
+function StoreData(url: string; Content: string; IgnoreLogin: Boolean;
+  Datatype: string; Timeout: Integer): TJSPromise;
+  procedure DoRequest(resolve,reject : TJSPromiseResolver) ;
+  var
+    req : TJSXMLHttpRequest;
+    oTimeout: NativeInt;
+    function DoOnLoad(event : TEventListenerEvent) : boolean;
+    begin
+      // On error we reject, otherwise we resolve
+      if (req.status=200) then
+        resolve(req)
+      else
+        reject(req);
+      window.clearTimeout(oTimeout);
+    end;
+    function DoOnError(event : TEventListenerEvent) : boolean;
+    begin
+      {$ifdef DEBUG}
+      writeln('Request not succesful (error)');
+      {$endif}
+      // On error we reject
+      reject(req);
+      window.clearTimeout(oTimeout);
+    end;
+    procedure RequestSaveTimeout;
+    begin
+      {$ifdef DEBUG}
+      writeln('Request Timeout');
+      {$endif}
+      window.clearTimeout(oTimeout);
+      req.abort;
+      reject(req);
+    end;
+  begin
+    req:=TJSXMLHttpRequest.new;
+    req.open('post', GetBaseUrl()+url, true);
+    if (Avamm.AvammLogin <> '') and (not IgnoreLogin) then
+      begin
+        req.setRequestHeader('Authorization','Basic ' + Avamm.AvammLogin);
+      end;
+    if Datatype<>'' then
+      req.overrideMimeType(Datatype);
+    req.timeout:=Timeout-100;
+    req.addEventListener('load',@DoOnLoad);
+    req.addEventListener('error',@DoOnError);
+    try
+      req.send();
+    except
+      begin
+        {$ifdef DEBUG}
+        writeln('Request not succesful');
+        {$endif}
+        reject(req);
+      end;
+    end;
+    oTimeout := window.setTimeout(@RequestSaveTimeout,Timeout);
+  end;
+  function ReturnResult(res: JSValue) : JSValue;
+  begin
+    {$ifdef DEBUG}
+    writeln('Returning... ',res);
+    {$endif}
+    Result:=res;
+  end;
+
+var
+  requestPromise : TJSPromise;
+begin
+  requestPromise:=TJSPromise.New(@DoRequest);
+  Result:=requestPromise._then(@ReturnResult)
+                        .catch(@ReturnResult);
 end;
 
 procedure LoadModule(aName: string;DoAfter : JSValue);

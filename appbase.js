@@ -10725,6 +10725,60 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
     Result = requestPromise.then(ReturnResult).catch(ReturnResult);
     return Result;
   };
+  this.StoreData = function (url, Content, IgnoreLogin, Datatype, Timeout) {
+    var Result = null;
+    function DoRequest(resolve, reject) {
+      var req = null;
+      var oTimeout = 0;
+      function DoOnLoad(event) {
+        var Result = false;
+        if (req.status === 200) {
+          resolve(req)}
+         else reject(req);
+        window.clearTimeout(oTimeout);
+        return Result;
+      };
+      function DoOnError(event) {
+        var Result = false;
+        pas.System.Writeln("Request not succesful (error)");
+        reject(req);
+        window.clearTimeout(oTimeout);
+        return Result;
+      };
+      function RequestSaveTimeout() {
+        pas.System.Writeln("Request Timeout");
+        window.clearTimeout(oTimeout);
+        req.abort();
+        reject(req);
+      };
+      req = new XMLHttpRequest();
+      req.open("post",$mod.GetBaseUrl() + url,true);
+      if (($mod.AvammLogin !== "") && !IgnoreLogin) {
+        req.setRequestHeader("Authorization","Basic " + $mod.AvammLogin);
+      };
+      if (Datatype !== "") req.overrideMimeType(Datatype);
+      req.timeout = Timeout - 100;
+      req.addEventListener("load",DoOnLoad);
+      req.addEventListener("error",DoOnError);
+      try {
+        req.send();
+      } catch ($e) {
+        pas.System.Writeln("Request not succesful");
+        reject(req);
+      };
+      oTimeout = window.setTimeout(RequestSaveTimeout,Timeout);
+    };
+    function ReturnResult(res) {
+      var Result = undefined;
+      pas.System.Writeln("Returning... ",res);
+      Result = res;
+      return Result;
+    };
+    var requestPromise = null;
+    requestPromise = new Promise(DoRequest);
+    Result = requestPromise.then(ReturnResult).catch(ReturnResult);
+    return Result;
+  };
   this.LoadModule = function (aName, DoAfter) {
     function ModuleLoaded(aObj) {
       console.log(aObj);
