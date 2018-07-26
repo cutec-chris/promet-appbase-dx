@@ -41,7 +41,7 @@ type
     procedure SetFilterHeader(AValue: string);
     procedure SwitchProgressOff(DataSet: TDataSet; Data: JSValue);
   protected
-    procedure DoRowDblClick;virtual;
+    function DoRowDblClick : Boolean;virtual;
     procedure ToolbarButtonClick(id : string);virtual;
   public
     Page : TDHTMLXLayout;
@@ -140,6 +140,7 @@ resourcestring
   strYes                       = 'Ja';
   strNo                        = 'Nein';
   strNew                       = 'Neu';
+  strDelete                    = 'Löschen';
 
 implementation
 
@@ -692,8 +693,9 @@ begin
   Page.progressOff();
 end;
 
-procedure TAvammListForm.DoRowDblClick;
+function TAvammListForm.DoRowDblClick: Boolean;
 begin
+  Result := True;
   router.Push(FTableName+'/by-id/'+string(Grid.getSelectedRowId())+'/');
 end;
 
