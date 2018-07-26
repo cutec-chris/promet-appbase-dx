@@ -10594,7 +10594,7 @@ rtl.module("AvammRouter",["System","Classes","SysUtils","webrouter"],function ()
     Result = $mod.TAvammRouter.Service();
     return Result;
   };
-  $mod.$resourcestrings = {strRouteNotFound: {org: "Das gewählt Objekt wurde nicht gwfunden, oder Sie besitzen nicht die nötigen rechte um es zu sehen !"}};
+  $mod.$resourcestrings = {strRouteNotFound: {org: "Das gewählt Objekt wurde nicht gefunden, oder Sie besitzen nicht die nötigen Rechte um es zu sehen !"}};
   $mod.$init = function () {
     $mod.Router().$class.SetServiceClass($mod.TAvammRouter);
   };
@@ -10783,7 +10783,7 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
     function ModuleLoaded(aObj) {
       console.log(aObj);
       rtl.run(aObj.target.id.split("/")[0]);
-      if (DoAfter) DoAfter;
+      if (DoAfter) DoAfter(aObj);
     };
     pas.dhtmlx_base.AppendJS(((pas.SysUtils.LowerCase(aName) + "\/") + pas.SysUtils.LowerCase(aName)) + ".js",ModuleLoaded,null);
   };
@@ -22024,7 +22024,10 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.Page.progressOff();
     };
     this.DoRowDblClick = function () {
+      var Result = false;
+      Result = true;
       pas.webrouter.Router().Push(((this.FTableName + "\/by-id\/") + ("" + this.Grid.getSelectedRowId())) + "\/");
+      return Result;
     };
     this.ToolbarButtonClick = function (id) {
       if (id === "new") {}
@@ -22502,7 +22505,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     Result = new Promise(CheckPromise);
     return Result;
   };
-  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}, strFilterTT: {org: "Filter an\/auschalten"}, strHistory: {org: "Verlauf"}, strReallyCancel: {org: "Änderungen verwerfen ?"}, strYes: {org: "Ja"}, strNo: {org: "Nein"}, strNew: {org: "Neu"}};
+  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}, strFilterTT: {org: "Filter an\/auschalten"}, strHistory: {org: "Verlauf"}, strReallyCancel: {org: "Änderungen verwerfen ?"}, strYes: {org: "Ja"}, strNo: {org: "Nein"}, strNew: {org: "Neu"}, strDelete: {org: "Löschen"}};
 },["AvammWiki"]);
 rtl.module("dhtmlx_calendar",["System","JS","Web","SysUtils"],function () {
   "use strict";

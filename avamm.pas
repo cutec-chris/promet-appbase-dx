@@ -419,7 +419,7 @@ procedure LoadModule(aName: string;DoAfter : JSValue);
     asm
       console.log(aObj);
       rtl.run(aObj.target.id.split("/")[0]);
-      if (DoAfter) DoAfter;
+      if (DoAfter) DoAfter(aObj);
     end;
   end;
 begin
