@@ -10761,7 +10761,7 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
       req.addEventListener("load",DoOnLoad);
       req.addEventListener("error",DoOnError);
       try {
-        req.send();
+        req.send(Content);
       } catch ($e) {
         pas.System.Writeln("Request not succesful");
         reject(req);

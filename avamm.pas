@@ -386,7 +386,7 @@ function StoreData(url: string; Content: string; IgnoreLogin: Boolean;
     req.addEventListener('load',@DoOnLoad);
     req.addEventListener('error',@DoOnError);
     try
-      req.send();
+      req.send(Content);
     except
       begin
         {$ifdef DEBUG}
