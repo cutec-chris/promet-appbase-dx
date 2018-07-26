@@ -19,7 +19,7 @@ type
   function Router : TRouter;
 
 resourcestring
-  strRouteNotFound        = 'Das gewählt Objekt wurde nicht gwfunden, oder Sie besitzen nicht die nötigen rechte um es zu sehen !';
+  strRouteNotFound        = 'Das gewählt Objekt wurde nicht gefunden, oder Sie besitzen nicht die nötigen Rechte um es zu sehen !';
 
 implementation
 
