@@ -186,6 +186,12 @@ begin
   Layout.cells('a').setCollapsedText(strMenu);
   Layout.cells('a').collapse;
   Layout.cells('b').hideHeader;
+  try
+    //remove content Cell borders
+    TJSHTMLElement(Layout.cells('b').cell.childNodes[1]).style.setProperty('border-width','0px');
+    TJSHTMLElement(Layout.cells('b').cell.childNodes[0]).style.setProperty('border-width','0px');
+  except
+  end;
   Layout.setSeparatorSize(0,5);
   Layout.setSeparatorSize(1,5);
   Layout.cont.style.setProperty('border-width','0');
@@ -202,7 +208,6 @@ begin
   Router.AfterRequest:=@RouterAfterRequest;
   Router.History.OnReady:=@Onready;
   AddLoadingHint;
-  dhtmlx_base.AppendCSS('index.css',null,null);
 end;
 function DoGetAvammContainer: JSValue;
   procedure ResizePanelsLater;
@@ -232,6 +237,7 @@ end;
 begin
   FInitialized := False;
   GetAvammContainer := @DoGetAvammContainer;
+  dhtmlx_base.AppendCSS('index.css',null,null);
   if LoadEnviroment then
     WidgetsetLoaded._then(@FillEnviroment);
   if THashHistory(Router.History).getHash<>'' then

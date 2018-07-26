@@ -22670,6 +22670,11 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
     $mod.Layout.cells("a").setCollapsedText(rtl.getResStr(pas.program,"strMenu"));
     $mod.Layout.cells("a").collapse();
     $mod.Layout.cells("b").hideHeader();
+    try {
+      $mod.Layout.cells("b").cell.childNodes.item(1).style.setProperty("border-width","0px");
+      $mod.Layout.cells("b").cell.childNodes.item(0).style.setProperty("border-width","0px");
+    } catch ($e) {
+    };
     $mod.Layout.setSeparatorSize(0,5);
     $mod.Layout.setSeparatorSize(1,5);
     $mod.Layout.cont.style.setProperty("border-width","0");
@@ -22686,7 +22691,6 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
     pas.webrouter.Router().FAfterRequest = $mod.RouterAfterRequest;
     pas.webrouter.Router().GetHistory().FOnReady = $mod.OnReady;
     AddLoadingHint();
-    pas.dhtmlx_base.AppendCSS("index.css",null,null);
     return Result;
   };
   this.DoGetAvammContainer = function () {
@@ -22714,6 +22718,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
   $mod.$main = function () {
     $mod.FInitialized = false;
     pas.Avamm.GetAvammContainer = $mod.DoGetAvammContainer;
+    pas.dhtmlx_base.AppendCSS("index.css",null,null);
     if ($mod.LoadEnviroment) pas.dhtmlx_base.WidgetsetLoaded.then($mod.FillEnviroment);
     if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") {
       if (pas.webrouter.Router().FindHTTPRoute(pas.webrouter.Router().GetHistory().$class.getHash(),null) !== null) $mod.InitRouteFound = pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash()) === pas.webrouter.TTransitionResult.trOK;
