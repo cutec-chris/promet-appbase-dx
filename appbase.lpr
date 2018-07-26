@@ -20,6 +20,7 @@ resourcestring
   strStartpage              = 'Startseite';
   strReconnecting           = 'Verbindung zum Server fehlgeschlagen,'+#10#13+'Verbindung wird automatisch wiederhergestellt';
   strApplicationLoading     = 'Verbindung wird hergestellt...';
+  strRequestTimeout         = 'Es ist eine Zeitüberschreitung beim Abrufen von Daten aufgetreten !';
 
 procedure RouterBeforeRequest(Sender: TObject; var ARouteURL: String);
 begin
@@ -65,6 +66,11 @@ procedure DoHandleException(aName: JSValue);
       if (aName.reason) aName = aName.reason;
       if ((aName.fMessage)) aName = aName.fMessage;
     end;
+    if aName is TJSXMLHttpRequest then
+      begin
+        if TJSXMLHttpRequest(aName).Status <> 4 then
+          aName := strRequestTimeout;
+      end;
     dhtmlx.message(js.new(['type','error',
                            'text',aName]));
   end;

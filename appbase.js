@@ -22564,6 +22564,9 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
       if (aName.error) aName = aName.error;
       if (aName.reason) aName = aName.reason;
       if ((aName.fMessage)) aName = aName.fMessage;
+      if (rtl.isExt(aName,XMLHttpRequest,1)) {
+        if (rtl.getObject(aName).status !== 4) aName = rtl.getResStr(pas.program,"strRequestTimeout");
+      };
       dhtmlx.message(pas.JS.New(["type","error","text",aName]));
       return Result;
     };
@@ -22714,7 +22717,7 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
     $mod.Layout.attachEvent("onPanelResizeFinish",DoResizePanels);
     return Result;
   };
-  $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}, strApplicationLoading: {org: "Verbindung wird hergestellt..."}};
+  $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}, strApplicationLoading: {org: "Verbindung wird hergestellt..."}, strRequestTimeout: {org: "Es ist eine Zeitüberschreitung beim Abrufen von Daten aufgetreten !"}};
   $mod.$main = function () {
     $mod.FInitialized = false;
     pas.Avamm.GetAvammContainer = $mod.DoGetAvammContainer;
