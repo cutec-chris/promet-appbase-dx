@@ -21700,6 +21700,10 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       pas.System.Writeln("DataStoreCursorChange ",id);
       this.GetDataset().Locate(this.FIdField,id,{});
     };
+    this.DataStoreCursorChanging = function (id) {
+      pas.System.Writeln("DataStoreCursorChanguing ",id);
+      this.GetDataset().Locate(this.FIdField,id,{});
+    };
     this.DataStoreUpdated = function (id, obj, mode) {
       pas.System.Writeln("DatastoreUpdated ",id);
     };
@@ -21800,7 +21804,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       pas.System.Writeln("UpdateData");
     };
     this.RecordChanged = function (Field) {
-      pas.System.Writeln("RecordChanged",Field);
+      pas.System.Writeln("RecordChanged ",Field);
       pas.DB.TDataLink.RecordChanged.call(this,Field);
     };
     this.ActiveChanged = function () {
@@ -21828,7 +21832,6 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
         pas.System.Writeln("DataEvent ","deRecordChange")}
        else if ($tmp1 === pas.DB.TDataEvent.deDataSetChange) {
         pas.System.Writeln("DataEvent ","deDataSetChange");
-        if (Self.GetDataset().FState === pas.DB.TDataSetState.dsBrowse) Self.FDataprocessor.ignore(rtl.createCallback(Self,"CheckforDeletions"));
       } else if ($tmp1 === pas.DB.TDataEvent.deDataSetScroll) {
         pas.System.Writeln("DataEvent ","deDataSetScroll");
         Self.FDatastore.setCursor(Self.GetDataset().FieldByName(Self.FIdField).GetAsJSValue());
@@ -21872,6 +21875,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       this.FInCheckForDeletions = false;
       this.FDatastore = new dhtmlXDataStore("");
       this.FDatastore.attachEvent("onAfterCursorChange",rtl.createCallback(this,"DataStoreCursorChanged"));
+      this.FDatastore.attachEvent("onBeforeCursorChange",rtl.createCallback(this,"DataStoreCursorChanging"));
       this.FDatastore.attachEvent("onStoreUpdated",rtl.createCallback(this,"DataStoreUpdated"));
       this.FDatastore.attachEvent("onBeforeDelete",rtl.createCallback(this,"DataStoreDeleteItem"));
       this.FDataprocessor = new dataProcessor("");
