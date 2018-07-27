@@ -374,7 +374,7 @@ procedure TAvammForm.Refresh;
     else TDHTMLXWindowsCell(FWindow).close;
   end;
 begin
-  Avamm.LoadData('/'+FTablename+'/by-id/'+string(Id)+'/item.json?mode=extjs')._then(@ItemLoaded)
+  Avamm.LoadData('/'+FTablename+'/by-id/'+string(Id)+'/item.json?mode=extjs',False,'text/json',12000)._then(@ItemLoaded)
                                                                 .catch(@ItemLoadError)
                                                                 ._then(@ItemLoaded2);
 end;

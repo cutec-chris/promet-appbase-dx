@@ -22378,7 +22378,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
          else rtl.getObject(Self.FWindow).close();
         return Result;
       };
-      pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/item.json?mode=extjs",false,"",6000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
+      pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/item.json?mode=extjs",false,"text\/json",12000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
     };
     this.DoSave = function () {
     };
