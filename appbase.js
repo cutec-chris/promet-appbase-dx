@@ -21548,6 +21548,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
         aDesc = rtl.getObject(aBatch.FList.Get(i));
         aDesc.FBatch = aBatch;
         aDesc.FXHR = FXHR;
+        if (aDesc.FStatus === pas.DB.TUpdateStatus.usDeleted) rtl.getObject(aDesc.FData)["DELETED"] = "Y";
         Arr.push(aDesc.FData);
         FXHR.addEventListener("load",rtl.createCallback(aDesc,"onLoad"));
       };
@@ -21651,6 +21652,7 @@ rtl.module("dhtmlx_datastore",["System","JS","Web"],function () {
 rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor","JS","Types","dhtmlx_datastore"],function () {
   "use strict";
   var $mod = this;
+  var $impl = $mod.$impl;
   rtl.createClass($mod,"TDHTMLXDataLink",pas.DB.TDataLink,function () {
     this.$init = function () {
       pas.DB.TDataLink.$init.call(this);
@@ -21697,28 +21699,33 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       this.FDataprocessor.cleanUpdate();
     };
     this.DataStoreCursorChanged = function (id) {
-      pas.System.Writeln("DataStoreCursorChange ",id);
+      $impl.ShowDebug("DataStoreCursorChange " + ("" + id));
       this.GetDataset().Locate(this.FIdField,id,{});
     };
     this.DataStoreCursorChanging = function (id) {
-      pas.System.Writeln("DataStoreCursorChanguing ",id);
+      $impl.ShowDebug("DataStoreCursorChanguing " + ("" + id));
       this.GetDataset().Locate(this.FIdField,id,{});
     };
     this.DataStoreUpdated = function (id, obj, mode) {
-      pas.System.Writeln("DatastoreUpdated ",id);
+      $impl.ShowDebug("DatastoreUpdated " + ("" + id));
     };
     this.DataStoreDeleteItem = function (id) {
       var Result = false;
-      pas.System.Writeln("DataStoreDeleteItem ",id);
+      $impl.ShowDebug("DataStoreDeleteItem " + ("" + id));
       this.GetDataset().DisableControls();
-      if ((this.GetDataset().FState === pas.DB.TDataSetState.dsInsert) && (this.GetDataset().FieldByName(this.FIdField).GetAsJSValue() == id)) {
-        this.GetDataset().Cancel();
+      this.FDataprocessor.setUpdated(id);
+      if (this.GetDataset().FState === pas.DB.TDataSetState.dsInsert) {
+        if (this.GetDataset().FieldByName(this.FIdField).GetAsJSValue() != id) this.GetDataset().FieldByName(this.FIdField).SetAsJSValue(id);
+        this.GetDataset().Post();
         Result = true;
       } else if (this.GetDataset().FState === pas.DB.TDataSetState.dsEdit) this.GetDataset().Post();
       Result = this.GetDataset().Locate(this.FIdField,id,{});
       if (Result) {
         this.GetDataset().Delete()}
-       else pas.System.Writeln("Record to delete not found !",id);
+       else {
+        $impl.ShowDebug("Record to delete not found !" + ("" + id));
+        $impl.ShowData(this.GetDataset());
+      };
       this.GetDataset().EnableControls();
       return Result;
     };
@@ -21731,11 +21738,14 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       this.GetDataset().DisableControls();
       try {
         Result = false;
-        if ((this.GetDataset().FieldByName(this.FIdField).GetAsJSValue() == null) && (this.GetDataset().FState === pas.DB.TDataSetState.dsInsert)) this.GetDataset().FieldByName(this.FIdField).SetAsJSValue(id);
+        try {
+          if ((this.GetDataset().FieldByName(this.FIdField).GetAsJSValue() == null) && (this.GetDataset().FState === pas.DB.TDataSetState.dsInsert)) this.GetDataset().FieldByName(this.FIdField).SetAsJSValue(id);
+        } catch ($e) {
+        };
         if (id != this.GetDataset().FieldByName(this.FIdField).GetAsJSValue()) {
           if ((this.GetDataset().FState === pas.DB.TDataSetState.dsInsert) || (this.GetDataset().FState === pas.DB.TDataSetState.dsEdit)) this.GetDataset().Post();
           if (!this.GetDataset().Locate(this.FIdField,id,{})) {
-            pas.System.Writeln("Failed to find ROW ! ",id," ",this.GetDataset().FState);
+            $impl.ShowDebug((("Failed to find ROW ! " + ("" + id)) + " ") + pas.SysUtils.IntToStr(this.GetDataset().FState));
             return Result;
           };
         };
@@ -21751,7 +21761,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
                 aField.SetEditText("" + data[aProps[i]])}
                else aField.SetAsJSValue(data[aProps[i]]);
             };
-          } else pas.System.Writeln(("Field " + aProps[i]) + " not found !");
+          } else $impl.ShowDebug(("Field " + aProps[i]) + " not found !");
         };
       } finally {
         this.GetDataset().EnableControls();
@@ -21761,7 +21771,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
     };
     this.Delete = function (id) {
       if (id == undefined) return;
-      pas.System.Writeln("deleting ",id);
+      $impl.ShowDebug("deleting " + ("" + id));
       this.FDataprocessor.setUpdated(id);
       this.FDatastore.remove(id);
     };
@@ -21801,16 +21811,16 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       this.FDatastore.clearAll();
     };
     this.UpdateData = function () {
-      pas.System.Writeln("UpdateData");
+      $impl.ShowDebug("TDHTMLXDataLink.UpdateData");
     };
     this.RecordChanged = function (Field) {
-      pas.System.Writeln("RecordChanged ",Field);
+      $impl.ShowDebug("TDHTMLXDataLink.RecordChanged ");
       pas.DB.TDataLink.RecordChanged.call(this,Field);
     };
     this.ActiveChanged = function () {
       var aId = undefined;
       pas.DB.TDataLink.ActiveChanged.call(this);
-      pas.System.Writeln("ActiveChanged");
+      $impl.ShowDebug("TDHTMLXDataLink.ActiveChanged");
       this.ClearData();
       if (this.FActive) this.FDataprocessor.ignore(rtl.createCallback(this,"AddRows"));
     };
@@ -21827,47 +21837,47 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       };
       var $tmp1 = Event;
       if ($tmp1 === pas.DB.TDataEvent.deFieldChange) {
-        pas.System.Writeln("DataEvent ","deFieldChange")}
+        $impl.ShowDebug("DataEvent deFieldChange")}
        else if ($tmp1 === pas.DB.TDataEvent.deRecordChange) {
-        pas.System.Writeln("DataEvent ","deRecordChange")}
+        $impl.ShowDebug("DataEvent deRecordChange")}
        else if ($tmp1 === pas.DB.TDataEvent.deDataSetChange) {
-        pas.System.Writeln("DataEvent ","deDataSetChange");
+        $impl.ShowDebug("DataEvent deDataSetChange");
       } else if ($tmp1 === pas.DB.TDataEvent.deDataSetScroll) {
-        pas.System.Writeln("DataEvent ","deDataSetScroll");
+        $impl.ShowDebug("DataEvent deDataSetScroll");
         Self.FDatastore.setCursor(Self.GetDataset().FieldByName(Self.FIdField).GetAsJSValue());
       } else if ($tmp1 === pas.DB.TDataEvent.deLayoutChange) {
-        pas.System.Writeln("DataEvent ","deLayoutChange")}
+        $impl.ShowDebug("DataEvent deLayoutChange")}
        else if ($tmp1 === pas.DB.TDataEvent.deUpdateRecord) {
-        pas.System.Writeln("DataEvent ","deUpdateRecord")}
+        $impl.ShowDebug("DataEvent deUpdateRecord")}
        else if ($tmp1 === pas.DB.TDataEvent.deUpdateState) {
-        pas.System.Writeln("DataEvent ","deUpdateState");
+        $impl.ShowDebug("DataEvent deUpdateState");
         if (Self.GetDataset().FState === pas.DB.TDataSetState.dsInsert) {
           tmp = Self.FDatastore.add(new Object());
-          pas.System.Writeln("Row ",tmp," inserted ",Self.GetDataset().GetRecordCount());
+          $impl.ShowDebug((("Row " + ("" + tmp)) + " inserted ") + pas.SysUtils.IntToStr(Self.GetDataset().GetRecordCount()));
           Self.FDataprocessor.ignore(SetId);
           Self.FDatastore.setCursor(tmp);
         };
       } else if ($tmp1 === pas.DB.TDataEvent.deCheckBrowseMode) {
-        pas.System.Writeln("DataEvent ","deCheckBrowseMode");
+        $impl.ShowDebug("DataEvent deCheckBrowseMode");
         Self.GetDataset().DisableControls();
         if ((Self.GetDataset().FState === pas.DB.TDataSetState.dsInsert) || (Self.GetDataset().FState === pas.DB.TDataSetState.dsEdit)) {
-          pas.System.Writeln("Posting Dataset before Row Change ",Self.GetDataset().FieldByName(Self.FIdField).GetAsJSValue()," ",Self.GetDataset().FState);
+          $impl.ShowDebug((("Posting Dataset before Row Change " + Self.GetDataset().FieldByName(Self.FIdField).GetAsString()) + " ") + pas.SysUtils.IntToStr(Self.GetDataset().FState));
           Self.GetDataset().Post();
         };
         Self.GetDataset().EnableControls();
       } else if ($tmp1 === pas.DB.TDataEvent.dePropertyChange) {
-        pas.System.Writeln("DataEvent ","dePropertyChange")}
+        $impl.ShowDebug("DataEvent dePropertyChange")}
        else if ($tmp1 === pas.DB.TDataEvent.deFieldListChange) {
-        pas.System.Writeln("DataEvent ","deFieldListChange")}
+        $impl.ShowDebug("DataEvent deFieldListChange")}
        else if ($tmp1 === pas.DB.TDataEvent.deFocusControl) {
-        pas.System.Writeln("DataEvent ","deFocusControl")}
+        $impl.ShowDebug("DataEvent deFocusControl")}
        else if ($tmp1 === pas.DB.TDataEvent.deParentScroll) {
-        pas.System.Writeln("DataEvent ","deParentScroll")}
+        $impl.ShowDebug("DataEvent deParentScroll")}
        else if ($tmp1 === pas.DB.TDataEvent.deConnectChange) {
-        pas.System.Writeln("DataEvent ","deConnectChange")}
+        $impl.ShowDebug("DataEvent deConnectChange")}
        else if ($tmp1 === pas.DB.TDataEvent.deReconcileError) {
-        pas.System.Writeln("DataEvent ","deReconcileError")}
-       else if ($tmp1 === pas.DB.TDataEvent.deDisabledStateChange) pas.System.Writeln("DataEvent ","deDisabledStateChange");
+        $impl.ShowDebug("DataEvent deReconcileError")}
+       else if ($tmp1 === pas.DB.TDataEvent.deDisabledStateChange) $impl.ShowDebug("DataEvent deDisabledStateChange");
       pas.DB.TDataLink.DataEvent.apply(Self,arguments);
     };
     this.Create$2 = function () {
@@ -21884,6 +21894,16 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       this.FDataprocessor.enableDataNames(true);
     };
   });
+},null,function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $impl.ShowDebug = function (s) {
+    pas.System.Writeln(s);
+  };
+  $impl.ShowData = function (DataSet) {
+    console.log(DataSet.FRows);
+  };
 });
 rtl.module("dhtmlx_tabbar",["System","JS","Web"],function () {
   "use strict";

@@ -204,6 +204,8 @@ begin
       aDesc := TAvammUpdateDescriptor(aBatch.List.Items[i]);
       aDesc.FBatch := aBatch;
       aDesc.FXHR := FXHR;
+      if aDesc.Status=usDeleted then
+        TJSObject(aDesc.Data).Properties['DELETED'] := 'Y';
       Arr.push(aDesc.Data);
       FXHR.AddEventListener('load',@aDesc.onLoad);
     end;
