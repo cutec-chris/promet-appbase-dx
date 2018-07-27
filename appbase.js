@@ -22294,6 +22294,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         var aExt = "";
         Self.Reports = rtl.getObject(JSON.parse(aValue.responseText));
         Self.Toolbar.addButtonSelect("print",3,rtl.getResStr(pas.AvammForms,"strPrint"),new Array(),"fa fa-print","fa fa-print");
+        Self.Toolbar.disableItem("print");
         for (var $l1 = 0, $end2 = Self.Reports.length - 1; $l1 <= $end2; $l1++) {
           i = $l1;
           aName = "" + rtl.getObject(Self.Reports[i])["name"];

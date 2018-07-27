@@ -261,6 +261,7 @@ procedure TAvammForm.Refresh;
   begin
     Reports := TJSArray(TJSJSON.parse(aValue.responseText));
     Toolbar.addButtonSelect('print',3,strPrint,TJSArray.new,'fa fa-print','fa fa-print');
+    Toolbar.disableItem('print');
     for i := 0 to Reports.length-1 do
       begin
         aName := string(TJSObject(Reports[i]).Properties['name']);
