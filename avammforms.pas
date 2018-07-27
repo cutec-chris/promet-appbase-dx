@@ -84,6 +84,7 @@ type
     function DoClose : Boolean;
     procedure Refresh;virtual;
     procedure DoSave;virtual;
+    procedure DoEnterKeyPressed;virtual;
   public
     BaseId : JSValue;
     Reports: TJSArray;
@@ -381,6 +382,11 @@ procedure TAvammForm.DoSave;
 begin
 end;
 
+procedure TAvammForm.DoEnterKeyPressed;
+begin
+  writeln('Enter Key pressed');
+end;
+
 constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
   Id: JSValue;Params : string = '');
   procedure ToolbarButtonClick(id : string);
@@ -447,6 +453,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
                            'tooltip',strShorttextTooltip]));
     a.setHeight(0);
     EnableFormItems(false);
+    Form.attachEvent('onEnter',@DoEnterKeyPressed);
     Tabs := TDHTMLXTabbar(b.attachTabbar(js.new([
       'mode','top',           // string, optional, top or bottom tabs mode
       'align','left',         // string, optional, left or right tabs align

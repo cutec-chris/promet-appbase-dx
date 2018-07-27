@@ -22399,6 +22399,9 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     };
     this.DoSave = function () {
     };
+    this.DoEnterKeyPressed = function () {
+      pas.System.Writeln("Enter Key pressed");
+    };
     this.Create$1 = function (mode, aDataSet, Id, Params) {
       var Self = this;
       function ToolbarButtonClick(id) {
@@ -22438,6 +22441,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Form.addItem("aBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.AvammForms,"strShorttext"),"name","eShorttext","readonly",true,"hidden",true,"inputWidth",400,"note",rtl.getResStr(pas.AvammForms,"strShorttextNote"),"tooltip",rtl.getResStr(pas.AvammForms,"strShorttextTooltip")]));
         a.setHeight(0);
         Self.EnableFormItems(false);
+        Self.Form.attachEvent("onEnter",rtl.createCallback(Self,"DoEnterKeyPressed"));
         Self.Tabs = rtl.getObject(b.attachTabbar(pas.JS.New(["mode","top","align","left","close_button","true","content_zone","true","arrows_mode","auto"])));
         Self.Tabs.setSizes();
         Self.Tabs.addTab("history",rtl.getResStr(pas.AvammForms,"strHistory"),null,1,true,false);
