@@ -127,6 +127,9 @@
       <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl/;../../../../../../../pas2js/packages/rtl"/>
     </SearchPaths>
     <Other>
+      <CompilerMessages>
+        <IgnoredMessages idx5024="True"/>
+      </CompilerMessages>
       <ExecuteBefore>
         <Command Value="pas2js -Tbrowser -Jirtl.js -O- -Jc -dDEBUG -Fudhtmlx-for-pas2js $Name($(ProjFile))"/>
         <ScanForFPCMsgs Value="True"/>

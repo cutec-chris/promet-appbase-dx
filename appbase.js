@@ -10599,7 +10599,7 @@ rtl.module("AvammRouter",["System","Classes","SysUtils","webrouter"],function ()
     $mod.Router().$class.SetServiceClass($mod.TAvammRouter);
   };
 });
-rtl.module("dhtmlx_form",["System","JS","Web"],function () {
+rtl.module("dhtmlx_form",["System","Web"],function () {
   "use strict";
   var $mod = this;
 });
@@ -22220,7 +22220,24 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     };
     this.DoLoadData = function () {
       this.DoLoadHistory();
-      this.Layout.cells("a").setHeight(90);
+      this.DoSetFormSize();
+    };
+    this.DoSetFormSize = function () {
+      this.Form.adjustParentSize();
+      try {
+        this.Layout.cells("a").setHeight((this.Form.cont.children.item(0).clientHeight + this.Toolbar.cont.clientHeight) + 4);
+      } catch ($e) {
+        this.Layout.cells("a").setHeight(90);
+      };
+    };
+    this.EnableFormItems = function (Enable) {
+      var Self = this;
+      function DoEnableItem(item) {
+        if (Enable) {
+          Self.Form.enableItem(item)}
+         else Self.Form.disableItem(item);
+      };
+      Self.Form.forEachItem(DoEnableItem);
     };
     this.DoLoadHistory = function () {
       var i = 0;
@@ -22413,11 +22430,14 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Toolbar.disableItem("save");
         Self.Toolbar.disableItem("abort");
         Self.Form = rtl.getObject(a.attachForm(pas.JS.New([])));
+        Self.Form.addItem(null,pas.JS.New(["type","settings","position","label-right"]));
+        Self.Form.addItem(null,pas.JS.New(["type","label","label",rtl.getResStr(pas.AvammForms,"strCommon")]));
         Self.Form.addItem(null,pas.JS.New(["type","block","width","auto","name","aBlock"]));
         Self.Form.addItem("aBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.AvammForms,"strNumber"),"name","eId","readonly",true,"hidden",true,"inputWidth",100,"note",rtl.getResStr(pas.AvammForms,"strNumberNote"),"tooltip",rtl.getResStr(pas.AvammForms,"strNumberTooltip")]));
         Self.Form.addItem("aBlock",pas.JS.New(["type","newcolumn"]));
         Self.Form.addItem("aBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.AvammForms,"strShorttext"),"name","eShorttext","readonly",true,"hidden",true,"inputWidth",400,"note",rtl.getResStr(pas.AvammForms,"strShorttextNote"),"tooltip",rtl.getResStr(pas.AvammForms,"strShorttextTooltip")]));
         a.setHeight(0);
+        Self.EnableFormItems(false);
         Self.Tabs = rtl.getObject(b.attachTabbar(pas.JS.New(["mode","top","align","left","close_button","true","content_zone","true","arrows_mode","auto"])));
         Self.Tabs.setSizes();
         Self.Tabs.addTab("history",rtl.getResStr(pas.AvammForms,"strHistory"),null,1,true,false);
@@ -22464,99 +22484,6 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
     };
   });
-  rtl.createClass($mod,"TAvammAutoComplete",pas.System.TObject,function () {
-    this.$init = function () {
-      pas.System.TObject.$init.call(this);
-      this.FDataSource = null;
-      this.FDataLink = null;
-      this.FDataSet = null;
-      this.aTimer = 0;
-      this.FDblClick = null;
-      this.FFilter = "";
-      this.IsLoading = false;
-      this.FSelect = false;
-      this.FPopupParams = undefined;
-      this.Grid = null;
-      this.Popup = null;
-    };
-    this.$final = function () {
-      this.FDataSource = undefined;
-      this.FDataLink = undefined;
-      this.FDataSet = undefined;
-      this.FDblClick = undefined;
-      this.Grid = undefined;
-      this.Popup = undefined;
-      pas.System.TObject.$final.call(this);
-    };
-    this.FDataSourceStateChange = function (Sender) {
-      if (this.FDataSet.GetActive()) if (this.FDataSet.GetRecordCount() > 0) {
-        this.DoShowPopup();
-      };
-    };
-    this.GridDblClicked = function () {
-      if (this.FDblClick != null) {
-        this.FDblClick(this);
-        this.Popup.hide();
-      };
-    };
-    this.Create$1 = function (aPopupParams, aTable, aRow, aHeader, aColIDs, aFilter) {
-      var Self = this;
-      var ppId = 0;
-      function PopupShowed() {
-        Self.Grid.attachEvent("onRowDblClicked",rtl.createCallback(Self,"GridDblClicked"));
-        Self.Popup.detachEvent(ppId);
-      };
-      Self.IsLoading = false;
-      Self.Popup = new dhtmlXPopup (aPopupParams);
-      Self.Grid = rtl.getObject(Self.Popup.attachGrid(300,200));
-      Self.FPopupParams = aPopupParams;
-      var $with1 = Self.Grid;
-      $with1.setSizes();
-      $with1.enableAlterCss("even","uneven");
-      $with1.setHeader(aHeader);
-      $with1.setColumnIds(aColIDs);
-      $with1.init();
-      Self.FDataSource = pas.DB.TDataSource.$create("Create$1",[null]);
-      Self.FDataLink = pas.dhtmlx_db.TDHTMLXDataLink.$create("Create$2");
-      Self.FDataLink.FIdField = "sql_id";
-      Self.FDataSet = pas.AvammDB.TAvammDataset.$create("Create$5",[null,aTable]);
-      Self.FDataSource.SetDataSet(Self.FDataSet);
-      Self.FDataSource.FOnStateChange = rtl.createCallback(Self,"FDataSourceStateChange");
-      Self.FDataLink.SetDataSource(Self.FDataSource);
-      Self.FFilter = aFilter;
-      Self.Grid.sync(Self.FDataLink.FDatastore);
-      ppId = Self.Popup.attachEvent("onShow",PopupShowed);
-    };
-    this.DoFilter = function (aFilter, DoSelect) {
-      var Self = this;
-      function DataLoaded(DataSet, Data) {
-        Self.IsLoading = false;
-      };
-      function ResetInput() {
-        var nFilter = "";
-        if (Self.IsLoading) {
-          window.clearTimeout(Self.aTimer);
-          Self.aTimer = window.setTimeout(ResetInput,600);
-        } else {
-          nFilter = pas.SysUtils.StringReplace(Self.FFilter,"FILTERVALUE",aFilter,rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll,pas.SysUtils.TStringReplaceFlag.rfIgnoreCase));
-          if (nFilter !== Self.FDataSet.FSFilter) {
-            Self.FDataSet.SetFilter(nFilter);
-            Self.FDataSet.Load({},DataLoaded);
-            Self.IsLoading = true;
-          };
-        };
-      };
-      window.clearTimeout(Self.aTimer);
-      Self.aTimer = window.setTimeout(ResetInput,600);
-      Self.FSelect = DoSelect;
-    };
-    this.DoShowPopup = function () {
-      if (!this.Popup.isVisible()) {
-        this.Popup.show(rtl.getObject(rtl.getObject(this.FPopupParams)["id"])[0]);
-        if (this.FSelect) this.Grid.selectRow(0);
-      };
-    };
-  });
   this.CheckSaved = function (Toolbar) {
     var Result = null;
     function CheckPromise(resolve, reject) {
@@ -22572,7 +22499,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     Result = new Promise(CheckPromise);
     return Result;
   };
-  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}, strFilterTT: {org: "Filter an\/auschalten"}, strHistory: {org: "Verlauf"}, strReallyCancel: {org: "Änderungen verwerfen ?"}, strYes: {org: "Ja"}, strNo: {org: "Nein"}, strNew: {org: "Neu"}, strDelete: {org: "Löschen"}};
+  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}, strFilterTT: {org: "Filter an\/auschalten"}, strHistory: {org: "Verlauf"}, strReallyCancel: {org: "Änderungen verwerfen ?"}, strYes: {org: "Ja"}, strNo: {org: "Nein"}, strNew: {org: "Neu"}, strDelete: {org: "Löschen"}, strCommon: {org: "Allgemein"}, strDescription: {org: "Beschreibung"}};
 },["AvammWiki"]);
 rtl.module("dhtmlx_calendar",["System","JS","Web","SysUtils"],function () {
   "use strict";

@@ -77,6 +77,8 @@ type
     ReportsLoaded: TJSPromise;
     WikiLoaded: TJSPromise;
     procedure DoLoadData;virtual;
+    procedure DoSetFormSize;
+    procedure EnableFormItems(Enable : Boolean);
     procedure DoLoadHistory;
     procedure SetTitle(aTitle : string);
     function DoClose : Boolean;
@@ -85,38 +87,11 @@ type
   public
     BaseId : JSValue;
     Reports: TJSArray;
-    constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue;Params : string = '');
+    constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue;Params : string = '');overload;
     property Id : JSValue read FID;
     property Tablename : string read FTablename;
     property Data : TJSObject read FData;
     property Params : TStrings read FParams;
-  end;
-
-  { TAvammAutoComplete }
-
-  TAvammAutoComplete = class
-  private
-    FDataSource : TDataSource;
-    FDataLink : TDHTMLXDataLink;
-    FDataSet : TAvammDataset;
-    aTimer: NativeInt;
-    FDblClick: TNotifyEvent;
-    FFilter: string;
-    IsLoading : Boolean;
-    FSelect: Boolean;
-    FPopupParams : JSValue;
-    procedure FDataSourceStateChange(Sender: TObject);
-  protected
-    procedure GridDblClicked;virtual;
-  public
-    Grid : TDHTMLXGrid;
-    Popup : TDHTMLXPopup;
-    constructor Create(aPopupParams : JSValue;aTable,aRow,aHeader,aColIDs,aFilter : string);
-    procedure DoFilter(aFilter : string;DoSelect : Boolean = false);
-    procedure DoShowPopup;virtual;
-    property DataSet : TAvammDataset read FDataSet;
-    property Filter : string read FFilter write FFilter;
-    property OnDblClick : TNotifyEvent read FDblClick write FDblClick;
   end;
 
   function CheckSaved(Toolbar : TDHTMLXToolbar) : TJSPromise;
@@ -141,6 +116,8 @@ resourcestring
   strNo                        = 'Nein';
   strNew                       = 'Neu';
   strDelete                    = 'Löschen';
+  strCommon                    = 'Allgemein';
+  strDescription               = 'Beschreibung';
 
 implementation
 
@@ -201,7 +178,28 @@ end;
 procedure TAvammForm.DoLoadData;
 begin
   DoLoadHistory;
-  Layout.cells('a').setHeight(90);
+  DoSetFormSize;
+end;
+
+procedure TAvammForm.DoSetFormSize;
+begin
+  Form.adjustParentSize;
+  try
+    Layout.cells('a').setHeight(TJSHTMLElement(Form.cont.children.item(0)).clientHeight+Toolbar.cont.clientHeight+4);
+  except
+    Layout.cells('a').setHeight(90);
+  end;
+end;
+
+procedure TAvammForm.EnableFormItems(Enable: Boolean);
+  procedure DoEnableItem(item : string);
+  begin
+    if Enable then
+      Form.enableItem(item)
+    else Form.disableItem(item);
+  end;
+begin
+  Form.forEachItem(@DoEnableItem);
 end;
 
 procedure TAvammForm.DoLoadHistory;
@@ -421,6 +419,12 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     Toolbar.disableItem('save');
     Toolbar.disableItem('abort');
     Form := TDHTMLXForm(a.attachForm(js.new([])));
+    Form.addItem(null,js.new(['type','settings',
+                              'position','label-right'
+                             ]));
+    Form.addItem(null,js.new(['type','label',
+                              'label',strCommon
+                             ]));
     Form.addItem(null,new(['type','block',
                                 'width','auto',
                                 'name','aBlock']));
@@ -442,6 +446,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
                            'note',strShorttextNote,
                            'tooltip',strShorttextTooltip]));
     a.setHeight(0);
+    EnableFormItems(false);
     Tabs := TDHTMLXTabbar(b.attachTabbar(js.new([
       'mode','top',           // string, optional, top or bottom tabs mode
       'align','left',         // string, optional, left or right tabs align
@@ -503,103 +508,6 @@ begin
           FParent := FWindow;
           WindowCreated(TEventListenerEvent(null));
         end;
-    end;
-end;
-
-{ TAvammAutoComplete }
-
-procedure TAvammAutoComplete.FDataSourceStateChange(Sender: TObject);
-begin
-  if FDataSet.Active then
-    if (FDataSet.RecordCount>0) then
-      begin
-        DoShowPopup;
-      end;
-end;
-
-procedure TAvammAutoComplete.GridDblClicked;
-begin
-  if Assigned(FDblClick) then
-    begin
-      FDblClick(Self);
-      Popup.hide;
-    end;
-end;
-
-constructor TAvammAutoComplete.Create(aPopupParams: JSValue; aTable, aRow,
-  aHeader, aColIDs, aFilter: string);
-  var
-    ppId: Integer;
-
-  procedure PopupShowed;
-  begin
-    Grid.attachEvent('onRowDblClicked',@GridDblClicked);
-    Popup.detachEvent(ppId);
-  end;
-
-begin
-  IsLoading:=False;
-  Popup := TDHTMLXPopup.new(aPopupParams);
-  Grid := TDHTMLXGrid(Popup.attachGrid(300,200));
-  FPopupParams:=aPopupParams;
-  with Grid do
-    begin
-      //setImagesPath('codebase/imgs/');
-      setSizes();
-      enableAlterCss('even','uneven');
-      setHeader(aHeader);
-      setColumnIds(aColIDs);
-      init;
-    end;
-  FDataSource := TDataSource.Create(nil);
-  FDataLink := TDHTMLXDataLink.Create;
-  FDataLink.IdField:='sql_id';
-  FDataSet := TAvammDataset.Create(nil,aTable);
-  FDataSource.DataSet := FDataSet;
-  FDataSource.OnStateChange:=@FDataSourceStateChange;
-  FDataLink.DataSource := FDataSource;
-  FFilter:=aFilter;
-  Grid.sync(FDataLink.Datastore);
-  ppId := Popup.attachEvent('onShow',@PopupShowed);
-end;
-
-procedure TAvammAutoComplete.DoFilter(aFilter: string; DoSelect: Boolean);
-  procedure DataLoaded(DataSet: TDataSet; Data: JSValue);
-  begin
-    IsLoading:=False;
-  end;
-  procedure ResetInput;
-  var
-    nFilter: String;
-  begin
-    if IsLoading then
-      begin
-        window.clearTimeout(aTimer);
-        aTimer := window.setTimeout(@ResetInput,600);
-      end
-    else
-      begin
-        nFilter := StringReplace(Filter,'FILTERVALUE',aFilter,[rfReplaceAll,rfIgnoreCase]);
-        if nFilter<>FDataSet.ServerFilter then
-          begin
-            FDataSet.ServerFilter:=nFilter;
-            FDataSet.Load([],@DataLoaded);
-            IsLoading := True;
-          end;
-      end;
-  end;
-begin
-  window.clearTimeout(aTimer);
-  aTimer := window.setTimeout(@ResetInput,600);
-  FSelect := DoSelect;
-end;
-
-procedure TAvammAutoComplete.DoShowPopup;
-begin
-  if (not Popup.isVisible()) then
-    begin
-      Popup.show(TJSArray(TJSObject(FPopupParams).Properties['id']).Elements[0]);
-      if (FSelect) then Grid.selectRow(0);
     end;
 end;
 
