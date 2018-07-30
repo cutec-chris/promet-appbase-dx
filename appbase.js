@@ -22522,7 +22522,104 @@ rtl.module("dhtmlx_carousel",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
 });
-rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_calendar","dhtmlx_carousel"],function () {
+rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","dhtmlx_base","dhtmlx_windows","dhtmlx_tabbar","AvammRouter","webrouter","DB","Avamm"],function () {
+  "use strict";
+  var $mod = this;
+  rtl.createClass($mod,"TAvammAutoComplete",pas.System.TObject,function () {
+    this.$init = function () {
+      pas.System.TObject.$init.call(this);
+      this.FDataSource = null;
+      this.FDataLink = null;
+      this.FDataSet = null;
+      this.aTimer = 0;
+      this.FDblClick = null;
+      this.FFilter = "";
+      this.IsLoading = false;
+      this.FSelect = false;
+      this.FPopupParams = undefined;
+      this.Grid = null;
+      this.Popup = null;
+    };
+    this.$final = function () {
+      this.FDataSource = undefined;
+      this.FDataLink = undefined;
+      this.FDataSet = undefined;
+      this.FDblClick = undefined;
+      this.Grid = undefined;
+      this.Popup = undefined;
+      pas.System.TObject.$final.call(this);
+    };
+    this.FDataSourceStateChange = function (Sender) {
+      if (this.FDataSet.GetActive()) if (this.FDataSet.GetRecordCount() > 0) {
+        this.DoShowPopup();
+      };
+    };
+    this.GridDblClicked = function () {
+      if (this.FDblClick != null) {
+        this.FDblClick(this);
+        this.Popup.hide();
+      };
+    };
+    this.Create$1 = function (aPopupParams, aTable, aRow, aHeader, aColIDs, aFilter) {
+      var Self = this;
+      var ppId = 0;
+      function PopupShowed() {
+        Self.Grid.attachEvent("onRowDblClicked",rtl.createCallback(Self,"GridDblClicked"));
+        Self.Popup.detachEvent(ppId);
+      };
+      Self.IsLoading = false;
+      Self.Popup = new dhtmlXPopup (aPopupParams);
+      Self.Grid = rtl.getObject(Self.Popup.attachGrid(300,200));
+      Self.FPopupParams = aPopupParams;
+      var $with1 = Self.Grid;
+      $with1.setSizes();
+      $with1.enableAlterCss("even","uneven");
+      $with1.setHeader(aHeader);
+      $with1.setColumnIds(aColIDs);
+      $with1.init();
+      Self.FDataSource = pas.DB.TDataSource.$create("Create$1",[null]);
+      Self.FDataLink = pas.dhtmlx_db.TDHTMLXDataLink.$create("Create$2");
+      Self.FDataLink.FIdField = "sql_id";
+      Self.FDataSet = pas.AvammDB.TAvammDataset.$create("Create$5",[null,aTable]);
+      Self.FDataSource.SetDataSet(Self.FDataSet);
+      Self.FDataSource.FOnStateChange = rtl.createCallback(Self,"FDataSourceStateChange");
+      Self.FDataLink.SetDataSource(Self.FDataSource);
+      Self.FFilter = aFilter;
+      Self.Grid.sync(Self.FDataLink.FDatastore);
+      ppId = Self.Popup.attachEvent("onShow",PopupShowed);
+    };
+    this.DoFilter = function (aFilter, DoSelect) {
+      var Self = this;
+      function DataLoaded(DataSet, Data) {
+        Self.IsLoading = false;
+      };
+      function ResetInput() {
+        var nFilter = "";
+        if (Self.IsLoading) {
+          window.clearTimeout(Self.aTimer);
+          Self.aTimer = window.setTimeout(ResetInput,600);
+        } else {
+          nFilter = pas.SysUtils.StringReplace(Self.FFilter,"FILTERVALUE",aFilter,rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll,pas.SysUtils.TStringReplaceFlag.rfIgnoreCase));
+          if (nFilter !== Self.FDataSet.FSFilter) {
+            Self.FDataSet.SetFilter(nFilter);
+            Self.FDataSet.Load({},DataLoaded);
+            Self.IsLoading = true;
+          };
+        };
+      };
+      window.clearTimeout(Self.aTimer);
+      Self.aTimer = window.setTimeout(ResetInput,600);
+      Self.FSelect = DoSelect;
+    };
+    this.DoShowPopup = function () {
+      if (!this.Popup.isVisible()) {
+        this.Popup.show(rtl.getObject(rtl.getObject(this.FPopupParams)["id"])[0]);
+        if (this.FSelect) this.Grid.selectRow(0);
+      };
+    };
+  });
+});
+rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_calendar","dhtmlx_carousel","AvammAutocomplete"],function () {
   "use strict";
   var $mod = this;
   this.MobileCellWidth = 700;

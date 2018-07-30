@@ -37,10 +37,6 @@ type
     property OnDblClick : TNotifyEvent read FDblClick write FDblClick;
   end;
 
-
-uses
-  Classes, SysUtils;
-
 implementation
 
 { TAvammAutoComplete }
