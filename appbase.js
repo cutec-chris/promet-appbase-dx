@@ -15468,7 +15468,6 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       this.FLookupKeyfields = "";
       this.FLookupresultField = "";
       this.FLookupList = null;
-      this.FOffset = 0;
       this.FOnChange = null;
       this.FOnGetText = null;
       this.FOnSetText = null;
@@ -18016,7 +18015,19 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
   };
   $mod.$rtti.$Record("TResolveInfo",{}).addFields("Data",rtl.jsvalue,"Status",$mod.$rtti["TUpdateStatus"],"error",rtl.string,"BookMark",$mod.$rtti["TBookmark"],"_private",rtl.jsvalue);
   $mod.$rtti.$DynArray("TResolveInfoArray",{eltype: $mod.$rtti["TResolveInfo"]});
-  $mod.$rtti.$ProcVar("TOnRecordResolveEvent",{procsig: rtl.newTIProcSig([["Sender",$mod.$rtti["TDataSet"]],["info",$mod.$rtti["TResolveInfo"]]])});
+  this.TResolveResults = function (s) {
+    if (s) {
+      this.Records = s.Records;
+    } else {
+      this.Records = [];
+    };
+    this.$equal = function (b) {
+      return this.Records === b.Records;
+    };
+  };
+  $mod.$rtti.$Record("TResolveResults",{}).addFields("Records",$mod.$rtti["TResolveInfoArray"]);
+  $mod.$rtti.$MethodVar("TOnRecordResolveEvent",{procsig: rtl.newTIProcSig([["Sender",$mod.$rtti["TDataSet"]],["info",$mod.$rtti["TResolveInfo"]]]), methodkind: 0});
+  $mod.$rtti.$MethodVar("TApplyUpdatesEvent",{procsig: rtl.newTIProcSig([["Sender",$mod.$rtti["TDataSet"]],["info",$mod.$rtti["TResolveResults"]]]), methodkind: 0});
   rtl.createClass($mod,"TDataSet",pas.Classes.TComponent,function () {
     this.$init = function () {
       pas.Classes.TComponent.$init.call(this);
@@ -18026,7 +18037,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       this.FBeforeLoad = null;
       this.FBlockReadSize = 0;
       this.FCalcBuffer = new $mod.TDataRecord();
-      this.FCalcFieldsSize = 0;
+      this.FCalcFieldsCount = 0;
       this.FOnLoadFail = null;
       this.FOnRecordResolved = null;
       this.FOpenAfterRead = false;
@@ -18402,14 +18413,17 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       var Idx = 0;
       var RUD = null;
       var doRemove = false;
+      var Results = new $mod.TResolveResults();
       if ((this.FBatchList != null) && (aBatch.FDataset === this)) {
         BI = this.FBatchList.IndexOf(aBatch)}
        else BI = -1;
       if (BI === -1) return;
       this.FBatchList.Delete(BI);
+      Results.Records = rtl.arraySetLength(Results.Records,$mod.TResolveInfo,aBatch.FList.FCount);
       for (var $l1 = 0, $end2 = aBatch.FList.FCount - 1; $l1 <= $end2; $l1++) {
         RI = $l1;
         RUD = aBatch.FList.GetUpdate(RI);
+        Results.Records[RI] = new $mod.TResolveInfo(this.RecordUpdateDescriptorToResolveInfo(RUD));
         aBatch.FList.Put(RI,null);
         Idx = this.IndexInChangeList(new $mod.TBookmark(RUD.FBookmark));
         if (Idx !== -1) {
@@ -18428,7 +18442,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
         }, set: function (v) {
           this.p.FBatchList = v;
         }});
-      this.DoAfterApplyUpdates();
+      this.DoAfterApplyUpdates(Results);
     };
     this.DataPacketReceived = function (ARequest) {
       var Result = false;
@@ -18567,7 +18581,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       var FieldIndex = 0;
       var FieldDef = null;
       var Field = null;
-      this.FCalcFieldsSize = 0;
+      this.FCalcFieldsCount = 0;
       this.FBlobFieldCount = 0;
       for (var $l1 = 0, $end2 = this.FFieldList.GetCount() - 1; $l1 <= $end2; $l1++) {
         i = $l1;
@@ -18577,8 +18591,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
           Field.FFieldNo = 0}
          else if (Field.FFieldKind in rtl.createSet($mod.TFieldKind.fkCalculated,$mod.TFieldKind.fkLookup)) {
           Field.FFieldNo = -1;
-          Field.FOffset = this.FCalcFieldsSize;
-          this.FCalcFieldsSize += Field.GetDataSize() + 1;
+          this.FCalcFieldsCount += 1;
         } else {
           FieldIndex = this.FFieldDefs.IndexOf(Field.FFieldName);
           if (FieldIndex === -1) {
@@ -18590,7 +18603,6 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
             if (FieldDef.FInternalCalcField) this.FInternalCalcFields = true;
             if (Field.$class.IsBlob()) {
               Field.FSize = FieldDef.FSize;
-              Field.FOffset = this.FBlobFieldCount;
               this.FBlobFieldCount += 1;
             };
           };
@@ -18692,7 +18704,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
                 }, set: function (v) {
                   this.p[this.a] = v;
                 }})}
-             else if (Self.FAutoCalcFields && (Self.FCalcFieldsSize !== 0)) Self.CalculateFields({a: Self.FActiveRecord, p: Self.FBuffers, get: function () {
+             else if (Self.FAutoCalcFields && (Self.FCalcFieldsCount !== 0)) Self.CalculateFields({a: Self.FActiveRecord, p: Self.FBuffers, get: function () {
                 return this.p[this.a];
               }, set: function (v) {
                 this.p[this.a] = v;
@@ -18790,8 +18802,8 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     this.DoBeforeApplyUpdates = function () {
       if (this.FBeforeApplyUpdates != null) this.FBeforeApplyUpdates(this);
     };
-    this.DoAfterApplyUpdates = function () {
-      if (this.FAfterApplyUpdates != null) this.FAfterApplyUpdates(this);
+    this.DoAfterApplyUpdates = function (ResolveInfo) {
+      if (this.FAfterApplyUpdates != null) this.FAfterApplyUpdates(this,new $mod.TResolveResults(ResolveInfo));
     };
     this.FieldByNumber = function (FieldNo) {
       var Result = null;
@@ -18818,7 +18830,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       return Result;
     };
     this.GetCalcFields = function (Buffer) {
-      if ((this.FCalcFieldsSize > 0) || this.FInternalCalcFields) this.CalculateFields(Buffer);
+      if ((this.FCalcFieldsCount > 0) || this.FInternalCalcFields) this.CalculateFields(Buffer);
     };
     this.GetCanModify = function () {
       var Result = false;
@@ -20784,6 +20796,7 @@ rtl.module("JSONDataset",["System","Types","JS","DB","Classes","SysUtils"],funct
         Buffer.get().data = this.FRows[BkmIdx];
         Buffer.get().bookmarkFlag = pas.DB.TBookmarkFlag.bfCurrent;
         Buffer.get().bookmark = BkmIdx;
+        this.CalculateFields(Buffer);
       };
       return Result;
     };
@@ -21036,7 +21049,9 @@ rtl.module("JSONDataset",["System","Types","JS","DB","Classes","SysUtils"],funct
     this.GetFieldData$1 = function (Field, Buffer) {
       var Result = undefined;
       var R = undefined;
-      if (this.FEditIdx == Buffer.bookmark) {
+      if (this.FState in rtl.createSet(pas.DB.TDataSetState.dsCalcFields,pas.DB.TDataSetState.dsInternalCalc)) {
+        R = this.FCalcBuffer.data}
+       else if (this.FEditIdx == Buffer.bookmark) {
         if (this.FState === pas.DB.TDataSetState.dsOldValue) {
           R = Buffer.data}
          else R = this.FEditRow;
@@ -21049,7 +21064,11 @@ rtl.module("JSONDataset",["System","Types","JS","DB","Classes","SysUtils"],funct
       return Result;
     };
     this.SetFieldData$1 = function (Field, Buffer, AValue) {
-      this.FFieldMapper.SetJSONDataForField$1(Field,this.FEditRow,AValue);
+      var R = undefined;
+      if (this.FState in rtl.createSet(pas.DB.TDataSetState.dsCalcFields,pas.DB.TDataSetState.dsInternalCalc)) {
+        R = this.FCalcBuffer.data}
+       else R = this.FEditRow;
+      this.FFieldMapper.SetJSONDataForField$1(Field,R,AValue);
       this.SetModified(true);
     };
     this.BookmarkValid = function (ABookmark) {

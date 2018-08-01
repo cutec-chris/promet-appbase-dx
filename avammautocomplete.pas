@@ -31,6 +31,7 @@ type
     Popup : TDHTMLXPopup;
     constructor Create(aPopupParams : JSValue;aTable,aRow,aHeader,aColIDs,aFilter : string);
     procedure DoFilter(aFilter : string;DoSelect : Boolean = false);
+    property Params : JSValue read FPopupParams;
     procedure DoShowPopup;virtual;
     property DataSet : TAvammDataset read FDataSet;
     property Filter : string read FFilter write FFilter;
