@@ -29,7 +29,7 @@ type
   public
     Grid : TDHTMLXGrid;
     Popup : TDHTMLXPopup;
-    constructor Create(aPopupParams : JSValue;aTable,aRow,aHeader,aColIDs,aFilter : string);
+    constructor Create(aPopupParams : JSValue;aTable,aRow,aHeader,aColIDs,aFilter : string;Width: Integer = 300;Height : Integer = 200);
     procedure DoFilter(aFilter : string;DoSelect : Boolean = false);
     property Params : JSValue read FPopupParams;
     procedure DoShowPopup;virtual;
@@ -61,7 +61,7 @@ begin
 end;
 
 constructor TAvammAutoComplete.Create(aPopupParams: JSValue; aTable, aRow,
-  aHeader, aColIDs, aFilter: string);
+  aHeader, aColIDs, aFilter: string; Width: Integer; Height: Integer);
   var
     ppId: Integer;
 
@@ -74,7 +74,7 @@ constructor TAvammAutoComplete.Create(aPopupParams: JSValue; aTable, aRow,
 begin
   IsLoading:=False;
   Popup := TDHTMLXPopup.new(aPopupParams);
-  Grid := TDHTMLXGrid(Popup.attachGrid(300,200));
+  Grid := TDHTMLXGrid(Popup.attachGrid(Width,Height));
   FPopupParams:=aPopupParams;
   with Grid do
     begin

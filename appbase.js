@@ -21489,7 +21489,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       try {
         this.First();
         while (!this.FEOF) {
-          if (this.FFieldDefs.IndexOf(KeyFields) === -1) return Result;
+          if (!(this.FieldByName(KeyFields) != null)) return Result;
           if (this.FieldByName(KeyFields).GetAsJSValue() == KeyValues) {
             Result = true;
             return Result;
@@ -22579,7 +22579,7 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
         this.Popup.hide();
       };
     };
-    this.Create$1 = function (aPopupParams, aTable, aRow, aHeader, aColIDs, aFilter) {
+    this.Create$1 = function (aPopupParams, aTable, aRow, aHeader, aColIDs, aFilter, Width, Height) {
       var Self = this;
       var ppId = 0;
       function PopupShowed() {
@@ -22588,7 +22588,7 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
       };
       Self.IsLoading = false;
       Self.Popup = new dhtmlXPopup (aPopupParams);
-      Self.Grid = rtl.getObject(Self.Popup.attachGrid(300,200));
+      Self.Grid = rtl.getObject(Self.Popup.attachGrid(Width,Height));
       Self.FPopupParams = aPopupParams;
       var $with1 = Self.Grid;
       $with1.setSizes();

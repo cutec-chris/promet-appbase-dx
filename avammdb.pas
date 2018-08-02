@@ -284,7 +284,7 @@ begin
     First;
     while not EOF do
       begin
-        if FieldDefs.IndexOf(KeyFields)=-1 then exit;
+        if not Assigned(FieldByName(KeyFields)) then exit;
         if FieldByName(KeyFields).AsJSValue = KeyValues then
           begin
             Result := True;
