@@ -22638,7 +22638,7 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
     };
   });
 });
-rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_calendar","dhtmlx_carousel","AvammAutocomplete"],function () {
+rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_windows","dhtmlx_calendar","dhtmlx_carousel","AvammAutocomplete"],function () {
   "use strict";
   var $mod = this;
   this.MobileCellWidth = 700;
@@ -22817,23 +22817,33 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
   };
   this.DoGetAvammContainer = function () {
     var Result = undefined;
+    var aResizer = 0;
     function ResizePanelsLater() {
+      function HandlwWindowresize(wn) {
+        if (wn.isMaximized()) {
+          wn.minimize();
+          wn.maximize();
+        };
+      };
       window.dispatchEvent(pas.Avamm.ContainerResizedEvent);
+      pas.dhtmlx_windows.Windows.forEachWindow(HandlwWindowresize);
     };
     function DoResizePanels() {
-      window.setTimeout(ResizePanelsLater,10);
+      window.clearTimeout(aResizer);
+      aResizer = window.setTimeout(ResizePanelsLater,100);
     };
     if ($mod.FContainer === null) {
       $mod.FContainer = document.createElement("div");
       $mod.FContainer.style.setProperty("height","100%");
       $mod.FContainer.style.setProperty("width","100%");
       $mod.Layout.cells("b").appendObject($mod.FContainer);
+      $mod.Layout.attachEvent("onResizeFinish",DoResizePanels);
+      $mod.Layout.attachEvent("onCollapse",DoResizePanels);
+      $mod.Layout.attachEvent("onExpand",DoResizePanels);
+      $mod.Layout.attachEvent("onPanelResizeFinish",DoResizePanels);
+      window.addEventListener("ContainerResized",DoResizePanels);
     };
     Result = $mod.FContainer;
-    $mod.Layout.attachEvent("onResizeFinish",DoResizePanels);
-    $mod.Layout.attachEvent("onCollapse",DoResizePanels);
-    $mod.Layout.attachEvent("onExpand",DoResizePanels);
-    $mod.Layout.attachEvent("onPanelResizeFinish",DoResizePanels);
     return Result;
   };
   $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}, strApplicationLoading: {org: "Verbindung wird hergestellt..."}, strRequestTimeout: {org: "Es ist eine Zeitüberschreitung beim Abrufen von Daten aufgetreten !"}};

@@ -1,6 +1,6 @@
 program appbase;
   uses js, web, classes, sysutils, AvammRouter,webrouter, dhtmlx_form, Avamm, promet_dhtmlx,
-    dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, dhtmlx_base, AvammForms,
+    dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, dhtmlx_base, AvammForms, dhtmlx_windows,
     dhtmlx_calendar,dhtmlx_carousel,AvammAutocomplete;
 
 const
@@ -221,15 +221,28 @@ begin
   end;
 end;
 function DoGetAvammContainer: JSValue;
+var
+  aResizer: NativeInt;
   procedure ResizePanelsLater;
+    procedure HandlwWindowresize(wn : TDHTMLXWindowsCell);
+    begin
+      if wn.isMaximized then
+        begin
+          wn.minimize;
+          wn.maximize;
+        end;
+    end;
+
   begin
     asm
       window.dispatchEvent(pas.Avamm.ContainerResizedEvent);
     end;
+    Windows.forEachWindow(@HandlwWindowresize);
   end;
   procedure DoResizePanels;
   begin
-    window.setTimeout(@ResizePanelsLater,10);
+    window.clearTimeout(aResizer);
+    aResizer := window.setTimeout(@ResizePanelsLater,100);
   end;
 begin
   if FContainer = nil then
@@ -238,12 +251,13 @@ begin
       FContainer.style.setProperty('height','100%');
       FContainer.style.setProperty('width','100%');
       Layout.cells('b').appendObject(FContainer);
+      Layout.attachEvent('onResizeFinish',@DoResizePanels);
+      Layout.attachEvent('onCollapse',@DoResizePanels);
+      Layout.attachEvent('onExpand',@DoResizePanels);
+      Layout.attachEvent('onPanelResizeFinish',@DoResizePanels);
+      window.addEventListener('ContainerResized',@DoResizePanels);
     end;
   Result := FContainer;
-  Layout.attachEvent('onResizeFinish',@DoResizePanels);
-  Layout.attachEvent('onCollapse',@DoResizePanels);
-  Layout.attachEvent('onExpand',@DoResizePanels);
-  Layout.attachEvent('onPanelResizeFinish',@DoResizePanels);
 end;
 begin
   FInitialized := False;
