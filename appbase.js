@@ -22809,6 +22809,10 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
     pas.webrouter.Router().FAfterRequest = $mod.RouterAfterRequest;
     pas.webrouter.Router().GetHistory().FOnReady = $mod.OnReady;
     AddLoadingHint();
+    //remove Adressbar on mobile devices if possible
+    if (window.navigator.standalone == false) {
+        window.scrollTo(0, 1);
+    };
     return Result;
   };
   this.DoGetAvammContainer = function () {

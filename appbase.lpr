@@ -214,6 +214,11 @@ begin
   Router.AfterRequest:=@RouterAfterRequest;
   Router.History.OnReady:=@Onready;
   AddLoadingHint;
+  asm //remove Adressbar on mobile devices if possible
+  if (window.navigator.standalone == false) {
+      window.scrollTo(0, 1);
+  }
+  end;
 end;
 function DoGetAvammContainer: JSValue;
   procedure ResizePanelsLater;
