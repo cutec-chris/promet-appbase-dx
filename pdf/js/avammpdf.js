@@ -1,4 +1,4 @@
-var scale = 1.3; //Set this to whatever you want. This is basically the "zoom" factor for the PDF.
+var scale = 1.4; //Set this to whatever you want. This is basically the "zoom" factor for the PDF.
 var PDFJS = window['pdfjs-dist/build/pdf'];
 var currPage = 1;
 var thePdf;
@@ -11,7 +11,7 @@ function loadPdf(pdfData) {
     var loadingTask = PDFJS.getDocument(pdfData);
     loadingTask.promise.then(function(pdf) {
       renderPdf(pdf);
-      return pdf;
+      return loadingTask;
     }).catch(function(err){
       throw err;
     });
@@ -79,14 +79,12 @@ function handlePages(page)
       CustomStyle.setProp('transform', canvas, cssScale);
       CustomStyle.setProp('transformOrigin', canvas, '0% 0%');
 
-      if (textLayerDiv[0]) {
+      if (textLayerDiv) {
           CustomStyle.setProp('transform', textLayerDiv, cssScale);
           CustomStyle.setProp('transformOrigin', textLayerDiv, '0% 0%');
       }
-  }
-  context._scaleX = outputScale.sx;
-  context._scaleY = outputScale.sy;
-  if (outputScale.scaled) {
+      context._scaleX = outputScale.sx;
+      context._scaleY = outputScale.sy;
       context.scale(outputScale.sx, outputScale.sy);
   }
 
