@@ -15,6 +15,7 @@ function loadPdf(pdfData) {
     }).catch(function(err){
       throw err;
     });
+    return loadingTask;
 }
 
 function renderPdf(pdf) {
