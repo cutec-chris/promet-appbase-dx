@@ -16,9 +16,11 @@ type
     FDataSetName : string;
     FDataProxy: TDataProxy;
     FFieldDefsLoaded: TNotifyEvent;
+    FLimit: Integer;
     FSFilter: string;
     function GetUrl: string;
     procedure SetFilter(AValue: string);
+    procedure SetLimit(AValue: Integer);
   Protected
     Function DoGetDataProxy: TDataProxy; override;
     procedure InitDateTimeFields; override;
@@ -27,6 +29,7 @@ type
     constructor Create(AOwner: TComponent;aDataSet : string);
     property Url : string read GetUrl;
     property ServerFilter : string read FSFilter write SetFilter;
+    property ServerLimit : Integer read FLimit write SetLimit;
     function Locate(const KeyFields: string; const KeyValues: JSValue;
   Options: TLocateOptions): boolean; override;
   published
@@ -234,6 +237,8 @@ begin
   Result := GetBaseUrl + '/'+FDataSetName+'/list.json?mode=extjs';
   if FSFilter <> '' then
     Result := Result+'&filter='+encodeURIComponent(FSFilter);
+  if FLimit > 0 then
+    Result := Result+'&limit='+encodeURIComponent(IntToStr(FLimit));
   Result := Result+'&dhxr=none';
 end;
 
@@ -245,6 +250,12 @@ begin
   Close;
   Rows := nil;
   EnableControls;
+end;
+
+procedure TAvammDataset.SetLimit(AValue: Integer);
+begin
+  if FLimit=AValue then Exit;
+  FLimit:=AValue;
 end;
 
 function TAvammDataset.DoGetDataProxy: TDataProxy;

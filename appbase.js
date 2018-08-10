@@ -21440,6 +21440,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       this.FDataSetName = "";
       this.FDataProxy$1 = null;
       this.FFieldDefsLoaded = null;
+      this.FLimit = 0;
       this.FSFilter = "";
     };
     this.$final = function () {
@@ -21451,6 +21452,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       var Result = "";
       Result = ((pas.Avamm.GetBaseUrl() + "\/") + this.FDataSetName) + "\/list.json?mode=extjs";
       if (this.FSFilter !== "") Result = (Result + "&filter=") + encodeURIComponent(this.FSFilter);
+      if (this.FLimit > 0) Result = (Result + "&limit=") + encodeURIComponent(pas.SysUtils.IntToStr(this.FLimit));
       Result = Result + "&dhxr=none";
       return Result;
     };
@@ -21461,6 +21463,10 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       this.Close();
       this.SetRows(null);
       this.EnableControls();
+    };
+    this.SetLimit = function (AValue) {
+      if (this.FLimit === AValue) return;
+      this.FLimit = AValue;
     };
     this.DoGetDataProxy = function () {
       var Result = null;
@@ -22553,6 +22559,7 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
       this.aTimer = 0;
       this.FDblClick = null;
       this.FFilter = "";
+      this.FLimit = 0;
       this.IsLoading = false;
       this.FSelect = false;
       this.FPopupParams = undefined;
@@ -22573,6 +22580,10 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
         this.DoShowPopup();
       };
     };
+    this.SetLimit = function (AValue) {
+      if (this.FLimit === AValue) return;
+      this.FLimit = AValue;
+    };
     this.GridDblClicked = function () {
       if (this.FDblClick != null) {
         this.FDblClick(this);
@@ -22587,6 +22598,7 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
         Self.Popup.detachEvent(ppId);
       };
       Self.IsLoading = false;
+      Self.FLimit = 20;
       Self.Popup = new dhtmlXPopup (aPopupParams);
       Self.Grid = rtl.getObject(Self.Popup.attachGrid(Width,Height));
       Self.FPopupParams = aPopupParams;
@@ -22621,6 +22633,7 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
           nFilter = pas.SysUtils.StringReplace(Self.FFilter,"FILTERVALUE",aFilter,rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll,pas.SysUtils.TStringReplaceFlag.rfIgnoreCase));
           if (nFilter !== Self.FDataSet.FSFilter) {
             Self.FDataSet.SetFilter(nFilter);
+            Self.FDataSet.SetLimit(Self.FLimit);
             Self.FDataSet.Load({},DataLoaded);
             Self.IsLoading = true;
           };

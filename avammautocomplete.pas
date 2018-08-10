@@ -20,10 +20,12 @@ type
     aTimer: NativeInt;
     FDblClick: TNotifyEvent;
     FFilter: string;
+    FLimit: Integer;
     IsLoading : Boolean;
     FSelect: Boolean;
     FPopupParams : JSValue;
     procedure FDataSourceStateChange(Sender: TObject);
+    procedure SetLimit(AValue: Integer);
   protected
     procedure GridDblClicked;virtual;
   public
@@ -35,6 +37,7 @@ type
     procedure DoShowPopup;virtual;
     property DataSet : TAvammDataset read FDataSet;
     property Filter : string read FFilter write FFilter;
+    property Limit : Integer read FLimit write SetLimit;
     property OnDblClick : TNotifyEvent read FDblClick write FDblClick;
   end;
 
@@ -49,6 +52,12 @@ begin
       begin
         DoShowPopup;
       end;
+end;
+
+procedure TAvammAutoComplete.SetLimit(AValue: Integer);
+begin
+  if FLimit=AValue then Exit;
+  FLimit:=AValue;
 end;
 
 procedure TAvammAutoComplete.GridDblClicked;
@@ -73,6 +82,7 @@ constructor TAvammAutoComplete.Create(aPopupParams: JSValue; aTable, aRow,
 
 begin
   IsLoading:=False;
+  FLimit := 20;
   Popup := TDHTMLXPopup.new(aPopupParams);
   Grid := TDHTMLXGrid(Popup.attachGrid(Width,Height));
   FPopupParams:=aPopupParams;
@@ -117,6 +127,7 @@ procedure TAvammAutoComplete.DoFilter(aFilter: string; DoSelect: Boolean);
         if nFilter<>FDataSet.ServerFilter then
           begin
             FDataSet.ServerFilter:=nFilter;
+            FDataSet.ServerLimit := FLimit;
             FDataSet.Load([],@DataLoaded);
             IsLoading := True;
           end;
