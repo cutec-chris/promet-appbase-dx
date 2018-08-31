@@ -22547,6 +22547,10 @@ rtl.module("dhtmlx_carousel",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
 });
+rtl.module("dhtmlx_dataview",["System","JS","Web"],function () {
+  "use strict";
+  var $mod = this;
+});
 rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","dhtmlx_base","dhtmlx_windows","dhtmlx_tabbar","AvammRouter","webrouter","DB","Avamm"],function () {
   "use strict";
   var $mod = this;
@@ -22651,7 +22655,7 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
     };
   });
 });
-rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_windows","dhtmlx_calendar","dhtmlx_carousel","AvammAutocomplete"],function () {
+rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_windows","dhtmlx_calendar","dhtmlx_carousel","dhtmlx_dataview","AvammAutocomplete"],function () {
   "use strict";
   var $mod = this;
   this.MobileCellWidth = 700;
