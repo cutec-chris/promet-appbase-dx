@@ -21448,6 +21448,11 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       this.FFieldDefsLoaded = undefined;
       pas.ExtJSDataset.TExtJSJSONObjectDataSet.$final.call(this);
     };
+    this.GetActiveRecord = function () {
+      var Result = null;
+      Result = rtl.getObject(this.FRows[this.GetRecNo()]);
+      return Result;
+    };
     this.GetUrl = function () {
       var Result = "";
       Result = ((pas.Avamm.GetBaseUrl() + "\/") + this.FDataSetName) + "\/list.json?mode=extjs";
@@ -21509,6 +21514,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
     };
     var $r = this.$rtti;
     $r.addProperty("OnFieldDefsLoaded",0,pas.Classes.$rtti["TNotifyEvent"],"FFieldDefsLoaded","FFieldDefsLoaded");
+    $r.addProperty("ActiveRecord",1,pas.JS.$rtti["TJSObject"],"GetActiveRecord","");
   });
   rtl.createClass($mod,"TAvammDataProxy",pas.DB.TDataProxy,function () {
     this.CheckBatchComplete = function (aBatch) {
@@ -22100,6 +22106,9 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.Grid = undefined;
       $mod.TAvammContentForm.$final.call(this);
     };
+    this.FDataSetLoaded = function (DataSet) {
+      this.DoLoadData();
+    };
     this.FDataSetLoadFail = function (DataSet, ID, ErrorMsg) {
       this.Page.progressOff();
       dhtmlx.message(pas.JS.New(["type","error","text",(rtl.getResStr(pas.AvammForms,"strLoadingFailed") + " ") + ErrorMsg]));
@@ -22113,6 +22122,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       } else this.Toolbar.removeItem("filter");
     };
     this.SwitchProgressOff = function (DataSet, Data) {
+      this.DoLoadData();
       this.Page.progressOff();
     };
     this.DoRowDblClick = function () {
@@ -22124,6 +22134,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.ToolbarButtonClick = function (id) {
       if (id === "new") {}
       else if (id === "refresh") this.RefreshList();
+    };
+    this.DoLoadData = function () {
     };
     this.Create$2 = function (aParent, aDataSet, aPattern) {
       var Self = this;
@@ -22141,6 +22153,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
           window.console.log("Setting Server Filter");
           Self.FDataSet.SetFilter(Self.FOldFilter);
           Self.FDataSet.FOnLoadFail = rtl.createCallback(Self,"FDataSetLoadFail");
+          Self.FDataSet.FAfterLoad = rtl.createCallback(Self,"FDataSetLoaded");
           window.console.log("Loading Data");
           Self.FDataSet.Load({},rtl.createCallback(Self,"SwitchProgressOff"));
         } catch ($e) {
@@ -22187,7 +22200,11 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.FDataSource.SetDataSet(Self.FDataSet);
       Self.FDataLink.SetDataSource(Self.FDataSource);
       Self.Grid.attachEvent("onRowDblClicked",rtl.createCallback(Self,"DoRowDblClick"));
-      Self.Grid.sync(Self.FDataLink.FDatastore);
+      try {
+        Self.Grid.sync(Self.FDataLink.FDatastore);
+      } catch ($e) {
+        pas.System.Writeln("failed to load Data");
+      };
     };
     this.RefreshList = function () {
       try {

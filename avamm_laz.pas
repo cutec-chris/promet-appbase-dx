@@ -8,7 +8,8 @@ unit avamm_laz;
 interface
 
 uses
-  Avamm, AvammDB, promet_dhtmlx, AvammForms, AvammWiki;
+  Avamm, AvammDB, promet_dhtmlx, AvammForms, AvammWiki, AvammRouter, 
+  AvammAutocomplete;
 
 implementation
 

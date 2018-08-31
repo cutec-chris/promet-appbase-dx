@@ -18,6 +18,7 @@ type
     FFieldDefsLoaded: TNotifyEvent;
     FLimit: Integer;
     FSFilter: string;
+    function GetActiveRecord: TJSObject;
     function GetUrl: string;
     procedure SetFilter(AValue: string);
     procedure SetLimit(AValue: Integer);
@@ -34,6 +35,7 @@ type
   Options: TLocateOptions): boolean; override;
   published
     property OnFieldDefsLoaded : TNotifyEvent read FFieldDefsLoaded write FFieldDefsLoaded;
+    property ActiveRecord : TJSObject read GetActiveRecord;
   end;
 
   { TAvammDataProxy }
@@ -240,6 +242,11 @@ begin
   if FLimit > 0 then
     Result := Result+'&limit='+encodeURIComponent(IntToStr(FLimit));
   Result := Result+'&dhxr=none';
+end;
+
+function TAvammDataset.GetActiveRecord: TJSObject;
+begin
+  Result := TJSObject(Rows[RecNo]);
 end;
 
 procedure TAvammDataset.SetFilter(AValue: string);

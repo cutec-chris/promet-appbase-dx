@@ -36,6 +36,7 @@ type
     FDataLink : TDHTMLXDataLink;
     FDataSet : TAvammDataset;
     FTableName : string;
+    procedure FDataSetLoaded(DataSet: TDataSet);
     procedure FDataSetLoadFail(DataSet: TDataSet; ID: Integer;
       const ErrorMsg: String);
     procedure SetFilterHeader(AValue: string);
@@ -43,6 +44,7 @@ type
   protected
     function DoRowDblClick : Boolean;virtual;
     procedure ToolbarButtonClick(id : string);virtual;
+    procedure DoLoadData;virtual;
   public
     Page : TDHTMLXLayout;
     Toolbar : TDHTMLXToolbar;
@@ -541,6 +543,7 @@ constructor TAvammListForm.Create(aParent: TJSElement; aDataSet: string;
       {$ifdef DEBUG}console.log('Setting Server Filter');{$endif}
       FDataSet.ServerFilter:=FOldFilter;
       FDataSet.OnLoadFail:=@FDataSetLoadFail;
+      FDataSet.AfterLoad:=@FDataSetLoaded;
       {$ifdef DEBUG}console.log('Loading Data');{$endif}
       FDataSet.Load([],@SwitchProgressOff);
     except
@@ -596,7 +599,11 @@ begin
   FDataLink.DataSource := FDataSource;
   //FDataLink.DataProcessor.init(Grid);
   Grid.attachEvent('onRowDblClicked',@DoRowDblClick);
-  Grid.sync(FDataLink.Datastore);
+  try
+    Grid.sync(FDataLink.Datastore);
+  except
+    writeln('failed to load Data');
+  end;
 end;
 procedure TAvammListForm.Show;
 begin
@@ -606,6 +613,7 @@ begin
 end;
 procedure TAvammListForm.SwitchProgressOff(DataSet: TDataSet; Data: JSValue);
 begin
+  DoLoadData;
   Page.progressOff();
 end;
 
@@ -624,12 +632,21 @@ begin
     RefreshList;
 end;
 
+procedure TAvammListForm.DoLoadData;
+begin
+end;
+
 procedure TAvammListForm.FDataSetLoadFail(DataSet: TDataSet; ID: Integer;
   const ErrorMsg: String);
 begin
   Page.progressOff;
   dhtmlx.message(js.new(['type','error',
                            'text',strLoadingFailed+' '+ErrorMsg]));
+end;
+
+procedure TAvammListForm.FDataSetLoaded(DataSet: TDataSet);
+begin
+  DoLoadData;
 end;
 
 procedure TAvammListForm.SetFilterHeader(AValue: string);
