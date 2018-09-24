@@ -542,8 +542,6 @@ constructor TAvammListForm.Create(aParent: TJSElement; aDataSet: string;
     try
       {$ifdef DEBUG}console.log('Setting Server Filter');{$endif}
       FDataSet.ServerFilter:=FOldFilter;
-      FDataSet.OnLoadFail:=@FDataSetLoadFail;
-      FDataSet.AfterLoad:=@FDataSetLoaded;
       {$ifdef DEBUG}console.log('Loading Data');{$endif}
       FDataSet.Load([],@SwitchProgressOff);
     except
@@ -595,6 +593,8 @@ begin
   FDataLink := TDHTMLXDataLink.Create;
   FDataLink.IdField:='sql_id';
   FDataSet := TAvammDataset.Create(nil,aDataSet);
+  FDataSet.OnLoadFail:=@FDataSetLoadFail;
+  FDataSet.AfterOpen:=@FDataSetLoaded;
   FDataSource.DataSet := FDataSet;
   FDataLink.DataSource := FDataSource;
   //FDataLink.DataProcessor.init(Grid);
@@ -613,7 +613,6 @@ begin
 end;
 procedure TAvammListForm.SwitchProgressOff(DataSet: TDataSet; Data: JSValue);
 begin
-  DoLoadData;
   Page.progressOff();
 end;
 
@@ -646,7 +645,7 @@ end;
 
 procedure TAvammListForm.FDataSetLoaded(DataSet: TDataSet);
 begin
-  DoLoadData;
+  window.setTimeout(@DoLoadData,50);
 end;
 
 procedure TAvammListForm.SetFilterHeader(AValue: string);

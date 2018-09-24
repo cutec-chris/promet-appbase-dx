@@ -26,6 +26,7 @@ type
     Function DoGetDataProxy: TDataProxy; override;
     procedure InitDateTimeFields; override;
     function DoResolveRecordUpdate(anUpdate: TRecordUpdateDescriptor): Boolean; override;
+    procedure InternalOpen; override;
   Public
     constructor Create(AOwner: TComponent;aDataSet : string);
     property Url : string read GetUrl;
@@ -281,6 +282,12 @@ function TAvammDataset.DoResolveRecordUpdate(anUpdate: TRecordUpdateDescriptor
   ): Boolean;
 begin
   Result:=True;
+end;
+
+procedure TAvammDataset.InternalOpen;
+begin
+  inherited InternalOpen;
+  DoAfterOpen;
 end;
 
 constructor TAvammDataset.Create(AOwner: TComponent; aDataSet: string);

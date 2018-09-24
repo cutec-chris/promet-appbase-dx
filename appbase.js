@@ -21490,6 +21490,10 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       Result = true;
       return Result;
     };
+    this.InternalOpen = function () {
+      pas.ExtJSDataset.TExtJSJSONDataSet.InternalOpen.call(this);
+      this.DoAfterOpen();
+    };
     this.Create$5 = function (AOwner, aDataSet) {
       pas.ExtJSDataset.TExtJSJSONDataSet.Create$1.call(this,AOwner);
       this.FDataSetName = aDataSet;
@@ -22110,7 +22114,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       $mod.TAvammContentForm.$final.call(this);
     };
     this.FDataSetLoaded = function (DataSet) {
-      this.DoLoadData();
+      window.setTimeout(rtl.createCallback(this,"DoLoadData"),50);
     };
     this.FDataSetLoadFail = function (DataSet, ID, ErrorMsg) {
       this.Page.progressOff();
@@ -22125,7 +22129,6 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       } else this.Toolbar.removeItem("filter");
     };
     this.SwitchProgressOff = function (DataSet, Data) {
-      this.DoLoadData();
       this.Page.progressOff();
     };
     this.DoRowDblClick = function () {
@@ -22155,8 +22158,6 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         try {
           window.console.log("Setting Server Filter");
           Self.FDataSet.SetFilter(Self.FOldFilter);
-          Self.FDataSet.FOnLoadFail = rtl.createCallback(Self,"FDataSetLoadFail");
-          Self.FDataSet.FAfterLoad = rtl.createCallback(Self,"FDataSetLoaded");
           window.console.log("Loading Data");
           Self.FDataSet.Load({},rtl.createCallback(Self,"SwitchProgressOff"));
         } catch ($e) {
@@ -22200,6 +22201,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.FDataLink = pas.dhtmlx_db.TDHTMLXDataLink.$create("Create$2");
       Self.FDataLink.FIdField = "sql_id";
       Self.FDataSet = pas.AvammDB.TAvammDataset.$create("Create$5",[null,aDataSet]);
+      Self.FDataSet.FOnLoadFail = rtl.createCallback(Self,"FDataSetLoadFail");
+      Self.FDataSet.FAfterOpen = rtl.createCallback(Self,"FDataSetLoaded");
       Self.FDataSource.SetDataSet(Self.FDataSet);
       Self.FDataLink.SetDataSource(Self.FDataSource);
       Self.Grid.attachEvent("onRowDblClicked",rtl.createCallback(Self,"DoRowDblClick"));
