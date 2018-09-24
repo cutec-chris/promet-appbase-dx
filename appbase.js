@@ -10645,9 +10645,12 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
         pas.System.Writeln("DHTMLX loaded...");
         resolve(true);
       };
-      function ScriptErrorJS() {
+      function ScriptLoadedCSS() {
         $mod.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoadedJS,null);
-        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",null,null);
+        resolve(true);
+      };
+      function ScriptErrorJS() {
+        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoadedCSS,null);
         $mod.AppendCSS("https:\/\/use.fontawesome.com\/releases\/v5.2.0\/css\/all.css",null,null);
         $mod.AppendCSS("https:\/\/use.fontawesome.com\/releases\/v5.2.0\/css\/v4-shims.css",null,null);
       };
