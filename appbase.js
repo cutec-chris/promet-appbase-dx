@@ -10645,18 +10645,19 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
         pas.System.Writeln("DHTMLX loaded...");
         resolve(true);
       };
-      function ScriptLoadedCSS() {
+      function ScriptLoadedCSS2() {
         $mod.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoadedJS,null);
-        resolve(true);
       };
       function ScriptErrorJS() {
-        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoadedCSS,null);
+        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoadedCSS2,null);
         $mod.AppendCSS("https:\/\/use.fontawesome.com\/releases\/v5.2.0\/css\/all.css",null,null);
         $mod.AppendCSS("https:\/\/use.fontawesome.com\/releases\/v5.2.0\/css\/v4-shims.css",null,null);
       };
+      function ScriptLoadedCSS() {
+        $mod.AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoadedJS,ScriptErrorJS);
+      };
       pas.System.Writeln("Loading DHTMLX...");
-      $mod.AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoadedJS,ScriptErrorJS);
-      $mod.AppendCSS("appbase\/dhtmlx\/dhtmlx.css",null,null);
+      $mod.AppendCSS("appbase\/dhtmlx\/dhtmlx.css",ScriptLoadedCSS,ScriptErrorJS);
       $mod.AppendCSS("appbase\/dhtmlx\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
     };
     $mod.WidgetsetLoaded = new Promise(DoLoadDHTMLX);
