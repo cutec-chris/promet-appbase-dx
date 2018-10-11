@@ -22575,6 +22575,20 @@ rtl.module("dhtmlx_dataview",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
 });
+rtl.module("dhtmlx_scheduler",["System","JS","Web"],function () {
+  "use strict";
+  var $mod = this;
+});
+rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler"],function () {
+  "use strict";
+  var $mod = this;
+  rtl.createClass($mod,"TAvammCalenderForm",pas.AvammForms.TAvammListForm,function () {
+    this.Create$2 = function (aParent, aDataSet, aPattern) {
+      pas.AvammForms.TAvammListForm.Create$2.call(this,aParent,aDataSet,aPattern);
+      scheduler.init();
+    };
+  });
+});
 rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","dhtmlx_base","dhtmlx_windows","dhtmlx_tabbar","AvammRouter","webrouter","DB","Avamm"],function () {
   "use strict";
   var $mod = this;
@@ -22679,7 +22693,7 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
     };
   });
 });
-rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_windows","dhtmlx_calendar","dhtmlx_carousel","dhtmlx_dataview","AvammAutocomplete"],function () {
+rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_windows","dhtmlx_calendar","dhtmlx_carousel","dhtmlx_dataview","avammcalendar","AvammAutocomplete"],function () {
   "use strict";
   var $mod = this;
   this.MobileCellWidth = 700;

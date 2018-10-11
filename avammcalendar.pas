@@ -5,7 +5,7 @@ unit avammcalendar;
 interface
 
 uses
-  Classes, SysUtils, AvammForms;
+  web,JS, AvammForms, dhtmlx_scheduler;
 
 type
 
@@ -25,6 +25,7 @@ constructor TAvammCalenderForm.Create(aParent: TJSElement; aDataSet: string;
   aPattern: string);
 begin
   inherited Create(aParent, aDataSet, aPattern);
+  scheduler.init;
 end;
 
 end.

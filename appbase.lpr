@@ -1,7 +1,7 @@
 program appbase;
   uses js, web, classes, sysutils, AvammRouter,webrouter, dhtmlx_form, Avamm, promet_dhtmlx,
     dhtmlx_treeview, dhtmlx_layout, dhtmlx_sidebar, dhtmlx_base, AvammForms, dhtmlx_windows,
-    dhtmlx_calendar,dhtmlx_carousel,dhtmlx_dataview,
+    dhtmlx_calendar,dhtmlx_carousel,dhtmlx_dataview,avammcalendar,
     AvammAutocomplete;
 
 const
