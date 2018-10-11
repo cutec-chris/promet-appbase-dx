@@ -23,7 +23,7 @@
       </Other>
       <SkipCompiler Value="True"/>
     </CompilerOptions>
-    <Files Count="8">
+    <Files Count="9">
       <Item1>
         <HasRegisterProc Value="True"/>
       </Item1>
@@ -55,6 +55,10 @@
         <Filename Value="avammautocomplete.pas"/>
         <UnitName Value="avammautocomplete"/>
       </Item8>
+      <Item9>
+        <Filename Value="avammcalendar.pas"/>
+        <UnitName Value="avammcalendar"/>
+      </Item9>
     </Files>
     <RequiredPkgs Count="2">
       <Item1>
