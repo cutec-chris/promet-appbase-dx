@@ -34,7 +34,7 @@ constructor TAvammCalenderForm.Create(aParent: TJSElement; aDataSet: string;
   end;
 begin
   inherited Create(aParent, aDataSet, aPattern);
-  Grid := nil;
+  //Grid.Destroy;
   LoadScheduler;
   SchedulerLoaded._then(@CreateCalender);
 end;
