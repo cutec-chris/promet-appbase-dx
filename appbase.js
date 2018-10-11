@@ -22575,17 +22575,50 @@ rtl.module("dhtmlx_dataview",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
 });
-rtl.module("dhtmlx_scheduler",["System","JS","Web"],function () {
+rtl.module("dhtmlx_scheduler",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
+  this.SchedulerLoaded = null;
+  this.LoadScheduler = function () {
+    function DoLoadScheduler(resolve, reject) {
+      function ScriptLoadedJS() {
+        pas.System.Writeln("Sheduler loaded...");
+        resolve(true);
+      };
+      function ScriptLoadedCSS2() {
+        pas.dhtmlx_base.AppendJS("https:\/\/cdn.dhtmlx.com\/scheduler\/edge\/dhtmlxscheduler.js",ScriptLoadedJS,null);
+      };
+      function ScriptErrorJS() {
+        pas.dhtmlx_base.AppendCSS("https:\/\/cdn.dhtmlx.com\/scheduler\/edge\/dhtmlxscheduler_material.css",ScriptLoadedCSS2,null);
+      };
+      function ScriptLoadedCSS() {
+        pas.dhtmlx_base.AppendJS("appbase\/dhtmlx\/dhtmlxscheduler.js",ScriptLoadedJS,ScriptErrorJS);
+      };
+      pas.System.Writeln("Loading Sheduler...");
+      pas.dhtmlx_base.AppendCSS("appbase\/dhtmlx\/dhtmlxscheduler_material.css",ScriptLoadedCSS,ScriptErrorJS);
+    };
+    $mod.SchedulerLoaded = new Promise(DoLoadScheduler);
+  };
 });
-rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler"],function () {
+rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler","Avamm"],function () {
   "use strict";
   var $mod = this;
   rtl.createClass($mod,"TAvammCalenderForm",pas.AvammForms.TAvammListForm,function () {
     this.Create$2 = function (aParent, aDataSet, aPattern) {
-      pas.AvammForms.TAvammListForm.Create$2.call(this,aParent,aDataSet,aPattern);
-      scheduler.init();
+      var Self = this;
+      function CreateCalender(aValue) {
+        var Result = undefined;
+        var aDiv = null;
+        aDiv = document.createElement("div");
+        aDiv.innerHTML = '<div id="scheduler_div" class="dhx_cal_container" style="width:100%; height:100%;"><div class="dhx_cal_navline"><div class="dhx_cal_prev_button">&nbsp;<\/div><div class="dhx_cal_next_button">&nbsp;<\/div><div class="dhx_cal_today_button"><\/div><div class="dhx_cal_date"><\/div><div class="dhx_cal_tab" name="day_tab" style="right:204px;"><\/div><div class="dhx_cal_tab" name="week_tab" style="right:140px;"><\/div><div class="dhx_cal_tab" name="month_tab" style="right:76px;"><\/div><\/div><div class="dhx_cal_header"><\/div><div class="dhx_cal_data"><\/div><\/div>';
+        Self.Page.cells("a").appendObject(aDiv);
+        scheduler.init("scheduler_div",new Date(),"month");
+        return Result;
+      };
+      pas.AvammForms.TAvammListForm.Create$2.call(Self,aParent,aDataSet,aPattern);
+      Self.Grid = null;
+      pas.dhtmlx_scheduler.LoadScheduler();
+      pas.dhtmlx_scheduler.SchedulerLoaded.then(CreateCalender);
     };
   });
 });
