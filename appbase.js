@@ -22564,6 +22564,8 @@ rtl.module("dhtmlx_calendar",["System","JS","Web","SysUtils"],function () {
     Result = pas.SysUtils.StringReplace(Result,"yyyy","%Y",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
     Result = pas.SysUtils.StringReplace(Result,"mm","%m",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
     Result = pas.SysUtils.StringReplace(Result,"dd","%d",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    Result = pas.SysUtils.StringReplace(Result,"hh","%h",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    Result = pas.SysUtils.StringReplace(Result,"mm","%i",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
     return Result;
   };
 });
@@ -22583,6 +22585,7 @@ rtl.module("dhtmlx_scheduler",["System","JS","Web","dhtmlx_base"],function () {
     function DoLoadScheduler(resolve, reject) {
       function ScriptLoadedJS() {
         pas.System.Writeln("Sheduler loaded...");
+        scheduler.config.xml_date=pas.dhtmlx_calendar.DateFormatToDHTMLX(pas.SysUtils.ShortDateFormat+" "+pas.SysUtils.ShortTimeFormat);
         resolve(true);
       };
       function ScriptLoadedCSS2() {
@@ -22599,11 +22602,27 @@ rtl.module("dhtmlx_scheduler",["System","JS","Web","dhtmlx_base"],function () {
     };
     $mod.SchedulerLoaded = new Promise(DoLoadScheduler);
   };
-});
+},["dhtmlx_calendar"]);
 rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler","Avamm","SysUtils"],function () {
   "use strict";
   var $mod = this;
   rtl.createClass($mod,"TAvammCalenderForm",pas.AvammForms.TAvammListForm,function () {
+    this.DoLoadData = function () {
+      var arr = null;
+      var aObj = null;
+      arr = new Array();
+      this.FDataSet.First();
+      while (!this.FDataSet.FEOF) {
+        aObj = new Object();
+        aObj["id"] = this.FDataSet.FieldByName("sql_id").GetAsString();
+        aObj["text"] = this.FDataSet.FieldByName("SUMMARY").GetAsString();
+        aObj["start_date"] = pas.SysUtils.FormatDateTime((pas.SysUtils.ShortDateFormat + " ") + pas.SysUtils.ShortTimeFormat,this.FDataSet.FieldByName("STARTDATE").GetAsDateTime());
+        aObj["end_date"] = pas.SysUtils.FormatDateTime((pas.SysUtils.ShortDateFormat + " ") + pas.SysUtils.ShortTimeFormat,this.FDataSet.FieldByName("ENDDATE").GetAsDateTime());
+        arr.push(aObj);
+        this.FDataSet.Next();
+      };
+      scheduler.parse(arr,"json");
+    };
     this.Create$2 = function (aParent, aDataSet, aPattern) {
       var Self = this;
       function CreateCalender(aValue) {
@@ -22614,10 +22633,11 @@ rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler",
         aDiv.style.setProperty("width","100%");
         aDiv.innerHTML = '<div id="scheduler_div" class="dhx_cal_container" style="width:100%; height:100%;"><div class="dhx_cal_navline"><div class="dhx_cal_prev_button">&nbsp;<\/div><div class="dhx_cal_next_button">&nbsp;<\/div><div class="dhx_cal_today_button"><\/div><div class="dhx_cal_date"><\/div><div class="dhx_cal_tab" name="day_tab" style="right:204px;"><\/div><div class="dhx_cal_tab" name="week_tab" style="right:140px;"><\/div><div class="dhx_cal_tab" name="month_tab" style="right:76px;"><\/div><\/div><div class="dhx_cal_header"><\/div><div class="dhx_cal_data"><\/div><\/div>';
         Self.Page.cells("a").attachObject(aDiv);
-        scheduler.init("scheduler_div",new Date(),"month");
+        if (aPattern === "") aPattern = "month";
+        scheduler.init("scheduler_div",new Date(),aPattern);
         return Result;
       };
-      pas.AvammForms.TAvammListForm.Create$2.call(Self,aParent,aDataSet,aPattern);
+      pas.AvammForms.TAvammListForm.Create$2.call(Self,aParent,aDataSet,"1C");
       Self.Grid.destructor();
       pas.dhtmlx_scheduler.LoadScheduler();
       pas.dhtmlx_scheduler.SchedulerLoaded.then(CreateCalender);
