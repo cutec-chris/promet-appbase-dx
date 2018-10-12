@@ -22583,10 +22583,13 @@ rtl.module("dhtmlx_scheduler",["System","JS","Web","dhtmlx_base"],function () {
   this.SchedulerLoaded = null;
   this.LoadScheduler = function () {
     function DoLoadScheduler(resolve, reject) {
-      function ScriptLoadedJS() {
+      function ScriptLoadedJS2() {
         pas.System.Writeln("Sheduler loaded...");
         scheduler.config.xml_date=pas.dhtmlx_calendar.DateFormatToDHTMLX(pas.SysUtils.ShortDateFormat+" "+pas.SysUtils.ShortTimeFormat);
         resolve(true);
+      };
+      function ScriptLoadedJS() {
+        pas.dhtmlx_base.AppendJS("https:\/\/cdn.dhtmlx.com\/scheduler\/edge\/ext\/dhtmlxscheduler_year_view.js",ScriptLoadedJS2,null);
       };
       function ScriptLoadedCSS2() {
         pas.dhtmlx_base.AppendJS("https:\/\/cdn.dhtmlx.com\/scheduler\/edge\/dhtmlxscheduler.js",ScriptLoadedJS,null);
@@ -22652,11 +22655,12 @@ rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler",
         aDiv = document.createElement("div");
         aDiv.style.setProperty("height","100%");
         aDiv.style.setProperty("width","100%");
-        aDiv.innerHTML = '<div id="scheduler_div" class="dhx_cal_container" style="width:100%; height:100%;"><div class="dhx_cal_navline"><div class="dhx_cal_prev_button">&nbsp;<\/div><div class="dhx_cal_next_button">&nbsp;<\/div><div class="dhx_cal_today_button"><\/div><div class="dhx_cal_date"><\/div><div class="dhx_cal_tab" name="day_tab" style="right:204px;"><\/div><div class="dhx_cal_tab" name="week_tab" style="right:140px;"><\/div><div class="dhx_cal_tab" name="month_tab" style="right:76px;"><\/div><\/div><div class="dhx_cal_header"><\/div><div class="dhx_cal_data"><\/div><\/div>';
+        aDiv.innerHTML = ((((((((((('<div id="scheduler_div" class="dhx_cal_container" style="width:100%; height:100%;">' + '<div class="dhx_cal_navline">') + '<div class="dhx_cal_prev_button">&nbsp;<\/div>') + '<div class="dhx_cal_next_button">&nbsp;<\/div>') + '<div class="dhx_cal_today_button"><\/div><div class="dhx_cal_date"><\/div>') + '<div class="dhx_cal_tab" name="day_tab" style="right:204px;"><\/div>') + '<div class="dhx_cal_tab" name="week_tab" style="right:140px;"><\/div>') + '<div class="dhx_cal_tab" name="month_tab" style="right:76px;"><\/div>') + '<div class="dhx_cal_tab" name="year_tab" style="right:70px;"><\/div>') + "<\/div>") + '<div class="dhx_cal_header"><\/div>') + '<div class="dhx_cal_data"><\/div>') + "<\/div>";
         Self.Page.cells("a").attachObject(aDiv);
         if (aPattern === "") aPattern = "month";
         scheduler.init("scheduler_div",new Date(),aPattern);
         me = Self;
+        scheduler.locale.labels.year_tab ="Year";
         scheduler.showLightbox = function(id){
           me.DoShowLightBox(id);
         };
