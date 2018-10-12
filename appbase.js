@@ -22606,28 +22606,49 @@ rtl.module("dhtmlx_scheduler",["System","JS","Web","dhtmlx_base"],function () {
 rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler","Avamm","SysUtils"],function () {
   "use strict";
   var $mod = this;
+  $mod.$rtti.$ProcVar("TShowLightBoxEvent",{procsig: rtl.newTIProcSig([["Sender",pas.System.$rtti["TObject"]],["id",rtl.jsvalue]])});
   rtl.createClass($mod,"TAvammCalenderForm",pas.AvammForms.TAvammListForm,function () {
+    this.$init = function () {
+      pas.AvammForms.TAvammListForm.$init.call(this);
+      this.FShowLightBox = null;
+    };
+    this.$final = function () {
+      this.FShowLightBox = undefined;
+      pas.AvammForms.TAvammListForm.$final.call(this);
+    };
     this.DoLoadData = function () {
+      var Self = this;
       var arr = null;
       var aObj = null;
-      arr = new Array();
-      this.FDataSet.First();
-      while (!this.FDataSet.FEOF) {
-        aObj = new Object();
-        aObj["id"] = this.FDataSet.FieldByName("sql_id").GetAsString();
-        aObj["text"] = this.FDataSet.FieldByName("SUMMARY").GetAsString();
-        aObj["start_date"] = pas.SysUtils.FormatDateTime((pas.SysUtils.ShortDateFormat + " ") + pas.SysUtils.ShortTimeFormat,this.FDataSet.FieldByName("STARTDATE").GetAsDateTime());
-        aObj["end_date"] = pas.SysUtils.FormatDateTime((pas.SysUtils.ShortDateFormat + " ") + pas.SysUtils.ShortTimeFormat,this.FDataSet.FieldByName("ENDDATE").GetAsDateTime());
-        arr.push(aObj);
-        this.FDataSet.Next();
+      function parseData(aValue) {
+        var Result = undefined;
+        scheduler.parse(arr,"json");
+        return Result;
       };
-      scheduler.parse(arr,"json");
+      arr = new Array();
+      Self.FDataSet.DisableControls();
+      Self.FDataSet.First();
+      while (!Self.FDataSet.FEOF) {
+        aObj = new Object();
+        aObj["id"] = Self.FDataSet.FieldByName("sql_id").GetAsString();
+        aObj["text"] = Self.FDataSet.FieldByName("SUMMARY").GetAsString();
+        aObj["start_date"] = pas.SysUtils.FormatDateTime((pas.SysUtils.ShortDateFormat + " ") + pas.SysUtils.ShortTimeFormat,Self.FDataSet.FieldByName("STARTDATE").GetAsDateTime());
+        aObj["end_date"] = pas.SysUtils.FormatDateTime((pas.SysUtils.ShortDateFormat + " ") + pas.SysUtils.ShortTimeFormat,Self.FDataSet.FieldByName("ENDDATE").GetAsDateTime());
+        arr.push(aObj);
+        Self.FDataSet.Next();
+      };
+      Self.FDataSet.EnableControls();
+      pas.dhtmlx_scheduler.SchedulerLoaded.then(parseData);
+    };
+    this.DoShowLightBox = function (id) {
+      if (this.FShowLightBox != null) this.FShowLightBox(this,id);
     };
     this.Create$2 = function (aParent, aDataSet, aPattern) {
       var Self = this;
       function CreateCalender(aValue) {
         var Result = undefined;
         var aDiv = null;
+        var me = null;
         aDiv = document.createElement("div");
         aDiv.style.setProperty("height","100%");
         aDiv.style.setProperty("width","100%");
@@ -22635,6 +22656,10 @@ rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler",
         Self.Page.cells("a").attachObject(aDiv);
         if (aPattern === "") aPattern = "month";
         scheduler.init("scheduler_div",new Date(),aPattern);
+        me = Self;
+        scheduler.showLightbox = function(id){
+          me.DoShowLightBox(id);
+        };
         return Result;
       };
       pas.AvammForms.TAvammListForm.Create$2.call(Self,aParent,aDataSet,"1C");

@@ -8,14 +8,18 @@ uses
   web,JS, AvammForms, dhtmlx_scheduler, Avamm, Sysutils;
 
 type
+  TShowLightBoxEvent = procedure(Sender : TObject;id : JSValue);
 
   { TAvammCalenderForm }
 
   TAvammCalenderForm = class(TAvammListForm)
   private
+    FShowLightBox: TShowLightBoxEvent;
     procedure DoLoadData; override;
+    procedure DoShowLightBox(id : JSValue);
   public
     constructor Create(aParent : TJSElement;aDataSet : string;aPattern : string = 'month');override;
+    property OnShowLightBox : TShowLightBoxEvent read FShowLightBox write FShowLightBox;
   end;
 
 implementation
@@ -26,8 +30,14 @@ procedure TAvammCalenderForm.DoLoadData;
 var
   arr : TJSArray;
   aObj: TJSObject;
+
+  function parseData(aValue: JSValue): JSValue;
+  begin
+    scheduler.parse(arr,'json');
+  end;
 begin
   arr := TJSArray.new;
+  DataSet.DisableControls;
   DataSet.First;
   while not DataSet.EOF do
     begin
@@ -36,11 +46,17 @@ begin
       aObj.Properties['text'] := DataSet.FieldByName('SUMMARY').AsString;
       aObj.Properties['start_date'] := FormatDateTime(ShortDateFormat+' '+ShortTimeFormat,DataSet.FieldByName('STARTDATE').AsDateTime);
       aObj.Properties['end_date'] := FormatDateTime(ShortDateFormat+' '+ShortTimeFormat,DataSet.FieldByName('ENDDATE').AsDateTime);
-
       arr.push(aObj);
       DataSet.Next;
     end;
-  scheduler.parse(arr,'json');
+  DataSet.EnableControls;
+  SchedulerLoaded._then(@parseData);
+end;
+
+procedure TAvammCalenderForm.DoShowLightBox(id: JSValue);
+begin
+  if Assigned(OnShowLightbox) then
+    OnShowLightBox(Self,id);
 end;
 
 constructor TAvammCalenderForm.Create(aParent: TJSElement; aDataSet: string;
@@ -48,6 +64,7 @@ constructor TAvammCalenderForm.Create(aParent: TJSElement; aDataSet: string;
   function CreateCalender(aValue: JSValue): JSValue;
   var
     aDiv: TJSHTMLElement;
+    me : TAvammCalenderForm;
   begin
     aDiv := TJSHTMLElement(document.createElement('div'));
     aDiv.style.setProperty('height','100%');
@@ -57,6 +74,12 @@ constructor TAvammCalenderForm.Create(aParent: TJSElement; aDataSet: string;
     if aPattern='' then
       aPattern:='month';
     scheduler.init('scheduler_div',TJSDate.New,aPattern);
+    me := Self;
+    asm
+    scheduler.showLightbox = function(id){
+      me.DoShowLightBox(id);
+    }
+    end;
   end;
 begin
   inherited Create(aParent, aDataSet, '1C');
