@@ -22600,7 +22600,7 @@ rtl.module("dhtmlx_scheduler",["System","JS","Web","dhtmlx_base"],function () {
     $mod.SchedulerLoaded = new Promise(DoLoadScheduler);
   };
 });
-rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler","Avamm"],function () {
+rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler","Avamm","SysUtils"],function () {
   "use strict";
   var $mod = this;
   rtl.createClass($mod,"TAvammCalenderForm",pas.AvammForms.TAvammListForm,function () {
@@ -22610,13 +22610,15 @@ rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler",
         var Result = undefined;
         var aDiv = null;
         aDiv = document.createElement("div");
+        aDiv.style.setProperty("height","100%");
+        aDiv.style.setProperty("width","100%");
         aDiv.innerHTML = '<div id="scheduler_div" class="dhx_cal_container" style="width:100%; height:100%;"><div class="dhx_cal_navline"><div class="dhx_cal_prev_button">&nbsp;<\/div><div class="dhx_cal_next_button">&nbsp;<\/div><div class="dhx_cal_today_button"><\/div><div class="dhx_cal_date"><\/div><div class="dhx_cal_tab" name="day_tab" style="right:204px;"><\/div><div class="dhx_cal_tab" name="week_tab" style="right:140px;"><\/div><div class="dhx_cal_tab" name="month_tab" style="right:76px;"><\/div><\/div><div class="dhx_cal_header"><\/div><div class="dhx_cal_data"><\/div><\/div>';
-        Self.Page.cells("a").appendObject(aDiv);
+        Self.Page.cells("a").attachObject(aDiv);
         scheduler.init("scheduler_div",new Date(),"month");
         return Result;
       };
       pas.AvammForms.TAvammListForm.Create$2.call(Self,aParent,aDataSet,aPattern);
-      Self.Grid = null;
+      Self.Grid.destructor();
       pas.dhtmlx_scheduler.LoadScheduler();
       pas.dhtmlx_scheduler.SchedulerLoaded.then(CreateCalender);
     };
