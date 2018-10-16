@@ -5,7 +5,7 @@ unit Avamm;
 interface
 
 uses
-  js, web, AvammRouter,webrouter, classes, SysUtils;
+  js, web, AvammRouter,webrouter, classes, SysUtils, synautil_js;
 
 type TJSValueCallback = procedure(aName : JSValue);
 

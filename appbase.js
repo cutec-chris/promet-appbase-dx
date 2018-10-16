@@ -10603,6 +10603,245 @@ rtl.module("dhtmlx_form",["System","Web"],function () {
   "use strict";
   var $mod = this;
 });
+rtl.module("synautil_js",["System","Classes","SysUtils"],function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  this.DecodeRfcDateTime = function (Value) {
+    var Result = 0.0;
+    var day = 0;
+    var month = 0;
+    var year = 0;
+    var zone = 0;
+    var x = 0;
+    var y = 0;
+    var s = "";
+    var t = 0.0;
+    Result = 0;
+    if (Value === "") return Result;
+    day = 0;
+    month = 0;
+    year = 0;
+    zone = 0;
+    Value = pas.SysUtils.StringReplace(Value," -"," #",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    Value = pas.SysUtils.StringReplace(Value,"-"," ",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    Value = pas.SysUtils.StringReplace(Value," #"," -",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    while (Value !== "") {
+      s = $impl.FetchEx({get: function () {
+          return Value;
+        }, set: function (v) {
+          Value = v;
+        }}," ","");
+      s = pas.SysUtils.UpperCase(s);
+      if ($impl.DecodeTimeZone(s,{get: function () {
+          return x;
+        }, set: function (v) {
+          x = v;
+        }})) {
+        zone = x;
+        continue;
+      };
+      x = pas.SysUtils.StrToIntDef(s,0);
+      if (x > 0) if ((x < 32) && (day === 0)) {
+        day = x;
+        continue;
+      } else {
+        if ((year === 0) && ((month > 0) || (x > 12))) {
+          year = x;
+          if (year < 32) year = year + 2000;
+          if (year < 1000) year = year + 1900;
+          continue;
+        };
+      };
+      if ($impl.RPos(":",s) > pas.System.Pos(":",s)) {
+        t = $impl.GetTimeFromStr(s);
+        if (t !== -1) Result = t;
+        continue;
+      };
+      if (s === "DST") {
+        zone = zone + 60;
+        continue;
+      };
+      y = $impl.GetMonthNumber(s);
+      if ((y > 0) && (month === 0)) month = y;
+    };
+    if (year === 0) year = 1980;
+    if (month < 1) month = 1;
+    if (month > 12) month = 12;
+    if (day < 1) day = 1;
+    x = pas.SysUtils.MonthDays[+pas.SysUtils.IsLeapYear(year)][month - 1];
+    if (day > x) day = x;
+    Result = Result + pas.SysUtils.EncodeDate(year,month,day);
+    zone = zone - 0;
+    x = Math.floor(zone / 1440);
+    Result = Result - x;
+    zone = zone % 1440;
+    t = pas.SysUtils.EncodeTime(Math.floor(Math.abs(zone) / 60),Math.abs(zone) % 60,0,0);
+    if (zone < 0) t = 0 - t;
+    Result = Result - t;
+    return Result;
+  };
+},null,function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $impl.FetchEx = function (Value, Delimiter, Quotation) {
+    var Result = "";
+    var b = false;
+    Result = "";
+    b = false;
+    while (Value.get().length > 0) {
+      if (b) {
+        if (pas.System.Pos(Quotation,Value.get()) === 1) b = false;
+        Result = Result + Value.get().charAt(0);
+        pas.System.Delete(Value,1,1);
+      } else {
+        if (pas.System.Pos(Delimiter,Value.get()) === 1) {
+          pas.System.Delete(Value,1,Delimiter.length);
+          break;
+        };
+        b = pas.System.Pos(Quotation,Value.get()) === 1;
+        Result = Result + Value.get().charAt(0);
+        pas.System.Delete(Value,1,1);
+      };
+    };
+    return Result;
+  };
+  $impl.DecodeTimeZone = function (Value, Zone) {
+    var Result = false;
+    var x = 0;
+    var zh = 0;
+    var zm = 0;
+    var s = "";
+    Result = false;
+    s = Value;
+    if ((pas.System.Pos("+",s) === 1) || (pas.System.Pos("-",s) === 1)) {
+      if (s === "-0000") {
+        Zone.set(0)}
+       else if (s.length > 4) {
+        zh = pas.SysUtils.StrToIntDef(s.charAt(1) + s.charAt(2),0);
+        zm = pas.SysUtils.StrToIntDef(s.charAt(3) + s.charAt(4),0);
+        Zone.set((zh * 60) + zm);
+        if (s.charAt(0) === "-") Zone.set(Zone.get() * -1);
+      };
+      Result = true;
+    } else {
+      x = 32767;
+      if (s === "NZDT") x = 13;
+      if (s === "IDLE") x = 12;
+      if (s === "NZST") x = 12;
+      if (s === "NZT") x = 12;
+      if (s === "EADT") x = 11;
+      if (s === "GST") x = 10;
+      if (s === "JST") x = 9;
+      if (s === "CCT") x = 8;
+      if (s === "WADT") x = 8;
+      if (s === "WAST") x = 7;
+      if (s === "ZP6") x = 6;
+      if (s === "ZP5") x = 5;
+      if (s === "ZP4") x = 4;
+      if (s === "BT") x = 3;
+      if (s === "EET") x = 2;
+      if (s === "MEST") x = 2;
+      if (s === "MESZ") x = 2;
+      if (s === "SST") x = 2;
+      if (s === "FST") x = 2;
+      if (s === "CEST") x = 2;
+      if (s === "CET") x = 1;
+      if (s === "FWT") x = 1;
+      if (s === "MET") x = 1;
+      if (s === "MEWT") x = 1;
+      if (s === "SWT") x = 1;
+      if (s === "UT") x = 0;
+      if (s === "UTC") x = 0;
+      if (s === "GMT") x = 0;
+      if (s === "WET") x = 0;
+      if (s === "WAT") x = -1;
+      if (s === "BST") x = -1;
+      if (s === "AT") x = -2;
+      if (s === "ADT") x = -3;
+      if (s === "AST") x = -4;
+      if (s === "EDT") x = -4;
+      if (s === "EST") x = -5;
+      if (s === "CDT") x = -5;
+      if (s === "CST") x = -6;
+      if (s === "MDT") x = -6;
+      if (s === "MST") x = -7;
+      if (s === "PDT") x = -7;
+      if (s === "PST") x = -8;
+      if (s === "YDT") x = -8;
+      if (s === "YST") x = -9;
+      if (s === "HDT") x = -9;
+      if (s === "AHST") x = -10;
+      if (s === "CAT") x = -10;
+      if (s === "HST") x = -10;
+      if (s === "EAST") x = -10;
+      if (s === "NT") x = -11;
+      if (s === "IDLW") x = -12;
+      if (x !== 32767) {
+        Zone.set(x * 60);
+        Result = true;
+      };
+    };
+    return Result;
+  };
+  $impl.RPosEx = function (Sub, Value, From) {
+    var Result = 0;
+    var n = 0;
+    var l = 0;
+    Result = 0;
+    l = Sub.length;
+    for (var $l1 = (From - l) + 1; $l1 >= 1; $l1--) {
+      n = $l1;
+      if (pas.System.Copy(Value,n,l) === Sub) {
+        Result = n;
+        break;
+      };
+    };
+    return Result;
+  };
+  $impl.RPos = function (Sub, Value) {
+    var Result = 0;
+    Result = $impl.RPosEx(Sub,Value,Value.length);
+    return Result;
+  };
+  $impl.GetTimeFromStr = function (Value) {
+    var Result = 0.0;
+    var x = 0;
+    x = $impl.RPos(":",Value);
+    if ((x > 0) && ((Value.length - x) > 2)) Value = pas.System.Copy(Value,1,x + 2);
+    Value = pas.SysUtils.StringReplace(Value,":",pas.SysUtils.TimeSeparator,rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    Result = -1;
+    try {
+      Result = pas.SysUtils.StrToTime(Value);
+    } catch ($e) {
+      if (pas.SysUtils.Exception.isPrototypeOf($e)) {}
+      else throw $e
+    };
+    return Result;
+  };
+  $impl.GetMonthNumber = function (Value) {
+    var Result = 0;
+    var n = 0;
+    function TestMonth(Value, Index) {
+      var Result = false;
+      var n = 0;
+      Result = false;
+      for (n = 0; n <= 6; n++) if (Value === pas.SysUtils.UpperCase(pas.SysUtils.ShortMonthNames[Index - 1])) {
+        Result = true;
+        break;
+      };
+      return Result;
+    };
+    Result = 0;
+    Value = pas.SysUtils.UpperCase(Value);
+    for (n = 1; n <= 12; n++) if (TestMonth(Value,n) || (Value === pas.SysUtils.UpperCase(pas.SysUtils.ShortMonthNames[n - 1]))) {
+      Result = n;
+      break;
+    };
+    return Result;
+  };
+});
 rtl.module("dhtmlx_base",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
@@ -10663,7 +10902,7 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
     $mod.WidgetsetLoaded = new Promise(DoLoadDHTMLX);
   };
 });
-rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","SysUtils"],function () {
+rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","SysUtils","synautil_js"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
