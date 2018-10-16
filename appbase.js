@@ -10627,11 +10627,11 @@ rtl.module("synautil_js",["System","Classes","SysUtils"],function () {
     Value = pas.SysUtils.StringReplace(Value,"-"," ",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
     Value = pas.SysUtils.StringReplace(Value," #"," -",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
     while (Value !== "") {
-      s = $impl.FetchEx({get: function () {
+      s = $impl.Fetch({get: function () {
           return Value;
         }, set: function (v) {
           Value = v;
-        }}," ","");
+        }}," ");
       s = pas.SysUtils.UpperCase(s);
       if ($impl.DecodeTimeZone(s,{get: function () {
           return x;
@@ -10685,6 +10685,68 @@ rtl.module("synautil_js",["System","Classes","SysUtils"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
+  $impl.TrimSPLeft = function (S) {
+    var Result = "";
+    var I = 0;
+    var L = 0;
+    Result = "";
+    if (S === "") return Result;
+    L = S.length;
+    I = 1;
+    while ((I <= L) && (S.charAt(I - 1) === " ")) I += 1;
+    Result = pas.System.Copy(S,I,2147483647);
+    return Result;
+  };
+  $impl.TrimSPRight = function (S) {
+    var Result = "";
+    var I = 0;
+    Result = "";
+    if (S === "") return Result;
+    I = S.length;
+    while ((I > 0) && (S.charAt(I - 1) === " ")) I -= 1;
+    Result = pas.System.Copy(S,1,I);
+    return Result;
+  };
+  $impl.TrimSP = function (S) {
+    var Result = "";
+    Result = $impl.TrimSPLeft(S);
+    Result = $impl.TrimSPRight(Result);
+    return Result;
+  };
+  $impl.SeparateLeft = function (Value, Delimiter) {
+    var Result = "";
+    var x = 0;
+    x = pas.System.Pos(Delimiter,Value);
+    if (x < 1) {
+      Result = Value}
+     else Result = pas.System.Copy(Value,1,x - 1);
+    return Result;
+  };
+  $impl.SeparateRight = function (Value, Delimiter) {
+    var Result = "";
+    var x = 0;
+    x = pas.System.Pos(Delimiter,Value);
+    if (x > 0) x = (x + Delimiter.length) - 1;
+    Result = pas.System.Copy(Value,x + 1,Value.length - x);
+    return Result;
+  };
+  $impl.FetchBin = function (Value, Delimiter) {
+    var Result = "";
+    var s = "";
+    Result = $impl.SeparateLeft(Value.get(),Delimiter);
+    s = $impl.SeparateRight(Value.get(),Delimiter);
+    if (s === Value.get()) {
+      Value.set("")}
+     else Value.set(s);
+    return Result;
+  };
+  $impl.Fetch = function (Value, Delimiter) {
+    var Result = "";
+    Result = $impl.FetchBin(Value,Delimiter);
+    Result = $impl.TrimSP(Result);
+    Value.set($impl.TrimSP(Value.get()));
+    return Result;
+  };
   $impl.FetchEx = function (Value, Delimiter, Quotation) {
     var Result = "";
     var b = false;

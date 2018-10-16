@@ -11,6 +11,72 @@ function DecodeRfcDateTime(Value: string): TDateTime;
 
 implementation
 
+function TrimSPLeft(const S: string): string;
+var
+  I, L: Integer;
+begin
+  Result := '';
+  if S = '' then
+    Exit;
+  L := Length(S);
+  I := 1;
+  while (I <= L) and (S[I] = ' ') do
+    Inc(I);
+  Result := Copy(S, I, Maxint);
+end;
+function TrimSPRight(const S: string): string;
+var
+  I: Integer;
+begin
+  Result := '';
+  if S = '' then
+    Exit;
+  I := Length(S);
+  while (I > 0) and (S[I] = ' ') do
+    Dec(I);
+  Result := Copy(S, 1, I);
+end;
+function TrimSP(const S: string): string;
+begin
+  Result := TrimSPLeft(s);
+  Result := TrimSPRight(Result);
+end;
+function SeparateLeft(const Value, Delimiter: string): string;
+var
+  x: Integer;
+begin
+  x := Pos(Delimiter, Value);
+  if x < 1 then
+    Result := Value
+  else
+    Result := Copy(Value, 1, x - 1);
+end;
+function SeparateRight(const Value, Delimiter: string): string;
+var
+  x: Integer;
+begin
+  x := Pos(Delimiter, Value);
+  if x > 0 then
+    x := x + Length(Delimiter) - 1;
+  Result := Copy(Value, x + 1, Length(Value) - x);
+end;
+function FetchBin(var Value: string; const Delimiter: string): string;
+var
+  s: string;
+begin
+  Result := SeparateLeft(Value, Delimiter);
+  s := SeparateRight(Value, Delimiter);
+  if s = Value then
+    Value := ''
+  else
+    Value := s;
+end;
+function Fetch(var Value: string; const Delimiter: string): string;
+begin
+  Result := FetchBin(Value, Delimiter);
+  Result := TrimSP(Result);
+  Value := TrimSP(Value);
+end;
 function FetchEx(var Value: string; const Delimiter, Quotation: string): string;
 var
   b: Boolean;
@@ -211,7 +277,7 @@ begin
   Value := StringReplace(Value, ' #', ' -',[rfReplaceAll]);
   while Value <> '' do
   begin
-    s := FetchEx(Value, ' ','');
+    s := Fetch(Value, ' ');
     s := uppercase(s);
     // timezone
     if DecodetimeZone(s, x) then
