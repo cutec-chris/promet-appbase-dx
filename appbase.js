@@ -10672,7 +10672,7 @@ rtl.module("synautil_js",["System","Classes","SysUtils"],function () {
     x = pas.SysUtils.MonthDays[+pas.SysUtils.IsLeapYear(year)][month - 1];
     if (day > x) day = x;
     Result = Result + pas.SysUtils.EncodeDate(year,month,day);
-    zone = zone - 0;
+    zone = zone - $impl.TimeZoneBias();
     x = Math.floor(zone / 1440);
     Result = Result - x;
     zone = zone % 1440;
@@ -10681,10 +10681,37 @@ rtl.module("synautil_js",["System","Classes","SysUtils"],function () {
     Result = Result - t;
     return Result;
   };
+  this.Rfc822DateTime = function (t) {
+    var Result = "";
+    var wYear = 0;
+    var wMonth = 0;
+    var wDay = 0;
+    pas.SysUtils.DecodeDate(t,{get: function () {
+        return wYear;
+      }, set: function (v) {
+        wYear = v;
+      }},{get: function () {
+        return wMonth;
+      }, set: function (v) {
+        wMonth = v;
+      }},{get: function () {
+        return wDay;
+      }, set: function (v) {
+        wDay = v;
+      }});
+    Result = pas.SysUtils.Format("%s, %d %s %s %s",[pas.SysUtils.ShortDayNames[pas.SysUtils.DayOfWeek(t)],wDay,pas.SysUtils.ShortMonthNames[wMonth - 1],pas.SysUtils.FormatDateTime('yyyy hh":"nn":"ss',t),$impl.TimeZone()]);
+    return Result;
+  };
 },null,function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
+  $impl.TimeZoneBias = function () {
+    var Result = 0;
+    var d = new Date();
+    Result = d.getTimezoneOffset();
+    return Result;
+  };
   $impl.TrimSPLeft = function (S) {
     var Result = "";
     var I = 0;
@@ -10779,7 +10806,7 @@ rtl.module("synautil_js",["System","Classes","SysUtils"],function () {
     s = Value;
     if ((pas.System.Pos("+",s) === 1) || (pas.System.Pos("-",s) === 1)) {
       if (s === "-0000") {
-        Zone.set(0)}
+        Zone.set($impl.TimeZoneBias())}
        else if (s.length > 4) {
         zh = pas.SysUtils.StrToIntDef(s.charAt(1) + s.charAt(2),0);
         zm = pas.SysUtils.StrToIntDef(s.charAt(3) + s.charAt(4),0);
@@ -10901,6 +10928,21 @@ rtl.module("synautil_js",["System","Classes","SysUtils"],function () {
       Result = n;
       break;
     };
+    return Result;
+  };
+  $impl.TimeZone = function () {
+    var Result = "";
+    var bias = 0;
+    var h = 0;
+    var m = 0;
+    bias = $impl.TimeZoneBias();
+    if (bias >= 0) {
+      Result = "+"}
+     else Result = "-";
+    bias = Math.abs(bias);
+    h = Math.floor(bias / 60);
+    m = bias % 60;
+    Result = Result + pas.SysUtils.Format("%.2d%.2d",[h,m]);
     return Result;
   };
 });
@@ -22907,7 +22949,7 @@ rtl.module("dhtmlx_scheduler",["System","JS","Web","dhtmlx_base"],function () {
     $mod.SchedulerLoaded = new Promise(DoLoadScheduler);
   };
 },["dhtmlx_calendar"]);
-rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler","Avamm","SysUtils"],function () {
+rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler","Avamm","SysUtils","synautil_js"],function () {
   "use strict";
   var $mod = this;
   $mod.$rtti.$ProcVar("TShowLightBoxEvent",{procsig: rtl.newTIProcSig([["Sender",pas.System.$rtti["TObject"]],["id",rtl.jsvalue]])});
@@ -22953,6 +22995,23 @@ rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler",
         var Result = undefined;
         var aDiv = null;
         var me = null;
+        function EventCreated(id, e) {
+          var EventFields = null;
+          var Event = null;
+          function EventSaved(aValue) {
+            var Result = undefined;
+            return Result;
+          };
+          pas.System.Writeln("Creating new Event:",id);
+          EventFields = new Object();
+          EventFields["id"] = "" + id;
+          EventFields["ID"] = "" + id;
+          EventFields["SUMMARY"] = "Urlaub";
+          EventFields["STARTDATE"] = pas.synautil_js.Rfc822DateTime(pas.SysUtils.Now());
+          EventFields["ENDDATE"] = pas.synautil_js.Rfc822DateTime(pas.SysUtils.Now() + 0.5);
+          Event = pas.JS.New(["Fields",EventFields]);
+          pas.Avamm.StoreData("\/calendar\/new\/item.json",JSON.stringify(Event),false,"",6000).then(EventSaved);
+        };
         aDiv = document.createElement("div");
         aDiv.style.setProperty("height","100%");
         aDiv.style.setProperty("width","100%");
@@ -22965,6 +23024,7 @@ rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler",
         scheduler.showLightbox = function(id){
           me.DoShowLightBox(id);
         };
+        scheduler.attachEvent("onEventCreated",EventCreated);
         return Result;
       };
       pas.AvammForms.TAvammListForm.Create$2.call(Self,aParent,aDataSet,"1C");

@@ -5,7 +5,7 @@ unit avammcalendar;
 interface
 
 uses
-  web,JS, AvammForms, dhtmlx_scheduler, Avamm, Sysutils;
+  web,JS, AvammForms, dhtmlx_scheduler, Avamm, Sysutils, synautil_js;
 
 type
   TShowLightBoxEvent = procedure(Sender : TObject;id : JSValue);
@@ -65,6 +65,24 @@ constructor TAvammCalenderForm.Create(aParent: TJSElement; aDataSet: string;
   var
     aDiv: TJSHTMLElement;
     me : TAvammCalenderForm;
+    procedure EventCreated(id,e : JSValue);
+    var
+      EventFields, Event: TJSObject;
+      function EventSaved(aValue: JSValue): JSValue;
+      begin
+
+      end;
+    begin
+      writeln('Creating new Event:',id);
+      EventFields := TJSObject.new;
+      EventFields.Properties['id'] := string(id);
+      EventFields.Properties['ID'] := string(id);
+      EventFields.Properties['SUMMARY'] := 'Urlaub';
+      EventFields.Properties['STARTDATE'] := Rfc822DateTime(Now());
+      EventFields.Properties['ENDDATE'] := Rfc822DateTime(Now()+0.5);
+      Event := js.new(['Fields',EventFields]);
+      Avamm.StoreData('/calendar/new/item.json',TJSJSON.stringify(Event))._then(@EventSaved);
+    end;
   begin
     aDiv := TJSHTMLElement(document.createElement('div'));
     aDiv.style.setProperty('height','100%');
@@ -93,6 +111,7 @@ constructor TAvammCalenderForm.Create(aParent: TJSElement; aDataSet: string;
       me.DoShowLightBox(id);
     }
     end;
+    scheduler.attachEvent('onEventCreated',@EventCreated);
   end;
 begin
   inherited Create(aParent, aDataSet, '1C');
