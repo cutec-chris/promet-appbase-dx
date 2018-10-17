@@ -10672,7 +10672,7 @@ rtl.module("synautil_js",["System","Classes","SysUtils"],function () {
     x = pas.SysUtils.MonthDays[+pas.SysUtils.IsLeapYear(year)][month - 1];
     if (day > x) day = x;
     Result = Result + pas.SysUtils.EncodeDate(year,month,day);
-    zone = zone - $impl.TimeZoneBias();
+    zone = zone - $mod.TimeZoneBias();
     x = Math.floor(zone / 1440);
     Result = Result - x;
     zone = zone % 1440;
@@ -10702,16 +10702,16 @@ rtl.module("synautil_js",["System","Classes","SysUtils"],function () {
     Result = pas.SysUtils.Format("%s, %d %s %s %s",[pas.SysUtils.ShortDayNames[pas.SysUtils.DayOfWeek(t)],wDay,pas.SysUtils.ShortMonthNames[wMonth - 1],pas.SysUtils.FormatDateTime('yyyy hh":"nn":"ss',t),$impl.TimeZone()]);
     return Result;
   };
-},null,function () {
-  "use strict";
-  var $mod = this;
-  var $impl = $mod.$impl;
-  $impl.TimeZoneBias = function () {
+  this.TimeZoneBias = function () {
     var Result = 0;
     var d = new Date();
     Result = d.getTimezoneOffset();
     return Result;
   };
+},null,function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
   $impl.TrimSPLeft = function (S) {
     var Result = "";
     var I = 0;
@@ -10806,7 +10806,7 @@ rtl.module("synautil_js",["System","Classes","SysUtils"],function () {
     s = Value;
     if ((pas.System.Pos("+",s) === 1) || (pas.System.Pos("-",s) === 1)) {
       if (s === "-0000") {
-        Zone.set($impl.TimeZoneBias())}
+        Zone.set($mod.TimeZoneBias())}
        else if (s.length > 4) {
         zh = pas.SysUtils.StrToIntDef(s.charAt(1) + s.charAt(2),0);
         zm = pas.SysUtils.StrToIntDef(s.charAt(3) + s.charAt(4),0);
@@ -10935,7 +10935,7 @@ rtl.module("synautil_js",["System","Classes","SysUtils"],function () {
     var bias = 0;
     var h = 0;
     var m = 0;
-    bias = $impl.TimeZoneBias();
+    bias = $mod.TimeZoneBias();
     if (bias >= 0) {
       Result = "+"}
      else Result = "-";
@@ -21778,7 +21778,7 @@ rtl.module("ExtJSDataset",["System","Classes","SysUtils","DB","JS","JSONDataset"
     };
   });
 });
-rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm","JS","Web","Types"],function () {
+rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm","JS","Web","Types","synautil_js"],function () {
   "use strict";
   var $mod = this;
   rtl.createClass($mod,"TAvammDataset",pas.ExtJSDataset.TExtJSJSONObjectDataSet,function () {
@@ -22009,6 +22009,23 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       return Result;
     };
   });
+  this.BuildISODate = function (aDate, DateOnly) {
+    var Result = "";
+    var bias = 0;
+    var h = 0;
+    var m = 0;
+    bias = pas.synautil_js.TimeZoneBias();
+    if (bias >= 0) {
+      Result = "+"}
+     else Result = "-";
+    bias = Math.abs(bias);
+    h = Math.floor(bias / 60);
+    m = bias % 60;
+    if (!DateOnly) {
+      Result = (((pas.SysUtils.FormatDateTime("yyyy-mm-dd",aDate) + "T") + pas.SysUtils.FormatDateTime("hh:nn:ss",aDate)) + Result) + pas.SysUtils.Format("%.2d:%.2d",[h,m])}
+     else Result = pas.SysUtils.FormatDateTime("yyyy-mm-dd",aDate);
+    return Result;
+  };
   $mod.$resourcestrings = {strFailedToSaveToDB: {org: "Fehler beim speichern: %s"}};
 });
 rtl.module("dhtmlx_toolbar",["System","JS","Web"],function () {
@@ -22614,6 +22631,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.DoLoadHistory();
       this.DoSetFormSize();
     };
+    this.DoStoreData = function () {
+    };
     this.DoSetFormSize = function () {
       this.Form.adjustParentSize();
       try {
@@ -22748,9 +22767,15 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       function ItemLoaded2(aValue) {
         var Result = undefined;
         Self.WikiLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/.json",false,"",6000).then(AddWiki).catch(WikiCouldntbeLoaded);
-        Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/reports\/.json",false,"",6000).then(AddReports).catch(ReportsCouldntbeLoaded);
+        try {
+          Self.Toolbar.isVisible("print");
+        } catch ($e) {
+          Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/reports\/.json",false,"",6000).then(AddReports).catch(ReportsCouldntbeLoaded);
+        };
         try {
           Self.DoLoadData();
+          Self.Toolbar.disableItem("save");
+          Self.Toolbar.disableItem("abort");
         } catch ($e) {
         };
         return Result;
@@ -22791,15 +22816,47 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/item.json?mode=extjs",false,"text\/json",12000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
     };
     this.DoSave = function () {
+      var Self = this;
+      function ItemSaved(aValue) {
+        var Result = undefined;
+        var Fields = null;
+        Self.FRawData = rtl.getObject(JSON.parse(rtl.getObject(aValue).responseText));
+        Self.Refresh();
+        return Result;
+      };
+      function ItemSaveError(aValue) {
+        var Result = undefined;
+        Self.Layout.progressOff();
+        dhtmlx.message(pas.JS.New(["type","error","text",rtl.getResStr(pas.AvammForms,"strSavingFailed")]));
+        Self.Toolbar.enableItem("save");
+        Self.Toolbar.enableItem("abort");
+        return Result;
+      };
+      Self.Layout.progressOn();
+      try {
+        Self.DoStoreData();
+      } catch ($e) {
+        ItemSaveError(null);
+      };
+      pas.Avamm.StoreData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/item.json",JSON.stringify(Self.FData),false,"",6000).then(ItemSaved).catch(ItemSaveError);
+    };
+    this.Change = function () {
+      this.Toolbar.enableItem("save");
+      this.Toolbar.enableItem("abort");
     };
     this.DoEnterKeyPressed = function () {
       pas.System.Writeln("Enter Key pressed");
+    };
+    this.DoFormChange = function () {
+      this.Change();
     };
     this.Create$1 = function (mode, aDataSet, Id, Params) {
       var Self = this;
       function ToolbarButtonClick(id) {
         if (id === "save") {
           Self.DoSave();
+          Self.Toolbar.disableItem("save");
+          Self.Toolbar.disableItem("abort");
         } else if (id === "abort") {
           Self.Refresh();
         };
@@ -22835,6 +22892,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         a.setHeight(0);
         Self.EnableFormItems(false);
         Self.Form.attachEvent("onEnter",rtl.createCallback(Self,"DoEnterKeyPressed"));
+        Self.Form.attachEvent("onChange",rtl.createCallback(Self,"DoFormChange"));
         Self.Tabs = rtl.getObject(b.attachTabbar(pas.JS.New(["mode","top","align","left","close_button","true","content_zone","true","arrows_mode","auto"])));
         Self.Tabs.setSizes();
         Self.Tabs.addTab("history",rtl.getResStr(pas.AvammForms,"strHistory"),null,1,true,false);
@@ -22896,7 +22954,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     Result = new Promise(CheckPromise);
     return Result;
   };
-  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}, strFilterTT: {org: "Filter an\/auschalten"}, strHistory: {org: "Verlauf"}, strReallyCancel: {org: "Änderungen verwerfen ?"}, strYes: {org: "Ja"}, strNo: {org: "Nein"}, strNew: {org: "Neu"}, strDelete: {org: "Löschen"}, strCommon: {org: "Allgemein"}, strDescription: {org: "Beschreibung"}};
+  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSavingFailed: {org: "Fehler beim speichern der Daten auf dem Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}, strFilterTT: {org: "Filter an\/auschalten"}, strHistory: {org: "Verlauf"}, strReallyCancel: {org: "Änderungen verwerfen ?"}, strYes: {org: "Ja"}, strNo: {org: "Nein"}, strNew: {org: "Neu"}, strDelete: {org: "Löschen"}, strCommon: {org: "Allgemein"}, strDescription: {org: "Beschreibung"}};
 },["AvammWiki"]);
 rtl.module("dhtmlx_calendar",["System","JS","Web","SysUtils"],function () {
   "use strict";
@@ -22949,7 +23007,7 @@ rtl.module("dhtmlx_scheduler",["System","JS","Web","dhtmlx_base"],function () {
     $mod.SchedulerLoaded = new Promise(DoLoadScheduler);
   };
 },["dhtmlx_calendar"]);
-rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler","Avamm","SysUtils","synautil_js"],function () {
+rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler","Avamm","SysUtils","synautil_js","AvammDB"],function () {
   "use strict";
   var $mod = this;
   $mod.$rtti.$ProcVar("TShowLightBoxEvent",{procsig: rtl.newTIProcSig([["Sender",pas.System.$rtti["TObject"]],["id",rtl.jsvalue]])});
@@ -23007,8 +23065,8 @@ rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler",
           EventFields["id"] = "" + id;
           EventFields["ID"] = "" + id;
           EventFields["SUMMARY"] = "Urlaub";
-          EventFields["STARTDATE"] = pas.synautil_js.Rfc822DateTime(pas.SysUtils.Now());
-          EventFields["ENDDATE"] = pas.synautil_js.Rfc822DateTime(pas.SysUtils.Now() + 0.5);
+          EventFields["STARTDATE"] = pas.AvammDB.BuildISODate(pas.SysUtils.Now(),false);
+          EventFields["ENDDATE"] = pas.AvammDB.BuildISODate(pas.SysUtils.Now() + 0.5,false);
           Event = pas.JS.New(["Fields",EventFields]);
           pas.Avamm.StoreData("\/calendar\/new\/item.json",JSON.stringify(Event),false,"",6000).then(EventSaved);
         };

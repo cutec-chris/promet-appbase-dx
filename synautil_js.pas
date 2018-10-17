@@ -9,6 +9,7 @@ uses
 
 function DecodeRfcDateTime(Value: string): TDateTime;
 function Rfc822DateTime(t: TDateTime): string;
+function TimeZoneBias : Integer;
 
 implementation
 

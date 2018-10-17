@@ -78,7 +78,8 @@ type
     Tabs: TDHTMLXTabbar;
     ReportsLoaded: TJSPromise;
     WikiLoaded: TJSPromise;
-    procedure DoLoadData;virtual;
+    procedure DoLoadData;virtual;//Fill Form with Data Values
+    procedure DoStoreData;virtual;//Fill Data with Edit Values
     procedure DoSetFormSize;
     procedure EnableFormItems(Enable : Boolean);
     procedure DoLoadHistory;
@@ -86,7 +87,9 @@ type
     function DoClose : Boolean;
     procedure Refresh;virtual;
     procedure DoSave;virtual;
+    procedure Change;
     procedure DoEnterKeyPressed;virtual;
+    procedure DoFormChange;virtual;
   public
     BaseId : JSValue;
     Reports: TJSArray;
@@ -102,6 +105,7 @@ type
 resourcestring
   strRefresh                   = 'Aktualisieren';
   strLoadingFailed             = 'Fehler beim laden von Daten vom Server';
+  strSavingFailed              = 'Fehler beim speichern der Daten auf dem Server';
   strSave                      = 'Speichern';
   strAbort                     = 'Abbrechen';
   strNumber                    = 'Nummer';
@@ -182,6 +186,10 @@ procedure TAvammForm.DoLoadData;
 begin
   DoLoadHistory;
   DoSetFormSize;
+end;
+
+procedure TAvammForm.DoStoreData;
+begin
 end;
 
 procedure TAvammForm.DoSetFormSize;
@@ -331,10 +339,16 @@ procedure TAvammForm.Refresh;
   begin
     WikiLoaded := LoadData('/'+Tablename+'/by-id/'+string(Id)+'/.json')._then(TJSPromiseresolver(@AddWiki))
                                                                  .catch(@WikiCouldntbeLoaded);
-    ReportsLoaded := LoadData('/'+Tablename+'/by-id/'+string(Id)+'/reports/.json')._then(TJSPromiseresolver(@AddReports))
-                                                                 .catch(@ReportsCouldntbeLoaded);
+    try
+      Toolbar.isVisible('print');
+    except
+      ReportsLoaded := LoadData('/'+Tablename+'/by-id/'+string(Id)+'/reports/.json')._then(TJSPromiseresolver(@AddReports))
+                                                                   .catch(@ReportsCouldntbeLoaded);
+    end;
     try //dont raise when Form is not existing anymore (closed or not found Item)
       DoLoadData;
+      Toolbar.disableItem('save');
+      Toolbar.disableItem('abort');
     except
     end;
   end;
@@ -382,12 +396,46 @@ begin
 end;
 
 procedure TAvammForm.DoSave;
+  function ItemSaved(aValue: JSValue): JSValue;
+  var
+    Fields: TJSObject;
+  begin
+    FRawData := TJSObject(TJSJSON.parse(TJSXMLHttpRequest(aValue).responseText));
+    Refresh;
+  end;
+  function ItemSaveError(aValue: JSValue): JSValue;
+  begin
+    Layout.progressOff;
+    dhtmlx.message(js.new(['type','error',
+                           'text',strSavingFailed]));
+    Toolbar.enableItem('save');
+    Toolbar.enableItem('abort');
+  end;
 begin
+  Layout.progressOn;
+  try
+    DoStoreData;//Set Data Values
+  except
+    ItemSaveError(null);
+  end;
+  Avamm.StoreData('/'+FTablename+'/by-id/'+string(Id)+'/item.json',TJSJSON.stringify(Data))._then(@ItemSaved)
+                                                                .catch(@ItemSaveError);
+end;
+
+procedure TAvammForm.Change;
+begin
+  Toolbar.enableItem('save');
+  Toolbar.enableItem('abort');
 end;
 
 procedure TAvammForm.DoEnterKeyPressed;
 begin
   writeln('Enter Key pressed');
+end;
+
+procedure TAvammForm.DoFormChange;
+begin
+  Change;
 end;
 
 constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
@@ -397,6 +445,8 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     if (id='save') then
       begin
         DoSave;
+        Toolbar.disableItem('save');
+        Toolbar.disableItem('abort');
       end
     else if (id='abort') then
       begin
@@ -457,6 +507,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     a.setHeight(0);
     EnableFormItems(false);
     Form.attachEvent('onEnter',@DoEnterKeyPressed);
+    Form.attachEvent('onChange',@DoFormChange);
     Tabs := TDHTMLXTabbar(b.attachTabbar(js.new([
       'mode','top',           // string, optional, top or bottom tabs mode
       'align','left',         // string, optional, left or right tabs align

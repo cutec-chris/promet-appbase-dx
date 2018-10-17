@@ -5,7 +5,7 @@ unit AvammDB;
 interface
 
 uses
-  Classes, SysUtils, db, ExtJSDataset, Avamm, js, web, Types;
+  Classes, SysUtils, db, ExtJSDataset, Avamm, js, web, Types, synautil_js;
 
 type
 
@@ -73,10 +73,31 @@ type
     function onLoad(Event{%H-}: TEventListenerEvent): boolean; virtual;
   end;
 
+  function BuildISODate(aDate : TDateTime;DateOnly : Boolean = False) : string;
+
 resourcestring
   strFailedToSaveToDB           = 'Fehler beim speichern: %s';
 
 implementation
+
+function BuildISODate(aDate : TDateTime;DateOnly : Boolean = False) : string;
+var
+  bias: Integer;
+  h, m: Integer;
+begin
+  bias := TimeZoneBias;
+  if bias >= 0 then
+    Result := '+'
+  else
+    Result := '-';
+  bias := Abs(bias);
+  h := bias div 60;
+  m := bias mod 60;
+  if not DateOnly then
+    Result := FormatDateTime('yyyy-mm-dd',aDate)+'T'+FormatDateTime('hh:nn:ss',aDate)+ Result + SysUtils.Format('%.2d:%.2d', [h, m])
+  else
+    Result := FormatDateTime('yyyy-mm-dd',aDate);
+end;
 
 { TAvammUpdateDescriptor }
 

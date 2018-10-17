@@ -5,7 +5,7 @@ unit avammcalendar;
 interface
 
 uses
-  web,JS, AvammForms, dhtmlx_scheduler, Avamm, Sysutils, synautil_js;
+  web,JS, AvammForms, dhtmlx_scheduler, Avamm, Sysutils, synautil_js, AvammDB;
 
 type
   TShowLightBoxEvent = procedure(Sender : TObject;id : JSValue);
@@ -78,8 +78,8 @@ constructor TAvammCalenderForm.Create(aParent: TJSElement; aDataSet: string;
       EventFields.Properties['id'] := string(id);
       EventFields.Properties['ID'] := string(id);
       EventFields.Properties['SUMMARY'] := 'Urlaub';
-      EventFields.Properties['STARTDATE'] := Rfc822DateTime(Now());
-      EventFields.Properties['ENDDATE'] := Rfc822DateTime(Now()+0.5);
+      EventFields.Properties['STARTDATE'] := BuildISODate(Now());
+      EventFields.Properties['ENDDATE'] := BuildISODate(Now()+0.5);
       Event := js.new(['Fields',EventFields]);
       Avamm.StoreData('/calendar/new/item.json',TJSJSON.stringify(Event))._then(@EventSaved);
     end;
