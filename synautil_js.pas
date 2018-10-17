@@ -8,8 +8,17 @@ uses
   Classes, SysUtils;
 
 function DecodeRfcDateTime(Value: string): TDateTime;
+function Rfc822DateTime(t: TDateTime): string;
 
 implementation
+
+function TimeZoneBias : Integer;
+begin
+asm
+  var d = new Date();
+  Result = d.getTimezoneOffset();
+end;
+end;
 
 function TrimSPLeft(const S: string): string;
 var
@@ -116,7 +125,7 @@ begin
   if (Pos('+', s) = 1) or (Pos('-',s) = 1) then
   begin
     if s = '-0000' then
-      Zone := {TimeZoneBias}0
+      Zone := TimeZoneBias
     else
       if Length(s) > 4 then
       begin
@@ -336,7 +345,7 @@ begin
   if day > x then
     day := x;
   Result := Result + Encodedate(year, month, day);
-  zone := zone - {TimeZoneBias}0;
+  zone := zone - TimeZoneBias;
   x := zone div 1440;
   Result := Result - x;
   zone := zone mod 1440;
@@ -344,6 +353,29 @@ begin
   if zone < 0 then
     t := 0 - t;
   Result := Result - t;
+end;
+function TimeZone: string;
+var
+  bias: Integer;
+  h, m: Integer;
+begin
+  bias := TimeZoneBias;
+  if bias >= 0 then
+    Result := '+'
+  else
+    Result := '-';
+  bias := Abs(bias);
+  h := bias div 60;
+  m := bias mod 60;
+  Result := Result + Format('%.2d%.2d', [h, m]);
+end;
+function Rfc822DateTime(t: TDateTime): string;
+var
+  wYear, wMonth, wDay: word;
+begin
+  DecodeDate(t, wYear, wMonth, wDay);
+  Result := Format('%s, %d %s %s %s', [ShortDayNames[DayOfWeek(t)], wDay,
+    ShortMonthNames[wMonth], FormatDateTime('yyyy hh":"nn":"ss', t), TimeZone]);
 end;
 
 end.
