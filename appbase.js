@@ -23062,6 +23062,8 @@ rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler",
         var Result = undefined;
         var aDiv = null;
         var me = null;
+        var elements = null;
+        var i = 0;
         function EventCreated(id, e) {
           var EventFields = null;
           var Event = null;
@@ -23091,6 +23093,11 @@ rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler",
           me.DoShowLightBox(id);
         };
         scheduler.init("scheduler_div",new Date(),aPattern);
+        elements = document.querySelectorAll(".dhx_cal_date");
+        for (var $l1 = 0, $end2 = elements.length - 1; $l1 <= $end2; $l1++) {
+          i = $l1;
+          elements.item(i).style.setProperty("text-align","initial");
+        };
         me = Self;
         scheduler.attachEvent("onEventCreated",EventCreated);
         return Result;
