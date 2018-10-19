@@ -547,10 +547,13 @@ begin
       and (not dhx.isIE)
       then
         begin
+          writeln('TAvammForm.Create: generating new Window');
           case mode of
           fmTab:FWindow := window.open(window.location.protocol+window.location.pathname+'#/'+Tablename+'/by-id/'+string(Id)+'/','_blank');
           fmWindow:FWindow := window.open(window.location.protocol+window.location.pathname+'#/'+Tablename+'/by-id/'+string(Id)+'/','_top');
           end;
+          if FWindow = window then
+            FWindow:=null;
           if FWindow<>null then
             begin
               FParent := TJSWindow(FWindow).document.body;
@@ -560,6 +563,7 @@ begin
     end;
   if FWindow = null then
     begin
+      writeln('TAvammForm.Create: Window is null, using DHTMLX Window');
       FWindow := Windows.createWindow(Id,10,10,810,610);
       with TDHTMLXWindowsCell(FWindow) do
         begin

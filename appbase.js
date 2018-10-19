@@ -22919,10 +22919,12 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.FTablename = aDataSet;
       if ((mode === $mod.TAvammFormMode.fmTab) || (mode === $mod.TAvammFormMode.fmWindow)) {
         if (!window.dhx.isChrome && !window.dhx.isIE) {
+          pas.System.Writeln("TAvammForm.Create: generating new Window");
           var $tmp1 = mode;
           if ($tmp1 === $mod.TAvammFormMode.fmTab) {
             Self.FWindow = window.open((((((window.location.protocol + window.location.pathname) + "#\/") + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/","_blank")}
            else if ($tmp1 === $mod.TAvammFormMode.fmWindow) Self.FWindow = window.open((((((window.location.protocol + window.location.pathname) + "#\/") + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/","_top");
+          if (Self.FWindow == window) Self.FWindow = null;
           if (Self.FWindow != null) {
             Self.FParent = rtl.getObject(Self.FWindow).document.body;
             rtl.getObject(Self.FWindow).onload = WindowCreated;
@@ -22930,6 +22932,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         };
       };
       if (Self.FWindow == null) {
+        pas.System.Writeln("TAvammForm.Create: Window is null, using DHTMLX Window");
         Self.FWindow = pas.dhtmlx_windows.Windows.createWindow(Id,10,10,810,610);
         var $with2 = rtl.getObject(Self.FWindow);
         $with2.attachEvent("onClose",rtl.createCallback(Self,"DoClose"));
