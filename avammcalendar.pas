@@ -17,10 +17,17 @@ type
     FShowLightBox: TShowLightBoxEvent;
     procedure DoLoadData; override;
     procedure DoShowLightBox(id : JSValue);
+    procedure ToolbarButtonClick(id: string); override;
   public
     constructor Create(aParent : TJSElement;aDataSet : string;aPattern : string = 'month');override;
     property OnShowLightBox : TShowLightBoxEvent read FShowLightBox write FShowLightBox;
   end;
+
+resourcestring
+  strDay                    = 'Tag';
+  strWeek                   = 'Woche';
+  strMonth                  = 'Monat';
+  strYear                   = 'Jahr';
 
 implementation
 
@@ -59,6 +66,14 @@ begin
     OnShowLightBox(Self,id);
 end;
 
+procedure TAvammCalenderForm.ToolbarButtonClick(id: string);
+begin
+  inherited ToolbarButtonClick(id);
+  case id of
+  'day','week','month','year':scheduler.updateView(TJSDate.New,id);
+  end;
+end;
+
 constructor TAvammCalenderForm.Create(aParent: TJSElement; aDataSet: string;
   aPattern: string);
   function CreateCalender(aValue: JSValue): JSValue;
@@ -88,14 +103,14 @@ constructor TAvammCalenderForm.Create(aParent: TJSElement; aDataSet: string;
     aDiv.style.setProperty('height','100%');
     aDiv.style.setProperty('width','100%');
     aDiv.innerHTML:='<div id="scheduler_div" class="dhx_cal_container" style="width:100%; height:100%;">'+
-                    '<div class="dhx_cal_navline">'+
+                    '<div class="dhx_cal_navline" style="height:20px;">'+
                       '<div class="dhx_cal_prev_button">&nbsp;</div>'+
                       '<div class="dhx_cal_next_button">&nbsp;</div>'+
                       '<div class="dhx_cal_today_button"></div><div class="dhx_cal_date"></div>'+
-                      '<div class="dhx_cal_tab" name="day_tab" style="right:204px;"></div>'+
-                      '<div class="dhx_cal_tab" name="week_tab" style="right:140px;"></div>'+
-                      '<div class="dhx_cal_tab" name="month_tab" style="right:76px;"></div>'+
-                      '<div class="dhx_cal_tab" name="year_tab" style="right:70px;"></div>'+
+//                      '<div class="dhx_cal_tab" name="day_tab" style="right:204px;"></div>'+
+//                      '<div class="dhx_cal_tab" name="week_tab" style="right:140px;"></div>'+
+//                      '<div class="dhx_cal_tab" name="month_tab" style="right:76px;"></div>'+
+//                      '<div class="dhx_cal_tab" name="year_tab" style="right:70px;"></div>'+
                     '</div>'+
                     '<div class="dhx_cal_header"></div>'+
                       '<div class="dhx_cal_data"></div>'+
@@ -103,14 +118,15 @@ constructor TAvammCalenderForm.Create(aParent: TJSElement; aDataSet: string;
     Page.cells('a').attachObject(aDiv);
     if aPattern='' then
       aPattern:='month';
-    scheduler.init('scheduler_div',TJSDate.New,aPattern);
-    me := Self;
     asm
+    scheduler.xy.nav_height = 40;
     scheduler.locale.labels.year_tab ="Year";
     scheduler.showLightbox = function(id){
       me.DoShowLightBox(id);
     }
     end;
+    scheduler.init('scheduler_div',TJSDate.New,aPattern);
+    me := Self;
     scheduler.attachEvent('onEventCreated',@EventCreated);
   end;
 begin
@@ -118,6 +134,10 @@ begin
   Grid.Destroy;
   LoadScheduler;
   SchedulerLoaded._then(@CreateCalender);
+  Toolbar.addButton('day',0,strDay,'');
+  Toolbar.addButton('week',1,strWeek,'');
+  Toolbar.addButton('month',2,strMonth,'');
+  Toolbar.addButton('year',3,strYear,'');
 end;
 
 end.

@@ -23047,6 +23047,11 @@ rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler",
     this.DoShowLightBox = function (id) {
       if (this.FShowLightBox != null) this.FShowLightBox(this,id);
     };
+    this.ToolbarButtonClick = function (id) {
+      pas.AvammForms.TAvammListForm.ToolbarButtonClick.call(this,id);
+      var $tmp1 = id;
+      if (((($tmp1 === "day") || ($tmp1 === "week")) || ($tmp1 === "month")) || ($tmp1 === "year")) scheduler.updateView(new Date(),id);
+    };
     this.Create$2 = function (aParent, aDataSet, aPattern) {
       var Self = this;
       function CreateCalender(aValue) {
@@ -23073,15 +23078,16 @@ rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler",
         aDiv = document.createElement("div");
         aDiv.style.setProperty("height","100%");
         aDiv.style.setProperty("width","100%");
-        aDiv.innerHTML = ((((((((((('<div id="scheduler_div" class="dhx_cal_container" style="width:100%; height:100%;">' + '<div class="dhx_cal_navline">') + '<div class="dhx_cal_prev_button">&nbsp;<\/div>') + '<div class="dhx_cal_next_button">&nbsp;<\/div>') + '<div class="dhx_cal_today_button"><\/div><div class="dhx_cal_date"><\/div>') + '<div class="dhx_cal_tab" name="day_tab" style="right:204px;"><\/div>') + '<div class="dhx_cal_tab" name="week_tab" style="right:140px;"><\/div>') + '<div class="dhx_cal_tab" name="month_tab" style="right:76px;"><\/div>') + '<div class="dhx_cal_tab" name="year_tab" style="right:70px;"><\/div>') + "<\/div>") + '<div class="dhx_cal_header"><\/div>') + '<div class="dhx_cal_data"><\/div>') + "<\/div>";
+        aDiv.innerHTML = ((((((('<div id="scheduler_div" class="dhx_cal_container" style="width:100%; height:100%;">' + '<div class="dhx_cal_navline" style="height:20px;">') + '<div class="dhx_cal_prev_button">&nbsp;<\/div>') + '<div class="dhx_cal_next_button">&nbsp;<\/div>') + '<div class="dhx_cal_today_button"><\/div><div class="dhx_cal_date"><\/div>') + "<\/div>") + '<div class="dhx_cal_header"><\/div>') + '<div class="dhx_cal_data"><\/div>') + "<\/div>";
         Self.Page.cells("a").attachObject(aDiv);
         if (aPattern === "") aPattern = "month";
-        scheduler.init("scheduler_div",new Date(),aPattern);
-        me = Self;
+        scheduler.xy.nav_height = 40;
         scheduler.locale.labels.year_tab ="Year";
         scheduler.showLightbox = function(id){
           me.DoShowLightBox(id);
         };
+        scheduler.init("scheduler_div",new Date(),aPattern);
+        me = Self;
         scheduler.attachEvent("onEventCreated",EventCreated);
         return Result;
       };
@@ -23089,8 +23095,13 @@ rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler",
       Self.Grid.destructor();
       pas.dhtmlx_scheduler.LoadScheduler();
       pas.dhtmlx_scheduler.SchedulerLoaded.then(CreateCalender);
+      Self.Toolbar.addButton("day",0,rtl.getResStr(pas.avammcalendar,"strDay"),"");
+      Self.Toolbar.addButton("week",1,rtl.getResStr(pas.avammcalendar,"strWeek"),"");
+      Self.Toolbar.addButton("month",2,rtl.getResStr(pas.avammcalendar,"strMonth"),"");
+      Self.Toolbar.addButton("year",3,rtl.getResStr(pas.avammcalendar,"strYear"),"");
     };
   });
+  $mod.$resourcestrings = {strDay: {org: "Tag"}, strWeek: {org: "Woche"}, strMonth: {org: "Monat"}, strYear: {org: "Jahr"}};
 });
 rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammDB","dhtmlx_form","dhtmlx_toolbar","dhtmlx_grid","dhtmlx_layout","dhtmlx_popup","dhtmlx_db","dhtmlx_base","dhtmlx_windows","dhtmlx_tabbar","AvammRouter","webrouter","DB","Avamm"],function () {
   "use strict";
