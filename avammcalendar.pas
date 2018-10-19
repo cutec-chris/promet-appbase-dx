@@ -80,6 +80,8 @@ constructor TAvammCalenderForm.Create(aParent: TJSElement; aDataSet: string;
   var
     aDiv: TJSHTMLElement;
     me : TAvammCalenderForm;
+    elements: TJSNodeList;
+    i: Integer;
     procedure EventCreated(id,e : JSValue);
     var
       EventFields, Event: TJSObject;
@@ -126,6 +128,11 @@ constructor TAvammCalenderForm.Create(aParent: TJSElement; aDataSet: string;
     }
     end;
     scheduler.init('scheduler_div',TJSDate.New,aPattern);
+    elements := document.querySelectorAll('.dhx_cal_date');
+    for i := 0 to elements.length-1 do
+      begin
+        TJSHTMLElement(elements[i]).style.setProperty('text-align','initial');
+      end;
     me := Self;
     scheduler.attachEvent('onEventCreated',@EventCreated);
   end;
