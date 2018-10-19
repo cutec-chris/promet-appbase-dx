@@ -23233,7 +23233,6 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
     $mod.Layout.progressOn();
   };
   this.RouterAfterRequest = function (Sender, ARouteURL) {
-    var aRoute = null;
     $mod.Layout.progressOff();
   };
   this.AddToSidebar = function (Name, Route, Icon) {
@@ -23248,8 +23247,14 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
     if (window.document.body.clientWidth <= 700) $mod.Layout.cells("a").collapse();
   };
   this.OnReady = function (Sender, aLocation, aRoute) {
+    function DoCloseWindow(aWindow) {
+      aWindow.close();
+    };
     try {
-      if (pas.System.Pos("\/by-id\/",aLocation) === 0) $mod.Treeview.selectItem(aRoute.FID);
+      if (pas.System.Pos("\/by-id\/",aLocation) === 0) {
+        $mod.Treeview.selectItem(aRoute.FID);
+        pas.dhtmlx_windows.Windows.forEachWindow(DoCloseWindow);
+      };
     } catch ($e) {
     };
   };

@@ -28,8 +28,6 @@ begin
   Layout.progressOn;
 end;
 procedure RouterAfterRequest(Sender: TObject; const ARouteURL: String);
-var
-  aRoute: TRoute;
 begin
   Layout.progressOff;
 end;
@@ -52,10 +50,19 @@ begin
     Layout.cells('a').collapse;
 end;
 procedure OnReady(Sender: THistory; aLocation: String; aRoute: TRoute);
+  procedure DoCloseWindow(aWindow : TDHTMLXWindowsCell);
+  begin
+    //TODO:close only windows that are not the actual route (more Windows open)
+    aWindow.close;
+  end;
+
 begin
   try
     if pos('/by-id/',aLocation)=0 then
-      Treeview.selectItem(aRoute.ID);
+      begin
+        Treeview.selectItem(aRoute.ID);
+        Windows.forEachWindow(@DoCloseWindow);
+      end;
   except
   end;
 end;
