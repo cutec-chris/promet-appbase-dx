@@ -267,9 +267,14 @@ begin
     end;
   Result := FContainer;
 end;
+procedure HideAdressBar;
+begin
+  window.scrollTo(0,1);
+end;
 begin
   FInitialized := False;
   GetAvammContainer := @DoGetAvammContainer;
+  window.setTimeout(@HideAdressBar,0);
   dhtmlx_base.AppendCSS('index.css',null,null);
   if LoadEnviroment then
     WidgetsetLoaded._then(@FillEnviroment);

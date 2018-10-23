@@ -23429,10 +23429,14 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
     Result = $mod.FContainer;
     return Result;
   };
+  this.HideAdressBar = function () {
+    window.scrollTo(0,1);
+  };
   $mod.$resourcestrings = {strMenu: {org: "Menü"}, strStartpage: {org: "Startseite"}, strReconnecting: {org: "Verbindung zum Server fehlgeschlagen,\n\rVerbindung wird automatisch wiederhergestellt"}, strApplicationLoading: {org: "Verbindung wird hergestellt..."}, strRequestTimeout: {org: "Es ist eine Zeitüberschreitung beim Abrufen von Daten aufgetreten !"}};
   $mod.$main = function () {
     $mod.FInitialized = false;
     pas.Avamm.GetAvammContainer = $mod.DoGetAvammContainer;
+    window.setTimeout($mod.HideAdressBar,0);
     pas.dhtmlx_base.AppendCSS("index.css",null,null);
     if ($mod.LoadEnviroment) pas.dhtmlx_base.WidgetsetLoaded.then($mod.FillEnviroment);
     if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") {
