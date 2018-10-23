@@ -107,10 +107,7 @@ function CheckLogin : TJSPromise;
       procedure DoCheckStatus(resolve, reject: TJSPromiseResolver);
       begin
         {$ifdef DEBUG}
-        writeln('CheckStatus:');
-        asm
-          console.log(aValue);
-        end;
+        console.log('CheckStatus:',aValue);
         {$endif}
         case TJSXMLHttpRequest(aValue).Status of
         401:resolve(TJSXMLHttpRequest(aValue).Status);
@@ -143,9 +140,7 @@ function CheckLogin : TJSPromise;
     begin
       result := TJSPromise.new(@DoCheckStatus);
       {$ifdef DEBUG}
-      asm
-        console.log(Result);
-      end;
+      console.log(Result);
       {$endif}
     end;
     function GetLoginData(aValue: JSValue): JSValue;
@@ -156,10 +151,7 @@ function CheckLogin : TJSPromise;
           function LoginSuccessful(aValue : JSValue) : JSValue;
           begin
             {$ifdef DEBUG}
-            writeln('GetLoginData:');
-            asm
-              console.log(aValue);
-            end;
+            console.log('GetLoginData:',aValue);
             {$endif}
             if (aValue = true) then
               resolve(true)
@@ -206,7 +198,7 @@ function CheckLogin : TJSPromise;
       end;
       function DoLogout(aValue: JSValue): JSValue;
       begin
-        writeln('Credentials wrong Logging out');
+        console.log('Credentials wrong Logging out');
         AvammLogin:='';
         asm
           window.dispatchEvent(pas.Avamm.AfterLogoutEvent);
@@ -214,7 +206,7 @@ function CheckLogin : TJSPromise;
       end;
       function SetupUser(aValue: JSValue): JSValue;
       begin
-        writeln('User Login successful...');
+        console.log('User Login successful...');
         asm
           window.dispatchEvent(pas.Avamm.AfterLoginEvent);
         end;
@@ -277,7 +269,7 @@ function LoadData(url: string; IgnoreLogin: Boolean; Datatype: string;
     function DoOnError(event : TEventListenerEvent) : boolean;
     begin
       {$ifdef DEBUG}
-      writeln('Request not succesful (error)');
+      console.log('Request not succesful (error)');
       {$endif}
       // On error we reject
       reject(req);
@@ -286,7 +278,7 @@ function LoadData(url: string; IgnoreLogin: Boolean; Datatype: string;
     procedure RequestSaveTimeout;
     begin
       {$ifdef DEBUG}
-      writeln('Request Timeout');
+      console.log('Request Timeout');
       {$endif}
       window.clearTimeout(oTimeout);
       req.abort;
@@ -309,7 +301,7 @@ function LoadData(url: string; IgnoreLogin: Boolean; Datatype: string;
     except
       begin
         {$ifdef DEBUG}
-        writeln('Request not succesful');
+        console.log('Request not succesful');
         {$endif}
         reject(req);
       end;
@@ -319,7 +311,7 @@ function LoadData(url: string; IgnoreLogin: Boolean; Datatype: string;
   function ReturnResult(res: JSValue) : JSValue;
   begin
     {$ifdef DEBUG}
-    writeln('Returning... ',res);
+    console.log('Returning... ',res);
     {$endif}
     Result:=res;
   end;
@@ -358,7 +350,7 @@ function StoreData(url: string; Content: string; IgnoreLogin: Boolean;
     function DoOnError(event : TEventListenerEvent) : boolean;
     begin
       {$ifdef DEBUG}
-      writeln('Request not succesful (error)');
+      console.log('Request not succesful (error)');
       {$endif}
       // On error we reject
       reject(req);
@@ -367,7 +359,7 @@ function StoreData(url: string; Content: string; IgnoreLogin: Boolean;
     procedure RequestSaveTimeout;
     begin
       {$ifdef DEBUG}
-      writeln('Request Timeout');
+      console.log('Request Timeout');
       {$endif}
       window.clearTimeout(oTimeout);
       req.abort;
@@ -390,7 +382,7 @@ function StoreData(url: string; Content: string; IgnoreLogin: Boolean;
     except
       begin
         {$ifdef DEBUG}
-        writeln('Request not succesful');
+        console.log('Request not succesful');
         {$endif}
         reject(req);
       end;
@@ -400,7 +392,7 @@ function StoreData(url: string; Content: string; IgnoreLogin: Boolean;
   function ReturnResult(res: JSValue) : JSValue;
   begin
     {$ifdef DEBUG}
-    writeln('Returning... ',res);
+    console.log('Returning... ',res);
     {$endif}
     Result:=res;
   end;
@@ -519,7 +511,7 @@ begin
   end;
 end;
 initialization
-  writeln('Appbase initializing...');
+  console.log('Appbase initializing...');
   InitWindow(window);
   Router.InitHistory(hkHash);
   InitAvammApp;

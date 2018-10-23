@@ -285,7 +285,7 @@ procedure TAvammForm.Refresh;
   end;
   function ReportsCouldntbeLoaded(aValue: JSValue): JSValue;
   begin
-    writeln('error loading report');
+    console.log('error loading report');
   end;
   function WikiFormLoaded(aValue: TJSXMLHttpRequest): JSValue;
   var
@@ -430,7 +430,7 @@ end;
 
 procedure TAvammForm.DoEnterKeyPressed;
 begin
-  writeln('Enter Key pressed');
+  console.log('Enter Key pressed');
 end;
 
 procedure TAvammForm.DoFormChange;
@@ -463,7 +463,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
           Self.FWindow.pas.Avamm.AvammLogin = pas.Avamm.AvammLogin;
         end;
       end;
-    writeln('new Window loaded');
+    console.log('new Window loaded');
     Layout := TDHTMLXLayout.New(js.new(['parent',FParent,'pattern','2E']));
     a := Layout.cells('a');
     a.hideHeader;
@@ -547,7 +547,7 @@ begin
       and (not dhx.isIE)
       then
         begin
-          writeln('TAvammForm.Create: generating new Window');
+          console.log('TAvammForm.Create: generating new Window');
           case mode of
           fmTab:FWindow := window.open(window.location.protocol+window.location.pathname+'#/'+Tablename+'/by-id/'+string(Id)+'/','_blank');
           fmWindow:FWindow := window.open(window.location.protocol+window.location.pathname+'#/'+Tablename+'/by-id/'+string(Id)+'/','_top');
@@ -563,7 +563,7 @@ begin
     end;
   if FWindow = null then
     begin
-      writeln('TAvammForm.Create: Window is null, using DHTMLX Window');
+      console.log('TAvammForm.Create: Window is null, using DHTMLX Window');
       FWindow := Windows.createWindow(Id,10,10,810,610);
       with TDHTMLXWindowsCell(FWindow) do
         begin
@@ -592,7 +592,7 @@ constructor TAvammListForm.Create(aParent: TJSElement; aDataSet: string;
             FOldFilter := FOldFilter+' AND lower("'+string(Grid.getColumnId(Integer(indexes[i])))+'")'+' like lower(''%'+string(values[i])+'%'')';
         end;
     FOldFilter := copy(FOldFilter,6,length(FOldFilter));
-    writeln('Filter:'+FOldFilter);
+    console.log('Filter:'+FOldFilter);
     Page.progressOn();
     try
       {$ifdef DEBUG}console.log('Setting Server Filter');{$endif}
@@ -625,7 +625,7 @@ constructor TAvammListForm.Create(aParent: TJSElement; aDataSet: string;
   end;
 begin
   inherited Create(aParent);
-  writeln('Loading '+aDataSet+' as List...');
+  console.log('Loading '+aDataSet+' as List...');
   window.addEventListener('ContainerResized',@DoResizeLayout);
   Page := TDHTMLXLayout.New(js.new(['parent',FContainer,'pattern',aPattern]));
   Page.cont.style.setProperty('border-width','0');
@@ -657,7 +657,7 @@ begin
   try
     Grid.sync(FDataLink.Datastore);
   except
-    writeln('failed to load Data');
+    console.log('failed to load Data');
   end;
 end;
 procedure TAvammListForm.Show;
@@ -724,7 +724,7 @@ begin
   except
     on e : Exception do
       begin
-        writeln('Refresh Exception:'+e.message);
+        console.log('Refresh Exception:'+e.message);
         Page.progressOff();
       end;
   end;

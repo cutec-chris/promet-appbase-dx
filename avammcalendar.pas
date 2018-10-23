@@ -90,7 +90,7 @@ constructor TAvammCalenderForm.Create(aParent: TJSElement; aDataSet: string;
 
       end;
     begin
-      writeln('Creating new Event:',id);
+      console.log('Creating new Event:',id);
       EventFields := TJSObject.new;
       EventFields.Properties['id'] := string(id);
       EventFields.Properties['ID'] := string(id);

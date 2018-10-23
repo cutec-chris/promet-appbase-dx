@@ -10986,7 +10986,7 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
     function DoLoadDHTMLX(resolve, reject) {
       function ScriptLoadedJS() {
         window.dhx4.skin = 'material';
-        pas.System.Writeln("DHTMLX loaded...");
+        window.console.log("DHTMLX loaded...");
         resolve(true);
       };
       function ScriptLoadedCSS2() {
@@ -11000,7 +11000,7 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
       function ScriptLoadedCSS() {
         $mod.AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoadedJS,ScriptErrorJS);
       };
-      pas.System.Writeln("Loading DHTMLX...");
+      window.console.log("Loading DHTMLX...");
       $mod.AppendCSS("appbase\/dhtmlx\/dhtmlx.css",ScriptLoadedCSS,ScriptErrorJS);
       $mod.AppendCSS("appbase\/dhtmlx\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
     };
@@ -11034,13 +11034,13 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
       };
       function DoOnError(event) {
         var Result = false;
-        pas.System.Writeln("Request not succesful (error)");
+        window.console.log("Request not succesful (error)");
         reject(req);
         window.clearTimeout(oTimeout);
         return Result;
       };
       function RequestSaveTimeout() {
-        pas.System.Writeln("Request Timeout");
+        window.console.log("Request Timeout");
         window.clearTimeout(oTimeout);
         req.abort();
         reject(req);
@@ -11057,14 +11057,14 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
       try {
         req.send();
       } catch ($e) {
-        pas.System.Writeln("Request not succesful");
+        window.console.log("Request not succesful");
         reject(req);
       };
       oTimeout = window.setTimeout(RequestSaveTimeout,Timeout);
     };
     function ReturnResult(res) {
       var Result = undefined;
-      pas.System.Writeln("Returning... ",res);
+      window.console.log("Returning... ",res);
       Result = res;
       return Result;
     };
@@ -11088,13 +11088,13 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
       };
       function DoOnError(event) {
         var Result = false;
-        pas.System.Writeln("Request not succesful (error)");
+        window.console.log("Request not succesful (error)");
         reject(req);
         window.clearTimeout(oTimeout);
         return Result;
       };
       function RequestSaveTimeout() {
-        pas.System.Writeln("Request Timeout");
+        window.console.log("Request Timeout");
         window.clearTimeout(oTimeout);
         req.abort();
         reject(req);
@@ -11111,14 +11111,14 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
       try {
         req.send(Content);
       } catch ($e) {
-        pas.System.Writeln("Request not succesful");
+        window.console.log("Request not succesful");
         reject(req);
       };
       oTimeout = window.setTimeout(RequestSaveTimeout,Timeout);
     };
     function ReturnResult(res) {
       var Result = undefined;
-      pas.System.Writeln("Returning... ",res);
+      window.console.log("Returning... ",res);
       Result = res;
       return Result;
     };
@@ -11150,8 +11150,7 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
       function CheckStatus(aValue) {
         var Result = undefined;
         function DoCheckStatus(resolve, reject) {
-          pas.System.Writeln("CheckStatus:");
-          console.log(aValue);
+          window.console.log("CheckStatus:",aValue);
           var $tmp1 = rtl.getObject(aValue).status;
           if ($tmp1 === 401) {
             resolve(rtl.getObject(aValue).status)}
@@ -11173,7 +11172,7 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
           };
         };
         Result = new Promise(DoCheckStatus);
-        console.log(Result);
+        window.console.log(Result);
         return Result;
       };
       function GetLoginData(aValue) {
@@ -11184,8 +11183,7 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
           function DoIntGetLoginData(resolve, reject) {
             function LoginSuccessful(aValue) {
               var Result = undefined;
-              pas.System.Writeln("GetLoginData:");
-              console.log(aValue);
+              window.console.log("GetLoginData:",aValue);
               if (aValue == true) {
                 resolve(true)}
                else reject(rtl.getResStr(pas.Avamm,"strLoginFailed"));
@@ -11222,14 +11220,14 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
         };
         function DoLogout(aValue) {
           var Result = undefined;
-          pas.System.Writeln("Credentials wrong Logging out");
+          window.console.log("Credentials wrong Logging out");
           $mod.AvammLogin = "";
           window.dispatchEvent(pas.Avamm.AfterLogoutEvent);
           return Result;
         };
         function SetupUser(aValue) {
           var Result = undefined;
-          pas.System.Writeln("User Login successful...");
+          window.console.log("User Login successful...");
           window.dispatchEvent(pas.Avamm.AfterLoginEvent);
           return Result;
         };
@@ -11353,7 +11351,7 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
   this.OnException = null;
   $mod.$resourcestrings = {strServerNotRea: {org: "Server nicht erreichbar"}, strNoLoginFormA: {org: "keine Login Form verfügbar"}, strLoginFailed: {org: "Login fehlgeschlagen"}, strServerMustbeConfigured: {org: "Server muss konfiguriert werden"}};
   $mod.$init = function () {
-    pas.System.Writeln("Appbase initializing...");
+    window.console.log("Appbase initializing...");
     $mod.InitWindow(window);
     pas.webrouter.Router().InitHistory(pas.webrouter.THistoryKind.hkHash,"");
     $impl.InitAvammApp();
@@ -22049,7 +22047,7 @@ rtl.module("dhtmlx_datastore",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
 });
-rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor","JS","Types","dhtmlx_datastore"],function () {
+rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor","JS","Types","dhtmlx_datastore","Web"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
@@ -22299,7 +22297,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
   var $mod = this;
   var $impl = $mod.$impl;
   $impl.ShowDebug = function (s) {
-    pas.System.Writeln(s);
+    window.console.log(s);
   };
   $impl.ShowData = function (DataSet) {
     console.log(DataSet.FRows);
@@ -22515,7 +22513,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
           if (values[i]) Self.FOldFilter = (((((Self.FOldFilter + ' AND lower("') + ("" + Self.Grid.getColumnId(Math.floor(indexes[i])))) + '")') + " like lower('%") + ("" + values[i])) + "%')";
         };
         Self.FOldFilter = pas.System.Copy(Self.FOldFilter,6,Self.FOldFilter.length);
-        pas.System.Writeln("Filter:" + Self.FOldFilter);
+        window.console.log("Filter:" + Self.FOldFilter);
         Self.Page.progressOn();
         try {
           window.console.log("Setting Server Filter");
@@ -22541,7 +22539,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Page.setSizes();
       };
       $mod.TAvammContentForm.Create$1.call(Self,aParent);
-      pas.System.Writeln(("Loading " + aDataSet) + " as List...");
+      window.console.log(("Loading " + aDataSet) + " as List...");
       window.addEventListener("ContainerResized",DoResizeLayout);
       Self.Page = new dhtmlXLayoutObject(pas.JS.New(["parent",Self.FContainer,"pattern",aPattern]));
       Self.Page.cont.style.setProperty("border-width","0");
@@ -22571,7 +22569,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       try {
         Self.Grid.sync(Self.FDataLink.FDatastore);
       } catch ($e) {
-        pas.System.Writeln("failed to load Data");
+        window.console.log("failed to load Data");
       };
     };
     this.RefreshList = function () {
@@ -22581,7 +22579,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       } catch ($e) {
         if (pas.SysUtils.Exception.isPrototypeOf($e)) {
           var e = $e;
-          pas.System.Writeln("Refresh Exception:" + e.fMessage);
+          window.console.log("Refresh Exception:" + e.fMessage);
           this.Page.progressOff();
         } else throw $e
       };
@@ -22718,7 +22716,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
       function ReportsCouldntbeLoaded(aValue) {
         var Result = undefined;
-        pas.System.Writeln("error loading report");
+        window.console.log("error loading report");
         return Result;
       };
       function WikiFormLoaded(aValue) {
@@ -22846,7 +22844,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.Toolbar.enableItem("abort");
     };
     this.DoEnterKeyPressed = function () {
-      pas.System.Writeln("Enter Key pressed");
+      window.console.log("Enter Key pressed");
     };
     this.DoFormChange = function () {
       this.Change();
@@ -22869,7 +22867,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         if (rtl.isExt(Self.FWindow,Window,1)) {
           Self.FWindow.pas.Avamm.AvammLogin = pas.Avamm.AvammLogin;
         };
-        pas.System.Writeln("new Window loaded");
+        window.console.log("new Window loaded");
         Self.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",Self.FParent,"pattern","2E"]));
         a = Self.Layout.cells("a");
         a.hideHeader();
@@ -22919,7 +22917,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.FTablename = aDataSet;
       if ((mode === $mod.TAvammFormMode.fmTab) || (mode === $mod.TAvammFormMode.fmWindow)) {
         if (!window.dhx.isChrome && !window.dhx.isIE) {
-          pas.System.Writeln("TAvammForm.Create: generating new Window");
+          window.console.log("TAvammForm.Create: generating new Window");
           var $tmp1 = mode;
           if ($tmp1 === $mod.TAvammFormMode.fmTab) {
             Self.FWindow = window.open((((((window.location.protocol + window.location.pathname) + "#\/") + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/","_blank")}
@@ -22932,7 +22930,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         };
       };
       if (Self.FWindow == null) {
-        pas.System.Writeln("TAvammForm.Create: Window is null, using DHTMLX Window");
+        window.console.log("TAvammForm.Create: Window is null, using DHTMLX Window");
         Self.FWindow = pas.dhtmlx_windows.Windows.createWindow(Id,10,10,810,610);
         var $with2 = rtl.getObject(Self.FWindow);
         $with2.attachEvent("onClose",rtl.createCallback(Self,"DoClose"));
@@ -22989,7 +22987,7 @@ rtl.module("dhtmlx_scheduler",["System","JS","Web","dhtmlx_base"],function () {
   this.LoadScheduler = function () {
     function DoLoadScheduler(resolve, reject) {
       function ScriptLoadedJS2() {
-        pas.System.Writeln("Sheduler loaded...");
+        window.console.log("Sheduler loaded...");
         scheduler.config.xml_date=pas.dhtmlx_calendar.DateFormatToDHTMLX(pas.SysUtils.ShortDateFormat+" "+pas.SysUtils.ShortTimeFormat);
         resolve(true);
       };
@@ -23005,7 +23003,7 @@ rtl.module("dhtmlx_scheduler",["System","JS","Web","dhtmlx_base"],function () {
       function ScriptLoadedCSS() {
         pas.dhtmlx_base.AppendJS("appbase\/dhtmlx\/dhtmlxscheduler.js",ScriptLoadedJS,ScriptErrorJS);
       };
-      pas.System.Writeln("Loading Sheduler...");
+      window.console.log("Loading Sheduler...");
       pas.dhtmlx_base.AppendCSS("appbase\/dhtmlx\/dhtmlxscheduler_material.css",ScriptLoadedCSS,ScriptErrorJS);
     };
     $mod.SchedulerLoaded = new Promise(DoLoadScheduler);
@@ -23071,7 +23069,7 @@ rtl.module("avammcalendar",["System","Web","JS","AvammForms","dhtmlx_scheduler",
             var Result = undefined;
             return Result;
           };
-          pas.System.Writeln("Creating new Event:",id);
+          window.console.log("Creating new Event:",id);
           EventFields = new Object();
           EventFields["id"] = "" + id;
           EventFields["ID"] = "" + id;
