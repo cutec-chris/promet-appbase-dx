@@ -23287,9 +23287,13 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
       var Result = undefined;
       aDiv.style.setProperty("display","none");
       //remove Adressbar on mobile devices if possible
-      if (window.navigator.standalone == false) {
-          window.scrollTo(0, 1);
-      };
+      window.addEventListener("load",function() {
+          // Set a timeout...
+          setTimeout(function(){
+              // Hide the address bar!
+              window.scrollTo(0, 1);
+          }, 0);
+      });
       return Result;
     };
     function FillEnviromentAfterLogin(aValue) {
