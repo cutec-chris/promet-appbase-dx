@@ -482,7 +482,8 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
                               'position','label-right'
                              ]));
     Form.addItem(null,js.new(['type','label',
-                              'label',strCommon
+                              'label',strCommon,
+                              'name','lCommon'
                              ]));
     Form.addItem(null,new(['type','block',
                                 'width','auto',

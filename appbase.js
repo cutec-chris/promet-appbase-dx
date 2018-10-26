@@ -22883,7 +22883,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Toolbar.disableItem("abort");
         Self.Form = rtl.getObject(a.attachForm(pas.JS.New([])));
         Self.Form.addItem(null,pas.JS.New(["type","settings","position","label-right"]));
-        Self.Form.addItem(null,pas.JS.New(["type","label","label",rtl.getResStr(pas.AvammForms,"strCommon")]));
+        Self.Form.addItem(null,pas.JS.New(["type","label","label",rtl.getResStr(pas.AvammForms,"strCommon"),"name","lCommon"]));
         Self.Form.addItem(null,pas.JS.New(["type","block","width","auto","name","aBlock"]));
         Self.Form.addItem("aBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.AvammForms,"strNumber"),"name","eId","readonly",true,"hidden",true,"inputWidth",100,"note",rtl.getResStr(pas.AvammForms,"strNumberNote"),"tooltip",rtl.getResStr(pas.AvammForms,"strNumberTooltip")]));
         Self.Form.addItem("aBlock",pas.JS.New(["type","newcolumn"]));
