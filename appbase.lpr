@@ -100,6 +100,11 @@ var
   function RemoveStatusTextText(aValue: JSValue): JSValue;
   begin
     TJSHTMLElement(aDiv).style.setProperty('display','none');
+    asm //remove Adressbar on mobile devices if possible
+    if (window.navigator.standalone == false) {
+        window.scrollTo(0, 1);
+    }
+    end;
   end;
   function FillEnviromentAfterLogin(aValue: JSValue): JSValue;
     procedure FindInitRoute;
@@ -222,11 +227,6 @@ begin
   Router.AfterRequest:=@RouterAfterRequest;
   Router.History.OnReady:=@Onready;
   AddLoadingHint;
-  asm //remove Adressbar on mobile devices if possible
-  if (window.navigator.standalone == false) {
-      window.scrollTo(0, 1);
-  }
-  end;
 end;
 function DoGetAvammContainer: JSValue;
 var
@@ -267,14 +267,9 @@ begin
     end;
   Result := FContainer;
 end;
-procedure HideAdressBar;
-begin
-  window.scrollTo(0,1);
-end;
 begin
   FInitialized := False;
   GetAvammContainer := @DoGetAvammContainer;
-  window.setTimeout(@HideAdressBar,0);
   dhtmlx_base.AppendCSS('index.css',null,null);
   if LoadEnviroment then
     WidgetsetLoaded._then(@FillEnviroment);
