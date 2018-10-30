@@ -11228,6 +11228,7 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
         function SetupUser(aValue) {
           var Result = undefined;
           window.console.log("User Login successful...");
+          if ($mod.getCookie("login") !== "") $mod.setCookie("login",$mod.getCookie("login"),4);
           window.dispatchEvent(pas.Avamm.AfterLoginEvent);
           return Result;
         };
@@ -11434,7 +11435,7 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","Avamm","dh
         if (status) {
           pas.Avamm.AvammLogin = window.btoa((("" + LoginForm.getItemValue("eUsername")) + ":") + ("" + LoginForm.getItemValue("ePassword")));
           resolve(true);
-          if (LoginForm.getItemValue("cbSaveLogin") == 1) pas.Avamm.setCookie("login",pas.Avamm.AvammLogin,2);
+          if (LoginForm.getItemValue("cbSaveLogin") == 1) pas.Avamm.setCookie("login",pas.Avamm.AvammLogin,4);
           isResolved = true;
           aWin.close();
         };

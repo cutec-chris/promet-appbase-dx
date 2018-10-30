@@ -207,6 +207,8 @@ function CheckLogin : TJSPromise;
       function SetupUser(aValue: JSValue): JSValue;
       begin
         console.log('User Login successful...');
+        if Avamm.getCookie('login') <> '' then
+          Avamm.setCookie('login',Avamm.getCookie('login'),4); //renew cookie
         asm
           window.dispatchEvent(pas.Avamm.AfterLoginEvent);
         end;

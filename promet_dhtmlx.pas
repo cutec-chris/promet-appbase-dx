@@ -32,7 +32,7 @@ var
           Avamm.AvammLogin:=window.btoa(string(LoginForm.getItemValue('eUsername'))+':'+string(LoginForm.getItemValue('ePassword')));
           resolve(true);
           if LoginForm.getItemValue('cbSaveLogin') = 1 then
-            Avamm.setCookie('login',Avamm.AvammLogin);
+            Avamm.setCookie('login',Avamm.AvammLogin,4);
           isResolved:=True;
           aWin.close;
         end;
