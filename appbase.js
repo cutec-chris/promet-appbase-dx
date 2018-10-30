@@ -22337,11 +22337,15 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
     $mod.Refresh();
   };
   this.Refresh = function () {
+    function DoResizeLayout() {
+      $mod.Layout.setSizes();
+    };
     function FillWiki(aValue) {
       var Result = undefined;
       $mod.Content.innerHTML = aValue.responseText;
       $mod.FixWikiContent($mod.Content,null);
       $mod.Layout.cells("a").progressOff();
+      window.addEventListener("ContainerResized",DoResizeLayout);
       return Result;
     };
     var DataLoaded = null;

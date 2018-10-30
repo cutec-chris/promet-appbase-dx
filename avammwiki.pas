@@ -18,11 +18,17 @@ procedure FixWikiContent(elem : TJSHTMLElement;aForm : JSValue);
 implementation
 
 procedure Refresh;
+  procedure DoResizeLayout;
+  begin
+    Layout.setSizes;
+  end;
+
   function FillWiki(aValue: TJSXMLHttpRequest): JSValue;
   begin
     Content.innerHTML:=aValue.responseText;
     FixWikiContent(Content,null);
     Layout.cells('a').progressOff;
+    window.addEventListener('ContainerResized',@DoResizeLayout);
   end;
 var
   DataLoaded: TJSPromise;
