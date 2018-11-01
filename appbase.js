@@ -22854,17 +22854,17 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.DoFormChange = function () {
       this.Change();
     };
+    this.ToolbarButtonClick = function (id) {
+      if (id === "save") {
+        this.DoSave();
+        this.Toolbar.disableItem("save");
+        this.Toolbar.disableItem("abort");
+      } else if (id === "abort") {
+        this.Refresh();
+      };
+    };
     this.Create$1 = function (mode, aDataSet, Id, Params) {
       var Self = this;
-      function ToolbarButtonClick(id) {
-        if (id === "save") {
-          Self.DoSave();
-          Self.Toolbar.disableItem("save");
-          Self.Toolbar.disableItem("abort");
-        } else if (id === "abort") {
-          Self.Refresh();
-        };
-      };
       function WindowCreated(Event) {
         var Result = false;
         var a = null;
@@ -22883,7 +22883,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Toolbar = rtl.getObject(a.attachToolbar(pas.JS.New(["iconset","awesome"])));
         Self.Toolbar.addButton("save",0,rtl.getResStr(pas.AvammForms,"strSave"),"fa fa-save","fa fa-save");
         Self.Toolbar.addButton("abort",0,rtl.getResStr(pas.AvammForms,"strAbort"),"fa fa-cancel","fa fa-cancel");
-        Self.Toolbar.attachEvent("onClick",ToolbarButtonClick);
+        Self.Toolbar.attachEvent("onClick",rtl.createCallback(Self,"ToolbarButtonClick"));
         Self.Toolbar.disableItem("save");
         Self.Toolbar.disableItem("abort");
         Self.Form = rtl.getObject(a.attachForm(pas.JS.New([])));

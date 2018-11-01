@@ -90,10 +90,11 @@ type
     procedure Change;
     procedure DoEnterKeyPressed;virtual;
     procedure DoFormChange;virtual;
+    procedure ToolbarButtonClick(id : string);virtual;
   public
     BaseId : JSValue;
     Reports: TJSArray;
-    constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue;Params : string = '');overload;
+    constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue;Params : string = '');virtual;
     property Id : JSValue read FID;
     property Tablename : string read FTablename;
     property Data : TJSObject read FData;
@@ -438,21 +439,22 @@ begin
   Change;
 end;
 
+procedure TAvammForm.ToolbarButtonClick(id: string);
+begin
+  if (id='save') then
+    begin
+      DoSave;
+      Toolbar.disableItem('save');
+      Toolbar.disableItem('abort');
+    end
+  else if (id='abort') then
+    begin
+      Refresh;
+    end;
+end;
+
 constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
   Id: JSValue;Params : string = '');
-  procedure ToolbarButtonClick(id : string);
-  begin
-    if (id='save') then
-      begin
-        DoSave;
-        Toolbar.disableItem('save');
-        Toolbar.disableItem('abort');
-      end
-    else if (id='abort') then
-      begin
-        Refresh;
-      end;
-  end;
   function WindowCreated(Event: TEventListenerEvent): boolean;
   var
     a, b: TDHTMLXLayoutCell;
