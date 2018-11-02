@@ -2,11 +2,14 @@ var scale = 1.4; //Set this to whatever you want. This is basically the "zoom" f
 var PDFJS = window['pdfjs-dist/build/pdf'];
 var currPage = 1;
 var thePdf;
+var contdiv;
 
 function loadPdf(pdfData) {
     currPage = 1;
     if (thePdf) thePdf.destroy();
     document.body.innerHTML = "";
+    contdiv = document.createElement( "div" );
+    document.body.appendChild(contdiv);
     PDFJS.disableWorker = true; //Not using web workers. Not disabling results in an error. This line is
     var loadingTask = PDFJS.getDocument(pdfData);
     loadingTask.promise.then(function(pdf) {
@@ -30,7 +33,7 @@ function handlePages(page)
 
   var container = document.createElement( "div" );
   
-  document.body.appendChild(container);
+  contdiv.appendChild(container);
   container.className = 'pdf-content';
 
   //We'll create a canvas for each page to draw it on
