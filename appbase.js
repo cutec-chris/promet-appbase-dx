@@ -22169,10 +22169,14 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       return Result;
     };
     this.Delete = function (id) {
+      var Self = this;
+      function Doremove() {
+        Self.FDatastore.remove(id);
+        Self.FDataprocessor.cleanUpdate();
+      };
       if (id == undefined) return;
       $impl.ShowDebug("deleting " + ("" + id));
-      this.FDataprocessor.setUpdated(id);
-      this.FDatastore.remove(id);
+      Self.FDataprocessor.ignore(Doremove);
     };
     this.CheckforDeletions = function () {
       var aId = undefined;
