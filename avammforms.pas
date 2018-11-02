@@ -391,9 +391,14 @@ procedure TAvammForm.Refresh;
     else TDHTMLXWindowsCell(FWindow).close;
   end;
 begin
-  Avamm.LoadData('/'+FTablename+'/by-id/'+string(Id)+'/item.json?mode=extjs',False,'text/json',12000)._then(@ItemLoaded)
-                                                                .catch(@ItemLoadError)
-                                                                ._then(@ItemLoaded2);
+  if  (string(Id)<>'')
+  and (string(Id)<>'new') then
+    begin
+      Layout.progressOn;
+      Avamm.LoadData('/'+FTablename+'/by-id/'+string(Id)+'/item.json?mode=extjs',False,'text/json',12000)._then(@ItemLoaded)
+                                                                  .catch(@ItemLoadError)
+                                                                  ._then(@ItemLoaded2);
+    end;
 end;
 
 procedure TAvammForm.DoSave;
@@ -530,7 +535,6 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     gHistory.enableAutoWidth(true);
     gHistory.enableKeyboardSupport(true);
     gHistory.init();
-    Layout.progressOn;
     Refresh;
   end;
 begin

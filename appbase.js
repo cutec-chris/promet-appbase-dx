@@ -22817,7 +22817,10 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
          else rtl.getObject(Self.FWindow).close();
         return Result;
       };
-      pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/item.json?mode=extjs",false,"text\/json",12000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
+      if ((("" + Self.FID) !== "") && (("" + Self.FID) !== "new")) {
+        Self.Layout.progressOn();
+        pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/item.json?mode=extjs",false,"text\/json",12000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
+      };
     };
     this.DoSave = function () {
       var Self = this;
@@ -22910,7 +22913,6 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.gHistory.enableAutoWidth(true);
         Self.gHistory.enableKeyboardSupport(true);
         Self.gHistory.init();
-        Self.Layout.progressOn();
         Self.Refresh();
         return Result;
       };
