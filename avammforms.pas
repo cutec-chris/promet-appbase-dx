@@ -89,7 +89,7 @@ type
     procedure DoSave;virtual;
     procedure Change;
     procedure DoEnterKeyPressed;virtual;
-    procedure DoFormChange;virtual;
+    procedure DoFormChange(id,value : JSValue);virtual;
     procedure ToolbarButtonClick(id : string);virtual;
   public
     BaseId : JSValue;
@@ -434,7 +434,7 @@ begin
   console.log('Enter Key pressed');
 end;
 
-procedure TAvammForm.DoFormChange;
+procedure TAvammForm.DoFormChange(id,value: JSValue);
 begin
   Change;
 end;

@@ -22851,7 +22851,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.DoEnterKeyPressed = function () {
       window.console.log("Enter Key pressed");
     };
-    this.DoFormChange = function () {
+    this.DoFormChange = function (id, value) {
       this.Change();
     };
     this.ToolbarButtonClick = function (id) {
