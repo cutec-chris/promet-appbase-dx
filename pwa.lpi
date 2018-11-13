@@ -105,7 +105,7 @@
         <PackageName Value="pas2js_rtl"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="4">
       <Unit0>
         <Filename Value="pwa.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -118,6 +118,10 @@
         <Filename Value="../index.css"/>
         <IsPartOfProject Value="True"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="pwa_helper.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -131,7 +135,7 @@
         <IgnoredMessages idx5024="True"/>
       </CompilerMessages>
       <ExecuteBefore>
-        <Command Value="pas2js -Tbrowser -Jirtl.js -Jc -dDEBUG $Name($(ProjFile))"/>
+        <Command Value="pas2js -Tbrowser -Jirtl-min.js -Jipwa-asm.js -Jc -dDEBUG $Name($(ProjFile))"/>
         <ScanForFPCMsgs Value="True"/>
       </ExecuteBefore>
     </Other>
