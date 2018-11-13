@@ -517,5 +517,26 @@ initialization
   InitWindow(window);
   Router.InitHistory(hkHash);
   InitAvammApp;
+
+  //dont optimize Functions
+  if Now()<0 then
+    begin
+      RegisterSidebarRoute('','',nil);
+      LoadData('');
+      StoreData('','',False,'',0);
+      LoadModule('');
+      WaitForAssigned('',nil);
+      CheckLogin;
+      Wait(0);
+      setCookie('','');
+      deleteCookie('');
+      getCookie('');
+      AppendCSS('',nil,nil);
+      AppendJS('',nil,nil);
+      InitWindow(nil);
+      getRight('');
+      GetBaseUrl;
+      WindowError(nil);
+    end;
 end.
 

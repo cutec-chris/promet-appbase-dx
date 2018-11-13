@@ -737,5 +737,28 @@ begin
   end;
 end;
 
+initialization
+  //dont optimize Functions
+  if Now()<0 then
+    begin
+      with TAvammForm.Create(fmWindow,'','') do
+        begin
+          writeln(Id);
+          writeln(Tablename);
+          writeln(Data);
+          writeln(Params.Text);
+        end;
+      with TAvammListForm.Create(nil,'') do
+        begin
+          FilterHeader:='';
+          RefreshList;
+          DataSet.First;
+          writeln(DataLink.IdField);
+          DoRowDblClick;
+          ToolbarButtonClick('');
+          DoLoadData;
+          Show;
+        end;
+    end;
 end.
 

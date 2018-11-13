@@ -282,4 +282,8 @@ begin
       if Router.FindHTTPRoute(THashHistory(Router.History).getHash,nil) <> nil then
         InitRouteFound := Router.Push(THashHistory(Router.History).getHash) = trOK;
     end;
+  if Now()<0 then
+    begin
+      DateFormatToDHTMLX('');
+    end;
 end.

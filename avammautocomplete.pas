@@ -148,6 +148,10 @@ begin
     end;
 end;
 
-
+initialization
+  if Now()<0 then
+    begin
+      TAvammAutoComplete.Create(nil,'','','','','');
+    end;
 end.
 

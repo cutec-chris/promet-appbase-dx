@@ -11356,6 +11356,24 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
     $mod.InitWindow(window);
     pas.webrouter.Router().InitHistory(pas.webrouter.THistoryKind.hkHash,"");
     $impl.InitAvammApp();
+    if (pas.SysUtils.Now() < 0) {
+      $mod.RegisterSidebarRoute("","",null,"");
+      $mod.LoadData("",false,"",6000);
+      $mod.StoreData("","",false,"",0);
+      $mod.LoadModule("",null);
+      $mod.WaitForAssigned("",null);
+      $mod.CheckLogin();
+      $mod.Wait(0);
+      $mod.setCookie("","",2);
+      $mod.deleteCookie("");
+      $mod.getCookie("");
+      pas.dhtmlx_base.AppendCSS("",null,null);
+      pas.dhtmlx_base.AppendJS("",null,null);
+      $mod.InitWindow(null);
+      $mod.getRight("");
+      $mod.GetBaseUrl();
+      $impl.WindowError(null);
+    };
   };
 },["dhtmlx_base"],function () {
   "use strict";
@@ -22027,6 +22045,11 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
     return Result;
   };
   $mod.$resourcestrings = {strFailedToSaveToDB: {org: "Fehler beim speichern: %s"}};
+  $mod.$init = function () {
+    if (pas.SysUtils.Now() < 0) {
+      $mod.TAvammDataset.$create("Create$5",[null,""]);
+    };
+  };
 });
 rtl.module("dhtmlx_toolbar",["System","JS","Web"],function () {
   "use strict";
@@ -22424,6 +22447,13 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
         };
       } catch ($e) {
       };
+    };
+  };
+  $mod.$init = function () {
+    if (pas.SysUtils.Now() < 0) {
+      $mod.ShowStartpage();
+      $mod.Refresh();
+      $mod.FixWikiContent(null,null);
     };
   };
 });
@@ -22968,6 +22998,24 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     return Result;
   };
   $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSavingFailed: {org: "Fehler beim speichern der Daten auf dem Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}, strFilterTT: {org: "Filter an\/auschalten"}, strHistory: {org: "Verlauf"}, strReallyCancel: {org: "Änderungen verwerfen ?"}, strYes: {org: "Ja"}, strNo: {org: "Nein"}, strNew: {org: "Neu"}, strDelete: {org: "Löschen"}, strCommon: {org: "Allgemein"}, strDescription: {org: "Beschreibung"}};
+  $mod.$init = function () {
+    if (pas.SysUtils.Now() < 0) {
+      var $with1 = $mod.TAvammForm.$create("Create$1",[$mod.TAvammFormMode.fmWindow,"","",""]);
+      pas.System.Writeln($with1.FID);
+      pas.System.Writeln($with1.FTablename);
+      pas.System.Writeln($with1.FData);
+      pas.System.Writeln($with1.FParams.GetTextStr());
+      var $with2 = $mod.TAvammListForm.$create("Create$2",[null,"","1C"]);
+      $with2.SetFilterHeader("");
+      $with2.RefreshList();
+      $with2.FDataSet.First();
+      pas.System.Writeln($with2.FDataLink.FIdField);
+      $with2.DoRowDblClick();
+      $with2.ToolbarButtonClick("");
+      $with2.DoLoadData();
+      $with2.Show();
+    };
+  };
 },["AvammWiki"]);
 rtl.module("dhtmlx_calendar",["System","JS","Web","SysUtils"],function () {
   "use strict";
@@ -22987,9 +23035,12 @@ rtl.module("dhtmlx_carousel",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
 });
-rtl.module("dhtmlx_dataview",["System","JS","Web"],function () {
+rtl.module("dhtmlx_dataview",["System","JS","Web","SysUtils"],function () {
   "use strict";
   var $mod = this;
+  $mod.$init = function () {
+    if (pas.SysUtils.Now() < 0) ;
+  };
 });
 rtl.module("dhtmlx_scheduler",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
@@ -23226,6 +23277,11 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
       };
     };
   });
+  $mod.$init = function () {
+    if (pas.SysUtils.Now() < 0) {
+      $mod.TAvammAutoComplete.$create("Create$1",[null,"","","","","",300,200]);
+    };
+  };
 });
 rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_windows","dhtmlx_calendar","dhtmlx_carousel","dhtmlx_dataview","avammcalendar","AvammAutocomplete"],function () {
   "use strict";
@@ -23452,6 +23508,9 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
     if ($mod.LoadEnviroment) pas.dhtmlx_base.WidgetsetLoaded.then($mod.FillEnviroment);
     if (pas.webrouter.Router().GetHistory().$class.getHash() !== "") {
       if (pas.webrouter.Router().FindHTTPRoute(pas.webrouter.Router().GetHistory().$class.getHash(),null) !== null) $mod.InitRouteFound = pas.webrouter.Router().Push(pas.webrouter.Router().GetHistory().$class.getHash()) === pas.webrouter.TTransitionResult.trOK;
+    };
+    if (pas.SysUtils.Now() < 0) {
+      pas.dhtmlx_calendar.DateFormatToDHTMLX("");
     };
   };
 });

@@ -343,5 +343,11 @@ begin
   end;
 end;
 
+initialization
+  //dont optimize Functions
+  if Now()<0 then
+    begin
+      TAvammDataset.Create(nil,'');
+    end;
 end.
 

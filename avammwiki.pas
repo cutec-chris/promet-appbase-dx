@@ -136,5 +136,13 @@ begin
       end;
     end;
 end;
+
+initialization
+  if Now()<0 then
+    begin
+      ShowStartpage;
+      Refresh;
+      FixWikiContent(nil,nil);
+    end;
 end.
 
