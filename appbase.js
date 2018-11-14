@@ -2,6 +2,8 @@
 
 var rtl = {
 
+  version: 10101,
+
   quiet: false,
   debug_load_units: false,
   debug_rtti: false,
@@ -18,6 +20,10 @@ var rtl = {
 
   warn: function(s){
     rtl.debug('Warn: ',s);
+  },
+
+  checkVersion: function(v){
+    if (rtl.version != v) throw "expected rtl version "+v+", but found "+rtl.version;
   },
 
   hasString: function(s){
@@ -229,6 +235,7 @@ var rtl = {
 
   initClass: function(c,parent,name,initfn){
     parent[name] = c;
+    c.$class = c; // Note: o.$class === Object.getPrototypeOf(o)
     c.$classname = name;
     if ((parent.$module) && (parent.$module.$impl===parent)) parent=parent.$module;
     c.$parent = parent;
@@ -266,21 +273,22 @@ var rtl = {
       c.$create = function(fnname,args){
         if (args == undefined) args = [];
         var o = Object.create(this);
-        o.$class = this; // Note: o.$class === Object.getPrototypeOf(o)
         o.$init();
         try{
           o[fnname].apply(o,args);
           o.AfterConstruction();
         } catch($e){
-          o.$destroy;
+          // do not call BeforeDestruction
+          if (o.Destroy) o.Destroy();
+          o.$final();
           throw $e;
         }
         return o;
       };
       c.$destroy = function(fnname){
         this.BeforeDestruction();
-        this[fnname]();
-        this.$final;
+        if (this[fnname]) this[fnname]();
+        this.$final();
       };
     };
     rtl.initClass(c,parent,name,initfn);
@@ -300,21 +308,22 @@ var rtl = {
       } else {
         o = Object.create(this);
       }
-      o.$class = this; // Note: o.$class === Object.getPrototypeOf(o)
-      o.$init();
+      if (o.$init) o.$init();
       try{
         o[fnname].apply(o,args);
         if (o.AfterConstruction) o.AfterConstruction();
       } catch($e){
-        o.$destroy;
+        // do not call BeforeDestruction
+        if (o.Destroy) o.Destroy();
+        if (o.$final) this.$final();
         throw $e;
       }
       return o;
     };
     c.$destroy = function(fnname){
       if (this.BeforeDestruction) this.BeforeDestruction();
-      this[fnname]();
-      this.$final;
+      if (this[fnname]) this[fnname]();
+      if (this.$final) this.$final();
     };
     rtl.initClass(c,parent,name,initfn);
   },
@@ -844,7 +853,12 @@ var rtl = {
   },
 
   refSet: function(s){
-    s.$shared = true;
+    Object.defineProperty(s, '$shared', {
+      enumerable: false,
+      configurable: true,
+      writable: true,
+      value: true
+    });
     return s;
   },
 
@@ -863,7 +877,6 @@ var rtl = {
   diffSet: function(s,t){
     var r = {};
     for (var key in s) if (!t[key]) r[key]=true;
-    delete r.$shared;
     return r;
   },
 
@@ -871,14 +884,12 @@ var rtl = {
     var r = {};
     for (var key in s) r[key]=true;
     for (var key in t) r[key]=true;
-    delete r.$shared;
     return r;
   },
 
   intersectSet: function(s,t){
     var r = {};
     for (var key in s) if (t[key]) r[key]=true;
-    delete r.$shared;
     return r;
   },
 
@@ -886,13 +897,12 @@ var rtl = {
     var r = {};
     for (var key in s) if (!t[key]) r[key]=true;
     for (var key in t) if (!s[key]) r[key]=true;
-    delete r.$shared;
     return r;
   },
 
   eqSet: function(s,t){
-    for (var key in s) if (!t[key] && (key!='$shared')) return false;
-    for (var key in t) if (!s[key] && (key!='$shared')) return false;
+    for (var key in s) if (!t[key]) return false;
+    for (var key in t) if (!s[key]) return false;
     return true;
   },
 
@@ -901,12 +911,12 @@ var rtl = {
   },
 
   leSet: function(s,t){
-    for (var key in s) if (!t[key] && (key!='$shared')) return false;
+    for (var key in s) if (!t[key]) return false;
     return true;
   },
 
   geSet: function(s,t){
-    for (var key in t) if (!s[key] && (key!='$shared')) return false;
+    for (var key in t) if (!s[key]) return false;
     return true;
   },
 
@@ -1414,6 +1424,7 @@ rtl.module("System",[],function () {
   });
   this.IObjectInstance = new $mod.TGuid({D1: 0xD91C9AF4, D2: 0x3C93, D3: 0x420F, D4: [0xA3,0x03,0xBF,0x5B,0xA8,0x2B,0xFD,0x23]});
   this.IsConsole = false;
+  this.FirstDotAtFileNameStartIsExtension = false;
   $mod.$rtti.$ProcVar("TOnParamCount",{procsig: rtl.newTIProcSig(null,rtl.longint)});
   $mod.$rtti.$ProcVar("TOnParamStr",{procsig: rtl.newTIProcSig([["Index",rtl.longint]],rtl.string)});
   this.OnParamCount = null;
@@ -1463,7 +1474,7 @@ rtl.module("System",[],function () {
   this.DefaultTextLineBreakStyle = $mod.TTextLineBreakStyle.tlbsLF;
   this.Int = function (A) {
     var Result = 0.0;
-    Result = Math.trunc(A);
+    Result = $mod.Trunc(A);
     return Result;
   };
   this.Copy = function (S, Index, Size) {
@@ -1503,11 +1514,32 @@ rtl.module("System",[],function () {
     var x = 0.0;
     Code.set(0);
     x = Number(S);
+    if (isNaN(x)) {
+      var $tmp1 = $mod.Copy(S,1,1);
+      if ($tmp1 === "$") {
+        x = Number("0x" + $mod.Copy$1(S,2))}
+       else if ($tmp1 === "&") {
+        x = Number("0o" + $mod.Copy$1(S,2))}
+       else if ($tmp1 === "%") {
+        x = Number("0b" + $mod.Copy$1(S,2))}
+       else {
+        Code.set(1);
+        return;
+      };
+    };
     if (isNaN(x) || (x !== $mod.Int(x))) {
       Code.set(1)}
      else NI.set($mod.Trunc(x));
   };
-  this.val$1 = function (S, SI, Code) {
+  this.val$1 = function (S, NI, Code) {
+    var x = 0.0;
+    Code.set(0);
+    x = Number(S);
+    if ((isNaN(x) || (x !== $mod.Int(x))) || (x < 0)) {
+      Code.set(1)}
+     else NI.set($mod.Trunc(x));
+  };
+  this.val$2 = function (S, SI, Code) {
     var X = 0.0;
     Code.set(0);
     X = Number(S);
@@ -1517,7 +1549,7 @@ rtl.module("System",[],function () {
       Code.set(2)}
      else SI.set($mod.Trunc(X));
   };
-  this.val$2 = function (S, B, Code) {
+  this.val$3 = function (S, B, Code) {
     var x = 0.0;
     Code.set(0);
     x = Number(S);
@@ -1527,7 +1559,7 @@ rtl.module("System",[],function () {
       Code.set(2)}
      else B.set($mod.Trunc(x));
   };
-  this.val$3 = function (S, SI, Code) {
+  this.val$4 = function (S, SI, Code) {
     var x = 0.0;
     Code.set(0);
     x = Number(S);
@@ -1537,7 +1569,7 @@ rtl.module("System",[],function () {
       Code.set(2)}
      else SI.set($mod.Trunc(x));
   };
-  this.val$4 = function (S, W, Code) {
+  this.val$5 = function (S, W, Code) {
     var x = 0.0;
     Code.set(0);
     x = Number(S);
@@ -1547,7 +1579,7 @@ rtl.module("System",[],function () {
       Code.set(2)}
      else W.set($mod.Trunc(x));
   };
-  this.val$5 = function (S, I, Code) {
+  this.val$6 = function (S, I, Code) {
     var x = 0.0;
     Code.set(0);
     x = Number(S);
@@ -1557,7 +1589,7 @@ rtl.module("System",[],function () {
       Code.set(2)}
      else I.set($mod.Trunc(x));
   };
-  this.val$6 = function (S, C, Code) {
+  this.val$7 = function (S, C, Code) {
     var x = 0.0;
     Code.set(0);
     x = Number(S);
@@ -1567,7 +1599,7 @@ rtl.module("System",[],function () {
       Code.set(2)}
      else C.set($mod.Trunc(x));
   };
-  this.val$7 = function (S, d, Code) {
+  this.val$8 = function (S, d, Code) {
     var x = 0.0;
     x = Number(S);
     if (isNaN(x)) {
@@ -1580,6 +1612,7 @@ rtl.module("System",[],function () {
   this.StringOfChar = function (c, l) {
     var Result = "";
     var i = 0;
+    if ((l>0) && c.repeat) return c.repeat(l);
     Result = "";
     for (var $l1 = 1, $end2 = l; $l1 <= $end2; $l1++) {
       i = $l1;
@@ -2507,21 +2540,22 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
     o.$destroy("Destroy");
   };
   $mod.$rtti.$ProcVar("TProcedure",{procsig: rtl.newTIProcSig(null)});
+  this.FloatRecDigits = 19;
   this.TFloatRec = function (s) {
     if (s) {
       this.Exponent = s.Exponent;
       this.Negative = s.Negative;
-      this.Digits = s.Digits;
+      this.Digits = s.Digits.slice(0);
     } else {
       this.Exponent = 0;
       this.Negative = false;
-      this.Digits = [];
+      this.Digits = rtl.arraySetLength(null,"",19);
     };
     this.$equal = function (b) {
-      return (this.Exponent === b.Exponent) && ((this.Negative === b.Negative) && (this.Digits === b.Digits));
+      return (this.Exponent === b.Exponent) && ((this.Negative === b.Negative) && rtl.arrayEq(this.Digits,b.Digits));
     };
   };
-  $mod.$rtti.$DynArray("TFloatRec.Digits$a",{eltype: rtl.char});
+  $mod.$rtti.$StaticArray("TFloatRec.Digits$a",{dims: [19], eltype: rtl.char});
   $mod.$rtti.$Record("TFloatRec",{}).addFields("Exponent",rtl.longint,"Negative",rtl.boolean,"Digits",$mod.$rtti["TFloatRec.Digits$a"]);
   this.TEndian = {"0": "Little", Little: 0, "1": "Big", Big: 1};
   $mod.$rtti.$Enum("TEndian",{minvalue: 0, maxvalue: 1, ordtype: 1, enumtype: this.TEndian});
@@ -2543,14 +2577,14 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
       this.fMessage = Msg;
     };
     this.CreateFmt = function (Msg, Args) {
-      this.fMessage = $mod.Format(Msg,Args);
+      this.Create$1($mod.Format(Msg,Args));
     };
     this.CreateHelp = function (Msg, AHelpContext) {
-      this.fMessage = Msg;
+      this.Create$1(Msg);
       this.fHelpContext = AHelpContext;
     };
     this.CreateFmtHelp = function (Msg, Args, AHelpContext) {
-      this.fMessage = $mod.Format(Msg,Args);
+      this.Create$1($mod.Format(Msg,Args));
       this.fHelpContext = AHelpContext;
     };
     this.ToString = function () {
@@ -2987,9 +3021,29 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
   };
   this.QuoteString = function (aOriginal, AQuote) {
     var Result = "";
-    var REString = "";
-    REString = AQuote.replace(new RegExp(aOriginal,"g"),"\\\\$1");
-    Result = (AQuote + aOriginal.replace(new RegExp(REString,"g"),"$1\\$1")) + AQuote;
+    Result = (AQuote + $mod.StringReplace(aOriginal,AQuote,AQuote + AQuote,rtl.createSet($mod.TStringReplaceFlag.rfReplaceAll))) + AQuote;
+    return Result;
+  };
+  this.QuotedStr = function (s, QuoteChar) {
+    var Result = "";
+    Result = $mod.QuoteString(s,QuoteChar);
+    return Result;
+  };
+  this.DeQuoteString = function (aQuoted, AQuote) {
+    var Result = "";
+    var i = 0;
+    Result = aQuoted;
+    if (Result.substr(0,1) !== AQuote) return Result;
+    Result = Result.slice(1);
+    i = 1;
+    while (i <= Result.length) {
+      if (Result.charAt(i - 1) === AQuote) {
+        if ((i === Result.length) || (Result.charAt((i + 1) - 1) !== AQuote)) {
+          Result = Result.slice(0,i - 1);
+          return Result;
+        } else Result = Result.slice(0,i - 1) + Result.slice(i);
+      } else i += 1;
+    };
     return Result;
   };
   this.IsDelimiter = function (Delimiters, S, Index) {
@@ -3109,16 +3163,15 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
   this.TryStrToInt$1 = function (S, res) {
     var Result = false;
     var Radix = 10;
-    var F = "";
     var N = "";
     var J = undefined;
     N = S;
-    F = pas.System.Copy(N,1,1);
-    if (F === "$") {
+    var $tmp1 = pas.System.Copy(N,1,1);
+    if ($tmp1 === "$") {
       Radix = 16}
-     else if (F === "&") {
+     else if ($tmp1 === "&") {
       Radix = 8}
-     else if (F === "%") Radix = 2;
+     else if ($tmp1 === "%") Radix = 2;
     if (Radix !== 10) pas.System.Delete({get: function () {
         return N;
       }, set: function (v) {
@@ -3311,20 +3364,22 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
   this.MinCurrency = -450359962737.0496;
   this.TFloatFormat = {"0": "ffFixed", ffFixed: 0, "1": "ffGeneral", ffGeneral: 1, "2": "ffExponent", ffExponent: 2, "3": "ffNumber", ffNumber: 3, "4": "ffCurrency", ffCurrency: 4};
   $mod.$rtti.$Enum("TFloatFormat",{minvalue: 0, maxvalue: 4, ordtype: 1, enumtype: this.TFloatFormat});
-  var Rounds = "234567890";
+  var Rounds = "123456789:";
   this.FloatToDecimal = function (Value, Precision, Decimals) {
     var Result = new $mod.TFloatRec();
     var Buffer = "";
     var InfNan = "";
+    var OutPos = 0;
     var error = 0;
     var N = 0;
     var L = 0;
-    var Start = 0;
     var C = 0;
     var GotNonZeroBeforeDot = false;
     var BeforeDot = false;
-    if (Value === 0) ;
-    Result.Digits = rtl.arraySetLength(Result.Digits,"",19);
+    Result.Negative = false;
+    Result.Exponent = 0;
+    for (C = 0; C <= 19; C++) Result.Digits[C] = "0";
+    if (Value === 0) return Result;
     Buffer=Value.toPrecision(21); // Double precision;
     N = 1;
     L = Buffer.length;
@@ -3346,7 +3401,7 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
         return Result;
       };
     };
-    Start = N;
+    OutPos = 0;
     Result.Exponent = 0;
     BeforeDot = true;
     GotNonZeroBeforeDot = false;
@@ -3356,15 +3411,16 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
        else {
         if (BeforeDot) {
           Result.Exponent += 1;
-          Result.Digits[N - Start] = Buffer.charAt(N - 1);
+          Result.Digits[OutPos] = Buffer.charAt(N - 1);
           if (Buffer.charAt(N - 1) !== "0") GotNonZeroBeforeDot = true;
-        } else Result.Digits[(N - Start) - 1] = Buffer.charAt(N - 1);
+        } else Result.Digits[OutPos] = Buffer.charAt(N - 1);
+        OutPos += 1;
       };
       N += 1;
     };
     N += 1;
     if (N <= L) {
-      pas.System.val$5(pas.System.Copy(Buffer,N,(L - N) + 1),{get: function () {
+      pas.System.val$6(pas.System.Copy(Buffer,N,(L - N) + 1),{get: function () {
           return C;
         }, set: function (v) {
           C = v;
@@ -3375,11 +3431,12 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
         }});
       Result.Exponent += C;
     };
-    if (BeforeDot) {
-      N = (N - Start) - 1}
-     else N = (N - Start) - 2;
-    L = rtl.length(Result.Digits);
-    if (N < L) Result.Digits[N] = "0";
+    N = OutPos;
+    L = 19;
+    while (N < L) {
+      Result.Digits[N] = "0";
+      N += 1;
+    };
     if ((Decimals + Result.Exponent) < Precision) {
       N = Decimals + Result.Exponent}
      else N = Precision;
@@ -3395,7 +3452,7 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
         do {
           Result.Digits[N] = "\x00";
           N -= 1;
-          Result.Digits[N] = Rounds.charAt($mod.StrToInt(Result.Digits[N]) - 1);
+          Result.Digits[N] = Rounds.charAt(($mod.StrToInt(Result.Digits[N]) + 1) - 1);
         } while (!((N === 0) || (Result.Digits[N] < ":")));
         if (Result.Digits[0] === ":") {
           Result.Digits[0] = "1";
@@ -3659,7 +3716,7 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
         if (PadZeroes >= 0) DistToDecimal = FV.Exponent;
       };
       Available = -1;
-      while ((Available < (rtl.length(FV.Digits) - 1)) && (FV.Digits[Available + 1] !== "\x00")) Available += 1;
+      while ((Available < 18) && (FV.Digits[Available + 1] !== "\x00")) Available += 1;
     };
     function FormatExponent(ASign, aExponent) {
       var Result = "";
@@ -3785,7 +3842,7 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
     var D = 0.0;
     var Code = 0;
     Temp = $mod.UpperCase(S);
-    pas.System.val$7(Temp,{get: function () {
+    pas.System.val$8(Temp,{get: function () {
         return D;
       }, set: function (v) {
         D = v;
@@ -5204,10 +5261,10 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
     TS = $mod.ThousandSeparator;
     for (var $l1 = StartPos, $end2 = AValue.get().length; $l1 <= $end2; $l1++) {
       i = $l1;
-      Result = (AValue.get().charCodeAt(i - 1) in rtl.createSet(48,DS.charCodeAt(),69,43)) || (AValue.get() === TS);
+      Result = (AValue.get().charCodeAt(i - 1) in rtl.createSet(48,DS.charCodeAt(),69,43)) || (AValue.get().charAt(i - 1) === TS);
       if (!Result) break;
     };
-    if (Result) pas.System.Delete(AValue,1,1);
+    if (Result && (AValue.get().charAt(0) === "-")) pas.System.Delete(AValue,1,1);
     return Result;
   };
   $impl.FormatNumberCurrency = function (Value, Digits, DS, TS) {
@@ -5225,19 +5282,21 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
         Result = v;
       }},1,1);
     P = pas.System.Pos(".",Result);
-    if (P !== 0) {
-      Result = $impl.ReplaceDecimalSep(Result,DS)}
-     else P = Result.length + 1;
-    P -= 3;
-    while (P > 1) {
-      if ($mod.ThousandSeparator !== "\x00") pas.System.Insert($mod.FormatSettings.GetThousandSeparator(),{get: function () {
-          return Result;
-        }, set: function (v) {
-          Result = v;
-        }},P);
+    if (TS !== "") {
+      if (P !== 0) {
+        Result = $impl.ReplaceDecimalSep(Result,DS)}
+       else P = Result.length + 1;
       P -= 3;
+      while (P > 1) {
+        pas.System.Insert(TS,{get: function () {
+            return Result;
+          }, set: function (v) {
+            Result = v;
+          }},P);
+        P -= 3;
+      };
     };
-    if ((Result.length > 1) && Negative) Negative = !$impl.RemoveLeadingNegativeSign({get: function () {
+    if (Negative) $impl.RemoveLeadingNegativeSign({get: function () {
         return Result;
       }, set: function (v) {
         Result = v;
@@ -5285,7 +5344,6 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
         Result = ((("(" + $mod.CurrencyString) + " ") + Result) + ")"}
        else if ($tmp2 === 15) Result = ((("(" + Result) + " ") + $mod.CurrencyString) + ")";
     };
-    if (TS === "") ;
     return Result;
   };
   $impl.RESpecials = "([\\[\\]\\(\\)\\\\\\.\\*])";
@@ -5387,7 +5445,7 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
           return Result;
         };
         if ((n === yp) && (s1.length > 2)) YearMoreThenTwoDigits = true;
-        pas.System.val$5(s1,{a: n, p: values, get: function () {
+        pas.System.val$6(s1,{a: n, p: values, get: function () {
             return this.p[this.a];
           }, set: function (v) {
             this.p[this.a] = v;
@@ -5508,7 +5566,7 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
           if (FirstSignificantDigit === -1) FirstSignificantDigit = Cur;
           ElemLen = (1 + Cur) - FirstSignificantDigit;
           if ((ElemLen <= 2) || ((ElemLen <= 3) && (TimeIndex === 3))) {
-            pas.System.val$5(pas.System.Copy(S,FirstSignificantDigit,ElemLen),{get: function () {
+            pas.System.val$6(pas.System.Copy(S,FirstSignificantDigit,ElemLen),{get: function () {
                 return Value;
               }, set: function (v) {
                 Value = v;
@@ -11592,7 +11650,7 @@ rtl.module("math",["System","SysUtils"],function () {
     return Result;
   };
   this.IsInfinite = function (d) {
-    return (d==Infinite) || (d==-Infinite);
+    return (d==Infinity) || (d==-Infinity);
   };
   this.SameValue = function (A, B, Epsilon) {
     var Result = false;
@@ -16599,7 +16657,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       if (AValue.length === 0) {
         this.Clear()}
        else {
-        pas.System.val$5(AValue,{get: function () {
+        pas.System.val$6(AValue,{get: function () {
             return L;
           }, set: function (v) {
             L = v;
