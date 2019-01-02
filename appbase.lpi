@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="10"/>
+    <Version Value="11"/>
     <General>
       <Flags>
         <SaveOnlyProjectUnits Value="True"/>
@@ -78,7 +78,7 @@
           </Linking>
           <Other>
             <ExecuteBefore>
-              <Command Value="pas2js -Tbrowser -Jirtl.js -Jc $Name($(ProjFile))"/>
+              <Command Value="pas2js -Tbrowser -Jirtl.js -O- -Jc &quot;-Jpcmduglifyjs.cmd -c -m&quot; -dDEBUG -Fudhtmlx-for-pas2js $Name($(ProjFile))"/>
               <ScanForFPCMsgs Value="True"/>
             </ExecuteBefore>
           </Other>
@@ -90,9 +90,10 @@
       <Version Value="2"/>
     </PublishOptions>
     <RunParams>
-      <local>
-        <FormatVersion Value="1"/>
-      </local>
+      <FormatVersion Value="2"/>
+      <Modes Count="1">
+        <Mode0 Name="default"/>
+      </Modes>
     </RunParams>
     <RequiredPackages Count="3">
       <Item1>
@@ -132,7 +133,9 @@
       </CompilerMessages>
       <ExecuteBefore>
         <Command Value="pas2js -Tbrowser -Jirtl.js -O- -Jc -dDEBUG -Fudhtmlx-for-pas2js $Name($(ProjFile))"/>
-        <ScanForFPCMsgs Value="True"/>
+        <Parsers Count="1">
+          <Item1 Value="Pas2JS"/>
+        </Parsers>
       </ExecuteBefore>
     </Other>
     <CompileReasons Compile="False" Build="False" Run="False"/>

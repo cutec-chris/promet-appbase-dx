@@ -2,6 +2,8 @@
 
 var rtl = {
 
+  version: 10101,
+
   quiet: false,
   debug_load_units: false,
   debug_rtti: false,
@@ -18,6 +20,10 @@ var rtl = {
 
   warn: function(s){
     rtl.debug('Warn: ',s);
+  },
+
+  checkVersion: function(v){
+    if (rtl.version != v) throw "expected rtl version "+v+", but found "+rtl.version;
   },
 
   hasString: function(s){
@@ -229,6 +235,7 @@ var rtl = {
 
   initClass: function(c,parent,name,initfn){
     parent[name] = c;
+    c.$class = c; // Note: o.$class === Object.getPrototypeOf(o)
     c.$classname = name;
     if ((parent.$module) && (parent.$module.$impl===parent)) parent=parent.$module;
     c.$parent = parent;
@@ -266,21 +273,22 @@ var rtl = {
       c.$create = function(fnname,args){
         if (args == undefined) args = [];
         var o = Object.create(this);
-        o.$class = this; // Note: o.$class === Object.getPrototypeOf(o)
         o.$init();
         try{
           o[fnname].apply(o,args);
           o.AfterConstruction();
         } catch($e){
-          o.$destroy;
+          // do not call BeforeDestruction
+          if (o.Destroy) o.Destroy();
+          o.$final();
           throw $e;
         }
         return o;
       };
       c.$destroy = function(fnname){
         this.BeforeDestruction();
-        this[fnname]();
-        this.$final;
+        if (this[fnname]) this[fnname]();
+        this.$final();
       };
     };
     rtl.initClass(c,parent,name,initfn);
@@ -300,21 +308,22 @@ var rtl = {
       } else {
         o = Object.create(this);
       }
-      o.$class = this; // Note: o.$class === Object.getPrototypeOf(o)
-      o.$init();
+      if (o.$init) o.$init();
       try{
         o[fnname].apply(o,args);
         if (o.AfterConstruction) o.AfterConstruction();
       } catch($e){
-        o.$destroy;
+        // do not call BeforeDestruction
+        if (o.Destroy) o.Destroy();
+        if (o.$final) this.$final();
         throw $e;
       }
       return o;
     };
     c.$destroy = function(fnname){
       if (this.BeforeDestruction) this.BeforeDestruction();
-      this[fnname]();
-      this.$final;
+      if (this[fnname]) this[fnname]();
+      if (this.$final) this.$final();
     };
     rtl.initClass(c,parent,name,initfn);
   },
@@ -844,7 +853,12 @@ var rtl = {
   },
 
   refSet: function(s){
-    s.$shared = true;
+    Object.defineProperty(s, '$shared', {
+      enumerable: false,
+      configurable: true,
+      writable: true,
+      value: true
+    });
     return s;
   },
 
@@ -863,7 +877,6 @@ var rtl = {
   diffSet: function(s,t){
     var r = {};
     for (var key in s) if (!t[key]) r[key]=true;
-    delete r.$shared;
     return r;
   },
 
@@ -871,14 +884,12 @@ var rtl = {
     var r = {};
     for (var key in s) r[key]=true;
     for (var key in t) r[key]=true;
-    delete r.$shared;
     return r;
   },
 
   intersectSet: function(s,t){
     var r = {};
     for (var key in s) if (t[key]) r[key]=true;
-    delete r.$shared;
     return r;
   },
 
@@ -886,13 +897,12 @@ var rtl = {
     var r = {};
     for (var key in s) if (!t[key]) r[key]=true;
     for (var key in t) if (!s[key]) r[key]=true;
-    delete r.$shared;
     return r;
   },
 
   eqSet: function(s,t){
-    for (var key in s) if (!t[key] && (key!='$shared')) return false;
-    for (var key in t) if (!s[key] && (key!='$shared')) return false;
+    for (var key in s) if (!t[key]) return false;
+    for (var key in t) if (!s[key]) return false;
     return true;
   },
 
@@ -901,12 +911,12 @@ var rtl = {
   },
 
   leSet: function(s,t){
-    for (var key in s) if (!t[key] && (key!='$shared')) return false;
+    for (var key in s) if (!t[key]) return false;
     return true;
   },
 
   geSet: function(s,t){
-    for (var key in t) if (!s[key] && (key!='$shared')) return false;
+    for (var key in t) if (!s[key]) return false;
     return true;
   },
 
@@ -940,7 +950,7 @@ var rtl = {
     };
   },
 
-  floatToStr : function(d,w,p){
+  floatToStr: function(d,w,p){
     // input 1-3 arguments: double, width, precision
     if (arguments.length>2){
       return rtl.spaceLeft(d.toFixed(p),w);
@@ -963,6 +973,18 @@ var rtl = {
       s=s.replace(/e(.)/,'E$1'+pad);
       return rtl.spaceLeft(s,w);
     }
+  },
+
+  valEnum: function(s, enumType, setCodeFn){
+    s = s.toLowerCase();
+    for (var key in enumType){
+      if((typeof(key)==='string') && (key.toLowerCase()===s)){
+        setCodeFn(0);
+        return enumType[key];
+      }
+    }
+    setCodeFn(1);
+    return 0;
   },
 
   initRTTI: function(){
@@ -1184,6 +1206,10 @@ rtl.module("System",[],function () {
   var $impl = $mod.$impl;
   this.LineEnding = "\n";
   this.sLineBreak = $mod.LineEnding;
+  this.PathDelim = "\/";
+  this.AllowDirectorySeparators = rtl.createSet(47);
+  this.AllowDriveSeparators = rtl.createSet(58);
+  this.ExtensionSeparator = ".";
   this.MaxSmallint = 32767;
   this.MinSmallint = -32768;
   this.MaxShortInt = 127;
@@ -1361,7 +1387,6 @@ rtl.module("System",[],function () {
     this.BeforeDestruction = function () {
       if (this.fRefCount !== 0) rtl.raiseE('EHeapMemoryError');
     };
-    this.$intfmaps = {};
     rtl.addIntf(this,$mod.IUnknown);
   });
   $mod.$rtti.$ClassRef("TInterfacedClass",{instancetype: $mod.$rtti["TInterfacedObject"]});
@@ -1409,11 +1434,11 @@ rtl.module("System",[],function () {
        else Result = -2147467262;
       return Result;
     };
-    this.$intfmaps = {};
     rtl.addIntf(this,$mod.IUnknown);
   });
   this.IObjectInstance = new $mod.TGuid({D1: 0xD91C9AF4, D2: 0x3C93, D3: 0x420F, D4: [0xA3,0x03,0xBF,0x5B,0xA8,0x2B,0xFD,0x23]});
   this.IsConsole = false;
+  this.FirstDotAtFileNameStartIsExtension = false;
   $mod.$rtti.$ProcVar("TOnParamCount",{procsig: rtl.newTIProcSig(null,rtl.longint)});
   $mod.$rtti.$ProcVar("TOnParamStr",{procsig: rtl.newTIProcSig([["Index",rtl.longint]],rtl.string)});
   this.OnParamCount = null;
@@ -1463,7 +1488,7 @@ rtl.module("System",[],function () {
   this.DefaultTextLineBreakStyle = $mod.TTextLineBreakStyle.tlbsLF;
   this.Int = function (A) {
     var Result = 0.0;
-    Result = Math.trunc(A);
+    Result = $mod.Trunc(A);
     return Result;
   };
   this.Copy = function (S, Index, Size) {
@@ -1500,74 +1525,37 @@ rtl.module("System",[],function () {
     return c.toUpperCase();
   };
   this.val = function (S, NI, Code) {
+    NI.set($impl.valint(S,-4503599627370496,4503599627370495,Code));
+  };
+  this.val$1 = function (S, NI, Code) {
     var x = 0.0;
-    Code.set(0);
     x = Number(S);
-    if (isNaN(x) || (x !== $mod.Int(x))) {
+    if ((isNaN(x) || (x !== $mod.Int(x))) || (x < 0)) {
       Code.set(1)}
-     else NI.set($mod.Trunc(x));
+     else {
+      Code.set(0);
+      NI.set($mod.Trunc(x));
+    };
   };
-  this.val$1 = function (S, SI, Code) {
-    var X = 0.0;
-    Code.set(0);
-    X = Number(S);
-    if (isNaN(X) || (X !== $mod.Int(X))) {
-      Code.set(1)}
-     else if ((X < -128) || (X > 127)) {
-      Code.set(2)}
-     else SI.set($mod.Trunc(X));
+  this.val$2 = function (S, SI, Code) {
+    SI.set($impl.valint(S,-128,127,Code));
   };
-  this.val$2 = function (S, B, Code) {
-    var x = 0.0;
-    Code.set(0);
-    x = Number(S);
-    if (isNaN(x) || (x !== $mod.Int(x))) {
-      Code.set(1)}
-     else if ((x < 0) || (x > 255)) {
-      Code.set(2)}
-     else B.set($mod.Trunc(x));
+  this.val$3 = function (S, B, Code) {
+    B.set($impl.valint(S,0,255,Code));
   };
-  this.val$3 = function (S, SI, Code) {
-    var x = 0.0;
-    Code.set(0);
-    x = Number(S);
-    if (isNaN(x) || (x !== $mod.Int(x))) {
-      Code.set(1)}
-     else if ((x < -32768) || (x > 32767)) {
-      Code.set(2)}
-     else SI.set($mod.Trunc(x));
+  this.val$4 = function (S, SI, Code) {
+    SI.set($impl.valint(S,-32768,32767,Code));
   };
-  this.val$4 = function (S, W, Code) {
-    var x = 0.0;
-    Code.set(0);
-    x = Number(S);
-    if (isNaN(x)) {
-      Code.set(1)}
-     else if ((x < 0) || (x > 65535)) {
-      Code.set(2)}
-     else W.set($mod.Trunc(x));
+  this.val$5 = function (S, W, Code) {
+    W.set($impl.valint(S,0,65535,Code));
   };
-  this.val$5 = function (S, I, Code) {
-    var x = 0.0;
-    Code.set(0);
-    x = Number(S);
-    if (isNaN(x)) {
-      Code.set(1)}
-     else if (x > 2147483647) {
-      Code.set(2)}
-     else I.set($mod.Trunc(x));
+  this.val$6 = function (S, I, Code) {
+    I.set($impl.valint(S,-2147483648,2147483647,Code));
   };
-  this.val$6 = function (S, C, Code) {
-    var x = 0.0;
-    Code.set(0);
-    x = Number(S);
-    if (isNaN(x) || (x !== $mod.Int(x))) {
-      Code.set(1)}
-     else if ((x < 0) || (x > 4294967295)) {
-      Code.set(2)}
-     else C.set($mod.Trunc(x));
+  this.val$7 = function (S, C, Code) {
+    C.set($impl.valint(S,0,4294967295,Code));
   };
-  this.val$7 = function (S, d, Code) {
+  this.val$8 = function (S, d, Code) {
     var x = 0.0;
     x = Number(S);
     if (isNaN(x)) {
@@ -1577,9 +1565,19 @@ rtl.module("System",[],function () {
       d.set(x);
     };
   };
+  this.val$9 = function (S, b, Code) {
+    if ($impl.SameText(S,"true")) {
+      Code.set(0);
+      b.set(true);
+    } else if ($impl.SameText(S,"false")) {
+      Code.set(0);
+      b.set(false);
+    } else Code.set(1);
+  };
   this.StringOfChar = function (c, l) {
     var Result = "";
     var i = 0;
+    if ((l>0) && c.repeat) return c.repeat(l);
     Result = "";
     for (var $l1 = 1, $end2 = l; $l1 <= $end2; $l1++) {
       i = $l1;
@@ -1644,6 +1642,33 @@ rtl.module("System",[],function () {
   };
   $impl.WriteBuf = "";
   $impl.WriteCallBack = null;
+  $impl.valint = function (S, MinVal, MaxVal, Code) {
+    var Result = 0;
+    var x = 0.0;
+    x = Number(S);
+    if (isNaN(x)) {
+      var $tmp1 = $mod.Copy(S,1,1);
+      if ($tmp1 === "$") {
+        x = Number("0x" + $mod.Copy$1(S,2))}
+       else if ($tmp1 === "&") {
+        x = Number("0o" + $mod.Copy$1(S,2))}
+       else if ($tmp1 === "%") {
+        x = Number("0b" + $mod.Copy$1(S,2))}
+       else {
+        Code.set(1);
+        return Result;
+      };
+    };
+    if (isNaN(x) || (x !== $mod.Int(x))) {
+      Code.set(1)}
+     else if ((x < MinVal) || (x > MaxVal)) {
+      Code.set(2)}
+     else {
+      Result = $mod.Trunc(x);
+      Code.set(0);
+    };
+    return Result;
+  };
 });
 rtl.module("Types",["System"],function () {
   "use strict";
@@ -2280,7 +2305,7 @@ rtl.module("Web",["System","Types","JS"],function () {
     this.ScrollLock = "ScrollLock";
     this.Shift = "Shift";
     this.Super = "Super";
-    this.symbol = "Symbol";
+    this.Symbol = "Symbol";
     this.SymbolLock = "SymbolLock";
     this.Enter = "Enter";
     this.Tab = "Tab";
@@ -2507,21 +2532,22 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
     o.$destroy("Destroy");
   };
   $mod.$rtti.$ProcVar("TProcedure",{procsig: rtl.newTIProcSig(null)});
+  this.FloatRecDigits = 19;
   this.TFloatRec = function (s) {
     if (s) {
       this.Exponent = s.Exponent;
       this.Negative = s.Negative;
-      this.Digits = s.Digits;
+      this.Digits = s.Digits.slice(0);
     } else {
       this.Exponent = 0;
       this.Negative = false;
-      this.Digits = [];
+      this.Digits = rtl.arraySetLength(null,"",19);
     };
     this.$equal = function (b) {
-      return (this.Exponent === b.Exponent) && ((this.Negative === b.Negative) && (this.Digits === b.Digits));
+      return (this.Exponent === b.Exponent) && ((this.Negative === b.Negative) && rtl.arrayEq(this.Digits,b.Digits));
     };
   };
-  $mod.$rtti.$DynArray("TFloatRec.Digits$a",{eltype: rtl.char});
+  $mod.$rtti.$StaticArray("TFloatRec.Digits$a",{dims: [19], eltype: rtl.char});
   $mod.$rtti.$Record("TFloatRec",{}).addFields("Exponent",rtl.longint,"Negative",rtl.boolean,"Digits",$mod.$rtti["TFloatRec.Digits$a"]);
   this.TEndian = {"0": "Little", Little: 0, "1": "Big", Big: 1};
   $mod.$rtti.$Enum("TEndian",{minvalue: 0, maxvalue: 1, ordtype: 1, enumtype: this.TEndian});
@@ -2543,14 +2569,14 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
       this.fMessage = Msg;
     };
     this.CreateFmt = function (Msg, Args) {
-      this.fMessage = $mod.Format(Msg,Args);
+      this.Create$1($mod.Format(Msg,Args));
     };
     this.CreateHelp = function (Msg, AHelpContext) {
-      this.fMessage = Msg;
+      this.Create$1(Msg);
       this.fHelpContext = AHelpContext;
     };
     this.CreateFmtHelp = function (Msg, Args, AHelpContext) {
-      this.fMessage = $mod.Format(Msg,Args);
+      this.Create$1($mod.Format(Msg,Args));
       this.fHelpContext = AHelpContext;
     };
     this.ToString = function () {
@@ -2937,6 +2963,26 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
     };
     return Result;
   };
+  this.BytesOf = function (AVal) {
+    var Result = [];
+    var I = 0;
+    Result = rtl.arraySetLength(Result,0,AVal.length);
+    for (var $l1 = 0, $end2 = AVal.length - 1; $l1 <= $end2; $l1++) {
+      I = $l1;
+      Result[I] = AVal.charCodeAt((I + 1) - 1);
+    };
+    return Result;
+  };
+  this.StringOf = function (ABytes) {
+    var Result = "";
+    var I = 0;
+    Result = "";
+    for (var $l1 = 0, $end2 = rtl.length(ABytes) - 1; $l1 <= $end2; $l1++) {
+      I = $l1;
+      Result = Result + String.fromCharCode(ABytes[I]);
+    };
+    return Result;
+  };
   this.LocaleCompare = function (s1, s2, locales) {
     return s1.localeCompare(s2,locales) == 0;
   };
@@ -2987,9 +3033,29 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
   };
   this.QuoteString = function (aOriginal, AQuote) {
     var Result = "";
-    var REString = "";
-    REString = AQuote.replace(new RegExp(aOriginal,"g"),"\\\\$1");
-    Result = (AQuote + aOriginal.replace(new RegExp(REString,"g"),"$1\\$1")) + AQuote;
+    Result = (AQuote + $mod.StringReplace(aOriginal,AQuote,AQuote + AQuote,rtl.createSet($mod.TStringReplaceFlag.rfReplaceAll))) + AQuote;
+    return Result;
+  };
+  this.QuotedStr = function (s, QuoteChar) {
+    var Result = "";
+    Result = $mod.QuoteString(s,QuoteChar);
+    return Result;
+  };
+  this.DeQuoteString = function (aQuoted, AQuote) {
+    var Result = "";
+    var i = 0;
+    Result = aQuoted;
+    if (Result.substr(0,1) !== AQuote) return Result;
+    Result = Result.slice(1);
+    i = 1;
+    while (i <= Result.length) {
+      if (Result.charAt(i - 1) === AQuote) {
+        if ((i === Result.length) || (Result.charAt((i + 1) - 1) !== AQuote)) {
+          Result = Result.slice(0,i - 1);
+          return Result;
+        } else Result = Result.slice(0,i - 1) + Result.slice(i);
+      } else i += 1;
+    };
     return Result;
   };
   this.IsDelimiter = function (Delimiters, S, Index) {
@@ -3109,16 +3175,15 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
   this.TryStrToInt$1 = function (S, res) {
     var Result = false;
     var Radix = 10;
-    var F = "";
     var N = "";
     var J = undefined;
     N = S;
-    F = pas.System.Copy(N,1,1);
-    if (F === "$") {
+    var $tmp1 = pas.System.Copy(N,1,1);
+    if ($tmp1 === "$") {
       Radix = 16}
-     else if (F === "&") {
+     else if ($tmp1 === "&") {
       Radix = 8}
-     else if (F === "%") Radix = 2;
+     else if ($tmp1 === "%") Radix = 2;
     if (Radix !== 10) pas.System.Delete({get: function () {
         return N;
       }, set: function (v) {
@@ -3311,20 +3376,22 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
   this.MinCurrency = -450359962737.0496;
   this.TFloatFormat = {"0": "ffFixed", ffFixed: 0, "1": "ffGeneral", ffGeneral: 1, "2": "ffExponent", ffExponent: 2, "3": "ffNumber", ffNumber: 3, "4": "ffCurrency", ffCurrency: 4};
   $mod.$rtti.$Enum("TFloatFormat",{minvalue: 0, maxvalue: 4, ordtype: 1, enumtype: this.TFloatFormat});
-  var Rounds = "234567890";
+  var Rounds = "123456789:";
   this.FloatToDecimal = function (Value, Precision, Decimals) {
     var Result = new $mod.TFloatRec();
     var Buffer = "";
     var InfNan = "";
+    var OutPos = 0;
     var error = 0;
     var N = 0;
     var L = 0;
-    var Start = 0;
     var C = 0;
     var GotNonZeroBeforeDot = false;
     var BeforeDot = false;
-    if (Value === 0) ;
-    Result.Digits = rtl.arraySetLength(Result.Digits,"",19);
+    Result.Negative = false;
+    Result.Exponent = 0;
+    for (C = 0; C <= 19; C++) Result.Digits[C] = "0";
+    if (Value === 0) return Result;
     Buffer=Value.toPrecision(21); // Double precision;
     N = 1;
     L = Buffer.length;
@@ -3346,7 +3413,7 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
         return Result;
       };
     };
-    Start = N;
+    OutPos = 0;
     Result.Exponent = 0;
     BeforeDot = true;
     GotNonZeroBeforeDot = false;
@@ -3356,15 +3423,16 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
        else {
         if (BeforeDot) {
           Result.Exponent += 1;
-          Result.Digits[N - Start] = Buffer.charAt(N - 1);
+          Result.Digits[OutPos] = Buffer.charAt(N - 1);
           if (Buffer.charAt(N - 1) !== "0") GotNonZeroBeforeDot = true;
-        } else Result.Digits[(N - Start) - 1] = Buffer.charAt(N - 1);
+        } else Result.Digits[OutPos] = Buffer.charAt(N - 1);
+        OutPos += 1;
       };
       N += 1;
     };
     N += 1;
     if (N <= L) {
-      pas.System.val$5(pas.System.Copy(Buffer,N,(L - N) + 1),{get: function () {
+      pas.System.val$6(pas.System.Copy(Buffer,N,(L - N) + 1),{get: function () {
           return C;
         }, set: function (v) {
           C = v;
@@ -3375,11 +3443,12 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
         }});
       Result.Exponent += C;
     };
-    if (BeforeDot) {
-      N = (N - Start) - 1}
-     else N = (N - Start) - 2;
-    L = rtl.length(Result.Digits);
-    if (N < L) Result.Digits[N] = "0";
+    N = OutPos;
+    L = 19;
+    while (N < L) {
+      Result.Digits[N] = "0";
+      N += 1;
+    };
     if ((Decimals + Result.Exponent) < Precision) {
       N = Decimals + Result.Exponent}
      else N = Precision;
@@ -3395,7 +3464,7 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
         do {
           Result.Digits[N] = "\x00";
           N -= 1;
-          Result.Digits[N] = Rounds.charAt($mod.StrToInt(Result.Digits[N]) - 1);
+          Result.Digits[N] = Rounds.charAt(($mod.StrToInt(Result.Digits[N]) + 1) - 1);
         } while (!((N === 0) || (Result.Digits[N] < ":")));
         if (Result.Digits[0] === ":") {
           Result.Digits[0] = "1";
@@ -3659,7 +3728,7 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
         if (PadZeroes >= 0) DistToDecimal = FV.Exponent;
       };
       Available = -1;
-      while ((Available < (rtl.length(FV.Digits) - 1)) && (FV.Digits[Available + 1] !== "\x00")) Available += 1;
+      while ((Available < 18) && (FV.Digits[Available + 1] !== "\x00")) Available += 1;
     };
     function FormatExponent(ASign, aExponent) {
       var Result = "";
@@ -3785,7 +3854,7 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
     var D = 0.0;
     var Code = 0;
     Temp = $mod.UpperCase(S);
-    pas.System.val$7(Temp,{get: function () {
+    pas.System.val$8(Temp,{get: function () {
         return D;
       }, set: function (v) {
         D = v;
@@ -3887,16 +3956,16 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
   this.TTimeStamp = function (s) {
     if (s) {
       this.Time = s.Time;
-      this.date = s.date;
+      this.Date = s.Date;
     } else {
       this.Time = 0;
-      this.date = 0;
+      this.Date = 0;
     };
     this.$equal = function (b) {
-      return (this.Time === b.Time) && (this.date === b.date);
+      return (this.Time === b.Time) && (this.Date === b.Date);
     };
   };
-  $mod.$rtti.$Record("TTimeStamp",{}).addFields("Time",rtl.longint,"date",rtl.longint);
+  $mod.$rtti.$Record("TTimeStamp",{}).addFields("Time",rtl.longint,"Date",rtl.longint);
   this.TimeSeparator = ":";
   this.DateSeparator = "-";
   this.ShortDateFormat = "yyyy-mm-dd";
@@ -4128,24 +4197,24 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
       D = D - 0.5}
      else D = D + 0.5;
     Result.Time = pas.System.Trunc(Math.abs(pas.System.Trunc(D)) % 86400000);
-    Result.date = 693594 + Math.floor(pas.System.Trunc(D) / 86400000);
+    Result.Date = 693594 + Math.floor(pas.System.Trunc(D) / 86400000);
     return Result;
   };
   this.TimeStampToDateTime = function (TimeStamp) {
     var Result = 0.0;
-    Result = $mod.ComposeDateTime(TimeStamp.date - 693594,TimeStamp.Time / 86400000);
+    Result = $mod.ComposeDateTime(TimeStamp.Date - 693594,TimeStamp.Time / 86400000);
     return Result;
   };
   this.MSecsToTimeStamp = function (MSecs) {
     var Result = new $mod.TTimeStamp();
-    Result.date = pas.System.Trunc(MSecs / 86400000);
-    MSecs = MSecs - (Result.date * 86400000);
+    Result.Date = pas.System.Trunc(MSecs / 86400000);
+    MSecs = MSecs - (Result.Date * 86400000);
     Result.Time = Math.round(MSecs);
     return Result;
   };
   this.TimeStampToMSecs = function (TimeStamp) {
     var Result = 0;
-    Result = TimeStamp.Time + (TimeStamp.date * 86400000);
+    Result = TimeStamp.Time + (TimeStamp.Date * 86400000);
     return Result;
   };
   this.TryEncodeDate = function (Year, Month, Day, date) {
@@ -4298,14 +4367,14 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
     if (Result <= 0) Result += 7;
     return Result;
   };
-  this.date = function () {
+  this.Date = function () {
     var Result = 0.0;
     Result = pas.System.Trunc($mod.Now());
     return Result;
   };
   this.Time = function () {
     var Result = 0.0;
-    Result = $mod.Now() - $mod.date();
+    Result = $mod.Now() - $mod.Date();
     return Result;
   };
   this.Now = function () {
@@ -4852,6 +4921,217 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
      else Result = Default;
     return Result;
   };
+  $mod.$rtti.$DynArray("TPathStrArray",{eltype: rtl.string});
+  this.ChangeFileExt = function (FileName, Extension) {
+    var Result = "";
+    var i = 0;
+    var EndSep = {};
+    var SOF = false;
+    i = FileName.length;
+    EndSep = rtl.unionSet(rtl.unionSet(pas.System.AllowDirectorySeparators,pas.System.AllowDriveSeparators),rtl.createSet(pas.System.ExtensionSeparator.charCodeAt()));
+    while ((i > 0) && !(FileName.charCodeAt(i - 1) in EndSep)) i -= 1;
+    if ((i === 0) || (FileName.charAt(i - 1) !== pas.System.ExtensionSeparator)) {
+      i = FileName.length + 1}
+     else {
+      SOF = (i === 1) || (FileName.charCodeAt((i - 1) - 1) in pas.System.AllowDirectorySeparators);
+      if (SOF && !pas.System.FirstDotAtFileNameStartIsExtension) i = FileName.length + 1;
+    };
+    Result = pas.System.Copy(FileName,1,i - 1) + Extension;
+    return Result;
+  };
+  this.ExtractFilePath = function (FileName) {
+    var Result = "";
+    var i = 0;
+    var EndSep = {};
+    i = FileName.length;
+    EndSep = rtl.unionSet(pas.System.AllowDirectorySeparators,pas.System.AllowDriveSeparators);
+    while ((i > 0) && !$impl.CharInSet$1(FileName.charAt(i - 1),EndSep)) i -= 1;
+    if (i > 0) {
+      Result = pas.System.Copy(FileName,1,i)}
+     else Result = "";
+    return Result;
+  };
+  this.ExtractFileDrive = function (FileName) {
+    var Result = "";
+    var i = 0;
+    var l = 0;
+    Result = "";
+    l = FileName.length;
+    if (l < 2) return Result;
+    if ($impl.CharInSet$1(FileName.charAt(1),pas.System.AllowDriveSeparators)) {
+      Result = pas.System.Copy(FileName,1,2)}
+     else if ($impl.CharInSet$1(FileName.charAt(0),pas.System.AllowDirectorySeparators) && $impl.CharInSet$1(FileName.charAt(1),pas.System.AllowDirectorySeparators)) {
+      i = 2;
+      while ((i < l) && !$impl.CharInSet$1(FileName.charAt((i + 1) - 1),pas.System.AllowDirectorySeparators)) i += 1;
+      i += 1;
+      while ((i < l) && !$impl.CharInSet$1(FileName.charAt((i + 1) - 1),pas.System.AllowDirectorySeparators)) i += 1;
+      Result = pas.System.Copy(FileName,1,i);
+    };
+    return Result;
+  };
+  this.ExtractFileName = function (FileName) {
+    var Result = "";
+    var i = 0;
+    var EndSep = {};
+    i = FileName.length;
+    EndSep = rtl.unionSet(pas.System.AllowDirectorySeparators,pas.System.AllowDriveSeparators);
+    while ((i > 0) && !$impl.CharInSet$1(FileName.charAt(i - 1),EndSep)) i -= 1;
+    Result = pas.System.Copy(FileName,i + 1,2147483647);
+    return Result;
+  };
+  this.ExtractFileExt = function (FileName) {
+    var Result = "";
+    var i = 0;
+    var EndSep = {};
+    var SOF = false;
+    Result = "";
+    i = FileName.length;
+    EndSep = rtl.unionSet(rtl.unionSet(pas.System.AllowDirectorySeparators,pas.System.AllowDriveSeparators),rtl.createSet(pas.System.ExtensionSeparator.charCodeAt()));
+    while ((i > 0) && !$impl.CharInSet$1(FileName.charAt(i - 1),EndSep)) i -= 1;
+    if ((i > 0) && (FileName.charAt(i - 1) === pas.System.ExtensionSeparator)) {
+      SOF = (i === 1) || (FileName.charCodeAt((i - 1) - 1) in pas.System.AllowDirectorySeparators);
+      if (!SOF || pas.System.FirstDotAtFileNameStartIsExtension) Result = pas.System.Copy(FileName,i,2147483647);
+    } else Result = "";
+    return Result;
+  };
+  this.ExtractFileDir = function (FileName) {
+    var Result = "";
+    var i = 0;
+    var EndSep = {};
+    i = FileName.length;
+    EndSep = rtl.unionSet(pas.System.AllowDirectorySeparators,pas.System.AllowDriveSeparators);
+    while ((i > 0) && !$impl.CharInSet$1(FileName.charAt(i - 1),EndSep)) i -= 1;
+    if (((i > 1) && $impl.CharInSet$1(FileName.charAt(i - 1),pas.System.AllowDirectorySeparators)) && !$impl.CharInSet$1(FileName.charAt((i - 1) - 1),EndSep)) i -= 1;
+    Result = pas.System.Copy(FileName,1,i);
+    return Result;
+  };
+  this.ExtractRelativepath = function (BaseName, DestName) {
+    var Result = "";
+    var OneLevelBack = "";
+    var Source = "";
+    var Dest = "";
+    var Sc = 0;
+    var Dc = 0;
+    var I = 0;
+    var J = 0;
+    var SD = [];
+    var DD = [];
+    OneLevelBack = ".." + pas.System.PathDelim;
+    if ($mod.UpperCase($mod.ExtractFileDrive(BaseName)) !== $mod.UpperCase($mod.ExtractFileDrive(DestName))) {
+      Result = DestName;
+      return Result;
+    };
+    Source = $mod.ExcludeTrailingPathDelimiter($mod.ExtractFilePath(BaseName));
+    Dest = $mod.ExcludeTrailingPathDelimiter($mod.ExtractFilePath(DestName));
+    SD = $mod.GetDirs(Source);
+    Sc = rtl.length(SD);
+    DD = $mod.GetDirs(Dest);
+    Dc = rtl.length(SD);
+    I = 0;
+    while ((I < Dc) && (I < Sc)) {
+      if ($mod.SameText(DD[I],SD[I])) {
+        I += 1}
+       else break;
+    };
+    Result = "";
+    for (var $l1 = I, $end2 = Sc; $l1 <= $end2; $l1++) {
+      J = $l1;
+      Result = Result + OneLevelBack;
+    };
+    for (var $l3 = I, $end4 = Dc; $l3 <= $end4; $l3++) {
+      J = $l3;
+      Result = (Result + DD[J]) + pas.System.PathDelim;
+    };
+    Result = Result + $mod.ExtractFileName(DestName);
+    return Result;
+  };
+  this.IncludeTrailingPathDelimiter = function (Path) {
+    var Result = "";
+    var l = 0;
+    Result = Path;
+    l = Result.length;
+    if ((l === 0) || !$impl.CharInSet$1(Result.charAt(l - 1),pas.System.AllowDirectorySeparators)) Result = Result + pas.System.PathDelim;
+    return Result;
+  };
+  this.ExcludeTrailingPathDelimiter = function (Path) {
+    var Result = "";
+    var L = 0;
+    L = Path.length;
+    if ((L > 0) && $impl.CharInSet$1(Path.charAt(L - 1),pas.System.AllowDirectorySeparators)) L -= 1;
+    Result = pas.System.Copy(Path,1,L);
+    return Result;
+  };
+  this.IncludeLeadingPathDelimiter = function (Path) {
+    var Result = "";
+    var l = 0;
+    Result = Path;
+    l = Result.length;
+    if ((l === 0) || !$impl.CharInSet$1(Result.charAt(0),pas.System.AllowDirectorySeparators)) Result = pas.System.PathDelim + Result;
+    return Result;
+  };
+  this.ExcludeLeadingPathDelimiter = function (Path) {
+    var Result = "";
+    var L = 0;
+    Result = Path;
+    L = Result.length;
+    if ((L > 0) && $impl.CharInSet$1(Result.charAt(0),pas.System.AllowDirectorySeparators)) pas.System.Delete({get: function () {
+        return Result;
+      }, set: function (v) {
+        Result = v;
+      }},1,1);
+    return Result;
+  };
+  this.IsPathDelimiter = function (Path, Index) {
+    var Result = false;
+    Result = ((Index > 0) && (Index <= Path.length)) && $impl.CharInSet$1(Path.charAt(Index - 1),pas.System.AllowDirectorySeparators);
+    return Result;
+  };
+  this.SetDirSeparators = function (FileName) {
+    var Result = "";
+    var I = 0;
+    Result = FileName;
+    for (var $l1 = 1, $end2 = Result.length; $l1 <= $end2; $l1++) {
+      I = $l1;
+      if ($impl.CharInSet$1(Result.charAt(I - 1),pas.System.AllowDirectorySeparators)) Result = rtl.setCharAt(Result,I - 1,pas.System.PathDelim);
+    };
+    return Result;
+  };
+  this.GetDirs = function (DirName) {
+    var Result = [];
+    var I = 0;
+    var J = 0;
+    var L = 0;
+    var D = "";
+    I = 1;
+    J = 0;
+    L = 0;
+    Result = rtl.arraySetLength(Result,"",DirName.length);
+    while (I <= DirName.length) {
+      if ($impl.CharInSet$1(DirName.charAt(I - 1),pas.System.AllowDirectorySeparators)) {
+        D = pas.System.Copy(DirName,J + 1,J - I);
+        if (D !== "") {
+          Result[L] = D;
+          L += 1;
+        };
+        J = I;
+      };
+      I += 1;
+    };
+    Result = rtl.arraySetLength(Result,"",L);
+    return Result;
+  };
+  this.ConcatPaths = function (Paths) {
+    var Result = "";
+    var I = 0;
+    if (rtl.length(Paths) > 0) {
+      Result = Paths[0];
+      for (var $l1 = 1, $end2 = rtl.length(Paths) - 1; $l1 <= $end2; $l1++) {
+        I = $l1;
+        Result = $mod.IncludeTrailingPathDelimiter(Result) + $mod.ExcludeLeadingPathDelimiter(Paths[I]);
+      };
+    } else Result = "";
+    return Result;
+  };
   this.GUID_NULL = new pas.System.TGuid({D1: 0x00000000, D2: 0x0000, D3: 0x0000, D4: [0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00]});
   this.Supports = function (Instance, AClass, Obj) {
     var Result = false;
@@ -4984,6 +5264,27 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
     Result = -1;
     return Result;
   };
+  this.CreateGUID = function (GUID) {
+    var Result = 0;
+    function R(B) {
+      var Result = 0;
+      var v = 0;
+      v = pas.System.Random(256);
+      while (B > 1) {
+        v = (v * 256) + pas.System.Random(256);
+        B -= 1;
+      };
+      Result = v;
+      return Result;
+    };
+    var I = 0;
+    Result = 0;
+    GUID.get().D1 = R(4);
+    GUID.get().D2 = R(2);
+    GUID.get().D3 = R(2);
+    for (I = 0; I <= 7; I++) GUID.get().D4[I] = R(1);
+    return Result;
+  };
   $mod.$init = function () {
     $mod.FormatSettings = $mod.TFormatSettings.$create("Create");
   };
@@ -4992,6 +5293,12 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
   var $mod = this;
   var $impl = $mod.$impl;
   $impl.SAbortError = "Operation aborted";
+  $mod.$rtti.$Set("TCharSet",{comptype: rtl.char});
+  $impl.CharInSet$1 = function (Ch, CSet) {
+    var Result = false;
+    Result = Ch.charCodeAt() in CSet;
+    return Result;
+  };
   $impl.CheckBoolStrs = function () {
     if (rtl.length($mod.TrueBoolStrs) === 0) {
       $mod.TrueBoolStrs = rtl.arraySetLength($mod.TrueBoolStrs,"",1);
@@ -5204,10 +5511,10 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
     TS = $mod.ThousandSeparator;
     for (var $l1 = StartPos, $end2 = AValue.get().length; $l1 <= $end2; $l1++) {
       i = $l1;
-      Result = (AValue.get().charCodeAt(i - 1) in rtl.createSet(48,DS.charCodeAt(),69,43)) || (AValue.get() === TS);
+      Result = (AValue.get().charCodeAt(i - 1) in rtl.createSet(48,DS.charCodeAt(),69,43)) || (AValue.get().charAt(i - 1) === TS);
       if (!Result) break;
     };
-    if (Result) pas.System.Delete(AValue,1,1);
+    if (Result && (AValue.get().charAt(0) === "-")) pas.System.Delete(AValue,1,1);
     return Result;
   };
   $impl.FormatNumberCurrency = function (Value, Digits, DS, TS) {
@@ -5217,7 +5524,7 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
     if (Digits === -1) {
       Digits = $mod.CurrencyDecimals}
      else if (Digits > 18) Digits = 18;
-    Result = rtl.spaceLeft("" + Value,0);
+    Result = rtl.floatToStr(Value / 10000,0,Digits);
     Negative = Result.charAt(0) === "-";
     if (Negative) pas.System.Delete({get: function () {
         return Result;
@@ -5225,19 +5532,21 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
         Result = v;
       }},1,1);
     P = pas.System.Pos(".",Result);
-    if (P !== 0) {
-      Result = $impl.ReplaceDecimalSep(Result,DS)}
-     else P = Result.length + 1;
-    P -= 3;
-    while (P > 1) {
-      if ($mod.ThousandSeparator !== "\x00") pas.System.Insert($mod.FormatSettings.GetThousandSeparator(),{get: function () {
-          return Result;
-        }, set: function (v) {
-          Result = v;
-        }},P);
+    if (TS !== "") {
+      if (P !== 0) {
+        Result = $impl.ReplaceDecimalSep(Result,DS)}
+       else P = Result.length + 1;
       P -= 3;
+      while (P > 1) {
+        pas.System.Insert(TS,{get: function () {
+            return Result;
+          }, set: function (v) {
+            Result = v;
+          }},P);
+        P -= 3;
+      };
     };
-    if ((Result.length > 1) && Negative) Negative = !$impl.RemoveLeadingNegativeSign({get: function () {
+    if (Negative) $impl.RemoveLeadingNegativeSign({get: function () {
         return Result;
       }, set: function (v) {
         Result = v;
@@ -5285,7 +5594,6 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
         Result = ((("(" + $mod.CurrencyString) + " ") + Result) + ")"}
        else if ($tmp2 === 15) Result = ((("(" + Result) + " ") + $mod.CurrencyString) + ")";
     };
-    if (TS === "") ;
     return Result;
   };
   $impl.RESpecials = "([\\[\\]\\(\\)\\\\\\.\\*])";
@@ -5387,7 +5695,7 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
           return Result;
         };
         if ((n === yp) && (s1.length > 2)) YearMoreThenTwoDigits = true;
-        pas.System.val$5(s1,{a: n, p: values, get: function () {
+        pas.System.val$6(s1,{a: n, p: values, get: function () {
             return this.p[this.a];
           }, set: function (v) {
             this.p[this.a] = v;
@@ -5410,7 +5718,7 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
       FixErrorMsg(S);
       return Result;
     };
-    $mod.DecodeDate($mod.date(),{get: function () {
+    $mod.DecodeDate($mod.Date(),{get: function () {
         return ly;
       }, set: function (v) {
         ly = v;
@@ -5508,7 +5816,7 @@ rtl.module("SysUtils",["System","RTLConsts","JS"],function () {
           if (FirstSignificantDigit === -1) FirstSignificantDigit = Cur;
           ElemLen = (1 + Cur) - FirstSignificantDigit;
           if ((ElemLen <= 2) || ((ElemLen <= 3) && (TimeIndex === 3))) {
-            pas.System.val$5(pas.System.Copy(S,FirstSignificantDigit,ElemLen),{get: function () {
+            pas.System.val$6(pas.System.Copy(S,FirstSignificantDigit,ElemLen),{get: function () {
                 return Value;
               }, set: function (v) {
                 Value = v;
@@ -5646,11 +5954,39 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
   $mod.$rtti.$MethodVar("TNotifyEvent",{procsig: rtl.newTIProcSig([["Sender",pas.System.$rtti["TObject"]]]), methodkind: 0});
   this.TFPObservedOperation = {"0": "ooChange", ooChange: 0, "1": "ooFree", ooFree: 1, "2": "ooAddItem", ooAddItem: 2, "3": "ooDeleteItem", ooDeleteItem: 3, "4": "ooCustom", ooCustom: 4};
   $mod.$rtti.$Enum("TFPObservedOperation",{minvalue: 0, maxvalue: 4, ordtype: 1, enumtype: this.TFPObservedOperation});
+  rtl.createClass($mod,"EStreamError",pas.SysUtils.Exception,function () {
+  });
+  rtl.createClass($mod,"EFCreateError",$mod.EStreamError,function () {
+  });
+  rtl.createClass($mod,"EFOpenError",$mod.EStreamError,function () {
+  });
+  rtl.createClass($mod,"EFilerError",$mod.EStreamError,function () {
+  });
+  rtl.createClass($mod,"EReadError",$mod.EFilerError,function () {
+  });
+  rtl.createClass($mod,"EWriteError",$mod.EFilerError,function () {
+  });
+  rtl.createClass($mod,"EClassNotFound",$mod.EFilerError,function () {
+  });
+  rtl.createClass($mod,"EMethodNotFound",$mod.EFilerError,function () {
+  });
+  rtl.createClass($mod,"EInvalidImage",$mod.EFilerError,function () {
+  });
+  rtl.createClass($mod,"EResNotFound",pas.SysUtils.Exception,function () {
+  });
   rtl.createClass($mod,"EListError",pas.SysUtils.Exception,function () {
+  });
+  rtl.createClass($mod,"EBitsError",pas.SysUtils.Exception,function () {
   });
   rtl.createClass($mod,"EStringListError",$mod.EListError,function () {
   });
   rtl.createClass($mod,"EComponentError",pas.SysUtils.Exception,function () {
+  });
+  rtl.createClass($mod,"EParserError",pas.SysUtils.Exception,function () {
+  });
+  rtl.createClass($mod,"EOutOfResources",pas.SysUtils.EOutOfMemory,function () {
+  });
+  rtl.createClass($mod,"EInvalidOperation",pas.SysUtils.Exception,function () {
   });
   this.TListAssignOp = {"0": "laCopy", laCopy: 0, "1": "laAnd", laAnd: 1, "2": "laOr", laOr: 2, "3": "laXor", laXor: 3, "4": "laSrcUnique", laSrcUnique: 4, "5": "laDestUnique", laDestUnique: 5};
   $mod.$rtti.$Enum("TListAssignOp",{minvalue: 0, maxvalue: 5, ordtype: 1, enumtype: this.TListAssignOp});
@@ -5814,20 +6150,20 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
       this.FList[Index] = Item;
     };
     this.SetCapacity = function (NewCapacity) {
-      if (NewCapacity < this.FCount) this.$class.error(pas.RTLConsts.SListCapacityError,"" + NewCapacity);
+      if (NewCapacity < this.FCount) this.$class.Error(pas.RTLConsts.SListCapacityError,"" + NewCapacity);
       if (NewCapacity === this.FCapacity) return;
       this.FList = rtl.arraySetLength(this.FList,undefined,NewCapacity);
       this.FCapacity = NewCapacity;
     };
     this.SetCount = function (NewCount) {
-      if (NewCount < 0) this.$class.error(pas.RTLConsts.SListCountError,"" + NewCount);
+      if (NewCount < 0) this.$class.Error(pas.RTLConsts.SListCountError,"" + NewCount);
       if (NewCount > this.FCount) {
         if (NewCount > this.FCapacity) this.SetCapacity(NewCount);
       };
       this.FCount = NewCount;
     };
     this.RaiseIndexError = function (Index) {
-      this.$class.error(pas.RTLConsts.SListIndexError,"" + Index);
+      this.$class.Error(pas.RTLConsts.SListIndexError,"" + Index);
     };
     this.Destroy = function () {
       this.Clear();
@@ -5856,18 +6192,18 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
       };
     };
     this.Delete = function (Index) {
-      if ((Index < 0) || (Index >= this.FCount)) this.$class.error(pas.RTLConsts.SListIndexError,"" + Index);
+      if ((Index < 0) || (Index >= this.FCount)) this.$class.Error(pas.RTLConsts.SListIndexError,"" + Index);
       this.FCount = this.FCount - 1;
       this.FList.splice(Index,1);
       this.FCapacity -= 1;
     };
-    this.error = function (Msg, Data) {
+    this.Error = function (Msg, Data) {
       throw $mod.EListError.$create("CreateFmt",[Msg,[Data]]);
     };
     this.Exchange = function (Index1, Index2) {
       var Temp = undefined;
-      if ((Index1 >= this.FCount) || (Index1 < 0)) this.$class.error(pas.RTLConsts.SListIndexError,"" + Index1);
-      if ((Index2 >= this.FCount) || (Index2 < 0)) this.$class.error(pas.RTLConsts.SListIndexError,"" + Index2);
+      if ((Index1 >= this.FCount) || (Index1 < 0)) this.$class.Error(pas.RTLConsts.SListIndexError,"" + Index1);
+      if ((Index2 >= this.FCount) || (Index2 < 0)) this.$class.Error(pas.RTLConsts.SListIndexError,"" + Index2);
       Temp = this.FList[Index1];
       this.FList[Index1] = this.FList[Index2];
       this.FList[Index2] = Temp;
@@ -5926,7 +6262,7 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
       return Result;
     };
     this.Insert = function (Index, Item) {
-      if ((Index < 0) || (Index > this.FCount)) this.$class.error(pas.RTLConsts.SListIndexError,"" + Index);
+      if ((Index < 0) || (Index > this.FCount)) this.$class.Error(pas.RTLConsts.SListIndexError,"" + Index);
       this.FList.splice(Index,0,Item);
       this.FCapacity += 1;
       this.FCount += 1;
@@ -5940,8 +6276,8 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
     };
     this.Move = function (CurIndex, NewIndex) {
       var Temp = undefined;
-      if ((CurIndex < 0) || (CurIndex > (this.FCount - 1))) this.$class.error(pas.RTLConsts.SListIndexError,"" + CurIndex);
-      if ((NewIndex < 0) || (NewIndex > (this.FCount - 1))) this.$class.error(pas.RTLConsts.SListIndexError,"" + NewIndex);
+      if ((CurIndex < 0) || (CurIndex > (this.FCount - 1))) this.$class.Error(pas.RTLConsts.SListIndexError,"" + CurIndex);
+      if ((NewIndex < 0) || (NewIndex > (this.FCount - 1))) this.$class.Error(pas.RTLConsts.SListIndexError,"" + NewIndex);
       if (CurIndex === NewIndex) return;
       Temp = this.FList[CurIndex];
       this.FList.splice(CurIndex,1);
@@ -6221,7 +6557,7 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
       this.FList.Delete(Index);
       if (pas.System.Assigned(V)) this.Notify(V,$mod.TListNotification.lnDeleted);
     };
-    this.error = function (Msg, Data) {
+    this.Error = function (Msg, Data) {
       throw $mod.EListError.$create("CreateFmt",[Msg,[Data]]);
     };
     this.Exchange = function (Index1, Index2) {
@@ -6369,7 +6705,6 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
         rtl._Release(this.FOwnerInterface);
       };
     };
-    this.$intfmaps = {};
     rtl.addIntf(this,pas.System.IUnknown);
   });
   $mod.$rtti.$Class("TStrings");
@@ -6569,7 +6904,7 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
       this.CheckSpecialChars();
       this.FSkipLastLineBreak = AValue;
     };
-    this.error = function (Msg, Data) {
+    this.Error = function (Msg, Data) {
       throw $mod.EStringListError.$create("CreateFmt",[Msg,[pas.SysUtils.IntToStr(Data)]]);
     };
     this.GetCapacity = function () {
@@ -7105,7 +7440,7 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
       this.FSortStyle = AValue;
     };
     this.CheckIndex = function (AIndex) {
-      if ((AIndex < 0) || (AIndex >= this.FCount)) this.error(pas.RTLConsts.SListIndexError,AIndex);
+      if ((AIndex < 0) || (AIndex >= this.FCount)) this.Error(pas.RTLConsts.SListIndexError,AIndex);
     };
     this.ExchangeItems = function (Index1, Index2) {
       this.ExchangeItemsInt(Index1,Index2);
@@ -7141,7 +7476,7 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
       return Result;
     };
     this.Put = function (Index, S) {
-      if (this.GetSorted()) this.error(pas.RTLConsts.SSortedListError,0);
+      if (this.GetSorted()) this.Error(pas.RTLConsts.SSortedListError,0);
       this.CheckIndex(Index);
       this.Changing();
       this.FList[Index].FString = S;
@@ -7154,7 +7489,7 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
       this.Changed();
     };
     this.SetCapacity = function (NewCapacity) {
-      if (NewCapacity < 0) this.error(pas.RTLConsts.SListCapacityError,NewCapacity);
+      if (NewCapacity < 0) this.Error(pas.RTLConsts.SListCapacityError,NewCapacity);
       if (NewCapacity !== this.GetCapacity()) this.FList = rtl.arraySetLength(this.FList,$mod.TStringItem,NewCapacity);
     };
     this.SetUpdateState = function (Updating) {
@@ -7203,7 +7538,7 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
         var $tmp1 = this.FDuplicates;
         if ($tmp1 === pas.Types.TDuplicates.dupIgnore) {
           return Result}
-         else if ($tmp1 === pas.Types.TDuplicates.dupError) this.error(pas.RTLConsts.SDuplicateString,0);
+         else if ($tmp1 === pas.Types.TDuplicates.dupError) this.Error(pas.RTLConsts.SDuplicateString,0);
       };
       this.InsertItem(Result,S);
       return Result;
@@ -7275,9 +7610,9 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
     };
     this.Insert = function (Index, S) {
       if (this.FSortStyle === $mod.TStringsSortStyle.sslAuto) {
-        this.error(pas.RTLConsts.SSortedListError,0)}
+        this.Error(pas.RTLConsts.SSortedListError,0)}
        else {
-        if ((Index < 0) || (Index > this.FCount)) this.error(pas.RTLConsts.SListIndexError,Index);
+        if ((Index < 0) || (Index > this.FCount)) this.Error(pas.RTLConsts.SListIndexError,Index);
         this.InsertItem(Index,S);
       };
     };
@@ -7954,7 +8289,6 @@ rtl.module("Classes",["System","RTLConsts","Types","SysUtils"],function () {
       Result = $mod.TComponentEnumerator.$create("Create$1",[this]);
       return Result;
     };
-    this.$intfmaps = {};
     rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("Name",6,rtl.string,"FName","SetName");
@@ -10186,7 +10520,7 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
       pas.Classes.TComponent.$final.call(this);
     };
     this.DoneService = function () {
-      pas.SysUtils.FreeAndNil({p: this, get: function () {
+      pas.SysUtils.FreeAndNil({p: $mod.TRouter, get: function () {
           return this.p.FService;
         }, set: function (v) {
           this.p.FService = v;
@@ -10309,23 +10643,23 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
     };
     this.Service = function () {
       var Result = null;
-      if (this.FService === null) this.FService = this.ServiceClass().$create("Create$1",[null]);
+      if (this.FService === null) $mod.TRouter.FService = this.ServiceClass().$create("Create$1",[null]);
       Result = this.FService;
       return Result;
     };
     this.ServiceClass = function () {
       var Result = null;
-      if (this.FServiceClass === null) this.FServiceClass = $mod.TRouter;
+      if (this.FServiceClass === null) $mod.TRouter.FServiceClass = $mod.TRouter;
       Result = this.FServiceClass;
       return Result;
     };
     this.SetServiceClass = function (AClass) {
-      if (this.FService != null) pas.SysUtils.FreeAndNil({p: this, get: function () {
+      if (this.FService != null) pas.SysUtils.FreeAndNil({p: $mod.TRouter, get: function () {
           return this.p.FService;
         }, set: function (v) {
           this.p.FService = v;
         }});
-      this.FServiceClass = AClass;
+      $mod.TRouter.FServiceClass = AClass;
     };
     this.RegisterRoute = function (APattern, AEvent, IsDefault) {
       var Result = null;
@@ -10406,6 +10740,7 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
       Result = this.Go(-1);
       return Result;
     };
+    rtl.addIntf(this,pas.System.IUnknown);
   });
   rtl.createClass($mod,"TWebScroll",pas.System.TObject,function () {
     this.scrollToPosition = function (AScroll) {
@@ -10483,12 +10818,12 @@ rtl.module("webrouter",["System","Classes","SysUtils","Web"],function () {
     };
     this.GetStateKey = function () {
       var Result = "";
-      if (this.TheKey === "") this.TheKey = this.GenKey();
+      if (this.TheKey === "") $mod.TBrowserState.TheKey = this.GenKey();
       Result = this.TheKey;
       return Result;
     };
     this.SetStateKey = function (akey) {
-      this.TheKey = akey;
+      $mod.TBrowserState.TheKey = akey;
     };
     this.PushState = function (aUrl, replace) {
       var O = null;
@@ -10589,6 +10924,7 @@ rtl.module("AvammRouter",["System","Classes","SysUtils","webrouter"],function ()
       };
       return Result;
     };
+    rtl.addIntf(this,pas.System.IUnknown);
   });
   this.Router = function () {
     var Result = null;
@@ -11511,11 +11847,11 @@ rtl.module("dhtmlx_sidebar",["System","JS","Web","dhtmlx_base"],function () {
   "use strict";
   var $mod = this;
 });
-rtl.module("math",["System","SysUtils"],function () {
+rtl.module("Math",["System","SysUtils"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
-  this.MinInteger = -0x10000000000000;
+  this.MinInteger = -0xfffffffffffff - 1;
   this.MaxInteger = 0xfffffffffffff;
   this.MinDouble = 5.0e-324;
   this.MaxDouble = 1.7e+308;
@@ -11592,7 +11928,7 @@ rtl.module("math",["System","SysUtils"],function () {
     return Result;
   };
   this.IsInfinite = function (d) {
-    return (d==Infinite) || (d==-Infinite);
+    return (d==Infinity) || (d==-Infinity);
   };
   this.SameValue = function (A, B, Epsilon) {
     var Result = false;
@@ -12032,7 +12368,7 @@ rtl.module("math",["System","SysUtils"],function () {
   this.LessThanValue = -1;
   this.GreaterThanValue = 1;
   this.CompareValue = function (A, B) {
-    var Result = -1;
+    var Result = 0;
     Result = 1;
     if (A === B) {
       Result = 0}
@@ -12040,7 +12376,7 @@ rtl.module("math",["System","SysUtils"],function () {
     return Result;
   };
   this.CompareValue$1 = function (A, B) {
-    var Result = -1;
+    var Result = 0;
     Result = 1;
     if (A === B) {
       Result = 0}
@@ -12048,7 +12384,7 @@ rtl.module("math",["System","SysUtils"],function () {
     return Result;
   };
   this.CompareValue$2 = function (A, B) {
-    var Result = -1;
+    var Result = 0;
     Result = 1;
     if (A === B) {
       Result = 0}
@@ -12056,7 +12392,7 @@ rtl.module("math",["System","SysUtils"],function () {
     return Result;
   };
   this.CompareValue$3 = function (A, B, delta) {
-    var Result = -1;
+    var Result = 0;
     Result = 1;
     if (Math.abs(A - B) <= delta) {
       Result = 0}
@@ -12081,7 +12417,7 @@ rtl.module("math",["System","SysUtils"],function () {
     return Result;
   };
 });
-rtl.module("DateUtils",["System","SysUtils","math"],function () {
+rtl.module("DateUtils",["System","SysUtils","Math"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
@@ -12208,22 +12544,22 @@ rtl.module("DateUtils",["System","SysUtils","math"],function () {
   };
   this.Today = function () {
     var Result = 0.0;
-    Result = pas.SysUtils.date();
+    Result = pas.SysUtils.Date();
     return Result;
   };
   this.Yesterday = function () {
     var Result = 0.0;
-    Result = pas.SysUtils.date() - 1;
+    Result = pas.SysUtils.Date() - 1;
     return Result;
   };
   this.Tomorrow = function () {
     var Result = 0.0;
-    Result = pas.SysUtils.date() + 1;
+    Result = pas.SysUtils.Date() + 1;
     return Result;
   };
   this.IsToday = function (AValue) {
     var Result = false;
-    Result = $mod.IsSameDay(AValue,pas.SysUtils.date());
+    Result = $mod.IsSameDay(AValue,pas.SysUtils.Date());
     return Result;
   };
   this.IsSameDay = function (AValue, ABasis) {
@@ -13917,7 +14253,7 @@ rtl.module("DateUtils",["System","SysUtils","math"],function () {
     return Result;
   };
   this.CompareDateTime = function (A, B) {
-    var Result = -1;
+    var Result = 0;
     if ($mod.SameDateTime(A,B)) {
       Result = 0}
      else if (pas.System.Trunc(A) === pas.System.Trunc(B)) {
@@ -13932,7 +14268,7 @@ rtl.module("DateUtils",["System","SysUtils","math"],function () {
     return Result;
   };
   this.CompareDate = function (A, B) {
-    var Result = -1;
+    var Result = 0;
     if ($mod.SameDate(A,B)) {
       Result = 0}
      else if (A < B) {
@@ -13941,7 +14277,7 @@ rtl.module("DateUtils",["System","SysUtils","math"],function () {
     return Result;
   };
   this.CompareTime = function (A, B) {
-    var Result = -1;
+    var Result = 0;
     if ($mod.SameTime(A,B)) {
       Result = 0}
      else if (pas.System.Frac(A) < pas.System.Frac(B)) {
@@ -14303,7 +14639,7 @@ rtl.module("DateUtils",["System","SysUtils","math"],function () {
   var P = [11,1,6,9,12,15,18];
   this.TryRFC3339ToDateTime = function (Avalue, ADateTime) {
     var Result = false;
-    this.TPartPos = {"0": "ppTime", ppTime: 0, "1": "ppYear", ppYear: 1, "2": "ppMonth", ppMonth: 2, "3": "ppDay", ppDay: 3, "4": "ppHour", ppHour: 4, "5": "ppMinute", ppMinute: 5, "6": "ppSec", ppSec: 6};
+    var TPartPos = {"0": "ppTime", ppTime: 0, "1": "ppYear", ppYear: 1, "2": "ppMonth", ppMonth: 2, "3": "ppDay", ppDay: 3, "4": "ppHour", ppHour: 4, "5": "ppMinute", ppMinute: 5, "6": "ppSec", ppSec: 6};
     var lY = 0;
     var lM = 0;
     var lD = 0;
@@ -14314,13 +14650,13 @@ rtl.module("DateUtils",["System","SysUtils","math"],function () {
       Result = true;
       ADateTime.set(0);
     };
-    lY = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[$mod.TPartPos.ppYear],4),-1);
-    lM = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[$mod.TPartPos.ppMonth],2),-1);
-    lD = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[$mod.TPartPos.ppDay],2),-1);
-    if (Avalue.length >= P[$mod.TPartPos.ppTime]) {
-      lH = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[$mod.TPartPos.ppHour],2),-1);
-      lMi = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[$mod.TPartPos.ppMinute],2),-1);
-      lS = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[$mod.TPartPos.ppSec],2),-1);
+    lY = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[TPartPos.ppYear],4),-1);
+    lM = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[TPartPos.ppMonth],2),-1);
+    lD = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[TPartPos.ppDay],2),-1);
+    if (Avalue.length >= P[TPartPos.ppTime]) {
+      lH = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[TPartPos.ppHour],2),-1);
+      lMi = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[TPartPos.ppMinute],2),-1);
+      lS = pas.SysUtils.StrToIntDef(pas.System.Copy(Avalue,P[TPartPos.ppSec],2),-1);
     } else {
       lH = 0;
       lMi = 0;
@@ -14669,9 +15005,9 @@ rtl.module("DateUtils",["System","SysUtils","math"],function () {
     var Result = 0.0;
     var newtime = 0.0;
     newtime = -pas.System.Frac(AValue) + pas.System.Frac(Addend);
-    if (pas.math.SameValue(newtime,pas.System.Int(newtime) + 1,2.2204460493E-16)) {
+    if (pas.Math.SameValue(newtime,pas.System.Int(newtime) + 1,2.2204460493E-16)) {
       newtime = pas.System.Int(newtime) + 1}
-     else if (pas.math.SameValue(newtime,pas.System.Int(newtime),2.2204460493E-16)) newtime = pas.System.Int(newtime);
+     else if (pas.Math.SameValue(newtime,pas.System.Int(newtime),2.2204460493E-16)) newtime = pas.System.Int(newtime);
     if (newtime < -2.2204460493E-16) {
       newtime = 1.0 + newtime;
       AValue = pas.System.Int(AValue) - 1;
@@ -15202,6 +15538,35 @@ rtl.module("TypInfo",["System","SysUtils","Types","RTLConsts","JS"],function () 
     n = TIEnum.enumtype[Value];
     if (!pas.JS.isUndefined(n)) $mod.SetJSValueProp$1(Instance,PropInfo,n);
   };
+  this.GetEnumName = function (TypeInfo, Value) {
+    var Result = "";
+    Result = TypeInfo.enumtype[Value];
+    return Result;
+  };
+  this.GetEnumValue = function (TypeInfo, Name) {
+    var Result = 0;
+    Result = TypeInfo.enumtype[Name];
+    return Result;
+  };
+  this.GetEnumNameCount = function (TypeInfo) {
+    var Result = 0;
+    var o = null;
+    var l = 0;
+    var r = 0;
+    o = TypeInfo.enumtype;
+    Result = 1;
+    while (o.hasOwnProperty("" + Result)) Result = Result * 2;
+    l = Math.floor(Result / 2);
+    r = Result;
+    while (l <= r) {
+      Result = Math.floor((l + r) / 2);
+      if (o.hasOwnProperty("" + Result)) {
+        l = Result + 1}
+       else r = Result - 1;
+    };
+    if (o.hasOwnProperty("" + Result)) Result += 1;
+    return Result;
+  };
   this.GetSetProp = function (Instance, PropName) {
     var Result = "";
     Result = $mod.GetSetProp$1(Instance,$mod.FindPropInfo(Instance,PropName));
@@ -15240,7 +15605,7 @@ rtl.module("TypInfo",["System","SysUtils","Types","RTLConsts","JS"],function () 
     var Result = [];
     var o = null;
     var Key = "";
-    Result = {};
+    Result = [];
     o = rtl.getObject($mod.GetJSValueProp$1(Instance,PropInfo));
     for (Key in o) Result.push(parseInt(Key,10));
     return Result;
@@ -16339,6 +16704,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
         };
       };
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("Alignment",2,pas.Classes.$rtti["TAlignment"],"FAlignment","SetAlignment",{Default: pas.Classes.TAlignment.taLeftJustify});
     $r.addProperty("CustomConstraint",0,rtl.string,"FCustomConstraint","FCustomConstraint");
@@ -16459,6 +16825,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     this.SetFieldType = function (AValue) {
       if (AValue in rtl.createSet($mod.TFieldType.ftString,$mod.TFieldType.ftFixedChar)) this.SetDataType(AValue);
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("Size",2,rtl.longint,"FSize","SetSize",{Default: 20});
   });
@@ -16471,7 +16838,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     this.CheckTypeSize = function (AValue) {
       if (AValue > 16) $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SInvalidFieldSize"),[AValue]);
     };
-    this.rangeError = function (AValue, Min, Max) {
+    this.RangeError = function (AValue, Min, Max) {
       $mod.DatabaseErrorFmt(rtl.getResStr(pas.DBConst,"SRangeError"),[AValue,Min,Max,this.FFieldName]);
     };
     this.SetDisplayFormat = function (AValue) {
@@ -16498,6 +16865,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       $mod.TField.Create$1.call(this,AOwner);
       this.SetAlignment(pas.Classes.TAlignment.taRightJustify);
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("Alignment",2,pas.Classes.$rtti["TAlignment"],"FAlignment","SetAlignment",{Default: pas.Classes.TAlignment.taRightJustify});
     $r.addProperty("DisplayFormat",2,rtl.string,"FDisplayFormat","SetDisplayFormat");
@@ -16514,12 +16882,12 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     this.SetMinValue = function (AValue) {
       if ((AValue >= this.FMinRange) && (AValue <= this.FMaxRange)) {
         this.FMinValue = AValue}
-       else this.rangeError(AValue,this.FMinRange,this.FMaxRange);
+       else this.RangeError(AValue,this.FMinRange,this.FMaxRange);
     };
     this.SetMaxValue = function (AValue) {
       if ((AValue >= this.FMinRange) && (AValue <= this.FMaxRange)) {
         this.FMaxValue = AValue}
-       else this.rangeError(AValue,this.FMinRange,this.FMaxRange);
+       else this.RangeError(AValue,this.FMinRange,this.FMaxRange);
     };
     this.GetAsFloat = function () {
       var Result = 0.0;
@@ -16590,8 +16958,8 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       if (this.CheckRange(AValue)) {
         this.SetData(AValue)}
        else if ((this.FMinValue !== 0) || (this.FMaxValue !== 0)) {
-        this.rangeError(AValue,this.FMinValue,this.FMaxValue)}
-       else this.rangeError(AValue,this.FMinRange,this.FMaxRange);
+        this.RangeError(AValue,this.FMinValue,this.FMaxValue)}
+       else this.RangeError(AValue,this.FMinRange,this.FMaxRange);
     };
     this.SetAsString = function (AValue) {
       var L = 0;
@@ -16599,7 +16967,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       if (AValue.length === 0) {
         this.Clear()}
        else {
-        pas.System.val$5(AValue,{get: function () {
+        pas.System.val$6(AValue,{get: function () {
             return L;
           }, set: function (v) {
             L = v;
@@ -16626,7 +16994,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     this.SetAsLargeInt = function (AValue) {
       if ((AValue >= this.FMinRange) && (AValue <= this.FMaxRange)) {
         this.SetAsInteger(AValue)}
-       else this.rangeError(AValue,this.FMinRange,this.FMaxRange);
+       else this.RangeError(AValue,this.FMinRange,this.FMaxRange);
     };
     this.Create$1 = function (AOwner) {
       $mod.TNumericField.Create$1.call(this,AOwner);
@@ -16641,6 +17009,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
        else Result = (AValue >= this.FMinRange) && (AValue <= this.FMaxRange);
       return Result;
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("MaxValue",2,rtl.longint,"FMaxValue","SetMaxValue",{Default: 0});
     $r.addProperty("MinValue",2,rtl.longint,"FMinValue","SetMinValue",{Default: 0});
@@ -16656,12 +17025,12 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     this.SetMinValue = function (AValue) {
       if ((AValue >= this.FMinRange) && (AValue <= this.FMaxRange)) {
         this.FMinValue = AValue}
-       else this.rangeError(AValue,this.FMinRange,this.FMaxRange);
+       else this.RangeError(AValue,this.FMinRange,this.FMaxRange);
     };
     this.SetMaxValue = function (AValue) {
       if ((AValue >= this.FMinRange) && (AValue <= this.FMaxRange)) {
         this.FMaxValue = AValue}
-       else this.rangeError(AValue,this.FMinRange,this.FMaxRange);
+       else this.RangeError(AValue,this.FMinRange,this.FMaxRange);
     };
     this.GetAsFloat = function () {
       var Result = 0.0;
@@ -16739,7 +17108,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     this.SetAsLargeInt = function (AValue) {
       if (this.CheckRange(AValue)) {
         this.SetData(AValue)}
-       else this.rangeError(AValue,this.FMinValue,this.FMaxValue);
+       else this.RangeError(AValue,this.FMinValue,this.FMaxValue);
     };
     this.SetAsString = function (AValue) {
       var L = 0;
@@ -16779,6 +17148,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
        else Result = (AValue >= this.FMinRange) && (AValue <= this.FMaxRange);
       return Result;
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("MaxValue",2,rtl.nativeint,"FMaxValue","SetMaxValue",{Default: 0});
     $r.addProperty("MinValue",2,rtl.nativeint,"FMinValue","SetMinValue",{Default: 0});
@@ -16791,6 +17161,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       $mod.TIntegerField.Create$1.call(this,AOwner);
       this.SetDataType($mod.TFieldType.ftAutoInc);
     };
+    rtl.addIntf(this,pas.System.IUnknown);
   });
   rtl.createClass($mod,"TFloatField",$mod.TNumericField,function () {
     this.$init = function () {
@@ -16873,7 +17244,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     this.SetAsFloat = function (AValue) {
       if (this.CheckRange(AValue)) {
         this.SetData(AValue)}
-       else this.rangeError(AValue,this.FMinValue,this.FMaxValue);
+       else this.RangeError(AValue,this.FMinValue,this.FMaxValue);
     };
     this.SetAsLargeInt = function (AValue) {
       this.SetAsFloat(AValue);
@@ -16911,6 +17282,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
        else Result = true;
       return Result;
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("Currency",2,rtl.boolean,"FCurrency","SetCurrency",{Default: false});
     $r.addProperty("MaxValue",0,rtl.double,"FMaxValue","FMaxValue");
@@ -17005,6 +17377,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       this.SetDataType($mod.TFieldType.ftBoolean);
       this.SetDisplayValues("True;False");
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("DisplayValues",2,rtl.string,"FDisplayValues","SetDisplayValues");
   });
@@ -17105,6 +17478,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       $mod.TField.Create$1.call(this,AOwner);
       this.SetDataType($mod.TFieldType.ftDateTime);
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("DisplayFormat",2,rtl.string,"FDisplayFormat","SetDisplayFormat");
   });
@@ -17113,6 +17487,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       $mod.TDateTimeField.Create$1.call(this,AOwner);
       this.SetDataType($mod.TFieldType.ftDate);
     };
+    rtl.addIntf(this,pas.System.IUnknown);
   });
   rtl.createClass($mod,"TTimeField",$mod.TDateTimeField,function () {
     this.SetAsString = function (AValue) {
@@ -17126,6 +17501,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       $mod.TDateTimeField.Create$1.call(this,AOwner);
       this.SetDataType($mod.TFieldType.ftTime);
     };
+    rtl.addIntf(this,pas.System.IUnknown);
   });
   rtl.createClass($mod,"TBinaryField",$mod.TField,function () {
     this.CheckTypeSize = function (AValue) {
@@ -17205,6 +17581,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     this.Create$1 = function (AOwner) {
       $mod.TField.Create$1.call(this,AOwner);
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("Size",2,rtl.longint,"FSize","SetSize",{Default: 16});
   });
@@ -17247,6 +17624,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     this.SetFieldType = function (AValue) {
       if (AValue in $mod.ftBlobTypes) this.SetDataType(AValue);
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("Size",2,rtl.longint,"FSize","SetSize",{Default: 0});
   });
@@ -17255,6 +17633,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       $mod.TBlobField.Create$1.call(this,AOwner);
       this.SetDataType($mod.TFieldType.ftMemo);
     };
+    rtl.addIntf(this,pas.System.IUnknown);
   });
   rtl.createClass($mod,"TVariantField",$mod.TField,function () {
     this.CheckTypeSize = function (aValue) {
@@ -17335,6 +17714,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       $mod.TField.Create$1.call(this,AOwner);
       this.SetDataType($mod.TFieldType.ftVariant);
     };
+    rtl.addIntf(this,pas.System.IUnknown);
   });
   $mod.$rtti.$Class("TIndexDefs");
   this.TIndexOption = {"0": "ixPrimary", ixPrimary: 0, "1": "ixUnique", ixUnique: 1, "2": "ixDescending", ixDescending: 2, "3": "ixCaseInsensitive", ixCaseInsensitive: 3, "4": "ixExpression", ixExpression: 4, "5": "ixNonMaintained", ixNonMaintained: 5};
@@ -18135,7 +18515,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     var PAramDelimiters = [";",","," ","(",")","\r","\n","\t","\x00","=","+","-","*","\\","\/","[","]","|"];
     this.ParseSQL$3 = function (SQL, DoCreate, EscapeSlash, EscapeRepeat, ParameterStyle, ParamBinding, ReplaceString) {
       var Result = "";
-      this.TStringPart = function (s) {
+      function TStringPart(s) {
         if (s) {
           this.Start = s.Start;
           this.Stop = s.Stop;
@@ -18364,21 +18744,21 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     if (s) {
       this.Data = s.Data;
       this.Status = s.Status;
-      this.error = s.error;
+      this.Error = s.Error;
       this.BookMark = new $mod.TBookmark(s.BookMark);
       this._private = s._private;
     } else {
       this.Data = undefined;
       this.Status = 0;
-      this.error = "";
+      this.Error = "";
       this.BookMark = new $mod.TBookmark();
       this._private = undefined;
     };
     this.$equal = function (b) {
-      return (this.Data === b.Data) && ((this.Status === b.Status) && ((this.error === b.error) && (this.BookMark.$equal(b.BookMark) && (this._private === b._private))));
+      return (this.Data === b.Data) && ((this.Status === b.Status) && ((this.Error === b.Error) && (this.BookMark.$equal(b.BookMark) && (this._private === b._private))));
     };
   };
-  $mod.$rtti.$Record("TResolveInfo",{}).addFields("Data",rtl.jsvalue,"Status",$mod.$rtti["TUpdateStatus"],"error",rtl.string,"BookMark",$mod.$rtti["TBookmark"],"_private",rtl.jsvalue);
+  $mod.$rtti.$Record("TResolveInfo",{}).addFields("Data",rtl.jsvalue,"Status",$mod.$rtti["TUpdateStatus"],"Error",rtl.string,"BookMark",$mod.$rtti["TBookmark"],"_private",rtl.jsvalue);
   $mod.$rtti.$DynArray("TResolveInfoArray",{eltype: $mod.$rtti["TResolveInfo"]});
   this.TResolveResults = function (s) {
     if (s) {
@@ -18752,7 +19132,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       Result.BookMark = new $mod.TBookmark(anUpdate.FBookmark);
       Result.Data = anUpdate.FData;
       Result.Status = anUpdate.FStatus;
-      Result.error = anUpdate.FResolveError;
+      Result.Error = anUpdate.FResolveError;
       return Result;
     };
     this.DoResolveRecordUpdate = function (anUpdate) {
@@ -20251,6 +20631,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       Result = $mod.TUpdateStatus.usUnmodified;
       return Result;
     };
+    rtl.addIntf(this,pas.System.IUnknown);
   });
   rtl.createClass($mod,"TDataLink",pas.Classes.TPersistent,function () {
     this.$init = function () {
@@ -20694,6 +21075,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       Result = false;
       return Result;
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("AutoEdit",0,rtl.boolean,"FAutoEdit","FAutoEdit",{Default: true});
     $r.addProperty("DataSet",2,$mod.$rtti["TDataSet"],"FDataSet","SetDataSet");
@@ -20869,6 +21251,7 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
       Result = this.GetUpdateBatchClass().$create("Create$1",[aBatchID,AList,AOwnsList]);
       return Result;
     };
+    rtl.addIntf(this,pas.System.IUnknown);
   });
   this.Fieldtypenames = ["Unknown","String","Integer","NativeInt","Boolean","Float","Date","Time","DateTime","AutoInc","Blob","Memo","FixedChar","Variant","Dataset"];
   this.DefaultFieldClasses = [$mod.TField,$mod.TStringField,$mod.TIntegerField,$mod.TLargeintField,$mod.TBooleanField,$mod.TFloatField,$mod.TDateField,$mod.TTimeField,$mod.TDateTimeField,$mod.TAutoIncField,$mod.TBlobField,$mod.TMemoField,$mod.TStringField,$mod.TVariantField,null];
@@ -20879,13 +21262,17 @@ rtl.module("DB",["System","Classes","SysUtils","JS","Types","DateUtils"],functio
     throw $mod.EDatabaseError.$create("Create$1",[Msg]);
   };
   this.DatabaseError$1 = function (Msg, Comp) {
-    if ((Comp != null) && (Comp.FName !== "")) throw $mod.EDatabaseError.$create("CreateFmt",["%s : %s",[Comp.FName,Msg]]);
+    if ((Comp != null) && (Comp.FName !== "")) {
+      throw $mod.EDatabaseError.$create("CreateFmt",["%s : %s",[Comp.FName,Msg]])}
+     else $mod.DatabaseError(Msg);
   };
   this.DatabaseErrorFmt = function (Fmt, Args) {
     throw $mod.EDatabaseError.$create("CreateFmt",[Fmt,Args]);
   };
   this.DatabaseErrorFmt$1 = function (Fmt, Args, Comp) {
-    if (Comp != null) throw $mod.EDatabaseError.$create("CreateFmt",[pas.SysUtils.Format("%s : %s",[Comp.FName,Fmt]),Args]);
+    if (Comp != null) {
+      throw $mod.EDatabaseError.$create("CreateFmt",[pas.SysUtils.Format("%s : %s",[Comp.FName,Fmt]),Args])}
+     else $mod.DatabaseErrorFmt(Fmt,Args);
   };
   this.ExtractFieldName = function (Fields, Pos) {
     var Result = "";
@@ -20984,6 +21371,7 @@ rtl.module("JSONDataset",["System","Types","JS","DB","Classes","SysUtils"],funct
       pas.DB.TDateField.$init.call(this);
       this.FDateFormat = "";
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("DateFormat",0,rtl.string,"FDateFormat","FDateFormat");
   });
@@ -20992,6 +21380,7 @@ rtl.module("JSONDataset",["System","Types","JS","DB","Classes","SysUtils"],funct
       pas.DB.TTimeField.$init.call(this);
       this.FTimeFormat = "";
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("TimeFormat",0,rtl.string,"FTimeFormat","FTimeFormat");
   });
@@ -21000,6 +21389,7 @@ rtl.module("JSONDataset",["System","Types","JS","DB","Classes","SysUtils"],funct
       pas.DB.TDateTimeField.$init.call(this);
       this.FDateTimeFormat = "";
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("DateTimeFormat",0,rtl.string,"FDateTimeFormat","FDateTimeFormat");
   });
@@ -21434,6 +21824,7 @@ rtl.module("JSONDataset",["System","Types","JS","DB","Classes","SysUtils"],funct
         R = this.FCalcBuffer.data}
        else R = this.FEditRow;
       this.FFieldMapper.SetJSONDataForField$1(Field,R,AValue);
+      if (!(this.FState in rtl.createSet(pas.DB.TDataSetState.dsCalcFields,pas.DB.TDataSetState.dsInternalCalc,pas.DB.TDataSetState.dsFilter,pas.DB.TDataSetState.dsNewValue))) this.DataEvent(pas.DB.TDataEvent.deFieldChange,Field);
       this.SetModified(true);
     };
     this.BookmarkValid = function (ABookmark) {
@@ -21454,8 +21845,10 @@ rtl.module("JSONDataset",["System","Types","JS","DB","Classes","SysUtils"],funct
       };
       return Result;
     };
+    rtl.addIntf(this,pas.System.IUnknown);
   });
   rtl.createClass($mod,"TJSONDataset",$mod.TBaseJSONDataSet,function () {
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("FieldDefs",2,pas.DB.$rtti["TFieldDefs"],"FFieldDefs","SetFieldDefs");
     $r.addProperty("Active",3,rtl.boolean,"GetActive","SetActive",{Default: false});
@@ -21755,6 +22148,7 @@ rtl.module("ExtJSDataset",["System","Classes","SysUtils","DB","JS","JSONDataset"
       pas.JSONDataset.TBaseJSONDataSet.Create$1.call(this,AOwner);
       this.FUseDateTimeFormatFields = true;
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("FieldDefs",2,pas.DB.$rtti["TFieldDefs"],"FFieldDefs","SetFieldDefs");
     $r.addProperty("Active",3,rtl.boolean,"GetActive","SetActive",{Default: false});
@@ -21787,6 +22181,7 @@ rtl.module("ExtJSDataset",["System","Classes","SysUtils","DB","JS","JSONDataset"
       Result = pas.JSONDataset.TJSONObjectFieldMapper.$create("Create");
       return Result;
     };
+    rtl.addIntf(this,pas.System.IUnknown);
   });
   rtl.createClass($mod,"TExtJSJSONArrayDataSet",$mod.TExtJSJSONDataSet,function () {
     this.CreateFieldMapper = function () {
@@ -21794,6 +22189,7 @@ rtl.module("ExtJSDataset",["System","Classes","SysUtils","DB","JS","JSONDataset"
       Result = pas.JSONDataset.TJSONArrayFieldMapper.$create("Create");
       return Result;
     };
+    rtl.addIntf(this,pas.System.IUnknown);
   });
 });
 rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm","JS","Web","Types","synautil_js"],function () {
@@ -21881,6 +22277,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       };
       return Result;
     };
+    rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("OnFieldDefsLoaded",0,pas.Classes.$rtti["TNotifyEvent"],"FFieldDefsLoaded","FFieldDefsLoaded");
     $r.addProperty("ActiveRecord",1,pas.JS.$rtti["TJSObject"],"GetActiveRecord","");
@@ -21965,6 +22362,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       };
       return Result;
     };
+    rtl.addIntf(this,pas.System.IUnknown);
   });
   rtl.createClass($mod,"TAvammDataRequest",pas.DB.TDataRequest,function () {
     this.$init = function () {
@@ -23514,3 +23912,4 @@ rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","we
     };
   };
 });
+//# sourceMappingURL=appbase.js.map
