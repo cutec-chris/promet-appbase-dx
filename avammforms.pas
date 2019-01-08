@@ -395,7 +395,7 @@ begin
   and (string(Id)<>'new') then
     begin
       Layout.progressOn;
-      Avamm.LoadData('/'+FTablename+'/by-id/'+string(Id)+'/item.json?mode=extjs',False,'text/json',12000)._then(@ItemLoaded)
+      Avamm.LoadData('/'+FTablename+'/by-id/'+string(Id)+'/item.json?mode=extjs',False,'text/json',20000)._then(@ItemLoaded)
                                                                   .catch(@ItemLoadError)
                                                                   ._then(@ItemLoaded2);
     end;

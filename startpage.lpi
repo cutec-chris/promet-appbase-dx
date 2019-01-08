@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="10"/>
+    <Version Value="11"/>
     <General>
       <Flags>
         <SaveOnlyProjectUnits Value="True"/>
@@ -89,9 +89,10 @@
       <Version Value="2"/>
     </PublishOptions>
     <RunParams>
-      <local>
-        <FormatVersion Value="1"/>
-      </local>
+      <FormatVersion Value="2"/>
+      <Modes Count="1">
+        <Mode0 Name="default"/>
+      </Modes>
     </RunParams>
     <RequiredPackages Count="1">
       <Item1>
@@ -118,7 +119,9 @@
     <Other>
       <ExecuteBefore>
         <Command Value="pas2js -Tbrowser -Jminclude -vt -Fu../appbase -Fu../appbase/dhtmlx-for-pas2js $Name($(ProjFile))"/>
-        <ScanForFPCMsgs Value="True"/>
+        <Parsers Count="1">
+          <Item1 Value="Pas2JS"/>
+        </Parsers>
       </ExecuteBefore>
     </Other>
     <CompileReasons Compile="False" Build="False" Run="False"/>

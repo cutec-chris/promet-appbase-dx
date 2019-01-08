@@ -22802,9 +22802,11 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
         aHref = images.item(i).getAttribute("src");
         aHref = pas.System.Copy(aHref,pas.System.Pos("(",aHref) + 1,aHref.length);
         aHref = pas.System.Copy(aHref,0,pas.System.Pos(")",aHref) - 1);
-        aHref = ((pas.Avamm.GetBaseUrl() + "\/icons\/") + aHref) + ".png";
+        if (aHref !== "") aHref = ((pas.Avamm.GetBaseUrl() + "\/icons\/") + aHref) + ".png";
         images.item(i).setAttribute("src",aHref);
+        if (aHref === "") images.item(i).removeAttribute("src");
       } catch ($e) {
+        images.item(i).removeAttribute("src");
       };
     };
     anchors = elem.getElementsByTagName("a");
@@ -23251,7 +23253,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
       if ((("" + Self.FID) !== "") && (("" + Self.FID) !== "new")) {
         Self.Layout.progressOn();
-        pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/item.json?mode=extjs",false,"text\/json",12000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
+        pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/item.json?mode=extjs",false,"text\/json",20000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
       };
     };
     this.DoSave = function () {

@@ -82,9 +82,13 @@ begin
         aHref := TJSHTMLElement(images[i]).getAttribute('src');
         aHref:=copy(aHref,pos('(',aHref)+1,length(aHref));
         aHref:=copy(aHref,0,pos(')',aHref)-1);
-        aHref:=GetBaseUrl+'/icons/'+aHref+'.png';
+        if aHref<>'' then
+          aHref:=GetBaseUrl+'/icons/'+aHref+'.png';
         TJSHTMLElement(images[i]).setAttribute('src',aHref);
+        if aHref = '' then
+          TJSHTMLElement(images[i]).removeAttribute('src');
       except
+        TJSHTMLElement(images[i]).removeAttribute('src');
       end;
     end;
   anchors := elem.getElementsByTagName('a');
