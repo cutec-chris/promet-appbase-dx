@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="11"/>
+    <Version Value="10"/>
     <General>
       <Flags>
         <SaveOnlyProjectUnits Value="True"/>
@@ -12,7 +12,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="startpage"/>
+      <Title Value="pwa"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -23,6 +23,7 @@
           <Version Value="11"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl/;../../../../../../../pas2js/packages/rtl"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -49,7 +50,7 @@
           <Other>
             <CustomOptions Value="-dDEBUG"/>
             <ExecuteBefore>
-              <Command Value="pas2js -Tbrowser -Ji-rtl.js -Jc -dDEBUG -Jminclude $Name($(ProjFile))"/>
+              <Command Value="pas2js -vt -Tbrowser -Jirtl.js -dDEBUG -Jc -Jminclude -O- -Fudhtmlx-for-pas2js $Name($(ProjFile))"/>
               <ScanForFPCMsgs Value="True"/>
             </ExecuteBefore>
           </Other>
@@ -89,39 +90,53 @@
       <Version Value="2"/>
     </PublishOptions>
     <RunParams>
-      <FormatVersion Value="2"/>
-      <Modes Count="1">
-        <Mode0 Name="default"/>
-      </Modes>
+      <local>
+        <FormatVersion Value="1"/>
+      </local>
     </RunParams>
-    <RequiredPackages Count="1">
+    <RequiredPackages Count="3">
       <Item1>
         <PackageName Value="avamm_laz"/>
       </Item1>
+      <Item2>
+        <PackageName Value="pas2js_fcldb"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="pas2js_rtl"/>
+      </Item3>
     </RequiredPackages>
-    <Units Count="1">
+    <Units Count="4">
       <Unit0>
-        <Filename Value="startpage.lpr"/>
+        <Filename Value="pwa.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
+      <Unit1>
+        <Filename Value="../index.html"/>
+        <IsPartOfProject Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="../index.css"/>
+        <IsPartOfProject Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="pwa_helper.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="C:/pas2js/pas2js/packages/rtl/;../../../../../../../pas2js/packages/rtl"/>
     </SearchPaths>
-    <Linking>
-      <Options>
-        <ExecutableType Value="Library"/>
-      </Options>
-    </Linking>
     <Other>
+      <CompilerMessages>
+        <IgnoredMessages idx5024="True"/>
+      </CompilerMessages>
       <ExecuteBefore>
-        <Command Value="pas2js -Tbrowser -Jminclude -vt -Fu../appbase -Fu../appbase/dhtmlx-for-pas2js $Name($(ProjFile))"/>
-        <Parsers Count="1">
-          <Item1 Value="Pas2JS"/>
-        </Parsers>
+        <Command Value="pas2js -Tbrowser -Jirtl-min.js -Jipwa-asm.js -Jc -dDEBUG $Name($(ProjFile))"/>
+        <ScanForFPCMsgs Value="True"/>
       </ExecuteBefore>
     </Other>
     <CompileReasons Compile="False" Build="False" Run="False"/>

@@ -5,7 +5,7 @@ unit AvammDB;
 interface
 
 uses
-  Classes, SysUtils, db, ExtJSDataset, Avamm, js, web, Types;
+  Classes, SysUtils, db, ExtJSDataset, Avamm, js, web, Types, synautil_js;
 
 type
 
@@ -16,21 +16,27 @@ type
     FDataSetName : string;
     FDataProxy: TDataProxy;
     FFieldDefsLoaded: TNotifyEvent;
+    FLimit: Integer;
     FSFilter: string;
+    function GetActiveRecord: TJSObject;
     function GetUrl: string;
     procedure SetFilter(AValue: string);
+    procedure SetLimit(AValue: Integer);
   Protected
     Function DoGetDataProxy: TDataProxy; override;
     procedure InitDateTimeFields; override;
     function DoResolveRecordUpdate(anUpdate: TRecordUpdateDescriptor): Boolean; override;
+    procedure InternalOpen; override;
   Public
     constructor Create(AOwner: TComponent;aDataSet : string);
     property Url : string read GetUrl;
     property ServerFilter : string read FSFilter write SetFilter;
+    property ServerLimit : Integer read FLimit write SetLimit;
     function Locate(const KeyFields: string; const KeyValues: JSValue;
   Options: TLocateOptions): boolean; override;
   published
     property OnFieldDefsLoaded : TNotifyEvent read FFieldDefsLoaded write FFieldDefsLoaded;
+    property ActiveRecord : TJSObject read GetActiveRecord;
   end;
 
   { TAvammDataProxy }
@@ -67,10 +73,31 @@ type
     function onLoad(Event{%H-}: TEventListenerEvent): boolean; virtual;
   end;
 
+  function BuildISODate(aDate : TDateTime;DateOnly : Boolean = False) : string;
+
 resourcestring
   strFailedToSaveToDB           = 'Fehler beim speichern: %s';
 
 implementation
+
+function BuildISODate(aDate : TDateTime;DateOnly : Boolean = False) : string;
+var
+  bias: Integer;
+  h, m: Integer;
+begin
+  bias := TimeZoneBias;
+  if bias >= 0 then
+    Result := '+'
+  else
+    Result := '-';
+  bias := Abs(bias);
+  h := bias div 60;
+  m := bias mod 60;
+  if not DateOnly then
+    Result := FormatDateTime('yyyy-mm-dd',aDate)+'T'+FormatDateTime('hh:nn:ss',aDate)+ Result + SysUtils.Format('%.2d:%.2d', [h, m])
+  else
+    Result := FormatDateTime('yyyy-mm-dd',aDate);
+end;
 
 { TAvammUpdateDescriptor }
 
@@ -234,7 +261,14 @@ begin
   Result := GetBaseUrl + '/'+FDataSetName+'/list.json?mode=extjs';
   if FSFilter <> '' then
     Result := Result+'&filter='+encodeURIComponent(FSFilter);
+  if FLimit > 0 then
+    Result := Result+'&limit='+encodeURIComponent(IntToStr(FLimit));
   Result := Result+'&dhxr=none';
+end;
+
+function TAvammDataset.GetActiveRecord: TJSObject;
+begin
+  Result := TJSObject(Rows[RecNo]);
 end;
 
 procedure TAvammDataset.SetFilter(AValue: string);
@@ -245,6 +279,12 @@ begin
   Close;
   Rows := nil;
   EnableControls;
+end;
+
+procedure TAvammDataset.SetLimit(AValue: Integer);
+begin
+  if FLimit=AValue then Exit;
+  FLimit:=AValue;
 end;
 
 function TAvammDataset.DoGetDataProxy: TDataProxy;
@@ -263,6 +303,12 @@ function TAvammDataset.DoResolveRecordUpdate(anUpdate: TRecordUpdateDescriptor
   ): Boolean;
 begin
   Result:=True;
+end;
+
+procedure TAvammDataset.InternalOpen;
+begin
+  inherited InternalOpen;
+  DoAfterOpen;
 end;
 
 constructor TAvammDataset.Create(AOwner: TComponent; aDataSet: string);
@@ -284,7 +330,7 @@ begin
     First;
     while not EOF do
       begin
-        if FieldDefs.IndexOf(KeyFields)=-1 then exit;
+        if not Assigned(FieldByName(KeyFields)) then exit;
         if FieldByName(KeyFields).AsJSValue = KeyValues then
           begin
             Result := True;
@@ -297,5 +343,11 @@ begin
   end;
 end;
 
+initialization
+  //dont optimize Functions
+  if Now()<0 then
+    begin
+      TAvammDataset.Create(nil,'');
+    end;
 end.
 

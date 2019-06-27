@@ -20,21 +20,24 @@ type
     aTimer: NativeInt;
     FDblClick: TNotifyEvent;
     FFilter: string;
+    FLimit: Integer;
     IsLoading : Boolean;
     FSelect: Boolean;
     FPopupParams : JSValue;
     procedure FDataSourceStateChange(Sender: TObject);
+    procedure SetLimit(AValue: Integer);
   protected
     procedure GridDblClicked;virtual;
   public
     Grid : TDHTMLXGrid;
     Popup : TDHTMLXPopup;
-    constructor Create(aPopupParams : JSValue;aTable,aRow,aHeader,aColIDs,aFilter : string);
+    constructor Create(aPopupParams : JSValue;aTable,aRow,aHeader,aColIDs,aFilter : string;Width: Integer = 300;Height : Integer = 200);
     procedure DoFilter(aFilter : string;DoSelect : Boolean = false);
     property Params : JSValue read FPopupParams;
     procedure DoShowPopup;virtual;
     property DataSet : TAvammDataset read FDataSet;
     property Filter : string read FFilter write FFilter;
+    property Limit : Integer read FLimit write SetLimit;
     property OnDblClick : TNotifyEvent read FDblClick write FDblClick;
   end;
 
@@ -51,6 +54,12 @@ begin
       end;
 end;
 
+procedure TAvammAutoComplete.SetLimit(AValue: Integer);
+begin
+  if FLimit=AValue then Exit;
+  FLimit:=AValue;
+end;
+
 procedure TAvammAutoComplete.GridDblClicked;
 begin
   if Assigned(FDblClick) then
@@ -61,7 +70,7 @@ begin
 end;
 
 constructor TAvammAutoComplete.Create(aPopupParams: JSValue; aTable, aRow,
-  aHeader, aColIDs, aFilter: string);
+  aHeader, aColIDs, aFilter: string; Width: Integer; Height: Integer);
   var
     ppId: Integer;
 
@@ -73,8 +82,9 @@ constructor TAvammAutoComplete.Create(aPopupParams: JSValue; aTable, aRow,
 
 begin
   IsLoading:=False;
+  FLimit := 20;
   Popup := TDHTMLXPopup.new(aPopupParams);
-  Grid := TDHTMLXGrid(Popup.attachGrid(300,200));
+  Grid := TDHTMLXGrid(Popup.attachGrid(Width,Height));
   FPopupParams:=aPopupParams;
   with Grid do
     begin
@@ -117,6 +127,7 @@ procedure TAvammAutoComplete.DoFilter(aFilter: string; DoSelect: Boolean);
         if nFilter<>FDataSet.ServerFilter then
           begin
             FDataSet.ServerFilter:=nFilter;
+            FDataSet.ServerLimit := FLimit;
             FDataSet.Load([],@DataLoaded);
             IsLoading := True;
           end;
@@ -137,6 +148,10 @@ begin
     end;
 end;
 
-
+initialization
+  if Now()<0 then
+    begin
+      TAvammAutoComplete.Create(nil,'','','','','');
+    end;
 end.
 

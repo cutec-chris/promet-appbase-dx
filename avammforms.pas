@@ -36,6 +36,7 @@ type
     FDataLink : TDHTMLXDataLink;
     FDataSet : TAvammDataset;
     FTableName : string;
+    procedure FDataSetLoaded(DataSet: TDataSet);
     procedure FDataSetLoadFail(DataSet: TDataSet; ID: Integer;
       const ErrorMsg: String);
     procedure SetFilterHeader(AValue: string);
@@ -43,6 +44,7 @@ type
   protected
     function DoRowDblClick : Boolean;virtual;
     procedure ToolbarButtonClick(id : string);virtual;
+    procedure DoLoadData;virtual;
   public
     Page : TDHTMLXLayout;
     Toolbar : TDHTMLXToolbar;
@@ -76,7 +78,8 @@ type
     Tabs: TDHTMLXTabbar;
     ReportsLoaded: TJSPromise;
     WikiLoaded: TJSPromise;
-    procedure DoLoadData;virtual;
+    procedure DoLoadData;virtual;//Fill Form with Data Values
+    procedure DoStoreData;virtual;//Fill Data with Edit Values
     procedure DoSetFormSize;
     procedure EnableFormItems(Enable : Boolean);
     procedure DoLoadHistory;
@@ -84,11 +87,14 @@ type
     function DoClose : Boolean;
     procedure Refresh;virtual;
     procedure DoSave;virtual;
+    procedure Change;
     procedure DoEnterKeyPressed;virtual;
+    procedure DoFormChange(id,value : JSValue);virtual;
+    procedure ToolbarButtonClick(id : string);virtual;
   public
     BaseId : JSValue;
     Reports: TJSArray;
-    constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue;Params : string = '');overload;
+    constructor Create(mode : TAvammFormMode;aDataSet : string;Id : JSValue;Params : string = '');virtual;
     property Id : JSValue read FID;
     property Tablename : string read FTablename;
     property Data : TJSObject read FData;
@@ -100,6 +106,7 @@ type
 resourcestring
   strRefresh                   = 'Aktualisieren';
   strLoadingFailed             = 'Fehler beim laden von Daten vom Server';
+  strSavingFailed              = 'Fehler beim speichern der Daten auf dem Server';
   strSave                      = 'Speichern';
   strAbort                     = 'Abbrechen';
   strNumber                    = 'Nummer';
@@ -180,6 +187,10 @@ procedure TAvammForm.DoLoadData;
 begin
   DoLoadHistory;
   DoSetFormSize;
+end;
+
+procedure TAvammForm.DoStoreData;
+begin
 end;
 
 procedure TAvammForm.DoSetFormSize;
@@ -275,7 +286,7 @@ procedure TAvammForm.Refresh;
   end;
   function ReportsCouldntbeLoaded(aValue: JSValue): JSValue;
   begin
-    writeln('error loading report');
+    console.log('error loading report');
   end;
   function WikiFormLoaded(aValue: TJSXMLHttpRequest): JSValue;
   var
@@ -329,10 +340,16 @@ procedure TAvammForm.Refresh;
   begin
     WikiLoaded := LoadData('/'+Tablename+'/by-id/'+string(Id)+'/.json')._then(TJSPromiseresolver(@AddWiki))
                                                                  .catch(@WikiCouldntbeLoaded);
-    ReportsLoaded := LoadData('/'+Tablename+'/by-id/'+string(Id)+'/reports/.json')._then(TJSPromiseresolver(@AddReports))
-                                                                 .catch(@ReportsCouldntbeLoaded);
+    try
+      Toolbar.isVisible('print');
+    except
+      ReportsLoaded := LoadData('/'+Tablename+'/by-id/'+string(Id)+'/reports/.json')._then(TJSPromiseresolver(@AddReports))
+                                                                   .catch(@ReportsCouldntbeLoaded);
+    end;
     try //dont raise when Form is not existing anymore (closed or not found Item)
       DoLoadData;
+      Toolbar.disableItem('save');
+      Toolbar.disableItem('abort');
     except
     end;
   end;
@@ -374,33 +391,75 @@ procedure TAvammForm.Refresh;
     else TDHTMLXWindowsCell(FWindow).close;
   end;
 begin
-  Avamm.LoadData('/'+FTablename+'/by-id/'+string(Id)+'/item.json?mode=extjs',False,'text/json',12000)._then(@ItemLoaded)
-                                                                .catch(@ItemLoadError)
-                                                                ._then(@ItemLoaded2);
+  if  (string(Id)<>'')
+  and (string(Id)<>'new') then
+    begin
+      Layout.progressOn;
+      Avamm.LoadData('/'+FTablename+'/by-id/'+string(Id)+'/item.json?mode=extjs',False,'text/json',20000)._then(@ItemLoaded)
+                                                                  .catch(@ItemLoadError)
+                                                                  ._then(@ItemLoaded2);
+    end;
 end;
 
 procedure TAvammForm.DoSave;
+  function ItemSaved(aValue: JSValue): JSValue;
+  var
+    Fields: TJSObject;
+  begin
+    FRawData := TJSObject(TJSJSON.parse(TJSXMLHttpRequest(aValue).responseText));
+    Refresh;
+  end;
+  function ItemSaveError(aValue: JSValue): JSValue;
+  begin
+    Layout.progressOff;
+    dhtmlx.message(js.new(['type','error',
+                           'text',strSavingFailed]));
+    Toolbar.enableItem('save');
+    Toolbar.enableItem('abort');
+  end;
 begin
+  Layout.progressOn;
+  try
+    DoStoreData;//Set Data Values
+  except
+    ItemSaveError(null);
+  end;
+  Avamm.StoreData('/'+FTablename+'/by-id/'+string(Id)+'/item.json',TJSJSON.stringify(Data))._then(@ItemSaved)
+                                                                .catch(@ItemSaveError);
+end;
+
+procedure TAvammForm.Change;
+begin
+  Toolbar.enableItem('save');
+  Toolbar.enableItem('abort');
 end;
 
 procedure TAvammForm.DoEnterKeyPressed;
 begin
-  writeln('Enter Key pressed');
+  console.log('Enter Key pressed');
+end;
+
+procedure TAvammForm.DoFormChange(id,value: JSValue);
+begin
+  Change;
+end;
+
+procedure TAvammForm.ToolbarButtonClick(id: string);
+begin
+  if (id='save') then
+    begin
+      DoSave;
+      Toolbar.disableItem('save');
+      Toolbar.disableItem('abort');
+    end
+  else if (id='abort') then
+    begin
+      Refresh;
+    end;
 end;
 
 constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
   Id: JSValue;Params : string = '');
-  procedure ToolbarButtonClick(id : string);
-  begin
-    if (id='save') then
-      begin
-        DoSave;
-      end
-    else if (id='abort') then
-      begin
-        Refresh;
-      end;
-  end;
   function WindowCreated(Event: TEventListenerEvent): boolean;
   var
     a, b: TDHTMLXLayoutCell;
@@ -411,7 +470,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
           Self.FWindow.pas.Avamm.AvammLogin = pas.Avamm.AvammLogin;
         end;
       end;
-    writeln('new Window loaded');
+    console.log('new Window loaded');
     Layout := TDHTMLXLayout.New(js.new(['parent',FParent,'pattern','2E']));
     a := Layout.cells('a');
     a.hideHeader;
@@ -430,7 +489,8 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
                               'position','label-right'
                              ]));
     Form.addItem(null,js.new(['type','label',
-                              'label',strCommon
+                              'label',strCommon,
+                              'name','lCommon'
                              ]));
     Form.addItem(null,new(['type','block',
                                 'width','auto',
@@ -455,6 +515,7 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     a.setHeight(0);
     EnableFormItems(false);
     Form.attachEvent('onEnter',@DoEnterKeyPressed);
+    Form.attachEvent('onChange',@DoFormChange);
     Tabs := TDHTMLXTabbar(b.attachTabbar(js.new([
       'mode','top',           // string, optional, top or bottom tabs mode
       'align','left',         // string, optional, left or right tabs align
@@ -474,7 +535,6 @@ constructor TAvammForm.Create(mode: TAvammFormMode; aDataSet: string;
     gHistory.enableAutoWidth(true);
     gHistory.enableKeyboardSupport(true);
     gHistory.init();
-    Layout.progressOn;
     Refresh;
   end;
 begin
@@ -494,10 +554,13 @@ begin
       and (not dhx.isIE)
       then
         begin
+          console.log('TAvammForm.Create: generating new Window');
           case mode of
           fmTab:FWindow := window.open(window.location.protocol+window.location.pathname+'#/'+Tablename+'/by-id/'+string(Id)+'/','_blank');
           fmWindow:FWindow := window.open(window.location.protocol+window.location.pathname+'#/'+Tablename+'/by-id/'+string(Id)+'/','_top');
           end;
+          if FWindow = window then
+            FWindow:=null;
           if FWindow<>null then
             begin
               FParent := TJSWindow(FWindow).document.body;
@@ -507,6 +570,7 @@ begin
     end;
   if FWindow = null then
     begin
+      console.log('TAvammForm.Create: Window is null, using DHTMLX Window');
       FWindow := Windows.createWindow(Id,10,10,810,610);
       with TDHTMLXWindowsCell(FWindow) do
         begin
@@ -535,12 +599,11 @@ constructor TAvammListForm.Create(aParent: TJSElement; aDataSet: string;
             FOldFilter := FOldFilter+' AND lower("'+string(Grid.getColumnId(Integer(indexes[i])))+'")'+' like lower(''%'+string(values[i])+'%'')';
         end;
     FOldFilter := copy(FOldFilter,6,length(FOldFilter));
-    writeln('Filter:'+FOldFilter);
+    console.log('Filter:'+FOldFilter);
     Page.progressOn();
     try
       {$ifdef DEBUG}console.log('Setting Server Filter');{$endif}
       FDataSet.ServerFilter:=FOldFilter;
-      FDataSet.OnLoadFail:=@FDataSetLoadFail;
       {$ifdef DEBUG}console.log('Loading Data');{$endif}
       FDataSet.Load([],@SwitchProgressOff);
     except
@@ -569,7 +632,7 @@ constructor TAvammListForm.Create(aParent: TJSElement; aDataSet: string;
   end;
 begin
   inherited Create(aParent);
-  writeln('Loading '+aDataSet+' as List...');
+  console.log('Loading '+aDataSet+' as List...');
   window.addEventListener('ContainerResized',@DoResizeLayout);
   Page := TDHTMLXLayout.New(js.new(['parent',FContainer,'pattern',aPattern]));
   Page.cont.style.setProperty('border-width','0');
@@ -592,11 +655,17 @@ begin
   FDataLink := TDHTMLXDataLink.Create;
   FDataLink.IdField:='sql_id';
   FDataSet := TAvammDataset.Create(nil,aDataSet);
+  FDataSet.OnLoadFail:=@FDataSetLoadFail;
+  FDataSet.AfterOpen:=@FDataSetLoaded;
   FDataSource.DataSet := FDataSet;
   FDataLink.DataSource := FDataSource;
   //FDataLink.DataProcessor.init(Grid);
   Grid.attachEvent('onRowDblClicked',@DoRowDblClick);
-  Grid.sync(FDataLink.Datastore);
+  try
+    Grid.sync(FDataLink.Datastore);
+  except
+    console.log('failed to load Data');
+  end;
 end;
 procedure TAvammListForm.Show;
 begin
@@ -624,12 +693,21 @@ begin
     RefreshList;
 end;
 
+procedure TAvammListForm.DoLoadData;
+begin
+end;
+
 procedure TAvammListForm.FDataSetLoadFail(DataSet: TDataSet; ID: Integer;
   const ErrorMsg: String);
 begin
   Page.progressOff;
   dhtmlx.message(js.new(['type','error',
                            'text',strLoadingFailed+' '+ErrorMsg]));
+end;
+
+procedure TAvammListForm.FDataSetLoaded(DataSet: TDataSet);
+begin
+  window.setTimeout(@DoLoadData,50);
 end;
 
 procedure TAvammListForm.SetFilterHeader(AValue: string);
@@ -653,11 +731,34 @@ begin
   except
     on e : Exception do
       begin
-        writeln('Refresh Exception:'+e.message);
+        console.log('Refresh Exception:'+e.message);
         Page.progressOff();
       end;
   end;
 end;
 
+initialization
+  //dont optimize Functions
+  if Now()<0 then
+    begin
+      with TAvammForm.Create(fmWindow,'','') do
+        begin
+          writeln(Id);
+          writeln(Tablename);
+          writeln(Data);
+          writeln(Params.Text);
+        end;
+      with TAvammListForm.Create(nil,'') do
+        begin
+          FilterHeader:='';
+          RefreshList;
+          DataSet.First;
+          writeln(DataLink.IdField);
+          DoRowDblClick;
+          ToolbarButtonClick('');
+          DoLoadData;
+          Show;
+        end;
+    end;
 end.
 

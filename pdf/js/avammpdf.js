@@ -1,20 +1,24 @@
-var scale = 1.3; //Set this to whatever you want. This is basically the "zoom" factor for the PDF.
+var scale = 1.4; //Set this to whatever you want. This is basically the "zoom" factor for the PDF.
 var PDFJS = window['pdfjs-dist/build/pdf'];
 var currPage = 1;
 var thePdf;
+var contdiv;
 
 function loadPdf(pdfData) {
     currPage = 1;
     if (thePdf) thePdf.destroy();
     document.body.innerHTML = "";
+    contdiv = document.createElement( "div" );
+    document.body.appendChild(contdiv);
     PDFJS.disableWorker = true; //Not using web workers. Not disabling results in an error. This line is
     var loadingTask = PDFJS.getDocument(pdfData);
     loadingTask.promise.then(function(pdf) {
       renderPdf(pdf);
-      return pdf;
+      return loadingTask;
     }).catch(function(err){
       throw err;
     });
+    return loadingTask;
 }
 
 function renderPdf(pdf) {
@@ -29,7 +33,7 @@ function handlePages(page)
 
   var container = document.createElement( "div" );
   
-  document.body.appendChild(container);
+  contdiv.appendChild(container);
   container.className = 'pdf-content';
 
   //We'll create a canvas for each page to draw it on
@@ -71,24 +75,6 @@ function handlePages(page)
       };
       page.render(renderContext);
   });
-
-  var outputScale = getOutputScale();
-  if (outputScale.scaled) {
-      var cssScale = 'scale(' + (1 / outputScale.sx) + ', ' +
-          (1 / outputScale.sy) + ')';
-      CustomStyle.setProp('transform', canvas, cssScale);
-      CustomStyle.setProp('transformOrigin', canvas, '0% 0%');
-
-      if (textLayerDiv[0]) {
-          CustomStyle.setProp('transform', textLayerDiv, cssScale);
-          CustomStyle.setProp('transformOrigin', textLayerDiv, '0% 0%');
-      }
-  }
-  context._scaleX = outputScale.sx;
-  context._scaleY = outputScale.sy;
-  if (outputScale.scaled) {
-      context.scale(outputScale.sx, outputScale.sy);
-  }
 
   //Add it to the web page
   container.appendChild( canvas );
