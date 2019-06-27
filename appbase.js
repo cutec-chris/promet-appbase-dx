@@ -9738,6 +9738,349 @@ rtl.module("dhtmlx_form",["System","Web"],function () {
   "use strict";
   var $mod = this;
 });
+rtl.module("synautil_js",["System","Classes","SysUtils"],function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  this.DecodeRfcDateTime = function (Value) {
+    var Result = 0.0;
+    var day = 0;
+    var month = 0;
+    var year = 0;
+    var zone = 0;
+    var x = 0;
+    var y = 0;
+    var s = "";
+    var t = 0.0;
+    Result = 0;
+    if (Value === "") return Result;
+    day = 0;
+    month = 0;
+    year = 0;
+    zone = 0;
+    Value = pas.SysUtils.StringReplace(Value," -"," #",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    Value = pas.SysUtils.StringReplace(Value,"-"," ",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    Value = pas.SysUtils.StringReplace(Value," #"," -",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    while (Value !== "") {
+      s = $impl.Fetch({get: function () {
+          return Value;
+        }, set: function (v) {
+          Value = v;
+        }}," ");
+      s = pas.SysUtils.UpperCase(s);
+      if ($impl.DecodeTimeZone(s,{get: function () {
+          return x;
+        }, set: function (v) {
+          x = v;
+        }})) {
+        zone = x;
+        continue;
+      };
+      x = pas.SysUtils.StrToIntDef(s,0);
+      if (x > 0) if ((x < 32) && (day === 0)) {
+        day = x;
+        continue;
+      } else {
+        if ((year === 0) && ((month > 0) || (x > 12))) {
+          year = x;
+          if (year < 32) year = year + 2000;
+          if (year < 1000) year = year + 1900;
+          continue;
+        };
+      };
+      if ($impl.RPos(":",s) > pas.System.Pos(":",s)) {
+        t = $impl.GetTimeFromStr(s);
+        if (t !== -1) Result = t;
+        continue;
+      };
+      if (s === "DST") {
+        zone = zone + 60;
+        continue;
+      };
+      y = $impl.GetMonthNumber(s);
+      if ((y > 0) && (month === 0)) month = y;
+    };
+    if (year === 0) year = 1980;
+    if (month < 1) month = 1;
+    if (month > 12) month = 12;
+    if (day < 1) day = 1;
+    x = pas.SysUtils.MonthDays[+pas.SysUtils.IsLeapYear(year)][month - 1];
+    if (day > x) day = x;
+    Result = Result + pas.SysUtils.EncodeDate(year,month,day);
+    zone = zone - $mod.TimeZoneBias();
+    x = Math.floor(zone / 1440);
+    Result = Result - x;
+    zone = zone % 1440;
+    t = pas.SysUtils.EncodeTime(Math.floor(Math.abs(zone) / 60),Math.abs(zone) % 60,0,0);
+    if (zone < 0) t = 0 - t;
+    Result = Result - t;
+    return Result;
+  };
+  this.Rfc822DateTime = function (t) {
+    var Result = "";
+    var wYear = 0;
+    var wMonth = 0;
+    var wDay = 0;
+    pas.SysUtils.DecodeDate(t,{get: function () {
+        return wYear;
+      }, set: function (v) {
+        wYear = v;
+      }},{get: function () {
+        return wMonth;
+      }, set: function (v) {
+        wMonth = v;
+      }},{get: function () {
+        return wDay;
+      }, set: function (v) {
+        wDay = v;
+      }});
+    Result = pas.SysUtils.Format("%s, %d %s %s %s",[pas.SysUtils.ShortDayNames[pas.SysUtils.DayOfWeek(t)],wDay,pas.SysUtils.ShortMonthNames[wMonth - 1],pas.SysUtils.FormatDateTime('yyyy hh":"nn":"ss',t),$impl.TimeZone()]);
+    return Result;
+  };
+  this.TimeZoneBias = function () {
+    var Result = 0;
+    var d = new Date();
+    Result = d.getTimezoneOffset();
+    return Result;
+  };
+},null,function () {
+  "use strict";
+  var $mod = this;
+  var $impl = $mod.$impl;
+  $impl.TrimSPLeft = function (S) {
+    var Result = "";
+    var I = 0;
+    var L = 0;
+    Result = "";
+    if (S === "") return Result;
+    L = S.length;
+    I = 1;
+    while ((I <= L) && (S.charAt(I - 1) === " ")) I += 1;
+    Result = pas.System.Copy(S,I,2147483647);
+    return Result;
+  };
+  $impl.TrimSPRight = function (S) {
+    var Result = "";
+    var I = 0;
+    Result = "";
+    if (S === "") return Result;
+    I = S.length;
+    while ((I > 0) && (S.charAt(I - 1) === " ")) I -= 1;
+    Result = pas.System.Copy(S,1,I);
+    return Result;
+  };
+  $impl.TrimSP = function (S) {
+    var Result = "";
+    Result = $impl.TrimSPLeft(S);
+    Result = $impl.TrimSPRight(Result);
+    return Result;
+  };
+  $impl.SeparateLeft = function (Value, Delimiter) {
+    var Result = "";
+    var x = 0;
+    x = pas.System.Pos(Delimiter,Value);
+    if (x < 1) {
+      Result = Value}
+     else Result = pas.System.Copy(Value,1,x - 1);
+    return Result;
+  };
+  $impl.SeparateRight = function (Value, Delimiter) {
+    var Result = "";
+    var x = 0;
+    x = pas.System.Pos(Delimiter,Value);
+    if (x > 0) x = (x + Delimiter.length) - 1;
+    Result = pas.System.Copy(Value,x + 1,Value.length - x);
+    return Result;
+  };
+  $impl.FetchBin = function (Value, Delimiter) {
+    var Result = "";
+    var s = "";
+    Result = $impl.SeparateLeft(Value.get(),Delimiter);
+    s = $impl.SeparateRight(Value.get(),Delimiter);
+    if (s === Value.get()) {
+      Value.set("")}
+     else Value.set(s);
+    return Result;
+  };
+  $impl.Fetch = function (Value, Delimiter) {
+    var Result = "";
+    Result = $impl.FetchBin(Value,Delimiter);
+    Result = $impl.TrimSP(Result);
+    Value.set($impl.TrimSP(Value.get()));
+    return Result;
+  };
+  $impl.FetchEx = function (Value, Delimiter, Quotation) {
+    var Result = "";
+    var b = false;
+    Result = "";
+    b = false;
+    while (Value.get().length > 0) {
+      if (b) {
+        if (pas.System.Pos(Quotation,Value.get()) === 1) b = false;
+        Result = Result + Value.get().charAt(0);
+        pas.System.Delete(Value,1,1);
+      } else {
+        if (pas.System.Pos(Delimiter,Value.get()) === 1) {
+          pas.System.Delete(Value,1,Delimiter.length);
+          break;
+        };
+        b = pas.System.Pos(Quotation,Value.get()) === 1;
+        Result = Result + Value.get().charAt(0);
+        pas.System.Delete(Value,1,1);
+      };
+    };
+    return Result;
+  };
+  $impl.DecodeTimeZone = function (Value, Zone) {
+    var Result = false;
+    var x = 0;
+    var zh = 0;
+    var zm = 0;
+    var s = "";
+    Result = false;
+    s = Value;
+    if ((pas.System.Pos("+",s) === 1) || (pas.System.Pos("-",s) === 1)) {
+      if (s === "-0000") {
+        Zone.set($mod.TimeZoneBias())}
+       else if (s.length > 4) {
+        zh = pas.SysUtils.StrToIntDef(s.charAt(1) + s.charAt(2),0);
+        zm = pas.SysUtils.StrToIntDef(s.charAt(3) + s.charAt(4),0);
+        Zone.set((zh * 60) + zm);
+        if (s.charAt(0) === "-") Zone.set(Zone.get() * -1);
+      };
+      Result = true;
+    } else {
+      x = 32767;
+      if (s === "NZDT") x = 13;
+      if (s === "IDLE") x = 12;
+      if (s === "NZST") x = 12;
+      if (s === "NZT") x = 12;
+      if (s === "EADT") x = 11;
+      if (s === "GST") x = 10;
+      if (s === "JST") x = 9;
+      if (s === "CCT") x = 8;
+      if (s === "WADT") x = 8;
+      if (s === "WAST") x = 7;
+      if (s === "ZP6") x = 6;
+      if (s === "ZP5") x = 5;
+      if (s === "ZP4") x = 4;
+      if (s === "BT") x = 3;
+      if (s === "EET") x = 2;
+      if (s === "MEST") x = 2;
+      if (s === "MESZ") x = 2;
+      if (s === "SST") x = 2;
+      if (s === "FST") x = 2;
+      if (s === "CEST") x = 2;
+      if (s === "CET") x = 1;
+      if (s === "FWT") x = 1;
+      if (s === "MET") x = 1;
+      if (s === "MEWT") x = 1;
+      if (s === "SWT") x = 1;
+      if (s === "UT") x = 0;
+      if (s === "UTC") x = 0;
+      if (s === "GMT") x = 0;
+      if (s === "WET") x = 0;
+      if (s === "WAT") x = -1;
+      if (s === "BST") x = -1;
+      if (s === "AT") x = -2;
+      if (s === "ADT") x = -3;
+      if (s === "AST") x = -4;
+      if (s === "EDT") x = -4;
+      if (s === "EST") x = -5;
+      if (s === "CDT") x = -5;
+      if (s === "CST") x = -6;
+      if (s === "MDT") x = -6;
+      if (s === "MST") x = -7;
+      if (s === "PDT") x = -7;
+      if (s === "PST") x = -8;
+      if (s === "YDT") x = -8;
+      if (s === "YST") x = -9;
+      if (s === "HDT") x = -9;
+      if (s === "AHST") x = -10;
+      if (s === "CAT") x = -10;
+      if (s === "HST") x = -10;
+      if (s === "EAST") x = -10;
+      if (s === "NT") x = -11;
+      if (s === "IDLW") x = -12;
+      if (x !== 32767) {
+        Zone.set(x * 60);
+        Result = true;
+      };
+    };
+    return Result;
+  };
+  $impl.RPosEx = function (Sub, Value, From) {
+    var Result = 0;
+    var n = 0;
+    var l = 0;
+    Result = 0;
+    l = Sub.length;
+    for (var $l1 = (From - l) + 1; $l1 >= 1; $l1--) {
+      n = $l1;
+      if (pas.System.Copy(Value,n,l) === Sub) {
+        Result = n;
+        break;
+      };
+    };
+    return Result;
+  };
+  $impl.RPos = function (Sub, Value) {
+    var Result = 0;
+    Result = $impl.RPosEx(Sub,Value,Value.length);
+    return Result;
+  };
+  $impl.GetTimeFromStr = function (Value) {
+    var Result = 0.0;
+    var x = 0;
+    x = $impl.RPos(":",Value);
+    if ((x > 0) && ((Value.length - x) > 2)) Value = pas.System.Copy(Value,1,x + 2);
+    Value = pas.SysUtils.StringReplace(Value,":",pas.SysUtils.TimeSeparator,rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    Result = -1;
+    try {
+      Result = pas.SysUtils.StrToTime(Value);
+    } catch ($e) {
+      if (pas.SysUtils.Exception.isPrototypeOf($e)) {}
+      else throw $e
+    };
+    return Result;
+  };
+  $impl.GetMonthNumber = function (Value) {
+    var Result = 0;
+    var n = 0;
+    function TestMonth(Value, Index) {
+      var Result = false;
+      var n = 0;
+      Result = false;
+      for (n = 0; n <= 6; n++) if (Value === pas.SysUtils.UpperCase(pas.SysUtils.ShortMonthNames[Index - 1])) {
+        Result = true;
+        break;
+      };
+      return Result;
+    };
+    Result = 0;
+    Value = pas.SysUtils.UpperCase(Value);
+    for (n = 1; n <= 12; n++) if (TestMonth(Value,n) || (Value === pas.SysUtils.UpperCase(pas.SysUtils.ShortMonthNames[n - 1]))) {
+      Result = n;
+      break;
+    };
+    return Result;
+  };
+  $impl.TimeZone = function () {
+    var Result = "";
+    var bias = 0;
+    var h = 0;
+    var m = 0;
+    bias = $mod.TimeZoneBias();
+    if (bias >= 0) {
+      Result = "+"}
+     else Result = "-";
+    bias = Math.abs(bias);
+    h = Math.floor(bias / 60);
+    m = bias % 60;
+    Result = Result + pas.SysUtils.Format("%.2d%.2d",[h,m]);
+    return Result;
+  };
+});
 rtl.module("dhtmlx_base",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
@@ -9777,24 +10120,28 @@ rtl.module("dhtmlx_base",["System","JS","Web"],function () {
     function DoLoadDHTMLX(resolve, reject) {
       function ScriptLoadedJS() {
         window.dhx4.skin = 'material';
-        pas.System.Writeln("DHTMLX loaded...");
+        window.console.log("DHTMLX loaded...");
         resolve(true);
       };
-      function ScriptErrorJS() {
+      function ScriptLoadedCSS2() {
         $mod.AppendJS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.js",ScriptLoadedJS,null);
-        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",null,null);
+      };
+      function ScriptErrorJS() {
+        $mod.AppendCSS("https:\/\/cdn.dhtmlx.com\/edge\/dhtmlx.css",ScriptLoadedCSS2,null);
         $mod.AppendCSS("https:\/\/use.fontawesome.com\/releases\/v5.2.0\/css\/all.css",null,null);
         $mod.AppendCSS("https:\/\/use.fontawesome.com\/releases\/v5.2.0\/css\/v4-shims.css",null,null);
       };
-      pas.System.Writeln("Loading DHTMLX...");
-      $mod.AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoadedJS,ScriptErrorJS);
-      $mod.AppendCSS("appbase\/dhtmlx\/dhtmlx.css",null,null);
+      function ScriptLoadedCSS() {
+        $mod.AppendJS("appbase\/dhtmlx\/dhtmlx.js",ScriptLoadedJS,ScriptErrorJS);
+      };
+      window.console.log("Loading DHTMLX...");
+      $mod.AppendCSS("appbase\/dhtmlx\/dhtmlx.css",ScriptLoadedCSS,ScriptErrorJS);
       $mod.AppendCSS("appbase\/dhtmlx\/fonts\/font_awesome\/css\/font-awesome.min.css",null,null);
     };
     $mod.WidgetsetLoaded = new Promise(DoLoadDHTMLX);
   };
 });
-rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","SysUtils"],function () {
+rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","SysUtils","synautil_js"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
@@ -9821,13 +10168,13 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
       };
       function DoOnError(event) {
         var Result = false;
-        pas.System.Writeln("Request not succesful (error)");
+        window.console.log("Request not succesful (error)");
         reject(req);
         window.clearTimeout(oTimeout);
         return Result;
       };
       function RequestSaveTimeout() {
-        pas.System.Writeln("Request Timeout");
+        window.console.log("Request Timeout");
         window.clearTimeout(oTimeout);
         req.abort();
         reject(req);
@@ -9844,14 +10191,14 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
       try {
         req.send();
       } catch ($e) {
-        pas.System.Writeln("Request not succesful");
+        window.console.log("Request not succesful");
         reject(req);
       };
       oTimeout = window.setTimeout(RequestSaveTimeout,Timeout);
     };
     function ReturnResult(res) {
       var Result = undefined;
-      pas.System.Writeln("Returning... ",res);
+      window.console.log("Returning... ",res);
       Result = res;
       return Result;
     };
@@ -9875,13 +10222,13 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
       };
       function DoOnError(event) {
         var Result = false;
-        pas.System.Writeln("Request not succesful (error)");
+        window.console.log("Request not succesful (error)");
         reject(req);
         window.clearTimeout(oTimeout);
         return Result;
       };
       function RequestSaveTimeout() {
-        pas.System.Writeln("Request Timeout");
+        window.console.log("Request Timeout");
         window.clearTimeout(oTimeout);
         req.abort();
         reject(req);
@@ -9898,14 +10245,14 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
       try {
         req.send(Content);
       } catch ($e) {
-        pas.System.Writeln("Request not succesful");
+        window.console.log("Request not succesful");
         reject(req);
       };
       oTimeout = window.setTimeout(RequestSaveTimeout,Timeout);
     };
     function ReturnResult(res) {
       var Result = undefined;
-      pas.System.Writeln("Returning... ",res);
+      window.console.log("Returning... ",res);
       Result = res;
       return Result;
     };
@@ -9937,8 +10284,7 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
       function CheckStatus(aValue) {
         var Result = undefined;
         function DoCheckStatus(resolve, reject) {
-          pas.System.Writeln("CheckStatus:");
-          console.log(aValue);
+          window.console.log("CheckStatus:",aValue);
           var $tmp1 = rtl.getObject(aValue).status;
           if ($tmp1 === 401) {
             resolve(rtl.getObject(aValue).status)}
@@ -9960,7 +10306,7 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
           };
         };
         Result = new Promise(DoCheckStatus);
-        console.log(Result);
+        window.console.log(Result);
         return Result;
       };
       function GetLoginData(aValue) {
@@ -9971,8 +10317,7 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
           function DoIntGetLoginData(resolve, reject) {
             function LoginSuccessful(aValue) {
               var Result = undefined;
-              pas.System.Writeln("GetLoginData:");
-              console.log(aValue);
+              window.console.log("GetLoginData:",aValue);
               if (aValue == true) {
                 resolve(true)}
                else reject(rtl.getResStr(pas.Avamm,"strLoginFailed"));
@@ -10005,25 +10350,26 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
             } else reject(aValue);
             return Result;
           };
-          $mod.LoadData("\/configuration\/userstatus",false,"",6000).then(CheckRightsData);
+          $mod.LoadData("\/configuration\/userstatus",false,"",8000).then(CheckRightsData);
         };
         function DoLogout(aValue) {
           var Result = undefined;
-          pas.System.Writeln("Credentials wrong Logging out");
+          window.console.log("Credentials wrong Logging out");
           $mod.AvammLogin = "";
           window.dispatchEvent(pas.Avamm.AfterLogoutEvent);
           return Result;
         };
         function SetupUser(aValue) {
           var Result = undefined;
-          pas.System.Writeln("User Login successful...");
+          window.console.log("User Login successful...");
+          if ($mod.getCookie("login") !== "") $mod.setCookie("login",$mod.getCookie("login"),4);
           window.dispatchEvent(pas.Avamm.AfterLoginEvent);
           return Result;
         };
         Result = (new Promise(CatchRights)).then(SetupUser).catch(DoLogout);
         return Result;
       };
-      Result = Promise.all([$mod.LoadData("\/configuration\/status",false,"",6000).then(CheckStatus).then(GetLoginData).then(GetRights)]);
+      Result = Promise.all([$mod.LoadData("\/configuration\/status",false,"",8000).then(CheckStatus).then(GetLoginData).then(GetRights)]);
     };
     Result = new Promise(IntDoCheckLogin);
     return Result;
@@ -10140,10 +10486,28 @@ rtl.module("Avamm",["System","JS","Web","AvammRouter","webrouter","Classes","Sys
   this.OnException = null;
   $mod.$resourcestrings = {strServerNotRea: {org: "Server nicht erreichbar"}, strNoLoginFormA: {org: "keine Login Form verfügbar"}, strLoginFailed: {org: "Login fehlgeschlagen"}, strServerMustbeConfigured: {org: "Server muss konfiguriert werden"}};
   $mod.$init = function () {
-    pas.System.Writeln("Appbase initializing...");
+    window.console.log("Appbase initializing...");
     $mod.InitWindow(window);
     pas.webrouter.Router().InitHistory(pas.webrouter.THistoryKind.hkHash,"");
     $impl.InitAvammApp();
+    if (pas.SysUtils.Now() < 0) {
+      $mod.RegisterSidebarRoute("","",null,"");
+      $mod.LoadData("",false,"",8000);
+      $mod.StoreData("","",false,"",0);
+      $mod.LoadModule("",null);
+      $mod.WaitForAssigned("",null);
+      $mod.CheckLogin();
+      $mod.Wait(0);
+      $mod.setCookie("","",2);
+      $mod.deleteCookie("");
+      $mod.getCookie("");
+      pas.dhtmlx_base.AppendCSS("",null,null);
+      pas.dhtmlx_base.AppendJS("",null,null);
+      $mod.InitWindow(null);
+      $mod.getRight("");
+      $mod.GetBaseUrl();
+      $impl.WindowError(null);
+    };
   };
 },["dhtmlx_base"],function () {
   "use strict";
@@ -10223,7 +10587,7 @@ rtl.module("promet_dhtmlx",["System","Classes","SysUtils","JS","Web","Avamm","dh
         if (status) {
           pas.Avamm.AvammLogin = window.btoa((("" + LoginForm.getItemValue("eUsername")) + ":") + ("" + LoginForm.getItemValue("ePassword")));
           resolve(true);
-          if (LoginForm.getItemValue("cbSaveLogin") == 1) pas.Avamm.setCookie("login",pas.Avamm.AvammLogin,2);
+          if (LoginForm.getItemValue("cbSaveLogin") == 1) pas.Avamm.setCookie("login",pas.Avamm.AvammLogin,4);
           isResolved = true;
           aWin.close();
         };
@@ -20626,7 +20990,7 @@ rtl.module("ExtJSDataset",["System","Classes","SysUtils","DB","JS","JSONDataset"
     rtl.addIntf(this,pas.System.IUnknown);
   });
 });
-rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm","JS","Web","Types"],function () {
+rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm","JS","Web","Types","synautil_js"],function () {
   "use strict";
   var $mod = this;
   rtl.createClass($mod,"TAvammDataset",pas.ExtJSDataset.TExtJSJSONObjectDataSet,function () {
@@ -20635,6 +20999,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       this.FDataSetName = "";
       this.FDataProxy$1 = null;
       this.FFieldDefsLoaded = null;
+      this.FLimit = 0;
       this.FSFilter = "";
     };
     this.$final = function () {
@@ -20642,10 +21007,16 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       this.FFieldDefsLoaded = undefined;
       pas.ExtJSDataset.TExtJSJSONObjectDataSet.$final.call(this);
     };
+    this.GetActiveRecord = function () {
+      var Result = null;
+      Result = rtl.getObject(this.FRows[this.GetRecNo()]);
+      return Result;
+    };
     this.GetUrl = function () {
       var Result = "";
       Result = ((pas.Avamm.GetBaseUrl() + "\/") + this.FDataSetName) + "\/list.json?mode=extjs";
       if (this.FSFilter !== "") Result = (Result + "&filter=") + encodeURIComponent(this.FSFilter);
+      if (this.FLimit > 0) Result = (Result + "&limit=") + encodeURIComponent(pas.SysUtils.IntToStr(this.FLimit));
       Result = Result + "&dhxr=none";
       return Result;
     };
@@ -20656,6 +21027,10 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       this.Close();
       this.SetRows(null);
       this.EnableControls();
+    };
+    this.SetLimit = function (AValue) {
+      if (this.FLimit === AValue) return;
+      this.FLimit = AValue;
     };
     this.DoGetDataProxy = function () {
       var Result = null;
@@ -20671,6 +21046,10 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       Result = true;
       return Result;
     };
+    this.InternalOpen = function () {
+      pas.ExtJSDataset.TExtJSJSONDataSet.InternalOpen.call(this);
+      this.DoAfterOpen();
+    };
     this.Create$5 = function (AOwner, aDataSet) {
       pas.ExtJSDataset.TExtJSJSONDataSet.Create$1.call(this,AOwner);
       this.FDataSetName = aDataSet;
@@ -20684,7 +21063,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       try {
         this.First();
         while (!this.FEOF) {
-          if (this.FFieldDefs.IndexOf(KeyFields) === -1) return Result;
+          if (!(this.FieldByName(KeyFields) != null)) return Result;
           if (this.FieldByName(KeyFields).GetAsJSValue() == KeyValues) {
             Result = true;
             return Result;
@@ -20699,6 +21078,7 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
     rtl.addIntf(this,pas.System.IUnknown);
     var $r = this.$rtti;
     $r.addProperty("OnFieldDefsLoaded",0,pas.Classes.$rtti["TNotifyEvent"],"FFieldDefsLoaded","FFieldDefsLoaded");
+    $r.addProperty("ActiveRecord",1,pas.JS.$rtti["TJSObject"],"GetActiveRecord","");
   });
   rtl.createClass($mod,"TAvammDataProxy",pas.DB.TDataProxy,function () {
     this.CheckBatchComplete = function (aBatch) {
@@ -20843,7 +21223,29 @@ rtl.module("AvammDB",["System","Classes","SysUtils","DB","ExtJSDataset","Avamm",
       return Result;
     };
   });
+  this.BuildISODate = function (aDate, DateOnly) {
+    var Result = "";
+    var bias = 0;
+    var h = 0;
+    var m = 0;
+    bias = pas.synautil_js.TimeZoneBias();
+    if (bias >= 0) {
+      Result = "+"}
+     else Result = "-";
+    bias = Math.abs(bias);
+    h = Math.floor(bias / 60);
+    m = bias % 60;
+    if (!DateOnly) {
+      Result = (((pas.SysUtils.FormatDateTime("yyyy-mm-dd",aDate) + "T") + pas.SysUtils.FormatDateTime("hh:nn:ss",aDate)) + Result) + pas.SysUtils.Format("%.2d:%.2d",[h,m])}
+     else Result = pas.SysUtils.FormatDateTime("yyyy-mm-dd",aDate);
+    return Result;
+  };
   $mod.$resourcestrings = {strFailedToSaveToDB: {org: "Fehler beim speichern: %s"}};
+  $mod.$init = function () {
+    if (pas.SysUtils.Now() < 0) {
+      $mod.TAvammDataset.$create("Create$5",[null,""]);
+    };
+  };
 });
 rtl.module("dhtmlx_toolbar",["System","JS","Web"],function () {
   "use strict";
@@ -20865,7 +21267,7 @@ rtl.module("dhtmlx_datastore",["System","JS","Web"],function () {
   "use strict";
   var $mod = this;
 });
-rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor","JS","Types","dhtmlx_datastore"],function () {
+rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor","JS","Types","dhtmlx_datastore","Web"],function () {
   "use strict";
   var $mod = this;
   var $impl = $mod.$impl;
@@ -20986,10 +21388,14 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
       return Result;
     };
     this.Delete = function (id) {
+      var Self = this;
+      function Doremove() {
+        Self.FDatastore.remove(id);
+        Self.FDataprocessor.cleanUpdate();
+      };
       if (id == undefined) return;
       $impl.ShowDebug("deleting " + ("" + id));
-      this.FDataprocessor.setUpdated(id);
-      this.FDatastore.remove(id);
+      Self.FDataprocessor.ignore(Doremove);
     };
     this.CheckforDeletions = function () {
       var aId = undefined;
@@ -21115,7 +21521,7 @@ rtl.module("dhtmlx_db",["System","Classes","SysUtils","DB","dhtmlx_dataprocessor
   var $mod = this;
   var $impl = $mod.$impl;
   $impl.ShowDebug = function (s) {
-    pas.System.Writeln(s);
+    window.console.log(s);
   };
   $impl.ShowData = function (DataSet) {
     console.log(DataSet.FRows);
@@ -21154,15 +21560,19 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
     $mod.Refresh();
   };
   this.Refresh = function () {
+    function DoResizeLayout() {
+      $mod.Layout.setSizes();
+    };
     function FillWiki(aValue) {
       var Result = undefined;
       $mod.Content.innerHTML = aValue.responseText;
       $mod.FixWikiContent($mod.Content,null);
       $mod.Layout.cells("a").progressOff();
+      window.addEventListener("ContainerResized",DoResizeLayout);
       return Result;
     };
     var DataLoaded = null;
-    pas.Avamm.LoadData("\/wiki\/" + ("" + pas.Avamm.UserOptions["startpage"]),false,"",6000).then(FillWiki);
+    pas.Avamm.LoadData("\/wiki\/" + ("" + pas.Avamm.UserOptions["startpage"]),false,"",8000).then(FillWiki);
   };
   this.FixWikiContent = function (elem, aForm) {
     var anchors = null;
@@ -21190,9 +21600,11 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
         aHref = images.item(i).getAttribute("src");
         aHref = pas.System.Copy(aHref,pas.System.Pos("(",aHref) + 1,aHref.length);
         aHref = pas.System.Copy(aHref,0,pas.System.Pos(")",aHref) - 1);
-        aHref = ((pas.Avamm.GetBaseUrl() + "\/icons\/") + aHref) + ".png";
+        if (aHref !== "") aHref = ((pas.Avamm.GetBaseUrl() + "\/icons\/") + aHref) + ".png";
         images.item(i).setAttribute("src",aHref);
+        if (aHref === "") images.item(i).removeAttribute("src");
       } catch ($e) {
+        images.item(i).removeAttribute("src");
       };
     };
     anchors = elem.getElementsByTagName("a");
@@ -21233,6 +21645,13 @@ rtl.module("AvammWiki",["System","Classes","SysUtils","JS","Web","Types","dhtmlx
         };
       } catch ($e) {
       };
+    };
+  };
+  $mod.$init = function () {
+    if (pas.SysUtils.Now() < 0) {
+      $mod.ShowStartpage();
+      $mod.Refresh();
+      $mod.FixWikiContent(null,null);
     };
   };
 });
@@ -21291,6 +21710,9 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       this.Grid = undefined;
       $mod.TAvammContentForm.$final.call(this);
     };
+    this.FDataSetLoaded = function (DataSet) {
+      window.setTimeout(rtl.createCallback(this,"DoLoadData"),50);
+    };
     this.FDataSetLoadFail = function (DataSet, ID, ErrorMsg) {
       this.Page.progressOff();
       dhtmlx.message(pas.JS.New(["type","error","text",(rtl.getResStr(pas.AvammForms,"strLoadingFailed") + " ") + ErrorMsg]));
@@ -21316,6 +21738,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       if (id === "new") {}
       else if (id === "refresh") this.RefreshList();
     };
+    this.DoLoadData = function () {
+    };
     this.Create$2 = function (aParent, aDataSet, aPattern) {
       var Self = this;
       function FilterStart(indexes, values) {
@@ -21326,12 +21750,11 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
           if (values[i]) Self.FOldFilter = (((((Self.FOldFilter + ' AND lower("') + ("" + Self.Grid.getColumnId(Math.floor(indexes[i])))) + '")') + " like lower('%") + ("" + values[i])) + "%')";
         };
         Self.FOldFilter = pas.System.Copy(Self.FOldFilter,6,Self.FOldFilter.length);
-        pas.System.Writeln("Filter:" + Self.FOldFilter);
+        window.console.log("Filter:" + Self.FOldFilter);
         Self.Page.progressOn();
         try {
           window.console.log("Setting Server Filter");
           Self.FDataSet.SetFilter(Self.FOldFilter);
-          Self.FDataSet.FOnLoadFail = rtl.createCallback(Self,"FDataSetLoadFail");
           window.console.log("Loading Data");
           Self.FDataSet.Load({},rtl.createCallback(Self,"SwitchProgressOff"));
         } catch ($e) {
@@ -21353,7 +21776,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Page.setSizes();
       };
       $mod.TAvammContentForm.Create$1.call(Self,aParent);
-      pas.System.Writeln(("Loading " + aDataSet) + " as List...");
+      window.console.log(("Loading " + aDataSet) + " as List...");
       window.addEventListener("ContainerResized",DoResizeLayout);
       Self.Page = new dhtmlXLayoutObject(pas.JS.New(["parent",Self.FContainer,"pattern",aPattern]));
       Self.Page.cont.style.setProperty("border-width","0");
@@ -21375,10 +21798,16 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.FDataLink = pas.dhtmlx_db.TDHTMLXDataLink.$create("Create$2");
       Self.FDataLink.FIdField = "sql_id";
       Self.FDataSet = pas.AvammDB.TAvammDataset.$create("Create$5",[null,aDataSet]);
+      Self.FDataSet.FOnLoadFail = rtl.createCallback(Self,"FDataSetLoadFail");
+      Self.FDataSet.FAfterOpen = rtl.createCallback(Self,"FDataSetLoaded");
       Self.FDataSource.SetDataSet(Self.FDataSet);
       Self.FDataLink.SetDataSource(Self.FDataSource);
       Self.Grid.attachEvent("onRowDblClicked",rtl.createCallback(Self,"DoRowDblClick"));
-      Self.Grid.sync(Self.FDataLink.FDatastore);
+      try {
+        Self.Grid.sync(Self.FDataLink.FDatastore);
+      } catch ($e) {
+        window.console.log("failed to load Data");
+      };
     };
     this.RefreshList = function () {
       try {
@@ -21387,7 +21816,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       } catch ($e) {
         if (pas.SysUtils.Exception.isPrototypeOf($e)) {
           var e = $e;
-          pas.System.Writeln("Refresh Exception:" + e.fMessage);
+          window.console.log("Refresh Exception:" + e.fMessage);
           this.Page.progressOff();
         } else throw $e
       };
@@ -21437,6 +21866,8 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     this.DoLoadData = function () {
       this.DoLoadHistory();
       this.DoSetFormSize();
+    };
+    this.DoStoreData = function () {
     };
     this.DoSetFormSize = function () {
       this.Form.adjustParentSize();
@@ -21522,7 +21953,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
       function ReportsCouldntbeLoaded(aValue) {
         var Result = undefined;
-        pas.System.Writeln("error loading report");
+        window.console.log("error loading report");
         return Result;
       };
       function WikiFormLoaded(aValue) {
@@ -21571,10 +22002,16 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       };
       function ItemLoaded2(aValue) {
         var Result = undefined;
-        Self.WikiLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/.json",false,"",6000).then(AddWiki).catch(WikiCouldntbeLoaded);
-        Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/reports\/.json",false,"",6000).then(AddReports).catch(ReportsCouldntbeLoaded);
+        Self.WikiLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/.json",false,"",8000).then(AddWiki).catch(WikiCouldntbeLoaded);
+        try {
+          Self.Toolbar.isVisible("print");
+        } catch ($e) {
+          Self.ReportsLoaded = pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/reports\/.json",false,"",8000).then(AddReports).catch(ReportsCouldntbeLoaded);
+        };
         try {
           Self.DoLoadData();
+          Self.Toolbar.disableItem("save");
+          Self.Toolbar.disableItem("abort");
         } catch ($e) {
         };
         return Result;
@@ -21612,22 +22049,57 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
          else rtl.getObject(Self.FWindow).close();
         return Result;
       };
-      pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/item.json?mode=extjs",false,"text\/json",12000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
+      if ((("" + Self.FID) !== "") && (("" + Self.FID) !== "new")) {
+        Self.Layout.progressOn();
+        pas.Avamm.LoadData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/item.json?mode=extjs",false,"text\/json",20000).then(ItemLoaded).catch(ItemLoadError).then(ItemLoaded2);
+      };
     };
     this.DoSave = function () {
+      var Self = this;
+      function ItemSaved(aValue) {
+        var Result = undefined;
+        var Fields = null;
+        Self.FRawData = rtl.getObject(JSON.parse(rtl.getObject(aValue).responseText));
+        Self.Refresh();
+        return Result;
+      };
+      function ItemSaveError(aValue) {
+        var Result = undefined;
+        Self.Layout.progressOff();
+        dhtmlx.message(pas.JS.New(["type","error","text",rtl.getResStr(pas.AvammForms,"strSavingFailed")]));
+        Self.Toolbar.enableItem("save");
+        Self.Toolbar.enableItem("abort");
+        return Result;
+      };
+      Self.Layout.progressOn();
+      try {
+        Self.DoStoreData();
+      } catch ($e) {
+        ItemSaveError(null);
+      };
+      pas.Avamm.StoreData(((("\/" + Self.FTablename) + "\/by-id\/") + ("" + Self.FID)) + "\/item.json",JSON.stringify(Self.FData),false,"",8000).then(ItemSaved).catch(ItemSaveError);
+    };
+    this.Change = function () {
+      this.Toolbar.enableItem("save");
+      this.Toolbar.enableItem("abort");
     };
     this.DoEnterKeyPressed = function () {
-      pas.System.Writeln("Enter Key pressed");
+      window.console.log("Enter Key pressed");
+    };
+    this.DoFormChange = function (id, value) {
+      this.Change();
+    };
+    this.ToolbarButtonClick = function (id) {
+      if (id === "save") {
+        this.DoSave();
+        this.Toolbar.disableItem("save");
+        this.Toolbar.disableItem("abort");
+      } else if (id === "abort") {
+        this.Refresh();
+      };
     };
     this.Create$1 = function (mode, aDataSet, Id, Params) {
       var Self = this;
-      function ToolbarButtonClick(id) {
-        if (id === "save") {
-          Self.DoSave();
-        } else if (id === "abort") {
-          Self.Refresh();
-        };
-      };
       function WindowCreated(Event) {
         var Result = false;
         var a = null;
@@ -21635,7 +22107,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         if (rtl.isExt(Self.FWindow,Window,1)) {
           Self.FWindow.pas.Avamm.AvammLogin = pas.Avamm.AvammLogin;
         };
-        pas.System.Writeln("new Window loaded");
+        window.console.log("new Window loaded");
         Self.Layout = new dhtmlXLayoutObject(pas.JS.New(["parent",Self.FParent,"pattern","2E"]));
         a = Self.Layout.cells("a");
         a.hideHeader();
@@ -21646,12 +22118,12 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.Toolbar = rtl.getObject(a.attachToolbar(pas.JS.New(["iconset","awesome"])));
         Self.Toolbar.addButton("save",0,rtl.getResStr(pas.AvammForms,"strSave"),"fa fa-save","fa fa-save");
         Self.Toolbar.addButton("abort",0,rtl.getResStr(pas.AvammForms,"strAbort"),"fa fa-cancel","fa fa-cancel");
-        Self.Toolbar.attachEvent("onClick",ToolbarButtonClick);
+        Self.Toolbar.attachEvent("onClick",rtl.createCallback(Self,"ToolbarButtonClick"));
         Self.Toolbar.disableItem("save");
         Self.Toolbar.disableItem("abort");
         Self.Form = rtl.getObject(a.attachForm(pas.JS.New([])));
         Self.Form.addItem(null,pas.JS.New(["type","settings","position","label-right"]));
-        Self.Form.addItem(null,pas.JS.New(["type","label","label",rtl.getResStr(pas.AvammForms,"strCommon")]));
+        Self.Form.addItem(null,pas.JS.New(["type","label","label",rtl.getResStr(pas.AvammForms,"strCommon"),"name","lCommon"]));
         Self.Form.addItem(null,pas.JS.New(["type","block","width","auto","name","aBlock"]));
         Self.Form.addItem("aBlock",pas.JS.New(["type","input","label",rtl.getResStr(pas.AvammForms,"strNumber"),"name","eId","readonly",true,"hidden",true,"inputWidth",100,"note",rtl.getResStr(pas.AvammForms,"strNumberNote"),"tooltip",rtl.getResStr(pas.AvammForms,"strNumberTooltip")]));
         Self.Form.addItem("aBlock",pas.JS.New(["type","newcolumn"]));
@@ -21659,6 +22131,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         a.setHeight(0);
         Self.EnableFormItems(false);
         Self.Form.attachEvent("onEnter",rtl.createCallback(Self,"DoEnterKeyPressed"));
+        Self.Form.attachEvent("onChange",rtl.createCallback(Self,"DoFormChange"));
         Self.Tabs = rtl.getObject(b.attachTabbar(pas.JS.New(["mode","top","align","left","close_button","true","content_zone","true","arrows_mode","auto"])));
         Self.Tabs.setSizes();
         Self.Tabs.addTab("history",rtl.getResStr(pas.AvammForms,"strHistory"),null,1,true,false);
@@ -21672,7 +22145,6 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         Self.gHistory.enableAutoWidth(true);
         Self.gHistory.enableKeyboardSupport(true);
         Self.gHistory.init();
-        Self.Layout.progressOn();
         Self.Refresh();
         return Result;
       };
@@ -21684,10 +22156,12 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
       Self.FTablename = aDataSet;
       if ((mode === $mod.TAvammFormMode.fmTab) || (mode === $mod.TAvammFormMode.fmWindow)) {
         if (!window.dhx.isChrome && !window.dhx.isIE) {
+          window.console.log("TAvammForm.Create: generating new Window");
           var $tmp1 = mode;
           if ($tmp1 === $mod.TAvammFormMode.fmTab) {
             Self.FWindow = window.open((((((window.location.protocol + window.location.pathname) + "#\/") + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/","_blank")}
            else if ($tmp1 === $mod.TAvammFormMode.fmWindow) Self.FWindow = window.open((((((window.location.protocol + window.location.pathname) + "#\/") + Self.FTablename) + "\/by-id\/") + ("" + Id)) + "\/","_top");
+          if (Self.FWindow == window) Self.FWindow = null;
           if (Self.FWindow != null) {
             Self.FParent = rtl.getObject(Self.FWindow).document.body;
             rtl.getObject(Self.FWindow).onload = WindowCreated;
@@ -21695,6 +22169,7 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
         };
       };
       if (Self.FWindow == null) {
+        window.console.log("TAvammForm.Create: Window is null, using DHTMLX Window");
         Self.FWindow = pas.dhtmlx_windows.Windows.createWindow(Id,10,10,810,610);
         var $with2 = rtl.getObject(Self.FWindow);
         $with2.attachEvent("onClose",rtl.createCallback(Self,"DoClose"));
@@ -21720,7 +22195,25 @@ rtl.module("AvammForms",["System","Classes","SysUtils","JS","Web","AvammDB","dht
     Result = new Promise(CheckPromise);
     return Result;
   };
-  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}, strFilterTT: {org: "Filter an\/auschalten"}, strHistory: {org: "Verlauf"}, strReallyCancel: {org: "Änderungen verwerfen ?"}, strYes: {org: "Ja"}, strNo: {org: "Nein"}, strNew: {org: "Neu"}, strDelete: {org: "Löschen"}, strCommon: {org: "Allgemein"}, strDescription: {org: "Beschreibung"}};
+  $mod.$resourcestrings = {strRefresh: {org: "Aktualisieren"}, strLoadingFailed: {org: "Fehler beim laden von Daten vom Server"}, strSavingFailed: {org: "Fehler beim speichern der Daten auf dem Server"}, strSave: {org: "Speichern"}, strAbort: {org: "Abbrechen"}, strNumber: {org: "Nummer"}, strNumberNote: {org: "Die Nummer des Eintrages"}, strNumberTooltip: {org: "geben Sie hier die Id ein."}, strShorttext: {org: "Kurztext"}, strShorttextNote: {org: "Der Kurztext des Eintrages"}, strShorttextTooltip: {org: "geben Sie hier den Kurztext ein."}, strItemNotFound: {org: "Der gewünschte Eintrag wurde nicht gefunden, oder Sie benötigen das Recht diesen zu sehen"}, strPrint: {org: "Drucken"}, strFilterTT: {org: "Filter an\/auschalten"}, strHistory: {org: "Verlauf"}, strReallyCancel: {org: "Änderungen verwerfen ?"}, strYes: {org: "Ja"}, strNo: {org: "Nein"}, strNew: {org: "Neu"}, strDelete: {org: "Löschen"}, strCommon: {org: "Allgemein"}, strDescription: {org: "Beschreibung"}};
+  $mod.$init = function () {
+    if (pas.SysUtils.Now() < 0) {
+      var $with1 = $mod.TAvammForm.$create("Create$1",[$mod.TAvammFormMode.fmWindow,"","",""]);
+      pas.System.Writeln($with1.FID);
+      pas.System.Writeln($with1.FTablename);
+      pas.System.Writeln($with1.FData);
+      pas.System.Writeln($with1.FParams.GetTextStr());
+      var $with2 = $mod.TAvammListForm.$create("Create$2",[null,"","1C"]);
+      $with2.SetFilterHeader("");
+      $with2.RefreshList();
+      $with2.FDataSet.First();
+      pas.System.Writeln($with2.FDataLink.FIdField);
+      $with2.DoRowDblClick();
+      $with2.ToolbarButtonClick("");
+      $with2.DoLoadData();
+      $with2.Show();
+    };
+  };
 },["AvammWiki"]);
 rtl.module("dhtmlx_calendar",["System","JS","Web","SysUtils"],function () {
   "use strict";
@@ -21731,6 +22224,8 @@ rtl.module("dhtmlx_calendar",["System","JS","Web","SysUtils"],function () {
     Result = pas.SysUtils.StringReplace(Result,"yyyy","%Y",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
     Result = pas.SysUtils.StringReplace(Result,"mm","%m",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
     Result = pas.SysUtils.StringReplace(Result,"dd","%d",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    Result = pas.SysUtils.StringReplace(Result,"hh","%h",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
+    Result = pas.SysUtils.StringReplace(Result,"mm","%i",rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll));
     return Result;
   };
 });
@@ -21750,6 +22245,7 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
       this.aTimer = 0;
       this.FDblClick = null;
       this.FFilter = "";
+      this.FLimit = 0;
       this.IsLoading = false;
       this.FSelect = false;
       this.FPopupParams = undefined;
@@ -21770,13 +22266,17 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
         this.DoShowPopup();
       };
     };
+    this.SetLimit = function (AValue) {
+      if (this.FLimit === AValue) return;
+      this.FLimit = AValue;
+    };
     this.GridDblClicked = function () {
       if (this.FDblClick != null) {
         this.FDblClick(this);
         this.Popup.hide();
       };
     };
-    this.Create$1 = function (aPopupParams, aTable, aRow, aHeader, aColIDs, aFilter) {
+    this.Create$1 = function (aPopupParams, aTable, aRow, aHeader, aColIDs, aFilter, Width, Height) {
       var Self = this;
       var ppId = 0;
       function PopupShowed() {
@@ -21784,8 +22284,9 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
         Self.Popup.detachEvent(ppId);
       };
       Self.IsLoading = false;
+      Self.FLimit = 20;
       Self.Popup = new dhtmlXPopup (aPopupParams);
-      Self.Grid = rtl.getObject(Self.Popup.attachGrid(300,200));
+      Self.Grid = rtl.getObject(Self.Popup.attachGrid(Width,Height));
       Self.FPopupParams = aPopupParams;
       var $with1 = Self.Grid;
       $with1.setSizes();
@@ -21818,6 +22319,7 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
           nFilter = pas.SysUtils.StringReplace(Self.FFilter,"FILTERVALUE",aFilter,rtl.createSet(pas.SysUtils.TStringReplaceFlag.rfReplaceAll,pas.SysUtils.TStringReplaceFlag.rfIgnoreCase));
           if (nFilter !== Self.FDataSet.FSFilter) {
             Self.FDataSet.SetFilter(nFilter);
+            Self.FDataSet.SetLimit(Self.FLimit);
             Self.FDataSet.Load({},DataLoaded);
             Self.IsLoading = true;
           };
@@ -21834,6 +22336,11 @@ rtl.module("AvammAutocomplete",["System","Classes","SysUtils","JS","Web","AvammD
       };
     };
   });
+  $mod.$init = function () {
+    if (pas.SysUtils.Now() < 0) {
+      $mod.TAvammAutoComplete.$create("Create$1",[null,"","","","","",300,200]);
+    };
+  };
 });
 rtl.module("program",["System","JS","Web","Classes","SysUtils","AvammRouter","webrouter","dhtmlx_form","Avamm","promet_dhtmlx","dhtmlx_treeview","dhtmlx_layout","dhtmlx_sidebar","dhtmlx_base","AvammForms","dhtmlx_calendar","dhtmlx_carousel","AvammAutocomplete"],function () {
   "use strict";

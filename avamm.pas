@@ -10,8 +10,8 @@ uses
 type TJSValueCallback = procedure(aName : JSValue);
 
 procedure RegisterSidebarRoute(aName,Route : string;Event : TRouteEvent;Icon : string = '');
-function LoadData(url : string;IgnoreLogin : Boolean = False;Datatype : string = '';Timeout : Integer = 6000) : TJSPromise;
-function StoreData(url : string;Content : string;IgnoreLogin : Boolean = False;Datatype : string = '';Timeout : Integer = 6000) : TJSPromise;
+function LoadData(url : string;IgnoreLogin : Boolean = False;Datatype : string = '';Timeout : Integer = 8000) : TJSPromise;
+function StoreData(url : string;Content : string;IgnoreLogin : Boolean = False;Datatype : string = '';Timeout : Integer = 8000) : TJSPromise;
 procedure LoadModule(aName : string;DoAfter : JSValue = nil);
 procedure WaitForAssigned(name : string; callback : TJSValueCallback);
 function CheckLogin : TJSPromise;
